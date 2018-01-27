@@ -5,7 +5,7 @@ var init_bytecode = require("../build/out/init.js").main;
 
 var e = vm.make_env();
 vm.init(e);
-//cc(vm, e);
+cc(vm, e);
 vm.eval(parse_bytecode([vm.sym("qua:progn")].concat(init_bytecode)), e);
 console.log(vm.lookup(e, vm.sym("answer")));
 

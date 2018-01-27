@@ -8,18 +8,18 @@ module.exports = function(vm, e) {
     function isResumption(m) { return m instanceof Resumption; };
     function isSuspension(x) { return x instanceof Suspension; };
     function suspendFrame(sus, fun) { sus.k = new StackFrame(fun, sus.k); };
-    function resumeFrame(m) { return m.k.fun(new Resumption(m.k.next, m.f)); };
+    function resumeFrame(k, f) { return k.fun(k.next, f); };
     vm.monadic = function(m, a, b) {
         if (isResumption(m)) {
-            var res = resumeFrame(m);
+            var val = resumeFrame(m.k, m.f);
         } else {
-            var res = a();
+            var val = a();
         }
-        if (isSuspension(res)) {
-            suspendFrame(res, function(m) { return vm.monadic(m, a, b); });
-            return res;
+        if (isSuspension(val)) {
+            suspendFrame(val, function(m) { return vm.monadic(m, a, b); });
+            return val;
         }
-        return b(res);
+        return b(val);
     };
     vm.Loop = vm.wrap({
         qua_combine: function do_loop(self, m, e, o) {
@@ -27,14 +27,14 @@ module.exports = function(vm, e) {
             var first = true; // only resume once
             while (true) {
                 if (first && isResumption(m)) {
-                    var res = resumeFrame(m);
+                    var val = resumeFrame(m.k, m.f);
                 } else {
-                    var res = vm.combine(null, e, body, vm.NIL);
+                    var val = vm.combine(null, e, body, vm.NIL);
                 }
                 first = false;
-                if (isSuspension(res)) {
-                    suspendFrame(res, function(m) { return do_loop(self, m, e, o); });
-                    return res;
+                if (isSuspension(val)) {
+                    suspendFrame(val, function(m) { return do_loop(self, m, e, o); });
+                    return val;
                 }
             }
         }
@@ -45,19 +45,19 @@ module.exports = function(vm, e) {
             var body = vm.elt(o, 1);
             try {
                 if (isResumption(m)) {
-                    var res = resumeFrame(m);
+                    var val = resumeFrame(m.k, m.f);
                 } else {
-                    var res = vm.combine(null, e, body, vm.NIL);
+                    var val = vm.combine(null, e, body, vm.NIL);
                 }
             } catch(exc) {
                 // unwrap handler to prevent eval if exc is sym or cons
-                var res = vm.combine(null, e, vm.unwrap(handler), vm.list(exc));
+                var val = vm.combine(null, e, vm.unwrap(handler), vm.list(exc));
             }
-            if (isSuspension(res)) {
-                suspendFrame(res, function(m) { return do_rescue(self, m, e, o); });
-                return res;
+            if (isSuspension(val)) {
+                suspendFrame(val, function(m) { return do_rescue(self, m, e, o); });
+                return val;
             }
-            return res;
+            return val;
         }
     });
     /* Delimited Control */
@@ -66,21 +66,21 @@ module.exports = function(vm, e) {
             var prompt = vm.elt(o, 0);
             var body = vm.elt(o, 1);
             if (isResumption(m)) {
-                var res = resumeFrame(m);
+                var val = resumeFrame(m.k, m.f);
             } else {
-                var res = vm.combine(null, e, body, vm.NIL);
+                var val = vm.combine(null, e, body, vm.NIL);
             }
-            if (isSuspension(res)) {
-                if (res.prompt === prompt) {
-                    var continuation = res.k;
-                    var handler = res.handler;
+            if (isSuspension(val)) {
+                if (val.prompt === prompt) {
+                    var continuation = val.k;
+                    var handler = val.handler;
                     return vm.combine(null, e, handler, vm.cons(continuation, NIL));
                 } else {
-                    suspendFrame(res, function(m) { return do_push_prompt(self, m, e, o); });
-                    return res;
+                    suspendFrame(val, function(m) { return do_push_prompt(self, m, e, o); });
+                    return val;
                 }
             }
-            return res;
+            return val;
         }
     });
     vm.TakeSubcont = vm.wrap({
@@ -97,15 +97,15 @@ module.exports = function(vm, e) {
             var thek = vm.elt(o, 0);
             var thef = vm.elt(o, 1);
             if (isResumption(m)) {
-                var res = resumeFrame(m);
+                var val = resumeFrame(m.k, m.f);
             } else {
-                var res = resumeFrame(new Resumption(thek, thef));
+                var val = resumeFrame(thek, thef);
             }
-            if (isSuspension(res)) {
-                suspendFrame(res, function(m) { return do_push_subcont(self, m, e, o); });
-                return res;
+            if (isSuspension(val)) {
+                suspendFrame(val, function(m) { return do_push_subcont(self, m, e, o); });
+                return val;
             }
-            return res;
+            return val;
         }
     });
     vm.PushPromptSubcont = vm.wrap({
@@ -114,27 +114,27 @@ module.exports = function(vm, e) {
             var thek = vm.elt(o, 1);
             var thef = vm.elt(o, 2);
             if (isResumption(m)) {
-                var res = resumeFrame(m);
+                var val = resumeFrame(m.k, m.f);
             } else {
-                var res = resumeFrame(new Resumption(thek, thef));
+                var val = resumeFrame(thek, thef);
             }
-            if (isSuspension(res)) {
-                if (res.prompt === prompt) {
-                    var continuation = res.k;
-                    var handler = res.handler;
+            if (isSuspension(val)) {
+                if (val.prompt === prompt) {
+                    var continuation = val.k;
+                    var handler = val.handler;
                     return vm.combine(null, e, handler, vm.cons(continuation, NIL));
                 } else {
-                    suspendFrame(res, function(m) { return do_push_prompt_subcont(self, m, e, o); });
-                    return res;
+                    suspendFrame(val, function(m) { return do_push_prompt_subcont(self, m, e, o); });
+                    return val;
                 }
             }
-            return res;
+            return val;
         }
     });
-    vm.bind(e, vm.sym("qua:loop"), vm.Loop);
-    vm.bind(e, vm.sym("qua:rescue"), vm.Rescue);
-    vm.bind(e, vm.sym("qua:push-prompt"), vm.PushPrompt);
-    vm.bind(e, vm.sym("qua:take-subcont"), vm.TakeSubcont);
-    vm.bind(e, vm.sym("qua:push-subcont"), vm.PushSubcont);
-    vm.bind(e, vm.sym("qua:push-prompt-subcont"), vm.PushPromptSubcont);
+    vm.bind(e, vm.fsym("qua:loop"), vm.Loop);
+    vm.bind(e, vm.fsym("qua:rescue"), vm.Rescue);
+    vm.bind(e, vm.fsym("delimcc:push-prompt"), vm.PushPrompt);
+    vm.bind(e, vm.fsym("delimcc:take-subcont"), vm.TakeSubcont);
+    vm.bind(e, vm.fsym("delimcc:push-subcont"), vm.PushSubcont);
+    vm.bind(e, vm.fsym("delimcc:push-prompt-subcont"), vm.PushPromptSubcont);
 }

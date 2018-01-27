@@ -1,5 +1,5 @@
-// Qua VM by Manuel Simoni
 var vm = module.exports;
+/* Monad */
 vm.monadic = function(m, a, b) {
     return b(a());
 };
@@ -7,17 +7,25 @@ vm.monadic = function(m, a, b) {
 vm.evaluate = function(m, e, x) {
     if (x && x.qua_evaluate) return x.qua_evaluate(x, m, e); else return x;
 };
-vm.Sym = function Sym(name) { this.name = name; };
-vm.sym = function(name) { return new vm.Sym(name); };
+vm.Sym = function Sym(name, ns) { this.name = name; this.ns = ns; };
 vm.Sym.prototype.qua_evaluate = function(self, m, e) {
     return vm.lookup(e, self);
 };
 vm.Cons = function Cons(car, cdr) { this.car = car; this.cdr = cdr; };
 vm.Cons.prototype.qua_evaluate = function(self, m, e) {
     return vm.monadic(m,
-                      function() { return vm.evaluate(null, e, vm.car(self)); },
+                      function() { return vm.eval_operator(e, self); },
                       function(cmb) { return vm.combine(null, e, cmb, vm.cdr(self)); });
 };
+vm.eval_operator = function(e, cons) {
+    var op = vm.car(cons);
+    if (op instanceof vm.Sym) {
+        return vm.lookup(e, vm.to_ns(op, vm.FUN_NS));
+    } else {
+        return vm.evaluate(null, e, op);
+    }
+};
+/* Combiners */
 vm.combine = function(m, e, cmb, o) {
     if (cmb && cmb.qua_combine) return cmb.qua_combine(cmb, m, e, o);
     else return vm.error("not a combiner: " + cmb);
@@ -46,7 +54,7 @@ vm.eval_args = function(m, e, todo, done) {
                       function() { return vm.evaluate(null, e, vm.car(todo)); },
                       function(arg) { return vm.eval_args(null, e, vm.cdr(todo), vm.cons(arg, done)); });
 };
-/* Built-in Combiners */
+/* Built-in combiners */
 vm.Vau = {
     qua_combine: function(self, m, e, o) {
         var p = vm.elt(o, 0);
@@ -104,27 +112,44 @@ vm.Rescue = vm.wrap({
         }
     }
 });
+/* JS function combiners */
+vm.JSFun = function(jsfun) { this.jsfun = jsfun; };
+vm.JSFun.prototype.qua_combine = function(self, m, e, o) {
+    return self.jsfun.apply(null, vm.list_to_array(o));
+};
+vm.jswrap = function(jsfun) { return vm.wrap(new vm.JSFun(jsfun)); };
 /* Forms */
-vm.Nil = function Nil() {}; vm.NIL = new vm.Nil();
-vm.Ign = function Ign() {}; vm.IGN = new vm.Ign();
-vm.Void = function Void() {}; vm.VOID = new vm.Void();
+vm.VAR_NS = "v";
+vm.FUN_NS = "f";
+vm.sym = function(name, ns) { return new vm.Sym(name, ns ? ns : vm.VAR_NS); };
+vm.fsym = function(name) { return vm.sym(name, vm.FUN_NS); };
+vm.to_ns = function(sym, ns) { return vm.sym(sym.name, ns) };
+vm.sym_key = function(sym) { return sym.name + "_" + sym.ns; };
 vm.cons = function(car, cdr) { return new vm.Cons(car, cdr); };
 vm.car = function(cons) { return cons.car; };
 vm.cdr = function(cons) { return cons.cdr; };
 vm.elt = function(cons, i) { return (i === 0) ? vm.car(cons) : vm.elt(vm.cdr(cons), i - 1); };
+vm.Nil = function Nil() {}; vm.NIL = new vm.Nil();
+vm.Ign = function Ign() {}; vm.IGN = new vm.Ign();
+vm.Void = function Void() {}; vm.VOID = new vm.Void();
 /* Environments */
-vm.Env = function(parent) { this.bindings = Object.create(parent ? parent.bindings : null); };
+vm.Env = function(parent) {
+    this.bindings = Object.create(parent ? parent.bindings : null);
+};
 vm.lookup = function(e, sym) {
-    if (sym.name in e.bindings) return e.bindings[sym.name];
+    var key = vm.sym_key(sym);
+    if (key in e.bindings) return e.bindings[key];
     else return vm.error("unbound: " + sym.name);
 };
 vm.bind = function(e, lhs, rhs) {
     if (lhs.qua_bind) return lhs.qua_bind(lhs, e, rhs);
     else return vm.error("cannot match against: " + lhs);
 };
-vm.Sym.prototype.qua_bind = function(self, e, rhs) { return e.bindings[self.name] = rhs; };
+vm.Sym.prototype.qua_bind = function(self, e, rhs) {
+    return e.bindings[vm.sym_key(self)] = rhs;
+};
 vm.Cons.prototype.qua_bind = function(self, e, rhs) {
-    return vm.monadic(null, // FIXME: does this actually work?
+    return vm.monadic(null,
                       function() { return vm.bind(e, vm.car(self), vm.car(rhs)); },
                       function() { return vm.bind(e, vm.cdr(self), vm.cdr(rhs)); });
 };
@@ -144,32 +169,28 @@ vm.list_to_array = function(c) {
     var res = []; while(c !== vm.NIL) { res.push(vm.car(c)); c = vm.cdr(c); } return res;
 };
 vm.reverse_list = function(list) {
-    var res = vm.NIL; while(list !== vm.NIL) { res = vm.cons(vm.car(list), res); list = vm.cdr(list); } return res;
+    var res = vm.NIL;
+    while(list !== vm.NIL) { res = vm.cons(vm.car(list), res); list = vm.cdr(list); }
+    return res;
 };
 vm.raise = function(err) { throw err; }; vm.error = vm.raise;
-/* JS functions */
-vm.JSFun = function(jsfun) { this.jsfun = jsfun; };
-vm.JSFun.prototype.qua_combine = function(self, m, e, o) {
-    return self.jsfun.apply(null, vm.list_to_array(o));
-};
-vm.jswrap = function(jsfun) { return vm.wrap(new vm.JSFun(jsfun)); };
 /* API */
 vm.make_env = function(parent) { return new vm.Env(parent); };
 vm.init = function(e) {
     // Evaluation
-    vm.bind(e, vm.sym("qua:eval"), vm.Eval);
-    vm.bind(e, vm.sym("qua:def"), vm.Def);
-    vm.bind(e, vm.sym("qua:loop"), vm.Loop);
-    vm.bind(e, vm.sym("qua:progn"), vm.Progn);
+    vm.bind(e, vm.fsym("qua:eval"), vm.Eval);
+    vm.bind(e, vm.fsym("qua:def"), vm.Def);
+    vm.bind(e, vm.fsym("qua:loop"), vm.Loop);
+    vm.bind(e, vm.fsym("qua:progn"), vm.Progn);
     // Combiners
-    vm.bind(e, vm.sym("qua:vau"), vm.Vau);
-    vm.bind(e, vm.sym("qua:wrap"), vm.jswrap(vm.wrap));
-    vm.bind(e, vm.sym("qua:unwrap"), vm.jswrap(vm.unwrap));
+    vm.bind(e, vm.fsym("qua:vau"), vm.Vau);
+    vm.bind(e, vm.fsym("qua:wrap"), vm.jswrap(vm.wrap));
+    vm.bind(e, vm.fsym("qua:unwrap"), vm.jswrap(vm.unwrap));
     // Environments
-    vm.bind(e, vm.sym("qua:make-env"), vm.jswrap(vm.make_env));
+    vm.bind(e, vm.fsym("qua:make-env"), vm.jswrap(vm.make_env));
     // Exceptions
-    vm.bind(e, vm.sym("qua:raise"), vm.jswrap(vm.raise));
-    vm.bind(e, vm.sym("qua:rescue"), vm.Rescue);
+    vm.bind(e, vm.fsym("qua:raise"), vm.jswrap(vm.raise));
+    vm.bind(e, vm.fsym("qua:rescue"), vm.Rescue);
 };
 vm.eval = function(x, e) {
     return vm.evaluate(null, e, x);
