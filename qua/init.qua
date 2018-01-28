@@ -24,3 +24,6 @@
 
 (defmacro lambda (p . x)
   (qua:list #'qua:wrap (qua:list* #'vau p #ign x)))
+
+(defmacro (loop . x)
+  (qua:list #'qua:loop (qua:list* #'qua:progn x)))
