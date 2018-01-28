@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "deep-equal": "1.0.1",
     "jsparse": "0.1.0"
   }
 }

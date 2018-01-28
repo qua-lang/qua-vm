@@ -1,7 +1,10 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.qua = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-module.exports.main = [["qua:def","answer",42],null]
+module.exports.main = [["qua:def",["qua:function","qua:list"],["qua:wrap",["qua:vau","o","#ign","o"]]],null]
 
 },{}],2:[function(require,module,exports){
+module.exports.main = [["qua:assert",["qua:deep-equal",1,["qua:car",["qua:list",2,1]]]],["qua:assert",["qua:deep-equal",["qua:list",2,3],["qua:cdr",["qua:list",1,2,3]]]],null]
+
+},{}],3:[function(require,module,exports){
 // Plugin for the Qua VM that adds the delimcc API for delimited control.
 // Documentation: http://okmij.org/ftp/continuations/implementations.html
 module.exports = function(vm, e) {
@@ -143,7 +146,7 @@ module.exports = function(vm, e) {
     vm.bind(e, vm.fsym("delimcc:push-prompt-subcont"), vm.PushPromptSubcont);
 }
 
-},{}],3:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 var jsparse = require("jsparse");
 module.exports.parse_sexp = parse_sexp;
 
@@ -156,7 +159,7 @@ function parse_sexp(s) {
     else throw("parse error at " + res.remaining.index + " in " + s); }
 var x_stx = function(input) { return x_stx(input); }; // forward decl.
 var id_special_char =
-    choice(":", "-", "&", "!", "=", ">", "<", "%", "+", "?", "/", "*", "$", "_", "'", ".", "@", "|", "~", "^");
+    choice(":", "-", "&", "!", "=", ">", "<", "%", "+", "?", "/", "*", "$", "_", "#", ".", "@", "|", "~", "^", "'");
 var id_char = choice(range("a", "z"), range("A", "Z"), range("0", "9"), id_special_char);
 // Kludge: don't allow single dot as id, so as not to conflict with dotted pair stx.
 var id_stx = action(join_action(butnot(repeat1(id_char), "."), ""), handle_identifier);
@@ -164,6 +167,7 @@ function handle_identifier(str) {
     if ((str[0] === ".") && (str.length > 1)) { return ["js-getter", ["wat-string", str.substring(1)]]; }
     else if (str[0] === "@") { return ["js-invoker", ["wat-string", str.substring(1)]]; }
     else if (str[0] === "$") { return ["js-global", ["wat-string", str.substring(1)]]; }
+    else if (str.startsWith("#'")) { return ["qua:function", str.substring(2)]; }
     else return str; }
 var escape_char = choice("\"", "\\", "n", "r", "t", "0");
 var escape_sequence = action(sequence("\\", escape_char), function (ast) {
@@ -187,7 +191,7 @@ var number_stx =
                return Number(sign + integral_digits + fractional_digits); });
 function make_constant_stx(string, constant) { return action(string, function(ast) { return constant; }); }
 var nil_stx = make_constant_stx("()", []);
-var ign_stx = make_constant_stx("#ignore", "#ignore");
+var ign_stx = make_constant_stx("#ign", "#ign");
 var t_stx = make_constant_stx("#t", true);
 var f_stx = make_constant_stx("#f", false);
 var null_stx = make_constant_stx("#null", null);
@@ -198,25 +202,28 @@ var compound_stx = action(wsequence("(", repeat1(x_stx), optional(dot_stx), ")")
                               var exprs = ast[1];
                               var end = ast[2] ? [".", ast[2]] : [];
                               return exprs.concat(end); });
-var quote_stx = action(sequence("'", x_stx), function(ast) { return ["quote", ast[1]]; });
+//var quote_stx = action(sequence("'", x_stx), function(ast) { return ["quote", ast[1]]; });
 var cmt_stx = action(sequence(";", repeat0(negate(line_terminator)), optional(line_terminator)), nothing_action);
 var whitespace_stx = action(choice(" ", "\n", "\r", "\t"), nothing_action);
 function nothing_action(ast) { return null; } // HACK!
 var x_stx = whitespace(choice(ign_stx, nil_stx, t_stx, f_stx, null_stx, undef_stx, number_stx,
-                              quote_stx, compound_stx, id_stx, string_stx, cmt_stx));
+                              /*quote_stx,*/ compound_stx, id_stx, string_stx, cmt_stx));
 var program_stx = whitespace(repeat0(choice(x_stx, whitespace_stx))); // HACK!
 
-},{"jsparse":6}],4:[function(require,module,exports){
+},{"jsparse":11}],5:[function(require,module,exports){
 var vm = require("./vm");
 var io = require("./io");
 var cc = require("./cc");
+var test = require("./test");
 var init_bytecode = require("../build/out/init.js").main;
+var test_bytecode = require("../build/out/test.js").main;
 
 var e = vm.make_env();
 vm.init(e);
 cc(vm, e);
+test(vm, e);
 vm.eval(parse_bytecode([vm.sym("qua:progn")].concat(init_bytecode)), e);
-console.log(vm.lookup(e, vm.sym("answer")));
+vm.eval(parse_bytecode([vm.sym("qua:progn")].concat(test_bytecode)), e);
 
 module.exports.vm = function() {
     return {
@@ -233,12 +240,23 @@ function parse_bytecode(obj) {
 }
 function parse_bytecode_array(arr) {
     if ((arr.length == 2) && arr[0] === "wat-string") { return arr[1]; }
+    if ((arr.length == 2) && arr[0] === "qua:function") { return vm.fsym(arr[1]); }
     var i = arr.indexOf(".");
     if (i === -1) return vm.array_to_list(arr.map(parse_bytecode));
     else { var front = arr.slice(0, i);
         return vm.array_to_list(front.map(parse_bytecode), parse_bytecode(arr[i + 1])); }
 }
-},{"../build/out/init.js":1,"./cc":2,"./io":3,"./vm":5}],5:[function(require,module,exports){
+
+},{"../build/out/init.js":1,"../build/out/test.js":2,"./cc":3,"./io":4,"./test":6,"./vm":7}],6:[function(require,module,exports){
+// Adds utility functions for testing the built-ins to a VM
+var deep_equal = require("deep-equal");
+module.exports = function(vm, e) {
+    function assert(x) { if (!x) vm.error("assertion failure"); }
+    vm.bind(e, vm.fsym("qua:assert"), vm.jswrap(assert));
+    vm.bind(e, vm.fsym("qua:deep-equal"), vm.jswrap(deep_equal));
+}
+
+},{"deep-equal":8}],7:[function(require,module,exports){
 var vm = module.exports;
 /* Monad */
 vm.monadic = function(m, a, b) {
@@ -248,7 +266,10 @@ vm.monadic = function(m, a, b) {
 vm.evaluate = function(m, e, x) {
     if (x && x.qua_evaluate) return x.qua_evaluate(x, m, e); else return x;
 };
-vm.Sym = function Sym(name, ns) { this.name = name; this.ns = ns; };
+vm.Sym = function Sym(name, ns) {
+    this.name = vm.assert_type(name, "string");
+    this.ns = vm.assert_type(ns, "string");
+};
 vm.Sym.prototype.qua_evaluate = function(self, m, e) {
     return vm.lookup(e, self);
 };
@@ -261,7 +282,7 @@ vm.Cons.prototype.qua_evaluate = function(self, m, e) {
 vm.eval_operator = function(e, cons) {
     var op = vm.car(cons);
     if (op instanceof vm.Sym) {
-        return vm.lookup(e, vm.to_ns(op, vm.FUN_NS));
+        return vm.lookup(e, vm.to_fsym(op));
     } else {
         return vm.evaluate(null, e, op);
     }
@@ -315,8 +336,8 @@ vm.Def = {
 };
 vm.Eval = vm.wrap({
     qua_combine: function(self, m, e, o) {
-        var x = elt(o, 0);
-        var e = elt(o, 1);
+        var x = vm.elt(o, 0);
+        var e = vm.elt(o, 1);
         return vm.evaluate(m, e, x);
     }
 });
@@ -354,7 +375,7 @@ vm.Rescue = vm.wrap({
     }
 });
 /* JS function combiners */
-vm.JSFun = function(jsfun) { this.jsfun = jsfun; };
+vm.JSFun = function(jsfun) { this.jsfun = vm.assert_type(jsfun, "function"); };
 vm.JSFun.prototype.qua_combine = function(self, m, e, o) {
     return self.jsfun.apply(null, vm.list_to_array(o));
 };
@@ -364,11 +385,11 @@ vm.VAR_NS = "v";
 vm.FUN_NS = "f";
 vm.sym = function(name, ns) { return new vm.Sym(name, ns ? ns : vm.VAR_NS); };
 vm.fsym = function(name) { return vm.sym(name, vm.FUN_NS); };
-vm.to_ns = function(sym, ns) { return vm.sym(sym.name, ns) };
+vm.to_fsym = function(sym) { return vm.fsym(sym.name) };
 vm.sym_key = function(sym) { return sym.name + "_" + sym.ns; };
 vm.cons = function(car, cdr) { return new vm.Cons(car, cdr); };
-vm.car = function(cons) { return cons.car; };
-vm.cdr = function(cons) { return cons.cdr; };
+vm.car = function(cons) { return vm.assert_type(cons, vm.Cons).car; };
+vm.cdr = function(cons) { return vm.assert_type(cons, vm.Cons).cdr; };
 vm.elt = function(cons, i) { return (i === 0) ? vm.car(cons) : vm.elt(vm.cdr(cons), i - 1); };
 vm.Nil = function Nil() {}; vm.NIL = new vm.Nil();
 vm.Ign = function Ign() {}; vm.IGN = new vm.Ign();
@@ -378,13 +399,16 @@ vm.Env = function(parent) {
     this.bindings = Object.create(parent ? parent.bindings : null);
 };
 vm.lookup = function(e, sym) {
+    vm.assert_type(e, vm.Env);
+    vm.assert_type(sym, vm.Sym);
     var key = vm.sym_key(sym);
     if (key in e.bindings) return e.bindings[key];
     else return vm.error("unbound: " + sym.name);
 };
 vm.bind = function(e, lhs, rhs) {
+    vm.assert_type(e, vm.Env);
     if (lhs.qua_bind) return lhs.qua_bind(lhs, e, rhs);
-    else return vm.error("cannot match against: " + lhs);
+    else return vm.error("cannot match: " + JSON.stringify(lhs) + "-" + JSON.stringify(rhs));
 };
 vm.Sym.prototype.qua_bind = function(self, e, rhs) {
     return e.bindings[vm.sym_key(self)] = rhs;
@@ -402,6 +426,10 @@ vm.Ign.prototype.qua_bind = function(self, e, rhs) {};
 vm.list = function() {
     return vm.array_to_list(Array.prototype.slice.call(arguments));
 };
+vm.list_star = function() {
+    var len = arguments.length; var c = len >= 1 ? arguments[len-1] : NIL;
+    for (var i = len-1; i > 0; i--) c = vm.cons(arguments[i - 1], c); return c;
+};
 vm.array_to_list = function(array, end) {
     var c = end ? end : vm.NIL;
     for (var i = array.length; i > 0; i--) c = vm.cons(array[i - 1], c); return c;
@@ -414,10 +442,22 @@ vm.reverse_list = function(list) {
     while(list !== vm.NIL) { res = vm.cons(vm.car(list), res); list = vm.cdr(list); }
     return res;
 };
-vm.raise = function(err) { throw err; }; vm.error = vm.raise;
+vm.assert_type = function(obj, type_spec) {
+    if (vm.check_type(obj, type_spec)) return obj; else return vm.error("type error");
+};
+vm.check_type = function(obj, type_spec) {
+    if (typeof(type_spec) === "string") { return (typeof(obj) === type_spec); }
+    else return (obj instanceof type_spec);
+};
+vm.raise = function(err) { throw new Error(err); }; vm.error = vm.raise;
 /* API */
 vm.make_env = function(parent) { return new vm.Env(parent); };
 vm.init = function(e) {
+    // Forms
+    vm.bind(e, vm.fsym("qua:car"), vm.jswrap(vm.car));
+    vm.bind(e, vm.fsym("qua:cdr"), vm.jswrap(vm.cdr));
+    vm.bind(e, vm.fsym("qua:cons"), vm.jswrap(vm.cons));
+    vm.bind(e, vm.fsym("qua:list*"), vm.jswrap(vm.list_star)); // optim
     // Evaluation
     vm.bind(e, vm.fsym("qua:eval"), vm.Eval);
     vm.bind(e, vm.fsym("qua:def"), vm.Def);
@@ -427,6 +467,7 @@ vm.init = function(e) {
     vm.bind(e, vm.fsym("qua:vau"), vm.Vau);
     vm.bind(e, vm.fsym("qua:wrap"), vm.jswrap(vm.wrap));
     vm.bind(e, vm.fsym("qua:unwrap"), vm.jswrap(vm.unwrap));
+    vm.bind(e, vm.fsym("qua:to-fsym"), vm.jswrap(vm.to_fsym));
     // Environments
     vm.bind(e, vm.fsym("qua:make-env"), vm.jswrap(vm.make_env));
     // Exceptions
@@ -437,7 +478,136 @@ vm.eval = function(x, e) {
     return vm.evaluate(null, e, x);
 };
 
-},{}],6:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
+var pSlice = Array.prototype.slice;
+var objectKeys = require('./lib/keys.js');
+var isArguments = require('./lib/is_arguments.js');
+
+var deepEqual = module.exports = function (actual, expected, opts) {
+  if (!opts) opts = {};
+  // 7.1. All identical values are equivalent, as determined by ===.
+  if (actual === expected) {
+    return true;
+
+  } else if (actual instanceof Date && expected instanceof Date) {
+    return actual.getTime() === expected.getTime();
+
+  // 7.3. Other pairs that do not both pass typeof value == 'object',
+  // equivalence is determined by ==.
+  } else if (!actual || !expected || typeof actual != 'object' && typeof expected != 'object') {
+    return opts.strict ? actual === expected : actual == expected;
+
+  // 7.4. For all other Object pairs, including Array objects, equivalence is
+  // determined by having the same number of owned properties (as verified
+  // with Object.prototype.hasOwnProperty.call), the same set of keys
+  // (although not necessarily the same order), equivalent values for every
+  // corresponding key, and an identical 'prototype' property. Note: this
+  // accounts for both named and indexed properties on Arrays.
+  } else {
+    return objEquiv(actual, expected, opts);
+  }
+}
+
+function isUndefinedOrNull(value) {
+  return value === null || value === undefined;
+}
+
+function isBuffer (x) {
+  if (!x || typeof x !== 'object' || typeof x.length !== 'number') return false;
+  if (typeof x.copy !== 'function' || typeof x.slice !== 'function') {
+    return false;
+  }
+  if (x.length > 0 && typeof x[0] !== 'number') return false;
+  return true;
+}
+
+function objEquiv(a, b, opts) {
+  var i, key;
+  if (isUndefinedOrNull(a) || isUndefinedOrNull(b))
+    return false;
+  // an identical 'prototype' property.
+  if (a.prototype !== b.prototype) return false;
+  //~~~I've managed to break Object.keys through screwy arguments passing.
+  //   Converting to array solves the problem.
+  if (isArguments(a)) {
+    if (!isArguments(b)) {
+      return false;
+    }
+    a = pSlice.call(a);
+    b = pSlice.call(b);
+    return deepEqual(a, b, opts);
+  }
+  if (isBuffer(a)) {
+    if (!isBuffer(b)) {
+      return false;
+    }
+    if (a.length !== b.length) return false;
+    for (i = 0; i < a.length; i++) {
+      if (a[i] !== b[i]) return false;
+    }
+    return true;
+  }
+  try {
+    var ka = objectKeys(a),
+        kb = objectKeys(b);
+  } catch (e) {//happens when one is a string literal and the other isn't
+    return false;
+  }
+  // having the same number of owned properties (keys incorporates
+  // hasOwnProperty)
+  if (ka.length != kb.length)
+    return false;
+  //the same set of keys (although not necessarily the same order),
+  ka.sort();
+  kb.sort();
+  //~~~cheap key test
+  for (i = ka.length - 1; i >= 0; i--) {
+    if (ka[i] != kb[i])
+      return false;
+  }
+  //equivalent values for every corresponding key, and
+  //~~~possibly expensive deep test
+  for (i = ka.length - 1; i >= 0; i--) {
+    key = ka[i];
+    if (!deepEqual(a[key], b[key], opts)) return false;
+  }
+  return typeof a === typeof b;
+}
+
+},{"./lib/is_arguments.js":9,"./lib/keys.js":10}],9:[function(require,module,exports){
+var supportsArgumentsClass = (function(){
+  return Object.prototype.toString.call(arguments)
+})() == '[object Arguments]';
+
+exports = module.exports = supportsArgumentsClass ? supported : unsupported;
+
+exports.supported = supported;
+function supported(object) {
+  return Object.prototype.toString.call(object) == '[object Arguments]';
+};
+
+exports.unsupported = unsupported;
+function unsupported(object){
+  return object &&
+    typeof object == 'object' &&
+    typeof object.length == 'number' &&
+    Object.prototype.hasOwnProperty.call(object, 'callee') &&
+    !Object.prototype.propertyIsEnumerable.call(object, 'callee') ||
+    false;
+};
+
+},{}],10:[function(require,module,exports){
+exports = module.exports = typeof Object.keys === 'function'
+  ? Object.keys : shim;
+
+exports.shim = shim;
+function shim (obj) {
+  var keys = [];
+  for (var key in obj) keys.push(key);
+  return keys;
+}
+
+},{}],11:[function(require,module,exports){
 // Copyright (C) 2007 Chris Double.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -1127,5 +1297,5 @@ jsparse.inject_into = function inject_into(into) {
 }
 
 
-},{}]},{},[4])(4)
+},{}]},{},[5])(5)
 });

@@ -7,7 +7,10 @@ vm.monadic = function(m, a, b) {
 vm.evaluate = function(m, e, x) {
     if (x && x.qua_evaluate) return x.qua_evaluate(x, m, e); else return x;
 };
-vm.Sym = function Sym(name, ns) { this.name = name; this.ns = ns; };
+vm.Sym = function Sym(name, ns) {
+    this.name = vm.assert_type(name, "string");
+    this.ns = vm.assert_type(ns, "string");
+};
 vm.Sym.prototype.qua_evaluate = function(self, m, e) {
     return vm.lookup(e, self);
 };
@@ -20,7 +23,7 @@ vm.Cons.prototype.qua_evaluate = function(self, m, e) {
 vm.eval_operator = function(e, cons) {
     var op = vm.car(cons);
     if (op instanceof vm.Sym) {
-        return vm.lookup(e, vm.to_ns(op, vm.FUN_NS));
+        return vm.lookup(e, vm.to_fsym(op));
     } else {
         return vm.evaluate(null, e, op);
     }
@@ -74,8 +77,8 @@ vm.Def = {
 };
 vm.Eval = vm.wrap({
     qua_combine: function(self, m, e, o) {
-        var x = elt(o, 0);
-        var e = elt(o, 1);
+        var x = vm.elt(o, 0);
+        var e = vm.elt(o, 1);
         return vm.evaluate(m, e, x);
     }
 });
@@ -113,7 +116,7 @@ vm.Rescue = vm.wrap({
     }
 });
 /* JS function combiners */
-vm.JSFun = function(jsfun) { this.jsfun = jsfun; };
+vm.JSFun = function(jsfun) { this.jsfun = vm.assert_type(jsfun, "function"); };
 vm.JSFun.prototype.qua_combine = function(self, m, e, o) {
     return self.jsfun.apply(null, vm.list_to_array(o));
 };
@@ -123,11 +126,11 @@ vm.VAR_NS = "v";
 vm.FUN_NS = "f";
 vm.sym = function(name, ns) { return new vm.Sym(name, ns ? ns : vm.VAR_NS); };
 vm.fsym = function(name) { return vm.sym(name, vm.FUN_NS); };
-vm.to_ns = function(sym, ns) { return vm.sym(sym.name, ns) };
+vm.to_fsym = function(sym) { return vm.fsym(sym.name) };
 vm.sym_key = function(sym) { return sym.name + "_" + sym.ns; };
 vm.cons = function(car, cdr) { return new vm.Cons(car, cdr); };
-vm.car = function(cons) { return cons.car; };
-vm.cdr = function(cons) { return cons.cdr; };
+vm.car = function(cons) { return vm.assert_type(cons, vm.Cons).car; };
+vm.cdr = function(cons) { return vm.assert_type(cons, vm.Cons).cdr; };
 vm.elt = function(cons, i) { return (i === 0) ? vm.car(cons) : vm.elt(vm.cdr(cons), i - 1); };
 vm.Nil = function Nil() {}; vm.NIL = new vm.Nil();
 vm.Ign = function Ign() {}; vm.IGN = new vm.Ign();
@@ -137,13 +140,16 @@ vm.Env = function(parent) {
     this.bindings = Object.create(parent ? parent.bindings : null);
 };
 vm.lookup = function(e, sym) {
+    vm.assert_type(e, vm.Env);
+    vm.assert_type(sym, vm.Sym);
     var key = vm.sym_key(sym);
     if (key in e.bindings) return e.bindings[key];
     else return vm.error("unbound: " + sym.name);
 };
 vm.bind = function(e, lhs, rhs) {
+    vm.assert_type(e, vm.Env);
     if (lhs.qua_bind) return lhs.qua_bind(lhs, e, rhs);
-    else return vm.error("cannot match against: " + lhs);
+    else return vm.error("cannot match: " + JSON.stringify(lhs) + "-" + JSON.stringify(rhs));
 };
 vm.Sym.prototype.qua_bind = function(self, e, rhs) {
     return e.bindings[vm.sym_key(self)] = rhs;
@@ -161,6 +167,10 @@ vm.Ign.prototype.qua_bind = function(self, e, rhs) {};
 vm.list = function() {
     return vm.array_to_list(Array.prototype.slice.call(arguments));
 };
+vm.list_star = function() {
+    var len = arguments.length; var c = len >= 1 ? arguments[len-1] : NIL;
+    for (var i = len-1; i > 0; i--) c = vm.cons(arguments[i - 1], c); return c;
+};
 vm.array_to_list = function(array, end) {
     var c = end ? end : vm.NIL;
     for (var i = array.length; i > 0; i--) c = vm.cons(array[i - 1], c); return c;
@@ -173,10 +183,22 @@ vm.reverse_list = function(list) {
     while(list !== vm.NIL) { res = vm.cons(vm.car(list), res); list = vm.cdr(list); }
     return res;
 };
-vm.raise = function(err) { throw err; }; vm.error = vm.raise;
+vm.assert_type = function(obj, type_spec) {
+    if (vm.check_type(obj, type_spec)) return obj; else return vm.error("type error");
+};
+vm.check_type = function(obj, type_spec) {
+    if (typeof(type_spec) === "string") { return (typeof(obj) === type_spec); }
+    else return (obj instanceof type_spec);
+};
+vm.raise = function(err) { throw new Error(err); }; vm.error = vm.raise;
 /* API */
 vm.make_env = function(parent) { return new vm.Env(parent); };
 vm.init = function(e) {
+    // Forms
+    vm.bind(e, vm.fsym("qua:car"), vm.jswrap(vm.car));
+    vm.bind(e, vm.fsym("qua:cdr"), vm.jswrap(vm.cdr));
+    vm.bind(e, vm.fsym("qua:cons"), vm.jswrap(vm.cons));
+    vm.bind(e, vm.fsym("qua:list*"), vm.jswrap(vm.list_star)); // optim
     // Evaluation
     vm.bind(e, vm.fsym("qua:eval"), vm.Eval);
     vm.bind(e, vm.fsym("qua:def"), vm.Def);
@@ -186,6 +208,7 @@ vm.init = function(e) {
     vm.bind(e, vm.fsym("qua:vau"), vm.Vau);
     vm.bind(e, vm.fsym("qua:wrap"), vm.jswrap(vm.wrap));
     vm.bind(e, vm.fsym("qua:unwrap"), vm.jswrap(vm.unwrap));
+    vm.bind(e, vm.fsym("qua:to-fsym"), vm.jswrap(vm.to_fsym));
     // Environments
     vm.bind(e, vm.fsym("qua:make-env"), vm.jswrap(vm.make_env));
     // Exceptions

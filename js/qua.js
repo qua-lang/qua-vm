@@ -1,13 +1,16 @@
 var vm = require("./vm");
 var io = require("./io");
 var cc = require("./cc");
+var test = require("./test");
 var init_bytecode = require("../build/out/init.js").main;
+var test_bytecode = require("../build/out/test.js").main;
 
 var e = vm.make_env();
 vm.init(e);
 cc(vm, e);
+test(vm, e);
 vm.eval(parse_bytecode([vm.sym("qua:progn")].concat(init_bytecode)), e);
-console.log(vm.lookup(e, vm.sym("answer")));
+vm.eval(parse_bytecode([vm.sym("qua:progn")].concat(test_bytecode)), e);
 
 module.exports.vm = function() {
     return {
@@ -24,6 +27,7 @@ function parse_bytecode(obj) {
 }
 function parse_bytecode_array(arr) {
     if ((arr.length == 2) && arr[0] === "wat-string") { return arr[1]; }
+    if ((arr.length == 2) && arr[0] === "qua:function") { return vm.fsym(arr[1]); }
     var i = arr.indexOf(".");
     if (i === -1) return vm.array_to_list(arr.map(parse_bytecode));
     else { var front = arr.slice(0, i);
