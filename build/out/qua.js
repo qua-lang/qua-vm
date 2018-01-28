@@ -1,8 +1,8 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.qua = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-module.exports.main = [["qua:def",["qua:function","qua:list"],["qua:wrap",["qua:vau","o","#ign","o"]]],null]
+module.exports.main = [null,["qua:def",["qua:function","qua:quote"],["qua:vau",["x"],"#ign","x"]],["qua:def",["qua:function","qua:list"],["qua:wrap",["qua:vau","o","#ign","o"]]],["qua:def",["qua:function","qua:make-macro-expander"],["qua:wrap",["qua:vau",["f"],"#ign",["qua:vau","o","e",["qua:eval",["qua:eval",["qua:cons","f","o"],["qua:make-env"]],"e"]]]]],["qua:def",["qua:function","vau"],["qua:make-macro-expander",["qua:vau",["p","ep",".","x"],"#ign",["qua:list",["qua:function","qua:vau"],"p","ep",["qua:list*",["qua:function","qua:progn"],"x"]]]]],["qua:def",["qua:function","macro"],["qua:make-macro-expander",["vau",["p",".","x"],"#ign",["qua:list",["qua:function","qua:make-macro-expander"],["qua:list*",["qua:function","vau"],"p","#ign","x"]]]]],["qua:def",["qua:function","defmacro"],["macro",["name","p",".","x"],["qua:list",["qua:function","qua:def"],["qua:to-fsym","name"],["qua:list*",["qua:function","macro"],"p","x"]]]],["defmacro","lambda",["p",".","x"],["qua:list",["qua:function","qua:wrap"],["qua:list*",["qua:function","vau"],"p","#ign","x"]]],["qua:def",["qua:function","foo"],["lambda",[],12]],["qua:def","answer",["foo"]],["qua:assert",["qua:deep-equal","answer",11]],null]
 
 },{}],2:[function(require,module,exports){
-module.exports.main = [["qua:assert",["qua:deep-equal",1,["qua:car",["qua:list",2,1]]]],["qua:assert",["qua:deep-equal",["qua:list",2,3],["qua:cdr",["qua:list",1,2,3]]]],null]
+module.exports.main = [null,null,["qua:assert",["qua:deep-equal",1,["qua:car",["qua:cons",1,2]]]],["qua:assert",["qua:deep-equal",2,["qua:cdr",["qua:cons",1,2]]]],["qua:assert",["qua:deep-equal",1,["qua:car",["qua:list",1,2,3]]]],["qua:assert",["qua:deep-equal",["qua:list",2,3],["qua:cdr",["qua:list",1,2,3]]]],["qua:assert",["qua:deep-equal",1,["qua:car",["qua:list*",1,2,3]]]],["qua:assert",["qua:deep-equal",["qua:cons",2,3],["qua:cdr",["qua:list*",1,2,3]]]],null,["qua:def","e1",["qua:make-env"]],["qua:eval",["qua:list",["qua:function","qua:def"],["qua:quote","x"],1],"e1"],["qua:assert",["qua:deep-equal",1,["qua:eval",["qua:quote","x"],"e1"]]],["qua:assert",["qua:deep-equal","#void",["qua:progn"]]],["qua:assert",["qua:deep-equal",1,["qua:progn",1]]],["qua:assert",["qua:deep-equal",2,["qua:progn",1,2]]],null,["qua:def","e2",["qua:make-env"]],["qua:def",["qua:function","fun2"],["qua:wrap",["qua:vau",["p"],"#ign","p"]]],["qua:eval",["qua:list",["qua:function","qua:def"],["qua:quote","x"],2],"e2"],["qua:eval",["qua:list",["qua:function","qua:def"],["qua:quote",["qua:function","fun2"]],["qua:function","fun2"]],"e2"],["qua:assert",["qua:deep-equal",2,["qua:eval",["qua:list",["qua:function","fun2"],["qua:quote","x"]],"e2"]]],null]
 
 },{}],3:[function(require,module,exports){
 // Plugin for the Qua VM that adds the delimcc API for delimited control.
@@ -192,6 +192,7 @@ var number_stx =
 function make_constant_stx(string, constant) { return action(string, function(ast) { return constant; }); }
 var nil_stx = make_constant_stx("()", []);
 var ign_stx = make_constant_stx("#ign", "#ign");
+var void_stx = make_constant_stx("#void", "#void");
 var t_stx = make_constant_stx("#t", true);
 var f_stx = make_constant_stx("#f", false);
 var null_stx = make_constant_stx("#null", null);
@@ -206,7 +207,7 @@ var compound_stx = action(wsequence("(", repeat1(x_stx), optional(dot_stx), ")")
 var cmt_stx = action(sequence(";", repeat0(negate(line_terminator)), optional(line_terminator)), nothing_action);
 var whitespace_stx = action(choice(" ", "\n", "\r", "\t"), nothing_action);
 function nothing_action(ast) { return null; } // HACK!
-var x_stx = whitespace(choice(ign_stx, nil_stx, t_stx, f_stx, null_stx, undef_stx, number_stx,
+var x_stx = whitespace(choice(ign_stx, void_stx, nil_stx, t_stx, f_stx, null_stx, undef_stx, number_stx,
                               /*quote_stx,*/ compound_stx, id_stx, string_stx, cmt_stx));
 var program_stx = whitespace(repeat0(choice(x_stx, whitespace_stx))); // HACK!
 
@@ -234,9 +235,15 @@ module.exports.vm = function() {
 /* Bytecode parser */
 function parse_bytecode(obj) {
     switch(Object.prototype.toString.call(obj)) {
-    case "[object String]": return obj === "#ignore" ? vm.IGN : vm.sym(obj);
+    case "[object String]": 
+        switch(obj) {
+        case "#ign": return vm.IGN;
+        case "#void": return vm.VOID;
+        default: return vm.sym(obj);
+        }
     case "[object Array]": return parse_bytecode_array(obj);
-    default: return obj; }
+    default: return obj;
+    }
 }
 function parse_bytecode_array(arr) {
     if ((arr.length == 2) && arr[0] === "wat-string") { return arr[1]; }
@@ -251,7 +258,7 @@ function parse_bytecode_array(arr) {
 // Adds utility functions for testing the built-ins to a VM
 var deep_equal = require("deep-equal");
 module.exports = function(vm, e) {
-    function assert(x) { if (!x) vm.error("assertion failure"); }
+    function assert(x) { if (!x) return vm.error("assertion failure"); }
     vm.bind(e, vm.fsym("qua:assert"), vm.jswrap(assert));
     vm.bind(e, vm.fsym("qua:deep-equal"), vm.jswrap(deep_equal));
 }
@@ -408,7 +415,7 @@ vm.lookup = function(e, sym) {
 vm.bind = function(e, lhs, rhs) {
     vm.assert_type(e, vm.Env);
     if (lhs.qua_bind) return lhs.qua_bind(lhs, e, rhs);
-    else return vm.error("cannot match: " + JSON.stringify(lhs) + "-" + JSON.stringify(rhs));
+    else return vm.error("cannot match", { lhs: lhs, rhs: rhs });
 };
 vm.Sym.prototype.qua_bind = function(self, e, rhs) {
     return e.bindings[vm.sym_key(self)] = rhs;
@@ -443,13 +450,15 @@ vm.reverse_list = function(list) {
     return res;
 };
 vm.assert_type = function(obj, type_spec) {
-    if (vm.check_type(obj, type_spec)) return obj; else return vm.error("type error");
+    if (vm.check_type(obj, type_spec)) return obj;
+    else return vm.error("type error", { obj: obj, type_spec: type_spec });
 };
 vm.check_type = function(obj, type_spec) {
     if (typeof(type_spec) === "string") { return (typeof(obj) === type_spec); }
     else return (obj instanceof type_spec);
 };
-vm.raise = function(err) { throw new Error(err); }; vm.error = vm.raise;
+vm.raise = function(err, args) { throw new Error(err); };
+vm.error = vm.raise;
 /* API */
 vm.make_env = function(parent) { return new vm.Env(parent); };
 vm.init = function(e) {

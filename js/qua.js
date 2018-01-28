@@ -21,9 +21,15 @@ module.exports.vm = function() {
 /* Bytecode parser */
 function parse_bytecode(obj) {
     switch(Object.prototype.toString.call(obj)) {
-    case "[object String]": return obj === "#ignore" ? vm.IGN : vm.sym(obj);
+    case "[object String]": 
+        switch(obj) {
+        case "#ign": return vm.IGN;
+        case "#void": return vm.VOID;
+        default: return vm.sym(obj);
+        }
     case "[object Array]": return parse_bytecode_array(obj);
-    default: return obj; }
+    default: return obj;
+    }
 }
 function parse_bytecode_array(arr) {
     if ((arr.length == 2) && arr[0] === "wat-string") { return arr[1]; }

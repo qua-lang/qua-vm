@@ -1,1 +1,26 @@
+;; -*- Mode: Lisp -*-
+(qua:def #'qua:quote (qua:vau (x) #ign x))
 (qua:def #'qua:list (qua:wrap (qua:vau o #ign o)))
+
+(qua:def #'qua:make-macro-expander
+  (qua:wrap
+    (qua:vau (f) #ign
+      (qua:vau o e
+        (qua:eval (qua:eval (qua:cons f o) (qua:make-env)) e)))))
+
+(qua:def #'vau
+  (qua:make-macro-expander
+    (qua:vau (p ep . x) #ign
+      (qua:list #'qua:vau p ep (qua:list* #'qua:progn x)))))
+
+(qua:def #'macro
+  (qua:make-macro-expander
+    (vau (p . x) #ign
+      (qua:list #'qua:make-macro-expander (qua:list* #'vau p #ign x)))))
+
+(qua:def #'defmacro
+  (macro (name p . x)
+    (qua:list #'qua:def (qua:to-fsym name) (qua:list* #'macro p x))))
+
+(defmacro lambda (p . x)
+  (qua:list #'qua:wrap (qua:list* #'vau p #ign x)))

@@ -149,7 +149,7 @@ vm.lookup = function(e, sym) {
 vm.bind = function(e, lhs, rhs) {
     vm.assert_type(e, vm.Env);
     if (lhs.qua_bind) return lhs.qua_bind(lhs, e, rhs);
-    else return vm.error("cannot match: " + JSON.stringify(lhs) + "-" + JSON.stringify(rhs));
+    else return vm.error("cannot match", { lhs: lhs, rhs: rhs });
 };
 vm.Sym.prototype.qua_bind = function(self, e, rhs) {
     return e.bindings[vm.sym_key(self)] = rhs;
@@ -184,13 +184,15 @@ vm.reverse_list = function(list) {
     return res;
 };
 vm.assert_type = function(obj, type_spec) {
-    if (vm.check_type(obj, type_spec)) return obj; else return vm.error("type error");
+    if (vm.check_type(obj, type_spec)) return obj;
+    else return vm.error("type error", { obj: obj, type_spec: type_spec });
 };
 vm.check_type = function(obj, type_spec) {
     if (typeof(type_spec) === "string") { return (typeof(obj) === type_spec); }
     else return (obj instanceof type_spec);
 };
-vm.raise = function(err) { throw new Error(err); }; vm.error = vm.raise;
+vm.raise = function(err, args) { throw new Error(err); };
+vm.error = vm.raise;
 /* API */
 vm.make_env = function(parent) { return new vm.Env(parent); };
 vm.init = function(e) {
