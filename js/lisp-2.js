@@ -1,3 +1,6 @@
+// Plugin for the Qua VM that adds a second namespace for functions.
+// This should be loaded before anything else so that all functions
+// from other modules go into the function namespace.
 module.exports = function(vm, e) {
     vm.FUN_NS = "f";
     vm.eval_operator = function(e, op) {

@@ -7,6 +7,7 @@ module.exports.main = [null,null,["qua:assert",["qua:deep-equal",1,["qua:car",["
 },{}],3:[function(require,module,exports){
 // Plugin for the Qua VM that adds the delimcc API for delimited control.
 // Documentation: http://okmij.org/ftp/continuations/implementations.html
+// Also adds continuation-aware implementations of qua:loop and qua:rescue.
 module.exports = function(vm, e) {
     /* Continuations */
     function StackFrame(fun, next) { this.fun = fun; this.next = next;};
@@ -138,15 +139,18 @@ module.exports = function(vm, e) {
             return val;
         }
     });
-    vm.bind(e, vm.fsym("qua:loop"), vm.Loop);
-    vm.bind(e, vm.fsym("qua:rescue"), vm.Rescue);
-    vm.bind(e, vm.fsym("delimcc:push-prompt"), vm.PushPrompt);
-    vm.bind(e, vm.fsym("delimcc:take-subcont"), vm.TakeSubcont);
-    vm.bind(e, vm.fsym("delimcc:push-subcont"), vm.PushSubcont);
-    vm.bind(e, vm.fsym("delimcc:push-prompt-subcont"), vm.PushPromptSubcont);
+    vm.defun(e, vm.sym("qua:loop"), vm.Loop);
+    vm.defun(e, vm.sym("qua:rescue"), vm.Rescue);
+    vm.defun(e, vm.sym("delimcc:push-prompt"), vm.PushPrompt);
+    vm.defun(e, vm.sym("delimcc:take-subcont"), vm.TakeSubcont);
+    vm.defun(e, vm.sym("delimcc:push-subcont"), vm.PushSubcont);
+    vm.defun(e, vm.sym("delimcc:push-prompt-subcont"), vm.PushPromptSubcont);
 }
 
 },{}],4:[function(require,module,exports){
+// Plugin for the Qua VM that adds a second namespace for functions.
+// This should be loaded before anything else so that all functions
+// from other modules go into the function namespace.
 module.exports = function(vm, e) {
     vm.FUN_NS = "f";
     vm.eval_operator = function(e, op) {
@@ -157,11 +161,11 @@ module.exports = function(vm, e) {
         }
     };
     vm.fsym = function(name) { return vm.sym(name, vm.FUN_NS); };
-    vm.to_fsym = function(sym) { return vm.fsym(vm.assert_type(sym, vm.Sym).name); };
+    vm.to_fsym = function(sym) { vm.assert_type(sym, vm.Sym); return vm.fsym(sym.name); };
     vm.defun = function(e, name, cmb) {
         vm.bind(e, vm.to_fsym(name), cmb);
     };
-    vm.defun(e, vm.fsym("qua:to-fsym"), vm.jswrap(vm.to_fsym));
+    vm.defun(e, vm.sym("qua:to-fsym"), vm.jswrap(vm.to_fsym));
 }
 
 },{}],5:[function(require,module,exports){
@@ -172,10 +176,10 @@ var test_bytecode = require("../build/out/test.js").main;
 
 var e = vm.make_env();
 require("./lisp-2")(vm, e);
-vm.init(e);
 require("./delimcc")(vm, e);
 require("./optim")(vm, e);
 require("./test")(vm, e);
+vm.init(e);
 vm.eval(parse_bytecode([vm.sym("qua:progn")].concat(init_bytecode)), e);
 vm.eval(parse_bytecode([vm.sym("qua:progn")].concat(test_bytecode)), e);
 
@@ -292,10 +296,6 @@ module.exports = function(vm, e) {
 
 },{"deep-equal":10}],9:[function(require,module,exports){
 var vm = module.exports;
-/* Monad */
-vm.monadic = function(m, a, b) {
-    return b(a());
-};
 /* Evaluation */
 vm.evaluate = function(m, e, x) {
     if (x && x.qua_evaluate) return x.qua_evaluate(x, m, e); else return x;
@@ -383,26 +383,6 @@ vm.progn = function(m, e, xs) {
                           if (cdr === vm.NIL) return res; else return vm.progn(null, e, cdr);
                       });
 };
-vm.Loop = vm.wrap({
-    qua_combine: function(self, m, e, o) {
-        var body = vm.elt(o, 0);
-        while(true) {
-            vm.combine(null, e, body, vm.NIL);
-        }
-    }
-});
-vm.Rescue = vm.wrap({
-    qua_combine: function(self, m, e, o) {
-        var handler = vm.elt(o, 0);
-        var body = vm.elt(o, 1);
-        try {
-            return vm.combine(null, e, body, vm.NIL);
-        } catch(exc) {
-            // unwrap handler to prevent eval if exc is sym or cons
-            return vm.combine(null, e, vm.unwrap(handler), vm.list(exc));
-        }
-    }
-});
 /* JS function combiners */
 vm.JSFun = function(jsfun) { this.jsfun = vm.assert_type(jsfun, "function"); };
 vm.JSFun.prototype.qua_combine = function(self, m, e, o) {
@@ -474,9 +454,10 @@ vm.check_type = function(obj, type_spec) {
 };
 vm.raise = function(err, args) { throw new Error(err); };
 vm.error = vm.raise;
-vm.defun = vm.bind;
 /* API */
 vm.make_env = function(parent) { return new vm.Env(parent); };
+vm.def = vm.bind;
+vm.defun = vm.bind;
 vm.init = function(e) {
     // Forms
     vm.defun(e, vm.sym("qua:car"), vm.jswrap(vm.car));
@@ -485,7 +466,6 @@ vm.init = function(e) {
     // Evaluation
     vm.defun(e, vm.sym("qua:eval"), vm.Eval);
     vm.defun(e, vm.sym("qua:def"), vm.Def);
-    vm.defun(e, vm.sym("qua:loop"), vm.Loop);
     vm.defun(e, vm.sym("qua:progn"), vm.Progn);
     // Combiners
     vm.defun(e, vm.sym("qua:vau"), vm.Vau);
@@ -495,7 +475,6 @@ vm.init = function(e) {
     vm.defun(e, vm.sym("qua:make-env"), vm.jswrap(vm.make_env));
     // Exceptions
     vm.defun(e, vm.sym("qua:raise"), vm.jswrap(vm.raise));
-    vm.defun(e, vm.sym("qua:rescue"), vm.Rescue);
 };
 vm.eval = function(x, e) {
     return vm.evaluate(null, e, x);

@@ -5,10 +5,10 @@ var test_bytecode = require("../build/out/test.js").main;
 
 var e = vm.make_env();
 require("./lisp-2")(vm, e);
-vm.init(e);
 require("./delimcc")(vm, e);
 require("./optim")(vm, e);
 require("./test")(vm, e);
+vm.init(e);
 vm.eval(parse_bytecode([vm.sym("qua:progn")].concat(init_bytecode)), e);
 vm.eval(parse_bytecode([vm.sym("qua:progn")].concat(test_bytecode)), e);
 

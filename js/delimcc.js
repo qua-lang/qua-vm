@@ -1,5 +1,6 @@
 // Plugin for the Qua VM that adds the delimcc API for delimited control.
 // Documentation: http://okmij.org/ftp/continuations/implementations.html
+// Also adds continuation-aware implementations of qua:loop and qua:rescue.
 module.exports = function(vm, e) {
     /* Continuations */
     function StackFrame(fun, next) { this.fun = fun; this.next = next;};

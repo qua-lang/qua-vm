@@ -1,8 +1,4 @@
 var vm = module.exports;
-/* Monad */
-vm.monadic = function(m, a, b) {
-    return b(a());
-};
 /* Evaluation */
 vm.evaluate = function(m, e, x) {
     if (x && x.qua_evaluate) return x.qua_evaluate(x, m, e); else return x;
@@ -90,26 +86,6 @@ vm.progn = function(m, e, xs) {
                           if (cdr === vm.NIL) return res; else return vm.progn(null, e, cdr);
                       });
 };
-vm.Loop = vm.wrap({
-    qua_combine: function(self, m, e, o) {
-        var body = vm.elt(o, 0);
-        while(true) {
-            vm.combine(null, e, body, vm.NIL);
-        }
-    }
-});
-vm.Rescue = vm.wrap({
-    qua_combine: function(self, m, e, o) {
-        var handler = vm.elt(o, 0);
-        var body = vm.elt(o, 1);
-        try {
-            return vm.combine(null, e, body, vm.NIL);
-        } catch(exc) {
-            // unwrap handler to prevent eval if exc is sym or cons
-            return vm.combine(null, e, vm.unwrap(handler), vm.list(exc));
-        }
-    }
-});
 /* JS function combiners */
 vm.JSFun = function(jsfun) { this.jsfun = vm.assert_type(jsfun, "function"); };
 vm.JSFun.prototype.qua_combine = function(self, m, e, o) {
@@ -193,7 +169,6 @@ vm.init = function(e) {
     // Evaluation
     vm.defun(e, vm.sym("qua:eval"), vm.Eval);
     vm.defun(e, vm.sym("qua:def"), vm.Def);
-    vm.defun(e, vm.sym("qua:loop"), vm.Loop);
     vm.defun(e, vm.sym("qua:progn"), vm.Progn);
     // Combiners
     vm.defun(e, vm.sym("qua:vau"), vm.Vau);
@@ -203,7 +178,6 @@ vm.init = function(e) {
     vm.defun(e, vm.sym("qua:make-env"), vm.jswrap(vm.make_env));
     // Exceptions
     vm.defun(e, vm.sym("qua:raise"), vm.jswrap(vm.raise));
-    vm.defun(e, vm.sym("qua:rescue"), vm.Rescue);
 };
 vm.eval = function(x, e) {
     return vm.evaluate(null, e, x);
