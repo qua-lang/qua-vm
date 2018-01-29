@@ -40,6 +40,7 @@ module.exports = function(vm, e) {
             }
         }
     });
+    vm.raise = function(err, args) { throw err; };
     vm.Rescue = vm.wrap({
         qua_combine: function do_rescue(self, m, e, o) {
             var handler = vm.elt(o, 0);
@@ -133,6 +134,7 @@ module.exports = function(vm, e) {
         }
     });
     vm.defun(e, vm.sym("qua:loop"), vm.Loop);
+    vm.defun(e, vm.sym("qua:raise"), vm.jswrap(vm.raise));
     vm.defun(e, vm.sym("qua:rescue"), vm.Rescue);
     vm.defun(e, vm.sym("delimcc:push-prompt"), vm.PushPrompt);
     vm.defun(e, vm.sym("delimcc:take-subcont"), vm.TakeSubcont);

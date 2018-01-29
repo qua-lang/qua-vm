@@ -155,8 +155,7 @@ vm.check_type = function(obj, type_spec) {
     if (typeof(type_spec) === "string") { return (typeof(obj) === type_spec); }
     else return (obj instanceof type_spec);
 };
-vm.raise = function(err, args) { throw new Error(err); };
-vm.error = vm.raise;
+vm.error = function(err) { throw new Error(err); }
 /* API */
 vm.make_env = function(parent) { return new vm.Env(parent); };
 vm.def = vm.bind;
@@ -176,8 +175,6 @@ vm.init = function(e) {
     vm.defun(e, vm.sym("qua:unwrap"), vm.jswrap(vm.unwrap));
     // Environments
     vm.defun(e, vm.sym("qua:make-env"), vm.jswrap(vm.make_env));
-    // Exceptions
-    vm.defun(e, vm.sym("qua:raise"), vm.jswrap(vm.raise));
 };
 vm.eval = function(x, e) {
     return vm.evaluate(null, e, x);

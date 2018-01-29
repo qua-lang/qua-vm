@@ -47,6 +47,7 @@ module.exports = function(vm, e) {
             }
         }
     });
+    vm.raise = function(err, args) { throw err; };
     vm.Rescue = vm.wrap({
         qua_combine: function do_rescue(self, m, e, o) {
             var handler = vm.elt(o, 0);
@@ -140,6 +141,7 @@ module.exports = function(vm, e) {
         }
     });
     vm.defun(e, vm.sym("qua:loop"), vm.Loop);
+    vm.defun(e, vm.sym("qua:raise"), vm.jswrap(vm.raise));
     vm.defun(e, vm.sym("qua:rescue"), vm.Rescue);
     vm.defun(e, vm.sym("delimcc:push-prompt"), vm.PushPrompt);
     vm.defun(e, vm.sym("delimcc:take-subcont"), vm.TakeSubcont);
@@ -452,8 +454,7 @@ vm.check_type = function(obj, type_spec) {
     if (typeof(type_spec) === "string") { return (typeof(obj) === type_spec); }
     else return (obj instanceof type_spec);
 };
-vm.raise = function(err, args) { throw new Error(err); };
-vm.error = vm.raise;
+vm.error = function(err) { throw new Error(err); }
 /* API */
 vm.make_env = function(parent) { return new vm.Env(parent); };
 vm.def = vm.bind;
@@ -473,8 +474,6 @@ vm.init = function(e) {
     vm.defun(e, vm.sym("qua:unwrap"), vm.jswrap(vm.unwrap));
     // Environments
     vm.defun(e, vm.sym("qua:make-env"), vm.jswrap(vm.make_env));
-    // Exceptions
-    vm.defun(e, vm.sym("qua:raise"), vm.jswrap(vm.raise));
 };
 vm.eval = function(x, e) {
     return vm.evaluate(null, e, x);
