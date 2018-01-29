@@ -1,3 +1,3 @@
 var fs = require("fs");
-var io = require("../js/io");
-console.log("module.exports.main = " + JSON.stringify(io.parse_sexp(fs.readFileSync("qua/init.qua", "utf8"))));
+var parser = require("../js/parser");
+console.log("module.exports.main = " + JSON.stringify(parser.parse_sexp(fs.readFileSync("qua/init.qua", "utf8"))));

@@ -131,10 +131,10 @@ module.exports = function(vm, e) {
             return val;
         }
     });
-    vm.bind(e, vm.fsym("qua:loop"), vm.Loop);
-    vm.bind(e, vm.fsym("qua:rescue"), vm.Rescue);
-    vm.bind(e, vm.fsym("delimcc:push-prompt"), vm.PushPrompt);
-    vm.bind(e, vm.fsym("delimcc:take-subcont"), vm.TakeSubcont);
-    vm.bind(e, vm.fsym("delimcc:push-subcont"), vm.PushSubcont);
-    vm.bind(e, vm.fsym("delimcc:push-prompt-subcont"), vm.PushPromptSubcont);
+    vm.defun(e, vm.sym("qua:loop"), vm.Loop);
+    vm.defun(e, vm.sym("qua:rescue"), vm.Rescue);
+    vm.defun(e, vm.sym("delimcc:push-prompt"), vm.PushPrompt);
+    vm.defun(e, vm.sym("delimcc:take-subcont"), vm.TakeSubcont);
+    vm.defun(e, vm.sym("delimcc:push-subcont"), vm.PushSubcont);
+    vm.defun(e, vm.sym("delimcc:push-prompt-subcont"), vm.PushPromptSubcont);
 }

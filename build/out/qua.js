@@ -1,5 +1,5 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.qua = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-module.exports.main = [null,["qua:def",["qua:function","qua:quote"],["qua:vau",["x"],"#ign","x"]],["qua:def",["qua:function","qua:list"],["qua:wrap",["qua:vau","o","#ign","o"]]],["qua:def",["qua:function","qua:make-macro-expander"],["qua:wrap",["qua:vau",["f"],"#ign",["qua:vau","o","e",["qua:eval",["qua:eval",["qua:cons","f","o"],["qua:make-env"]],"e"]]]]],["qua:def",["qua:function","vau"],["qua:make-macro-expander",["qua:vau",["p","ep",".","x"],"#ign",["qua:list",["qua:function","qua:vau"],"p","ep",["qua:list*",["qua:function","qua:progn"],"x"]]]]],["qua:def",["qua:function","macro"],["qua:make-macro-expander",["vau",["p",".","x"],"#ign",["qua:list",["qua:function","qua:make-macro-expander"],["qua:list*",["qua:function","vau"],"p","#ign","x"]]]]],["qua:def",["qua:function","defmacro"],["macro",["name","p",".","x"],["qua:list",["qua:function","qua:def"],["qua:to-fsym","name"],["qua:list*",["qua:function","macro"],"p","x"]]]],["defmacro","lambda",["p",".","x"],["qua:list",["qua:function","qua:wrap"],["qua:list*",["qua:function","vau"],"p","#ign","x"]]],["qua:def",["qua:function","foo"],["lambda",[],12]],["qua:def","answer",["foo"]],["qua:assert",["qua:deep-equal","answer",11]],null]
+module.exports.main = [null,["qua:def",["qua:function","qua:quote"],["qua:vau",["x"],"#ign","x"]],["qua:def",["qua:function","qua:list"],["qua:wrap",["qua:vau","o","#ign","o"]]],["qua:def",["qua:function","qua:make-macro-expander"],["qua:wrap",["qua:vau",["f"],"#ign",["qua:vau","o","e",["qua:eval",["qua:eval",["qua:cons","f","o"],["qua:make-env"]],"e"]]]]],["qua:def",["qua:function","vau"],["qua:make-macro-expander",["qua:vau",["p","ep",".","x"],"#ign",["qua:list",["qua:function","qua:vau"],"p","ep",["qua:list*",["qua:function","qua:progn"],"x"]]]]],["qua:def",["qua:function","macro"],["qua:make-macro-expander",["vau",["p",".","x"],"#ign",["qua:list",["qua:function","qua:make-macro-expander"],["qua:list*",["qua:function","vau"],"p","#ign","x"]]]]],["qua:def",["qua:function","defmacro"],["macro",["name","p",".","x"],["qua:list",["qua:function","qua:def"],["qua:to-fsym","name"],["qua:list*",["qua:function","macro"],"p","x"]]]],["defmacro","lambda",["p",".","x"],["qua:list",["qua:function","qua:wrap"],["qua:list*",["qua:function","vau"],"p","#ign","x"]]],["defmacro","loop","x",["qua:list",["qua:function","qua:loop"],["qua:list*",["qua:function","qua:progn"],"x"]]],null]
 
 },{}],2:[function(require,module,exports){
 module.exports.main = [null,null,["qua:assert",["qua:deep-equal",1,["qua:car",["qua:cons",1,2]]]],["qua:assert",["qua:deep-equal",2,["qua:cdr",["qua:cons",1,2]]]],["qua:assert",["qua:deep-equal",1,["qua:car",["qua:list",1,2,3]]]],["qua:assert",["qua:deep-equal",["qua:list",2,3],["qua:cdr",["qua:list",1,2,3]]]],["qua:assert",["qua:deep-equal",1,["qua:car",["qua:list*",1,2,3]]]],["qua:assert",["qua:deep-equal",["qua:cons",2,3],["qua:cdr",["qua:list*",1,2,3]]]],null,["qua:def","e1",["qua:make-env"]],["qua:eval",["qua:list",["qua:function","qua:def"],["qua:quote","x"],1],"e1"],["qua:assert",["qua:deep-equal",1,["qua:eval",["qua:quote","x"],"e1"]]],["qua:assert",["qua:deep-equal","#void",["qua:progn"]]],["qua:assert",["qua:deep-equal",1,["qua:progn",1]]],["qua:assert",["qua:deep-equal",2,["qua:progn",1,2]]],null,["qua:def","e2",["qua:make-env"]],["qua:def",["qua:function","fun2"],["qua:wrap",["qua:vau",["p"],"#ign","p"]]],["qua:eval",["qua:list",["qua:function","qua:def"],["qua:quote","x"],2],"e2"],["qua:eval",["qua:list",["qua:function","qua:def"],["qua:quote",["qua:function","fun2"]],["qua:function","fun2"]],"e2"],["qua:assert",["qua:deep-equal",2,["qua:eval",["qua:list",["qua:function","fun2"],["qua:quote","x"]],"e2"]]],null]
@@ -147,6 +147,76 @@ module.exports = function(vm, e) {
 }
 
 },{}],4:[function(require,module,exports){
+module.exports = function(vm, e) {
+    vm.FUN_NS = "f";
+    vm.eval_operator = function(e, op) {
+        if (op instanceof vm.Sym) {
+            return vm.lookup(e, vm.to_fsym(op));
+        } else {
+            return vm.evaluate(null, e, op);
+        }
+    };
+    vm.fsym = function(name) { return vm.sym(name, vm.FUN_NS); };
+    vm.to_fsym = function(sym) { return vm.fsym(vm.assert_type(sym, vm.Sym).name); };
+    vm.defun = function(e, name, cmb) {
+        vm.bind(e, vm.to_fsym(name), cmb);
+    };
+    vm.defun(e, vm.fsym("qua:to-fsym"), vm.jswrap(vm.to_fsym));
+}
+
+},{}],5:[function(require,module,exports){
+var vm = require("./vm");
+var parser = require("./parser");
+var init_bytecode = require("../build/out/init.js").main;
+var test_bytecode = require("../build/out/test.js").main;
+
+var e = vm.make_env();
+require("./lisp-2")(vm, e);
+vm.init(e);
+require("./delimcc")(vm, e);
+require("./optim")(vm, e);
+require("./test")(vm, e);
+vm.eval(parse_bytecode([vm.sym("qua:progn")].concat(init_bytecode)), e);
+vm.eval(parse_bytecode([vm.sym("qua:progn")].concat(test_bytecode)), e);
+
+module.exports.vm = function() {
+    return {
+        "eval": function(str) { return vm.eval(parser.parse_sexp(str), e); }
+    };
+};
+
+/* Bytecode parser */
+function parse_bytecode(obj) {
+    switch(Object.prototype.toString.call(obj)) {
+    case "[object String]": 
+        switch(obj) {
+        case "#ign": return vm.IGN;
+        case "#void": return vm.VOID;
+        default: return vm.sym(obj);
+        }
+    case "[object Array]": return parse_bytecode_array(obj);
+    default: return obj;
+    }
+}
+function parse_bytecode_array(arr) {
+    if ((arr.length == 2) && arr[0] === "wat-string") { return arr[1]; }
+    if ((arr.length == 2) && arr[0] === "qua:function") { return vm.fsym(arr[1]); }
+    var i = arr.indexOf(".");
+    if (i === -1) return vm.array_to_list(arr.map(parse_bytecode));
+    else { var front = arr.slice(0, i);
+        return vm.array_to_list(front.map(parse_bytecode), parse_bytecode(arr[i + 1])); }
+}
+
+},{"../build/out/init.js":1,"../build/out/test.js":2,"./delimcc":3,"./lisp-2":4,"./optim":6,"./parser":7,"./test":8,"./vm":9}],6:[function(require,module,exports){
+module.exports = function(vm, e) {
+    function list_star() {
+        var len = arguments.length; var c = len >= 1 ? arguments[len-1] : NIL;
+        for (var i = len-1; i > 0; i--) c = vm.cons(arguments[i - 1], c); return c;
+    };
+    vm.defun(e, vm.fsym("qua:list*"), vm.jswrap(list_star));
+}
+
+},{}],7:[function(require,module,exports){
 var jsparse = require("jsparse");
 module.exports.parse_sexp = parse_sexp;
 
@@ -211,50 +281,7 @@ var x_stx = whitespace(choice(ign_stx, void_stx, nil_stx, t_stx, f_stx, null_stx
                               /*quote_stx,*/ compound_stx, id_stx, string_stx, cmt_stx));
 var program_stx = whitespace(repeat0(choice(x_stx, whitespace_stx))); // HACK!
 
-},{"jsparse":11}],5:[function(require,module,exports){
-var vm = require("./vm");
-var io = require("./io");
-var cc = require("./cc");
-var test = require("./test");
-var init_bytecode = require("../build/out/init.js").main;
-var test_bytecode = require("../build/out/test.js").main;
-
-var e = vm.make_env();
-vm.init(e);
-cc(vm, e);
-test(vm, e);
-vm.eval(parse_bytecode([vm.sym("qua:progn")].concat(init_bytecode)), e);
-vm.eval(parse_bytecode([vm.sym("qua:progn")].concat(test_bytecode)), e);
-
-module.exports.vm = function() {
-    return {
-        "eval": function(str) { return vm.eval(io.parse_sexp(str), e); }
-    };
-};
-
-/* Bytecode parser */
-function parse_bytecode(obj) {
-    switch(Object.prototype.toString.call(obj)) {
-    case "[object String]": 
-        switch(obj) {
-        case "#ign": return vm.IGN;
-        case "#void": return vm.VOID;
-        default: return vm.sym(obj);
-        }
-    case "[object Array]": return parse_bytecode_array(obj);
-    default: return obj;
-    }
-}
-function parse_bytecode_array(arr) {
-    if ((arr.length == 2) && arr[0] === "wat-string") { return arr[1]; }
-    if ((arr.length == 2) && arr[0] === "qua:function") { return vm.fsym(arr[1]); }
-    var i = arr.indexOf(".");
-    if (i === -1) return vm.array_to_list(arr.map(parse_bytecode));
-    else { var front = arr.slice(0, i);
-        return vm.array_to_list(front.map(parse_bytecode), parse_bytecode(arr[i + 1])); }
-}
-
-},{"../build/out/init.js":1,"../build/out/test.js":2,"./cc":3,"./io":4,"./test":6,"./vm":7}],6:[function(require,module,exports){
+},{"jsparse":13}],8:[function(require,module,exports){
 // Adds utility functions for testing the built-ins to a VM
 var deep_equal = require("deep-equal");
 module.exports = function(vm, e) {
@@ -263,7 +290,7 @@ module.exports = function(vm, e) {
     vm.bind(e, vm.fsym("qua:deep-equal"), vm.jswrap(deep_equal));
 }
 
-},{"deep-equal":8}],7:[function(require,module,exports){
+},{"deep-equal":10}],9:[function(require,module,exports){
 var vm = module.exports;
 /* Monad */
 vm.monadic = function(m, a, b) {
@@ -283,16 +310,11 @@ vm.Sym.prototype.qua_evaluate = function(self, m, e) {
 vm.Cons = function Cons(car, cdr) { this.car = car; this.cdr = cdr; };
 vm.Cons.prototype.qua_evaluate = function(self, m, e) {
     return vm.monadic(m,
-                      function() { return vm.eval_operator(e, self); },
+                      function() { return vm.eval_operator(e, vm.car(self)); },
                       function(cmb) { return vm.combine(null, e, cmb, vm.cdr(self)); });
 };
-vm.eval_operator = function(e, cons) {
-    var op = vm.car(cons);
-    if (op instanceof vm.Sym) {
-        return vm.lookup(e, vm.to_fsym(op));
-    } else {
-        return vm.evaluate(null, e, op);
-    }
+vm.eval_operator = function(e, op) {
+    return vm.evaluate(null, e, op);
 };
 /* Combiners */
 vm.combine = function(m, e, cmb, o) {
@@ -389,10 +411,7 @@ vm.JSFun.prototype.qua_combine = function(self, m, e, o) {
 vm.jswrap = function(jsfun) { return vm.wrap(new vm.JSFun(jsfun)); };
 /* Forms */
 vm.VAR_NS = "v";
-vm.FUN_NS = "f";
 vm.sym = function(name, ns) { return new vm.Sym(name, ns ? ns : vm.VAR_NS); };
-vm.fsym = function(name) { return vm.sym(name, vm.FUN_NS); };
-vm.to_fsym = function(sym) { return vm.fsym(sym.name) };
 vm.sym_key = function(sym) { return sym.name + "_" + sym.ns; };
 vm.cons = function(car, cdr) { return new vm.Cons(car, cdr); };
 vm.car = function(cons) { return vm.assert_type(cons, vm.Cons).car; };
@@ -433,10 +452,6 @@ vm.Ign.prototype.qua_bind = function(self, e, rhs) {};
 vm.list = function() {
     return vm.array_to_list(Array.prototype.slice.call(arguments));
 };
-vm.list_star = function() {
-    var len = arguments.length; var c = len >= 1 ? arguments[len-1] : NIL;
-    for (var i = len-1; i > 0; i--) c = vm.cons(arguments[i - 1], c); return c;
-};
 vm.array_to_list = function(array, end) {
     var c = end ? end : vm.NIL;
     for (var i = array.length; i > 0; i--) c = vm.cons(array[i - 1], c); return c;
@@ -451,7 +466,7 @@ vm.reverse_list = function(list) {
 };
 vm.assert_type = function(obj, type_spec) {
     if (vm.check_type(obj, type_spec)) return obj;
-    else return vm.error("type error", { obj: obj, type_spec: type_spec });
+    else return vm.error("type error: " + type_spec, { obj: obj, type_spec: type_spec });
 };
 vm.check_type = function(obj, type_spec) {
     if (typeof(type_spec) === "string") { return (typeof(obj) === type_spec); }
@@ -459,35 +474,34 @@ vm.check_type = function(obj, type_spec) {
 };
 vm.raise = function(err, args) { throw new Error(err); };
 vm.error = vm.raise;
+vm.defun = vm.bind;
 /* API */
 vm.make_env = function(parent) { return new vm.Env(parent); };
 vm.init = function(e) {
     // Forms
-    vm.bind(e, vm.fsym("qua:car"), vm.jswrap(vm.car));
-    vm.bind(e, vm.fsym("qua:cdr"), vm.jswrap(vm.cdr));
-    vm.bind(e, vm.fsym("qua:cons"), vm.jswrap(vm.cons));
-    vm.bind(e, vm.fsym("qua:list*"), vm.jswrap(vm.list_star)); // optim
+    vm.defun(e, vm.sym("qua:car"), vm.jswrap(vm.car));
+    vm.defun(e, vm.sym("qua:cdr"), vm.jswrap(vm.cdr));
+    vm.defun(e, vm.sym("qua:cons"), vm.jswrap(vm.cons));
     // Evaluation
-    vm.bind(e, vm.fsym("qua:eval"), vm.Eval);
-    vm.bind(e, vm.fsym("qua:def"), vm.Def);
-    vm.bind(e, vm.fsym("qua:loop"), vm.Loop);
-    vm.bind(e, vm.fsym("qua:progn"), vm.Progn);
+    vm.defun(e, vm.sym("qua:eval"), vm.Eval);
+    vm.defun(e, vm.sym("qua:def"), vm.Def);
+    vm.defun(e, vm.sym("qua:loop"), vm.Loop);
+    vm.defun(e, vm.sym("qua:progn"), vm.Progn);
     // Combiners
-    vm.bind(e, vm.fsym("qua:vau"), vm.Vau);
-    vm.bind(e, vm.fsym("qua:wrap"), vm.jswrap(vm.wrap));
-    vm.bind(e, vm.fsym("qua:unwrap"), vm.jswrap(vm.unwrap));
-    vm.bind(e, vm.fsym("qua:to-fsym"), vm.jswrap(vm.to_fsym));
+    vm.defun(e, vm.sym("qua:vau"), vm.Vau);
+    vm.defun(e, vm.sym("qua:wrap"), vm.jswrap(vm.wrap));
+    vm.defun(e, vm.sym("qua:unwrap"), vm.jswrap(vm.unwrap));
     // Environments
-    vm.bind(e, vm.fsym("qua:make-env"), vm.jswrap(vm.make_env));
+    vm.defun(e, vm.sym("qua:make-env"), vm.jswrap(vm.make_env));
     // Exceptions
-    vm.bind(e, vm.fsym("qua:raise"), vm.jswrap(vm.raise));
-    vm.bind(e, vm.fsym("qua:rescue"), vm.Rescue);
+    vm.defun(e, vm.sym("qua:raise"), vm.jswrap(vm.raise));
+    vm.defun(e, vm.sym("qua:rescue"), vm.Rescue);
 };
 vm.eval = function(x, e) {
     return vm.evaluate(null, e, x);
 };
 
-},{}],8:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 var pSlice = Array.prototype.slice;
 var objectKeys = require('./lib/keys.js');
 var isArguments = require('./lib/is_arguments.js');
@@ -583,7 +597,7 @@ function objEquiv(a, b, opts) {
   return typeof a === typeof b;
 }
 
-},{"./lib/is_arguments.js":9,"./lib/keys.js":10}],9:[function(require,module,exports){
+},{"./lib/is_arguments.js":11,"./lib/keys.js":12}],11:[function(require,module,exports){
 var supportsArgumentsClass = (function(){
   return Object.prototype.toString.call(arguments)
 })() == '[object Arguments]';
@@ -605,7 +619,7 @@ function unsupported(object){
     false;
 };
 
-},{}],10:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 exports = module.exports = typeof Object.keys === 'function'
   ? Object.keys : shim;
 
@@ -616,7 +630,7 @@ function shim (obj) {
   return keys;
 }
 
-},{}],11:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 // Copyright (C) 2007 Chris Double.
 //
 // Redistribution and use in source and binary forms, with or without

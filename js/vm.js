@@ -17,16 +17,11 @@ vm.Sym.prototype.qua_evaluate = function(self, m, e) {
 vm.Cons = function Cons(car, cdr) { this.car = car; this.cdr = cdr; };
 vm.Cons.prototype.qua_evaluate = function(self, m, e) {
     return vm.monadic(m,
-                      function() { return vm.eval_operator(e, self); },
+                      function() { return vm.eval_operator(e, vm.car(self)); },
                       function(cmb) { return vm.combine(null, e, cmb, vm.cdr(self)); });
 };
-vm.eval_operator = function(e, cons) {
-    var op = vm.car(cons);
-    if (op instanceof vm.Sym) {
-        return vm.lookup(e, vm.to_fsym(op));
-    } else {
-        return vm.evaluate(null, e, op);
-    }
+vm.eval_operator = function(e, op) {
+    return vm.evaluate(null, e, op);
 };
 /* Combiners */
 vm.combine = function(m, e, cmb, o) {
@@ -123,10 +118,7 @@ vm.JSFun.prototype.qua_combine = function(self, m, e, o) {
 vm.jswrap = function(jsfun) { return vm.wrap(new vm.JSFun(jsfun)); };
 /* Forms */
 vm.VAR_NS = "v";
-vm.FUN_NS = "f";
 vm.sym = function(name, ns) { return new vm.Sym(name, ns ? ns : vm.VAR_NS); };
-vm.fsym = function(name) { return vm.sym(name, vm.FUN_NS); };
-vm.to_fsym = function(sym) { return vm.fsym(sym.name) };
 vm.sym_key = function(sym) { return sym.name + "_" + sym.ns; };
 vm.cons = function(car, cdr) { return new vm.Cons(car, cdr); };
 vm.car = function(cons) { return vm.assert_type(cons, vm.Cons).car; };
@@ -167,10 +159,6 @@ vm.Ign.prototype.qua_bind = function(self, e, rhs) {};
 vm.list = function() {
     return vm.array_to_list(Array.prototype.slice.call(arguments));
 };
-vm.list_star = function() {
-    var len = arguments.length; var c = len >= 1 ? arguments[len-1] : NIL;
-    for (var i = len-1; i > 0; i--) c = vm.cons(arguments[i - 1], c); return c;
-};
 vm.array_to_list = function(array, end) {
     var c = end ? end : vm.NIL;
     for (var i = array.length; i > 0; i--) c = vm.cons(array[i - 1], c); return c;
@@ -185,7 +173,7 @@ vm.reverse_list = function(list) {
 };
 vm.assert_type = function(obj, type_spec) {
     if (vm.check_type(obj, type_spec)) return obj;
-    else return vm.error("type error", { obj: obj, type_spec: type_spec });
+    else return vm.error("type error: " + type_spec, { obj: obj, type_spec: type_spec });
 };
 vm.check_type = function(obj, type_spec) {
     if (typeof(type_spec) === "string") { return (typeof(obj) === type_spec); }
@@ -195,27 +183,27 @@ vm.raise = function(err, args) { throw new Error(err); };
 vm.error = vm.raise;
 /* API */
 vm.make_env = function(parent) { return new vm.Env(parent); };
+vm.def = vm.bind;
+vm.defun = vm.bind;
 vm.init = function(e) {
     // Forms
-    vm.bind(e, vm.fsym("qua:car"), vm.jswrap(vm.car));
-    vm.bind(e, vm.fsym("qua:cdr"), vm.jswrap(vm.cdr));
-    vm.bind(e, vm.fsym("qua:cons"), vm.jswrap(vm.cons));
-    vm.bind(e, vm.fsym("qua:list*"), vm.jswrap(vm.list_star)); // optim
+    vm.defun(e, vm.sym("qua:car"), vm.jswrap(vm.car));
+    vm.defun(e, vm.sym("qua:cdr"), vm.jswrap(vm.cdr));
+    vm.defun(e, vm.sym("qua:cons"), vm.jswrap(vm.cons));
     // Evaluation
-    vm.bind(e, vm.fsym("qua:eval"), vm.Eval);
-    vm.bind(e, vm.fsym("qua:def"), vm.Def);
-    vm.bind(e, vm.fsym("qua:loop"), vm.Loop);
-    vm.bind(e, vm.fsym("qua:progn"), vm.Progn);
+    vm.defun(e, vm.sym("qua:eval"), vm.Eval);
+    vm.defun(e, vm.sym("qua:def"), vm.Def);
+    vm.defun(e, vm.sym("qua:loop"), vm.Loop);
+    vm.defun(e, vm.sym("qua:progn"), vm.Progn);
     // Combiners
-    vm.bind(e, vm.fsym("qua:vau"), vm.Vau);
-    vm.bind(e, vm.fsym("qua:wrap"), vm.jswrap(vm.wrap));
-    vm.bind(e, vm.fsym("qua:unwrap"), vm.jswrap(vm.unwrap));
-    vm.bind(e, vm.fsym("qua:to-fsym"), vm.jswrap(vm.to_fsym));
+    vm.defun(e, vm.sym("qua:vau"), vm.Vau);
+    vm.defun(e, vm.sym("qua:wrap"), vm.jswrap(vm.wrap));
+    vm.defun(e, vm.sym("qua:unwrap"), vm.jswrap(vm.unwrap));
     // Environments
-    vm.bind(e, vm.fsym("qua:make-env"), vm.jswrap(vm.make_env));
+    vm.defun(e, vm.sym("qua:make-env"), vm.jswrap(vm.make_env));
     // Exceptions
-    vm.bind(e, vm.fsym("qua:raise"), vm.jswrap(vm.raise));
-    vm.bind(e, vm.fsym("qua:rescue"), vm.Rescue);
+    vm.defun(e, vm.sym("qua:raise"), vm.jswrap(vm.raise));
+    vm.defun(e, vm.sym("qua:rescue"), vm.Rescue);
 };
 vm.eval = function(x, e) {
     return vm.evaluate(null, e, x);

@@ -1,20 +1,20 @@
 var vm = require("./vm");
-var io = require("./io");
-var cc = require("./cc");
-var test = require("./test");
+var parser = require("./parser");
 var init_bytecode = require("../build/out/init.js").main;
 var test_bytecode = require("../build/out/test.js").main;
 
 var e = vm.make_env();
+require("./lisp-2")(vm, e);
 vm.init(e);
-cc(vm, e);
-test(vm, e);
+require("./delimcc")(vm, e);
+require("./optim")(vm, e);
+require("./test")(vm, e);
 vm.eval(parse_bytecode([vm.sym("qua:progn")].concat(init_bytecode)), e);
 vm.eval(parse_bytecode([vm.sym("qua:progn")].concat(test_bytecode)), e);
 
 module.exports.vm = function() {
     return {
-        "eval": function(str) { return vm.eval(io.parse_sexp(str), e); }
+        "eval": function(str) { return vm.eval(parser.parse_sexp(str), e); }
     };
 };
 
