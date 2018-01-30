@@ -2,6 +2,6 @@
 var deep_equal = require("deep-equal");
 module.exports = function(vm, e) {
     function assert(x) { if (!x) return vm.error("assertion failure"); }
-    vm.bind(e, vm.fsym("qua:assert"), vm.jswrap(assert));
-    vm.bind(e, vm.fsym("qua:deep-equal"), vm.jswrap(deep_equal));
+    vm.defun(e, vm.sym("qua:assert"), vm.jswrap(assert));
+    vm.defun(e, vm.sym("qua:deep-equal"), vm.jswrap(deep_equal));
 }

@@ -219,7 +219,7 @@ module.exports = function(vm, e) {
         var len = arguments.length; var c = len >= 1 ? arguments[len-1] : NIL;
         for (var i = len-1; i > 0; i--) c = vm.cons(arguments[i - 1], c); return c;
     };
-    vm.defun(e, vm.fsym("qua:list*"), vm.jswrap(list_star));
+    vm.defun(e, vm.sym("qua:list*"), vm.jswrap(list_star));
 }
 
 },{}],7:[function(require,module,exports){
@@ -292,8 +292,8 @@ var program_stx = whitespace(repeat0(choice(x_stx, whitespace_stx))); // HACK!
 var deep_equal = require("deep-equal");
 module.exports = function(vm, e) {
     function assert(x) { if (!x) return vm.error("assertion failure"); }
-    vm.bind(e, vm.fsym("qua:assert"), vm.jswrap(assert));
-    vm.bind(e, vm.fsym("qua:deep-equal"), vm.jswrap(deep_equal));
+    vm.defun(e, vm.sym("qua:assert"), vm.jswrap(assert));
+    vm.defun(e, vm.sym("qua:deep-equal"), vm.jswrap(deep_equal));
 }
 
 },{"deep-equal":10}],9:[function(require,module,exports){
