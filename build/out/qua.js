@@ -1,5 +1,5 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.qua = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-module.exports.main = [null,["qua:def",["qua:function","qua:quote"],["qua:vau",["x"],"#ign","x"]],["qua:def",["qua:function","qua:list"],["qua:wrap",["qua:vau","o","#ign","o"]]],["qua:def",["qua:function","qua:make-macro-expander"],["qua:wrap",["qua:vau",["f"],"#ign",["qua:vau","o","e",["qua:eval",["qua:eval",["qua:cons","f","o"],["qua:make-env"]],"e"]]]]],["qua:def",["qua:function","vau"],["qua:make-macro-expander",["qua:vau",["p","ep",".","x"],"#ign",["qua:list",["qua:function","qua:vau"],"p","ep",["qua:list*",["qua:function","qua:progn"],"x"]]]]],["qua:def",["qua:function","macro"],["qua:make-macro-expander",["vau",["p",".","x"],"#ign",["qua:list",["qua:function","qua:make-macro-expander"],["qua:list*",["qua:function","vau"],"p","#ign","x"]]]]],["qua:def",["qua:function","defmacro"],["macro",["name","p",".","x"],["qua:list",["qua:function","qua:def"],["qua:to-fsym","name"],["qua:list*",["qua:function","macro"],"p","x"]]]],["defmacro","lambda",["p",".","x"],["qua:list",["qua:function","qua:wrap"],["qua:list*",["qua:function","vau"],"p","#ign","x"]]],["defmacro","loop","x",["qua:list",["qua:function","qua:loop"],["qua:list*",["qua:function","qua:progn"],"x"]]],null]
+module.exports.main = [null,["qua:def",["qua:function","qua:quote"],["qua:vau",["x"],"#ign","x"]],["qua:def",["qua:function","qua:list"],["qua:wrap",["qua:vau","o","#ign","o"]]],["qua:def",["qua:function","qua:make-macro-expander"],["qua:wrap",["qua:vau",["f"],"#ign",["qua:vau","o","e",["qua:eval",["qua:eval",["qua:cons","f","o"],["qua:make-env"]],"e"]]]]],["qua:def",["qua:function","vau"],["qua:make-macro-expander",["qua:vau",["p","ep",".","x"],"#ign",["qua:list",["qua:function","qua:vau"],"p","ep",["qua:list*",["qua:function","qua:progn"],"x"]]]]],["qua:def",["qua:function","macro"],["qua:make-macro-expander",["vau",["p",".","x"],"#ign",["qua:list",["qua:function","qua:make-macro-expander"],["qua:list*",["qua:function","vau"],"p","#ign","x"]]]]],["qua:def",["qua:function","defmacro"],["macro",["name","p",".","x"],["qua:list",["qua:function","qua:def"],["qua:to-fsym","name"],["qua:list*",["qua:function","macro"],"p","x"]]]],["defmacro","qua:lambda",["params",".","body"],["qua:list",["qua:function","qua:wrap"],["qua:list*",["qua:function","vau"],"params","#ign","body"]]],["defmacro","lambda",["params",".","body"],["qua:def","ll",["qua:parse-ordinary-ll","params"]],["qua:list*",["qua:function","qua:lambda"],["qua:untyped-ordinary-ll","ll"],["qua:ordinary-ll-checks","ll"],"body"]],["defmacro","loop","x",["qua:list",["qua:function","qua:loop"],["qua:list*",["qua:function","qua:progn"],"x"]]],null]
 
 },{}],2:[function(require,module,exports){
 module.exports.main = [null,null,["qua:assert",["qua:deep-equal",1,["qua:car",["qua:cons",1,2]]]],["qua:assert",["qua:deep-equal",2,["qua:cdr",["qua:cons",1,2]]]],["qua:assert",["qua:deep-equal",1,["qua:car",["qua:list",1,2,3]]]],["qua:assert",["qua:deep-equal",["qua:list",2,3],["qua:cdr",["qua:list",1,2,3]]]],["qua:assert",["qua:deep-equal",1,["qua:car",["qua:list*",1,2,3]]]],["qua:assert",["qua:deep-equal",["qua:cons",2,3],["qua:cdr",["qua:list*",1,2,3]]]],null,["qua:def","e1",["qua:make-env"]],["qua:eval",["qua:list",["qua:function","qua:def"],["qua:quote","x"],1],"e1"],["qua:assert",["qua:deep-equal",1,["qua:eval",["qua:quote","x"],"e1"]]],["qua:assert",["qua:deep-equal","#void",["qua:progn"]]],["qua:assert",["qua:deep-equal",1,["qua:progn",1]]],["qua:assert",["qua:deep-equal",2,["qua:progn",1,2]]],null,["qua:def","e2",["qua:make-env"]],["qua:def",["qua:function","fun2"],["qua:wrap",["qua:vau",["p"],"#ign","p"]]],["qua:eval",["qua:list",["qua:function","qua:def"],["qua:quote","x"],2],"e2"],["qua:eval",["qua:list",["qua:function","qua:def"],["qua:quote",["qua:function","fun2"]],["qua:function","fun2"]],"e2"],["qua:assert",["qua:deep-equal",2,["qua:eval",["qua:list",["qua:function","fun2"],["qua:quote","x"]],"e2"]]],null]
@@ -17,7 +17,7 @@ module.exports = function(vm, e) {
     function isSuspension(x) { return x instanceof Suspension; };
     function suspendFrame(sus, fun) { sus.k = new StackFrame(fun, sus.k); };
     function resumeFrame(k, f) { return k.fun(k.next, f); };
-    vm.monadic = function(m, a, b) {
+    vm.monadic = function(m, a, b) { // override vm.js
         if (isResumption(m)) {
             var val = resumeFrame(m.k, m.f);
         } else {
@@ -155,7 +155,7 @@ module.exports = function(vm, e) {
 // from other modules go into the function namespace.
 module.exports = function(vm, e) {
     vm.FUN_NS = "f";
-    vm.eval_operator = function(e, op) {
+    vm.eval_operator = function(e, op) { // override vm.js
         if (op instanceof vm.Sym) {
             return vm.lookup(e, vm.to_fsym(op));
         } else {
@@ -164,7 +164,7 @@ module.exports = function(vm, e) {
     };
     vm.fsym = function(name) { return vm.sym(name, vm.FUN_NS); };
     vm.to_fsym = function(sym) { vm.assert_type(sym, vm.Sym); return vm.fsym(sym.name); };
-    vm.defun = function(e, name, cmb) {
+    vm.defun = function(e, name, cmb) { // override vm.js
         vm.bind(e, vm.to_fsym(name), cmb);
     };
     vm.defun(e, vm.sym("qua:to-fsym"), vm.jswrap(vm.to_fsym));
@@ -178,7 +178,7 @@ var test_bytecode = require("../build/out/test.js").main;
 
 var e = vm.make_env();
 require("./lisp-2")(vm, e);
-require("./delimcc")(vm, e);
+require("./cc")(vm, e);
 require("./optim")(vm, e);
 require("./test")(vm, e);
 vm.init(e);
@@ -213,7 +213,8 @@ function parse_bytecode_array(arr) {
         return vm.array_to_list(front.map(parse_bytecode), parse_bytecode(arr[i + 1])); }
 }
 
-},{"../build/out/init.js":1,"../build/out/test.js":2,"./delimcc":3,"./lisp-2":4,"./optim":6,"./parser":7,"./test":8,"./vm":9}],6:[function(require,module,exports){
+},{"../build/out/init.js":1,"../build/out/test.js":2,"./cc":3,"./lisp-2":4,"./optim":6,"./parser":7,"./test":8,"./vm":9}],6:[function(require,module,exports){
+// We have *of course* measured the benefit of implementing these optimizations.
 module.exports = function(vm, e) {
     function list_star() {
         var len = arguments.length; var c = len >= 1 ? arguments[len-1] : NIL;

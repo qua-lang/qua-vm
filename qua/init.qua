@@ -22,8 +22,14 @@
   (macro (name p . x)
     (qua:list #'qua:def (qua:to-fsym name) (qua:list* #'macro p x))))
 
-(defmacro lambda (p . x)
-  (qua:list #'qua:wrap (qua:list* #'vau p #ign x)))
+(defmacro qua:lambda (params . body)
+  (qua:list #'qua:wrap (qua:list* #'vau params #ign body)))
+
+(defmacro lambda (params . body)
+  (qua:def ll (qua:parse-ordinary-ll params))
+  (qua:list* #'qua:lambda (qua:untyped-ordinary-ll ll)
+             (qua:ordinary-ll-checks ll)
+             body))
 
 (defmacro loop x
   (qua:list #'qua:loop (qua:list* #'qua:progn x)))

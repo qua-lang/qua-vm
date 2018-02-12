@@ -3,7 +3,7 @@
 // from other modules go into the function namespace.
 module.exports = function(vm, e) {
     vm.FUN_NS = "f";
-    vm.eval_operator = function(e, op) {
+    vm.eval_operator = function(e, op) { // override vm.js
         if (op instanceof vm.Sym) {
             return vm.lookup(e, vm.to_fsym(op));
         } else {
@@ -12,7 +12,7 @@ module.exports = function(vm, e) {
     };
     vm.fsym = function(name) { return vm.sym(name, vm.FUN_NS); };
     vm.to_fsym = function(sym) { vm.assert_type(sym, vm.Sym); return vm.fsym(sym.name); };
-    vm.defun = function(e, name, cmb) {
+    vm.defun = function(e, name, cmb) { // override vm.js
         vm.bind(e, vm.to_fsym(name), cmb);
     };
     vm.defun(e, vm.sym("qua:to-fsym"), vm.jswrap(vm.to_fsym));

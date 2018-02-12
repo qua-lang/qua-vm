@@ -1,3 +1,4 @@
+// We have *of course* measured the benefit of implementing these optimizations.
 module.exports = function(vm, e) {
     function list_star() {
         var len = arguments.length; var c = len >= 1 ? arguments[len-1] : NIL;

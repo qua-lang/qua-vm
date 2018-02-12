@@ -10,7 +10,7 @@ module.exports = function(vm, e) {
     function isSuspension(x) { return x instanceof Suspension; };
     function suspendFrame(sus, fun) { sus.k = new StackFrame(fun, sus.k); };
     function resumeFrame(k, f) { return k.fun(k.next, f); };
-    vm.monadic = function(m, a, b) {
+    vm.monadic = function(m, a, b) { // override vm.js
         if (isResumption(m)) {
             var val = resumeFrame(m.k, m.f);
         } else {
