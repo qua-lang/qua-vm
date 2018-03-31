@@ -21,3 +21,9 @@
 (eval (list #'def (quote x) 2) e2)
 (eval (list #'def (quote #'fun2) #'fun2) e2)
 (qua:assert (qua:deep-equal 2 (eval (list #'fun2 (quote x)) e2)))
+
+;;;; Lambda
+(def #'lam1 (qua:lambda () 10 11 12))
+(def #'lam2 (qua:lambda ()))
+(qua:assert (qua:deep-equal 12 (lam1)))
+(qua:assert (qua:deep-equal #void (lam2)))
