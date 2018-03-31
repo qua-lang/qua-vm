@@ -22,47 +22,7 @@ module.exports = function(vm, e) {
         }
         return b(val);
     };
-    vm.Loop = vm.wrap({
-        qua_combine: function do_loop(self, m, e, o) {
-            var body = vm.elt(o, 0);
-            var first = true; // only resume once
-            while (true) {
-                if (first && isResumption(m)) {
-                    var val = resumeFrame(m.k, m.f);
-                } else {
-                    var val = vm.combine(null, e, body, vm.NIL);
-                }
-                first = false;
-                if (isSuspension(val)) {
-                    suspendFrame(val, function(m) { return do_loop(self, m, e, o); });
-                    return val;
-                }
-            }
-        }
-    });
-    vm.raise = function(err, args) { throw err; };
-    vm.Rescue = vm.wrap({
-        qua_combine: function do_rescue(self, m, e, o) {
-            var handler = vm.elt(o, 0);
-            var body = vm.elt(o, 1);
-            try {
-                if (isResumption(m)) {
-                    var val = resumeFrame(m.k, m.f);
-                } else {
-                    var val = vm.combine(null, e, body, vm.NIL);
-                }
-            } catch(exc) {
-                // unwrap handler to prevent eval if exc is sym or cons
-                var val = vm.combine(null, e, vm.unwrap(handler), vm.list(exc));
-            }
-            if (isSuspension(val)) {
-                suspendFrame(val, function(m) { return do_rescue(self, m, e, o); });
-                return val;
-            }
-            return val;
-        }
-    });
-    /* Delimited Control */
+    /* Delimited control */
     vm.PushPrompt = vm.wrap({
         qua_combine: function do_push_prompt(self, m, e, o) {
             var prompt = vm.elt(o, 0);
@@ -86,7 +46,7 @@ module.exports = function(vm, e) {
         }
     });
     vm.TakeSubcont = vm.wrap({
-        qua_combine: function (self, m, e, o) {
+        qua_combine: function(self, m, e, o) {
             var prompt = vm.elt(o, 0);
             var handler = vm.elt(o, 1);
             var sus = new Suspension(prompt, handler);
@@ -129,6 +89,47 @@ module.exports = function(vm, e) {
                     suspendFrame(val, function(m) { return do_push_prompt_subcont(self, m, e, o); });
                     return val;
                 }
+            }
+            return val;
+        }
+    });
+    /* Simple control */
+    vm.Loop = vm.wrap({
+        qua_combine: function do_loop(self, m, e, o) {
+            var body = vm.elt(o, 0);
+            var first = true; // only resume once
+            while (true) {
+                if (first && isResumption(m)) {
+                    var val = resumeFrame(m.k, m.f);
+                } else {
+                    var val = vm.combine(null, e, body, vm.NIL);
+                }
+                first = false;
+                if (isSuspension(val)) {
+                    suspendFrame(val, function(m) { return do_loop(self, m, e, o); });
+                    return val;
+                }
+            }
+        }
+    });
+    vm.raise = function(err, args) { throw err; };
+    vm.Rescue = vm.wrap({
+        qua_combine: function do_rescue(self, m, e, o) {
+            var handler = vm.elt(o, 0);
+            var body = vm.elt(o, 1);
+            try {
+                if (isResumption(m)) {
+                    var val = resumeFrame(m.k, m.f);
+                } else {
+                    var val = vm.combine(null, e, body, vm.NIL);
+                }
+            } catch(exc) {
+                // unwrap handler to prevent eval if exc is sym or cons
+                var val = vm.combine(null, e, vm.unwrap(handler), vm.list(exc));
+            }
+            if (isSuspension(val)) {
+                suspendFrame(val, function(m) { return do_rescue(self, m, e, o); });
+                return val;
             }
             return val;
         }

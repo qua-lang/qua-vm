@@ -142,20 +142,34 @@ vm.array_to_list = function(array, end) {
 vm.list_to_array = function(c) {
     var res = []; while(c !== vm.NIL) { res.push(vm.car(c)); c = vm.cdr(c); } return res;
 };
+vm.map_list = function(list, fun) {
+    if (list === vm.NIL) return vm.NIL;
+    else return vm.cons(fun(vm.car(list)), vm.map_list(vm.cdr(list), fun));
+};
 vm.reverse_list = function(list) {
     var res = vm.NIL;
     while(list !== vm.NIL) { res = vm.cons(vm.car(list), res); list = vm.cdr(list); }
     return res;
 };
+vm.assert = function(x) { if (!x) vm.error("assertion failed"); };
+vm.error = function(err) { throw new Error(err); };
+/* JS type checks */
 vm.assert_type = function(obj, type_spec) {
     if (vm.check_type(obj, type_spec)) return obj;
     else return vm.error("type error: " + type_spec, { obj: obj, type_spec: type_spec });
 };
 vm.check_type = function(obj, type_spec) {
-    if (typeof(type_spec) === "string") { return (typeof(obj) === type_spec); }
-    else return (obj instanceof type_spec);
+    if (typeof(type_spec) === "string") {
+        return (typeof(obj) === type_spec);
+    } else if (Array.isArray(type_spec)) {
+        vm.assert(type_spec.length === 1);
+        var elt_type_spec = type_spec[0];
+        vm.assert(Array.isArray(obj));
+        obj.forEach(function(elt) { vm.assert_type(elt, elt_type_spec); });
+    } else {
+        return (obj instanceof type_spec);
+    }
 };
-vm.error = function(err) { throw new Error(err); }
 /* API */
 vm.make_env = function(parent) { return new vm.Env(parent); };
 vm.def = vm.bind;
@@ -177,5 +191,5 @@ vm.init = function(e) {
     vm.defun(e, vm.sym("qua:make-env"), vm.jswrap(vm.make_env));
 };
 vm.eval = function(x, e) {
-    return vm.evaluate(null, e, x);
+    return vm.evaluate(null, e, x); // change to x,e
 };

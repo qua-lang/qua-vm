@@ -5,7 +5,8 @@ var test_bytecode = require("../build/out/test.js").main;
 
 var e = vm.make_env();
 require("./lisp-2")(vm, e);
-require("./cc")(vm, e);
+require("./cont")(vm, e);
+require("./print")(vm, e);
 require("./optim")(vm, e);
 require("./test")(vm, e);
 vm.init(e);
