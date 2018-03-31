@@ -176,19 +176,19 @@ vm.def = vm.bind;
 vm.defun = vm.bind;
 vm.init = function(e) {
     // Forms
-    vm.defun(e, vm.sym("qua:car"), vm.jswrap(vm.car));
-    vm.defun(e, vm.sym("qua:cdr"), vm.jswrap(vm.cdr));
-    vm.defun(e, vm.sym("qua:cons"), vm.jswrap(vm.cons));
+    vm.defun(e, vm.sym("%%car"), vm.jswrap(vm.car));
+    vm.defun(e, vm.sym("%%cdr"), vm.jswrap(vm.cdr));
+    vm.defun(e, vm.sym("%%cons"), vm.jswrap(vm.cons));
     // Evaluation
-    vm.defun(e, vm.sym("qua:eval"), vm.Eval);
-    vm.defun(e, vm.sym("qua:def"), vm.Def);
-    vm.defun(e, vm.sym("qua:progn"), vm.Progn);
+    vm.defun(e, vm.sym("%%eval"), vm.Eval);
+    vm.defun(e, vm.sym("%%def"), vm.Def);
+    vm.defun(e, vm.sym("%%progn"), vm.Progn);
     // Combiners
-    vm.defun(e, vm.sym("qua:vau"), vm.Vau);
-    vm.defun(e, vm.sym("qua:wrap"), vm.jswrap(vm.wrap));
-    vm.defun(e, vm.sym("qua:unwrap"), vm.jswrap(vm.unwrap));
+    vm.defun(e, vm.sym("%%vau"), vm.Vau);
+    vm.defun(e, vm.sym("%%wrap"), vm.jswrap(vm.wrap));
+    vm.defun(e, vm.sym("%%unwrap"), vm.jswrap(vm.unwrap));
     // Environments
-    vm.defun(e, vm.sym("qua:make-env"), vm.jswrap(vm.make_env));
+    vm.defun(e, vm.sym("%%make-environment"), vm.jswrap(vm.make_env));
 };
 vm.eval = function(x, e) {
     return vm.evaluate(null, e, x); // change to x,e

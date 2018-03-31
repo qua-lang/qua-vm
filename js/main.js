@@ -10,8 +10,8 @@ require("./print")(vm, e);
 require("./optim")(vm, e);
 require("./test")(vm, e);
 vm.init(e);
-vm.eval(parse_bytecode([vm.sym("qua:progn")].concat(init_bytecode)), e);
-vm.eval(parse_bytecode([vm.sym("qua:progn")].concat(test_bytecode)), e);
+vm.eval(parse_bytecode([vm.sym("%%progn")].concat(init_bytecode)), e);
+vm.eval(parse_bytecode([vm.sym("%%progn")].concat(test_bytecode)), e);
 
 module.exports.vm = function() {
     return {

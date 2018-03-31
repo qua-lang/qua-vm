@@ -15,5 +15,5 @@ module.exports = function(vm, e) {
     vm.defun = function(e, name, cmb) { // override vm.js
         vm.bind(e, vm.to_fsym(name), cmb);
     };
-    vm.defun(e, vm.sym("qua:to-fsym"), vm.jswrap(vm.to_fsym));
+    vm.defun(e, vm.sym("%%to-fsym"), vm.jswrap(vm.to_fsym));
 }

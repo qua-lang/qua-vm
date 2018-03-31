@@ -1,8 +1,8 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.qua = f()}})(function(){var define,module,exports;return (function(){function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s}return e})()({1:[function(require,module,exports){
-module.exports.main = [null,["qua:def",["qua:function","qua:quote"],["qua:vau",["x"],"#ign","x"]],["qua:def",["qua:function","qua:list"],["qua:wrap",["qua:vau","o","#ign","o"]]],["qua:def",["qua:function","qua:make-macro-expander"],["qua:wrap",["qua:vau",["f"],"#ign",["qua:vau","o","e",["qua:eval",["qua:eval",["qua:cons","f","o"],["qua:make-env"]],"e"]]]]],["qua:def",["qua:function","vau"],["qua:make-macro-expander",["qua:vau",["p","ep",".","x"],"#ign",["qua:list",["qua:function","qua:vau"],"p","ep",["qua:list*",["qua:function","qua:progn"],"x"]]]]],["qua:def",["qua:function","macro"],["qua:make-macro-expander",["vau",["p",".","x"],"#ign",["qua:list",["qua:function","qua:make-macro-expander"],["qua:list*",["qua:function","vau"],"p","#ign","x"]]]]],["qua:def",["qua:function","defmacro"],["macro",["name","p",".","x"],["qua:list",["qua:function","qua:def"],["qua:to-fsym","name"],["qua:list*",["qua:function","macro"],"p","x"]]]],["defmacro","qua:lambda",["params",".","body"],["qua:list",["qua:function","qua:wrap"],["qua:list*",["qua:function","vau"],"params","#ign","body"]]],["defmacro","lambda",["params",".","body"],["qua:def","ll",["qua:parse-ordinary-ll","params"]],["qua:list*",["qua:function","qua:lambda"],["qua:untyped-ordinary-ll","ll"],["qua:ordinary-ll-checks","ll"],"body"]],["defmacro","loop","x",["qua:list",["qua:function","qua:loop"],["qua:list*",["qua:function","qua:progn"],"x"]]],null]
+module.exports.main = [null,["%%def",["qua:function","def"],["qua:function","%%def"]],["def",["qua:function","car"],["qua:function","%%car"]],["def",["qua:function","cdr"],["qua:function","%%cdr"]],["def",["qua:function","cons"],["qua:function","%%cons"]],["def",["qua:function","eval"],["qua:function","%%eval"]],["def",["qua:function","make-environment"],["qua:function","%%make-environment"]],["def",["qua:function","progn"],["qua:function","%%progn"]],["def",["qua:function","qua:to-fsym"],["qua:function","%%to-fsym"]],["def",["qua:function","unwrap"],["qua:function","%%unwrap"]],["def",["qua:function","wrap"],["qua:function","%%wrap"]],null,["def",["qua:function","list*"],["qua:function","%%list*"]],null,["def",["qua:function","qua:assert"],["qua:function","%%assert"]],["def",["qua:function","qua:deep-equal"],["qua:function","%%deep-equal"]],["def",["qua:function","quote"],["%%vau",["x"],"#ign","x"]],["def",["qua:function","list"],["wrap",["%%vau","o","#ign","o"]]],["def",["qua:function","qua:make-macro-expander"],["wrap",["%%vau",["expander-function"],"#ign",["%%vau","operands","env",["eval",["eval",["cons","expander-function","operands"],["make-environment"]],"env"]]]]],null,["def",["qua:function","vau"],["qua:make-macro-expander",["%%vau",["params","env-param",".","body"],"#ign",["list",["qua:function","%%vau"],"params","env-param",["list*",["qua:function","progn"],"body"]]]]],["def",["qua:function","macro"],["qua:make-macro-expander",["vau",["params",".","body"],"#ign",["list",["qua:function","qua:make-macro-expander"],["list*",["qua:function","vau"],"params","#ign","body"]]]]],["def",["qua:function","defmacro"],["macro",["name","params",".","body"],["list",["qua:function","def"],["qua:to-fsym","name"],["list*",["qua:function","macro"],"params","body"]]]],["defmacro","qua:lambda",["params",".","body"],["list",["qua:function","wrap"],["list*",["qua:function","vau"],"params","#ign","body"]]],null]
 
 },{}],2:[function(require,module,exports){
-module.exports.main = [null,null,["qua:assert",["qua:deep-equal",1,["qua:car",["qua:cons",1,2]]]],["qua:assert",["qua:deep-equal",2,["qua:cdr",["qua:cons",1,2]]]],["qua:assert",["qua:deep-equal",1,["qua:car",["qua:list",1,2,3]]]],["qua:assert",["qua:deep-equal",["qua:list",2,3],["qua:cdr",["qua:list",1,2,3]]]],["qua:assert",["qua:deep-equal",1,["qua:car",["qua:list*",1,2,3]]]],["qua:assert",["qua:deep-equal",["qua:cons",2,3],["qua:cdr",["qua:list*",1,2,3]]]],null,["qua:def","e1",["qua:make-env"]],["qua:eval",["qua:list",["qua:function","qua:def"],["qua:quote","x"],1],"e1"],["qua:assert",["qua:deep-equal",1,["qua:eval",["qua:quote","x"],"e1"]]],["qua:assert",["qua:deep-equal","#void",["qua:progn"]]],["qua:assert",["qua:deep-equal",1,["qua:progn",1]]],["qua:assert",["qua:deep-equal",2,["qua:progn",1,2]]],null,["qua:def","e2",["qua:make-env"]],["qua:def",["qua:function","fun2"],["qua:wrap",["qua:vau",["p"],"#ign","p"]]],["qua:eval",["qua:list",["qua:function","qua:def"],["qua:quote","x"],2],"e2"],["qua:eval",["qua:list",["qua:function","qua:def"],["qua:quote",["qua:function","fun2"]],["qua:function","fun2"]],"e2"],["qua:assert",["qua:deep-equal",2,["qua:eval",["qua:list",["qua:function","fun2"],["qua:quote","x"]],"e2"]]],null]
+module.exports.main = [null,["qua:assert",["qua:deep-equal",1,["car",["cons",1,2]]]],["qua:assert",["qua:deep-equal",2,["cdr",["cons",1,2]]]],["qua:assert",["qua:deep-equal",1,["car",["list",1,2,3]]]],["qua:assert",["qua:deep-equal",["list",2,3],["cdr",["list",1,2,3]]]],["qua:assert",["qua:deep-equal",1,["car",["list*",1,2,3]]]],["qua:assert",["qua:deep-equal",["cons",2,3],["cdr",["list*",1,2,3]]]],null,["def","e1",["make-environment"]],["eval",["list",["qua:function","def"],["quote","x"],1],"e1"],["qua:assert",["qua:deep-equal",1,["eval",["quote","x"],"e1"]]],["qua:assert",["qua:deep-equal","#void",["progn"]]],["qua:assert",["qua:deep-equal",1,["progn",1]]],["qua:assert",["qua:deep-equal",2,["progn",1,2]]],null,["def","e2",["make-environment"]],["def",["qua:function","fun2"],["wrap",["vau",["p"],"#ign","p"]]],["eval",["list",["qua:function","def"],["quote","x"],2],"e2"],["eval",["list",["qua:function","def"],["quote",["qua:function","fun2"]],["qua:function","fun2"]],"e2"],["qua:assert",["qua:deep-equal",2,["eval",["list",["qua:function","fun2"],["quote","x"]],"e2"]]],null]
 
 },{}],3:[function(require,module,exports){
 // Plugin for the Qua VM that adds the delimcc API for delimited control.
@@ -141,13 +141,13 @@ module.exports = function(vm, e) {
             return val;
         }
     });
-    vm.defun(e, vm.sym("qua:loop"), vm.Loop);
-    vm.defun(e, vm.sym("qua:raise"), vm.jswrap(vm.raise));
-    vm.defun(e, vm.sym("qua:rescue"), vm.Rescue);
-    vm.defun(e, vm.sym("delimcc:push-prompt"), vm.PushPrompt);
-    vm.defun(e, vm.sym("delimcc:take-subcont"), vm.TakeSubcont);
-    vm.defun(e, vm.sym("delimcc:push-subcont"), vm.PushSubcont);
-    vm.defun(e, vm.sym("delimcc:push-prompt-subcont"), vm.PushPromptSubcont);
+    vm.defun(e, vm.sym("%%loop"), vm.Loop);
+    vm.defun(e, vm.sym("%%raise"), vm.jswrap(vm.raise));
+    vm.defun(e, vm.sym("%%rescue"), vm.Rescue);
+    vm.defun(e, vm.sym("%%push-prompt"), vm.PushPrompt);
+    vm.defun(e, vm.sym("%%take-subcont"), vm.TakeSubcont);
+    vm.defun(e, vm.sym("%%push-subcont"), vm.PushSubcont);
+    vm.defun(e, vm.sym("%%push-prompt-subcont"), vm.PushPromptSubcont);
 }
 
 },{}],4:[function(require,module,exports){
@@ -168,7 +168,7 @@ module.exports = function(vm, e) {
     vm.defun = function(e, name, cmb) { // override vm.js
         vm.bind(e, vm.to_fsym(name), cmb);
     };
-    vm.defun(e, vm.sym("qua:to-fsym"), vm.jswrap(vm.to_fsym));
+    vm.defun(e, vm.sym("%%to-fsym"), vm.jswrap(vm.to_fsym));
 }
 
 },{}],5:[function(require,module,exports){
@@ -184,8 +184,8 @@ require("./print")(vm, e);
 require("./optim")(vm, e);
 require("./test")(vm, e);
 vm.init(e);
-vm.eval(parse_bytecode([vm.sym("qua:progn")].concat(init_bytecode)), e);
-vm.eval(parse_bytecode([vm.sym("qua:progn")].concat(test_bytecode)), e);
+vm.eval(parse_bytecode([vm.sym("%%progn")].concat(init_bytecode)), e);
+vm.eval(parse_bytecode([vm.sym("%%progn")].concat(test_bytecode)), e);
 
 module.exports.vm = function() {
     return {
@@ -221,7 +221,7 @@ module.exports = function(vm, e) {
         var len = arguments.length; var c = len >= 1 ? arguments[len-1] : NIL;
         for (var i = len-1; i > 0; i--) c = vm.cons(arguments[i - 1], c); return c;
     };
-    vm.defun(e, vm.sym("qua:list*"), vm.jswrap(list_star));
+    vm.defun(e, vm.sym("%%list*"), vm.jswrap(list_star));
 }
 
 },{}],7:[function(require,module,exports){
@@ -309,8 +309,8 @@ module.exports = function(vm, e) {
 var deep_equal = require("deep-equal");
 module.exports = function(vm, e) {
     function assert(x) { if (!x) return vm.error("assertion failure"); }
-    vm.defun(e, vm.sym("qua:assert"), vm.jswrap(assert));
-    vm.defun(e, vm.sym("qua:deep-equal"), vm.jswrap(deep_equal));
+    vm.defun(e, vm.sym("%%assert"), vm.jswrap(assert));
+    vm.defun(e, vm.sym("%%deep-equal"), vm.jswrap(deep_equal));
 }
 
 },{"deep-equal":11}],10:[function(require,module,exports){
@@ -492,19 +492,19 @@ vm.def = vm.bind;
 vm.defun = vm.bind;
 vm.init = function(e) {
     // Forms
-    vm.defun(e, vm.sym("qua:car"), vm.jswrap(vm.car));
-    vm.defun(e, vm.sym("qua:cdr"), vm.jswrap(vm.cdr));
-    vm.defun(e, vm.sym("qua:cons"), vm.jswrap(vm.cons));
+    vm.defun(e, vm.sym("%%car"), vm.jswrap(vm.car));
+    vm.defun(e, vm.sym("%%cdr"), vm.jswrap(vm.cdr));
+    vm.defun(e, vm.sym("%%cons"), vm.jswrap(vm.cons));
     // Evaluation
-    vm.defun(e, vm.sym("qua:eval"), vm.Eval);
-    vm.defun(e, vm.sym("qua:def"), vm.Def);
-    vm.defun(e, vm.sym("qua:progn"), vm.Progn);
+    vm.defun(e, vm.sym("%%eval"), vm.Eval);
+    vm.defun(e, vm.sym("%%def"), vm.Def);
+    vm.defun(e, vm.sym("%%progn"), vm.Progn);
     // Combiners
-    vm.defun(e, vm.sym("qua:vau"), vm.Vau);
-    vm.defun(e, vm.sym("qua:wrap"), vm.jswrap(vm.wrap));
-    vm.defun(e, vm.sym("qua:unwrap"), vm.jswrap(vm.unwrap));
+    vm.defun(e, vm.sym("%%vau"), vm.Vau);
+    vm.defun(e, vm.sym("%%wrap"), vm.jswrap(vm.wrap));
+    vm.defun(e, vm.sym("%%unwrap"), vm.jswrap(vm.unwrap));
     // Environments
-    vm.defun(e, vm.sym("qua:make-env"), vm.jswrap(vm.make_env));
+    vm.defun(e, vm.sym("%%make-environment"), vm.jswrap(vm.make_env));
 };
 vm.eval = function(x, e) {
     return vm.evaluate(null, e, x); // change to x,e
