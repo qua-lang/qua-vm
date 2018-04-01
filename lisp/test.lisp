@@ -1,3 +1,7 @@
+;; Test bindings
+(def #'qua:assert #'%%assert)
+(def #'qua:deep-equal #'%%deep-equal)
+
 ;;;; Forms
 (qua:assert (qua:deep-equal 1 (car (cons 1 2))))
 (qua:assert (qua:deep-equal 2 (cdr (cons 1 2))))
@@ -36,5 +40,5 @@
 
 ;;;; MAP-LIST
 (qua:assert (qua:deep-equal (list 1 1 1)
-                            (map-list (lambda (#ign) 1)
-                                      (list 1 2 3))))
+                            (qua:map-list (lambda (#ign) 1)
+                                          (list 1 2 3))))

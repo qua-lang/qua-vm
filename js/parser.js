@@ -42,6 +42,7 @@ var number_stx =
                return Number(sign + integral_digits + fractional_digits); });
 function make_constant_stx(string, constant) { return action(string, function(ast) { return constant; }); }
 var nil_stx = make_constant_stx("()", []);
+var nil_stx_2 = make_constant_stx("#nil", []);
 var ign_stx = make_constant_stx("#ign", "#ign");
 var void_stx = make_constant_stx("#void", "#void");
 var t_stx = make_constant_stx("#t", true);
@@ -58,6 +59,6 @@ var compound_stx = action(wsequence("(", repeat1(x_stx), optional(dot_stx), ")")
 var cmt_stx = action(sequence(";", repeat0(negate(line_terminator)), optional(line_terminator)), nothing_action);
 var whitespace_stx = action(choice(" ", "\n", "\r", "\t"), nothing_action);
 function nothing_action(ast) { return null; } // HACK!
-var x_stx = whitespace(choice(ign_stx, void_stx, nil_stx, t_stx, f_stx, null_stx, undef_stx, number_stx,
+var x_stx = whitespace(choice(ign_stx, void_stx, nil_stx, nil_stx_2, t_stx, f_stx, null_stx, undef_stx, number_stx,
                               /*quote_stx,*/ compound_stx, id_stx, string_stx, cmt_stx));
 var program_stx = whitespace(repeat0(choice(x_stx, whitespace_stx))); // HACK!
