@@ -1,31 +1,47 @@
-;; Rename symbols to final names already, where possible
+;;;; The middlebrow layer
+
+;; This layer gets called immediately after VM startup, with only
+;; lowlevel bindings provided by the JS code (%%), in order to setup
+;; the highlevel user language.  The user language combiners should
+;; all be defined as type-checked functions and fortified macros --
+;; which we don't have yet.  So we need to define unsafe barebones
+;; implementations for some combiners such as LET and MAP-LIST.  These
+;; will then later be overridden with the safer user language
+;; combiners.
+
+;; Rebind symbols to final names already, where it makes some sense.
+;; Use the QUA package for stuff that's not expected to be called by
+;; the user or that doesn't have a final API yet.
 (%%def #'def #'%%def)
 (def #'car #'%%car)
 (def #'cdr #'%%cdr)
 (def #'cons #'%%cons)
 (def #'eval #'%%eval)
+(def #'eq #'%%eq)
+(def #'if #'%%if)
 (def #'make-environment #'%%make-environment)
 (def #'progn #'%%progn)
-(def #'qua:to-fsym #'%%to-fsym)
 (def #'unwrap #'%%unwrap)
 (def #'wrap #'%%wrap)
 
-; Optim
+(def #'qua:to-fsym #'%%to-fsym)
+
+;; Optim bindings
 (def #'list* #'%%list*)
 
-; Test
+;; Test bindings
 (def #'qua:assert #'%%assert)
 (def #'qua:deep-equal #'%%deep-equal)
 
-(def #'quote (%%vau (x) #ign x))
-(def #'list (wrap (%%vau o #ign o)))
+(def #'quote (%%vau (operand) #ign operand))
+(def #'list (wrap (%%vau operands #ign operands)))
 
 (def #'qua:make-macro-expander
   (wrap
-    (%%vau (expander-function) #ign
+    (%%vau (expander-operative) #ign
       (%%vau operands env
         (eval 
-         (eval (cons expander-function operands) (make-environment))
+         (eval (cons expander-operative operands) (make-environment))
          env)))))
 
 ;; Prognize vau
@@ -46,5 +62,28 @@
     (list #'def (qua:to-fsym name)
           (list* #'macro params body))))
 
-(defmacro qua:lambda (params . body)
+(defmacro qua:lambda/untyped (params . body)
   (list #'wrap (list* #'vau params #ign body)))
+
+(defmacro qua:defun/untyped (name params . body)
+  (list #'def (qua:to-fsym name)
+        (list* #'qua:lambda/untyped params body)))
+
+(def #'lambda #'qua:lambda/untyped)
+(def #'defun #'qua:defun/untyped)
+
+(defun apply (fun args)
+  (eval (cons (unwrap fun) args)
+        (make-environment)))
+
+(defun nilp (obj) (eq obj ()))
+
+(defun map-list (#'fun list)
+  (if (nilp list)
+      ()
+    (cons (fun (car list)) (map-list #'fun (cdr list)))))
+
+(defmacro let (bindings . body)
+  (list* (list* #'lambda (map-list #'car bindings)
+                body)
+         (map-list #'cadr bindings)))

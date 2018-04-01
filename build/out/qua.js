@@ -1,8 +1,8 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.qua = f()}})(function(){var define,module,exports;return (function(){function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s}return e})()({1:[function(require,module,exports){
-module.exports.main = [null,["%%def",["qua:function","def"],["qua:function","%%def"]],["def",["qua:function","car"],["qua:function","%%car"]],["def",["qua:function","cdr"],["qua:function","%%cdr"]],["def",["qua:function","cons"],["qua:function","%%cons"]],["def",["qua:function","eval"],["qua:function","%%eval"]],["def",["qua:function","make-environment"],["qua:function","%%make-environment"]],["def",["qua:function","progn"],["qua:function","%%progn"]],["def",["qua:function","qua:to-fsym"],["qua:function","%%to-fsym"]],["def",["qua:function","unwrap"],["qua:function","%%unwrap"]],["def",["qua:function","wrap"],["qua:function","%%wrap"]],null,["def",["qua:function","list*"],["qua:function","%%list*"]],null,["def",["qua:function","qua:assert"],["qua:function","%%assert"]],["def",["qua:function","qua:deep-equal"],["qua:function","%%deep-equal"]],["def",["qua:function","quote"],["%%vau",["x"],"#ign","x"]],["def",["qua:function","list"],["wrap",["%%vau","o","#ign","o"]]],["def",["qua:function","qua:make-macro-expander"],["wrap",["%%vau",["expander-function"],"#ign",["%%vau","operands","env",["eval",["eval",["cons","expander-function","operands"],["make-environment"]],"env"]]]]],null,["def",["qua:function","vau"],["qua:make-macro-expander",["%%vau",["params","env-param",".","body"],"#ign",["list",["qua:function","%%vau"],"params","env-param",["list*",["qua:function","progn"],"body"]]]]],["def",["qua:function","macro"],["qua:make-macro-expander",["vau",["params",".","body"],"#ign",["list",["qua:function","qua:make-macro-expander"],["list*",["qua:function","vau"],"params","#ign","body"]]]]],["def",["qua:function","defmacro"],["macro",["name","params",".","body"],["list",["qua:function","def"],["qua:to-fsym","name"],["list*",["qua:function","macro"],"params","body"]]]],["defmacro","qua:lambda",["params",".","body"],["list",["qua:function","wrap"],["list*",["qua:function","vau"],"params","#ign","body"]]],null]
+module.exports.main = [null,null,null,null,null,null,null,null,null,null,null,null,["%%def",["qua:function","def"],["qua:function","%%def"]],["def",["qua:function","car"],["qua:function","%%car"]],["def",["qua:function","cdr"],["qua:function","%%cdr"]],["def",["qua:function","cons"],["qua:function","%%cons"]],["def",["qua:function","eval"],["qua:function","%%eval"]],["def",["qua:function","eq"],["qua:function","%%eq"]],["def",["qua:function","if"],["qua:function","%%if"]],["def",["qua:function","make-environment"],["qua:function","%%make-environment"]],["def",["qua:function","progn"],["qua:function","%%progn"]],["def",["qua:function","unwrap"],["qua:function","%%unwrap"]],["def",["qua:function","wrap"],["qua:function","%%wrap"]],["def",["qua:function","qua:to-fsym"],["qua:function","%%to-fsym"]],null,["def",["qua:function","list*"],["qua:function","%%list*"]],null,["def",["qua:function","qua:assert"],["qua:function","%%assert"]],["def",["qua:function","qua:deep-equal"],["qua:function","%%deep-equal"]],["def",["qua:function","quote"],["%%vau",["operand"],"#ign","operand"]],["def",["qua:function","list"],["wrap",["%%vau","operands","#ign","operands"]]],["def",["qua:function","qua:make-macro-expander"],["wrap",["%%vau",["expander-operative"],"#ign",["%%vau","operands","env",["eval",["eval",["cons","expander-operative","operands"],["make-environment"]],"env"]]]]],null,["def",["qua:function","vau"],["qua:make-macro-expander",["%%vau",["params","env-param",".","body"],"#ign",["list",["qua:function","%%vau"],"params","env-param",["list*",["qua:function","progn"],"body"]]]]],["def",["qua:function","macro"],["qua:make-macro-expander",["vau",["params",".","body"],"#ign",["list",["qua:function","qua:make-macro-expander"],["list*",["qua:function","vau"],"params","#ign","body"]]]]],["def",["qua:function","defmacro"],["macro",["name","params",".","body"],["list",["qua:function","def"],["qua:to-fsym","name"],["list*",["qua:function","macro"],"params","body"]]]],["defmacro","qua:lambda/untyped",["params",".","body"],["list",["qua:function","wrap"],["list*",["qua:function","vau"],"params","#ign","body"]]],["defmacro","qua:defun/untyped",["name","params",".","body"],["list",["qua:function","def"],["qua:to-fsym","name"],["list*",["qua:function","qua:lambda/untyped"],"params","body"]]],["def",["qua:function","lambda"],["qua:function","qua:lambda/untyped"]],["def",["qua:function","defun"],["qua:function","qua:defun/untyped"]],["defun","apply",["fun","args"],["eval",["cons",["unwrap","fun"],"args"],["make-environment"]]],["defun","nilp",["obj"],["eq","obj",[]]],["defun","map-list",[["qua:function","fun"],"list"],["if",["nilp","list"],[],["cons",["fun",["car","list"]],["map-list",["qua:function","fun"],["cdr","list"]]]]],["defmacro","let",["bindings",".","body"],["list*",["list*",["qua:function","lambda"],["map-list",["qua:function","car"],"bindings"],"body"],["map-list",["qua:function","cadr"],"bindings"]]],null]
 
 },{}],2:[function(require,module,exports){
-module.exports.main = [null,["qua:assert",["qua:deep-equal",1,["car",["cons",1,2]]]],["qua:assert",["qua:deep-equal",2,["cdr",["cons",1,2]]]],["qua:assert",["qua:deep-equal",1,["car",["list",1,2,3]]]],["qua:assert",["qua:deep-equal",["list",2,3],["cdr",["list",1,2,3]]]],["qua:assert",["qua:deep-equal",1,["car",["list*",1,2,3]]]],["qua:assert",["qua:deep-equal",["cons",2,3],["cdr",["list*",1,2,3]]]],null,["def","e1",["make-environment"]],["eval",["list",["qua:function","def"],["quote","x"],1],"e1"],["qua:assert",["qua:deep-equal",1,["eval",["quote","x"],"e1"]]],["qua:assert",["qua:deep-equal","#void",["progn"]]],["qua:assert",["qua:deep-equal",1,["progn",1]]],["qua:assert",["qua:deep-equal",2,["progn",1,2]]],null,["def","e2",["make-environment"]],["def",["qua:function","fun2"],["wrap",["vau",["p"],"#ign","p"]]],["eval",["list",["qua:function","def"],["quote","x"],2],"e2"],["eval",["list",["qua:function","def"],["quote",["qua:function","fun2"]],["qua:function","fun2"]],"e2"],["qua:assert",["qua:deep-equal",2,["eval",["list",["qua:function","fun2"],["quote","x"]],"e2"]]],null,["def",["qua:function","lam1"],["qua:lambda",[],10,11,12]],["def",["qua:function","lam2"],["qua:lambda",[]]],["qua:assert",["qua:deep-equal",12,["lam1"]]],["qua:assert",["qua:deep-equal","#void",["lam2"]]],null]
+module.exports.main = [null,["qua:assert",["qua:deep-equal",1,["car",["cons",1,2]]]],["qua:assert",["qua:deep-equal",2,["cdr",["cons",1,2]]]],["qua:assert",["qua:deep-equal",1,["car",["list",1,2,3]]]],["qua:assert",["qua:deep-equal",["list",2,3],["cdr",["list",1,2,3]]]],["qua:assert",["qua:deep-equal",1,["car",["list*",1,2,3]]]],["qua:assert",["qua:deep-equal",["cons",2,3],["cdr",["list*",1,2,3]]]],null,["def","e1",["make-environment"]],["eval",["list",["qua:function","def"],["quote","x"],1],"e1"],["qua:assert",["qua:deep-equal",1,["eval",["quote","x"],"e1"]]],["qua:assert",["qua:deep-equal","#void",["progn"]]],["qua:assert",["qua:deep-equal",1,["progn",1]]],["qua:assert",["qua:deep-equal",2,["progn",1,2]]],null,["def","e2",["make-environment"]],["def",["qua:function","fun2"],["wrap",["vau",["p"],"#ign","p"]]],["eval",["list",["qua:function","def"],["quote","x"],2],"e2"],["eval",["list",["qua:function","def"],["quote",["qua:function","fun2"]],["qua:function","fun2"]],"e2"],["qua:assert",["qua:deep-equal",2,["eval",["list",["qua:function","fun2"],["quote","x"]],"e2"]]],null,["def",["qua:function","lam1"],["lambda",[],10,11,12]],["def",["qua:function","lam2"],["lambda",[]]],["qua:assert",["qua:deep-equal",12,["lam1"]]],["qua:assert",["qua:deep-equal","#void",["lam2"]]],["defun","lam3",["x"],1,2,3,"x"],["qua:assert",["qua:deep-equal",4,["lam3",4]]],null,["qua:assert",["qua:deep-equal",["list",1,1,2],["map-list",["lambda",["#ign"],1],["list",1,2,3]]]],null]
 
 },{}],3:[function(require,module,exports){
 // Plugin for the Qua VM that adds the delimcc API for delimited control.
@@ -217,11 +217,11 @@ function parse_bytecode_array(arr) {
 
 },{"../build/out/init.js":1,"../build/out/test.js":2,"./cont":3,"./lisp-2":4,"./optim":6,"./parser":7,"./print":8,"./test":9,"./vm":10}],6:[function(require,module,exports){
 module.exports = function(vm, e) {
-    function list_star() {
+    vm.list_star = function() {
         var len = arguments.length; var c = len >= 1 ? arguments[len-1] : NIL;
         for (var i = len-1; i > 0; i--) c = vm.cons(arguments[i - 1], c); return c;
     };
-    vm.defun(e, vm.sym("%%list*"), vm.jswrap(list_star));
+    vm.defun(e, vm.sym("%%list*"), vm.jswrap(vm.list_star));
 }
 
 },{}],7:[function(require,module,exports){
@@ -359,7 +359,7 @@ vm.Apv.prototype.qua_combine = function(self, m, e, o) {
                       function(args) { return vm.combine(null, e, self.cmb, args); });
 };
 vm.eval_args = function(m, e, todo, done) {
-    if (todo === vm.NIL) { return vm.reverse_list(done); }
+    if (vm.is_nil(todo)) { return vm.reverse_list(done); }
     return vm.monadic(m, 
                       function() { return vm.evaluate(null, e, vm.car(todo)); },
                       function(arg) { return vm.eval_args(null, e, vm.cdr(todo), vm.cons(arg, done)); });
@@ -383,15 +383,24 @@ vm.Def = {
     }
 };
 vm.Eval = vm.wrap({
+        qua_combine: function(self, m, e, o) {
+            var x = vm.elt(o, 0);
+            var e = vm.elt(o, 1);
+            return vm.evaluate(m, e, x);
+        }
+    });
+vm.If = {
     qua_combine: function(self, m, e, o) {
-        var x = vm.elt(o, 0);
-        var e = vm.elt(o, 1);
-        return vm.evaluate(m, e, x);
+        return vm.monadic(m,  
+                          function() { return vm.evaluate(null, e, vm.elt(o, 0)); },
+                          function(test) {
+                              return vm.evaluate(null, e, test ? vm.elt(o, 1) : vm.elt(o, 2));
+                          });
     }
-});
+};
 vm.Progn = {
     qua_combine: function(self, m, e, o) {
-        if (o === vm.NIL) return vm.VOID; else return vm.progn(m, e, o);
+        if (vm.is_nil(o)) return vm.VOID; else return vm.progn(m, e, o);
     }
 };
 vm.progn = function(m, e, xs) {
@@ -399,7 +408,7 @@ vm.progn = function(m, e, xs) {
                       function() { return vm.evaluate(null, e, vm.car(xs)); },
                       function(res) {
                           var cdr = vm.cdr(xs);
-                          if (cdr === vm.NIL) return res; else return vm.progn(null, e, cdr);
+                          if (vm.is_nil(cdr)) return res; else return vm.progn(null, e, cdr);
                       });
 };
 /* JS function combiners */
@@ -417,6 +426,7 @@ vm.car = function(cons) { return vm.assert_type(cons, vm.Cons).car; };
 vm.cdr = function(cons) { return vm.assert_type(cons, vm.Cons).cdr; };
 vm.elt = function(cons, i) { return (i === 0) ? vm.car(cons) : vm.elt(vm.cdr(cons), i - 1); };
 vm.Nil = function Nil() {}; vm.NIL = new vm.Nil();
+vm.is_nil = function(obj) { return obj === vm.NIL; };
 vm.Ign = function Ign() {}; vm.IGN = new vm.Ign();
 vm.Void = function Void() {}; vm.VOID = new vm.Void();
 /* Environments */
@@ -428,7 +438,7 @@ vm.lookup = function(e, sym) {
     vm.assert_type(sym, vm.Sym);
     var key = vm.sym_key(sym);
     if (key in e.bindings) return e.bindings[key];
-    else return vm.error("unbound: " + sym.name);
+    else return vm.error("unbound: " + sym.name + " (" + sym.ns + ")");
 };
 vm.bind = function(e, lhs, rhs) {
     vm.assert_type(e, vm.Env);
@@ -444,7 +454,7 @@ vm.Cons.prototype.qua_bind = function(self, e, rhs) {
                       function() { return vm.bind(e, vm.cdr(self), vm.cdr(rhs)); });
 };
 vm.Nil.prototype.qua_bind = function(self, e, rhs) {
-    if (rhs !== vm.NIL) return vm.error("NIL expected, but got: " + rhs);
+    if (!vm.is_nil(rhs)) return vm.error("NIL expected, but got: " + JSON.stringify(rhs));
 };
 vm.Ign.prototype.qua_bind = function(self, e, rhs) {};
 /* Utilities */
@@ -456,15 +466,11 @@ vm.array_to_list = function(array, end) {
     for (var i = array.length; i > 0; i--) c = vm.cons(array[i - 1], c); return c;
 };
 vm.list_to_array = function(c) {
-    var res = []; while(c !== vm.NIL) { res.push(vm.car(c)); c = vm.cdr(c); } return res;
-};
-vm.map_list = function(list, fun) {
-    if (list === vm.NIL) return vm.NIL;
-    else return vm.cons(fun(vm.car(list)), vm.map_list(vm.cdr(list), fun));
+    var res = []; while(!vm.is_nil(c)) { res.push(vm.car(c)); c = vm.cdr(c); } return res;
 };
 vm.reverse_list = function(list) {
     var res = vm.NIL;
-    while(list !== vm.NIL) { res = vm.cons(vm.car(list), res); list = vm.cdr(list); }
+    while(!vm.is_nil(list)) { res = vm.cons(vm.car(list), res); list = vm.cdr(list); }
     return res;
 };
 vm.assert = function(x) { if (!x) vm.error("assertion failed"); };
@@ -472,7 +478,7 @@ vm.error = function(err) { throw new Error(err); };
 /* JS type checks */
 vm.assert_type = function(obj, type_spec) {
     if (vm.check_type(obj, type_spec)) return obj;
-    else return vm.error("type error: " + type_spec, { obj: obj, type_spec: type_spec });
+    else return vm.error("type error: " + obj + " should be " + type_spec + " but is " + typeof(obj));
 };
 vm.check_type = function(obj, type_spec) {
     if (typeof(type_spec) === "string") {
@@ -496,8 +502,9 @@ vm.init = function(e) {
     vm.defun(e, vm.sym("%%cdr"), vm.jswrap(vm.cdr));
     vm.defun(e, vm.sym("%%cons"), vm.jswrap(vm.cons));
     // Evaluation
-    vm.defun(e, vm.sym("%%eval"), vm.Eval);
     vm.defun(e, vm.sym("%%def"), vm.Def);
+    vm.defun(e, vm.sym("%%eval"), vm.Eval);
+    vm.defun(e, vm.sym("%%if"), vm.If);
     vm.defun(e, vm.sym("%%progn"), vm.Progn);
     // Combiners
     vm.defun(e, vm.sym("%%vau"), vm.Vau);
@@ -505,6 +512,8 @@ vm.init = function(e) {
     vm.defun(e, vm.sym("%%unwrap"), vm.jswrap(vm.unwrap));
     // Environments
     vm.defun(e, vm.sym("%%make-environment"), vm.jswrap(vm.make_env));
+    // Misc
+    vm.defun(e, vm.sym("%%eq"), vm.jswrap(function(a, b) { return a === b; }));
 };
 vm.eval = function(x, e) {
     return vm.evaluate(null, e, x); // change to x,e
