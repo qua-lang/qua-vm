@@ -62,15 +62,15 @@
     (list #'def (qua:to-fsym name)
           (list* #'macro params body))))
 
-(defmacro qua:lambda/untyped (params . body)
+(defmacro qua:lambda/unchecked (params . body)
   (list #'wrap (list* #'vau params #ign body)))
 
-(defmacro qua:defun/untyped (name params . body)
+(defmacro qua:defun/unchecked (name params . body)
   (list #'def (qua:to-fsym name)
-        (list* #'qua:lambda/untyped params body)))
+        (list* #'qua:lambda/unchecked params body)))
 
-(def #'lambda #'qua:lambda/untyped)
-(def #'defun #'qua:defun/untyped)
+(def #'lambda #'qua:lambda/unchecked)
+(def #'defun #'qua:defun/unchecked)
 
 (defun apply (fun args)
   (eval (cons (unwrap fun) args)
