@@ -50,8 +50,7 @@
 (def #'macro
   (make-macro
     (vau (params . body) #ign
-      (list #'make-macro
-            (list* #'vau params #ign body)))))
+      (list #'make-macro (list* #'vau params #ign body)))))
 
 ; Define a named macro in the current environment.
 (def #'defmacro
