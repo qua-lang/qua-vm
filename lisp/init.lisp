@@ -27,8 +27,8 @@
 ;; Optimization bindings:
 (def #'list* #'%%list*) ; Construct list of arguments, with the final argument as tail.
 
-(def #'quote (%%vau (operand) #ign operand)) ; Prevent evaluation of its operand.
-(def #'list (wrap (%%vau operands #ign operands))) ; Construct list of arguments.
+(def #'quote (%%vau (op) #ign op)) ; Prevent evaluation of its operand.
+(def #'list (wrap (%%vau args #ign args))) ; Construct list of arguments.
 
 ; Construct a fexpr.  Primitive %%VAU has only one body statement, so use PROGN.
 (def #'vau
