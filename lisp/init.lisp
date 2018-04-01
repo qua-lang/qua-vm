@@ -55,8 +55,7 @@
 ; Define a named macro in the current environment.
 (def #'defmacro
   (macro (name params . body)
-    (list #'def (qua:to-fsym name)
-          (list* #'macro params body))))
+    (list #'def (qua:to-fsym name) (list* #'macro params body))))
 
 ; Create a function that doesn't do any type checking.
 (defmacro qua:lambda/unchecked (params . body)
@@ -65,8 +64,7 @@
 ; Define a named function that doesn't do any type checking in the
 ; current environment.
 (defmacro qua:defun/unchecked (name params . body)
-  (list #'def (qua:to-fsym name)
-        (list* #'qua:lambda/unchecked params body)))
+  (list #'def (qua:to-fsym name) (list* #'qua:lambda/unchecked params body)))
 
 ; Use the unchecked versions for LAMBDA and DEFUN for now
 ; which will later use checked versions.
