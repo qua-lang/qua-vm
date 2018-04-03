@@ -28,6 +28,10 @@
 (eval (list #'def (quote #'fun2) #'fun2) e2)
 (qua:assert (qua:deep-equal 2 (eval (list #'fun2 (quote x)) e2)))
 
+;;;; Quotation
+(qua:assert (qua:deep-equal 'foo (quote foo)))
+(qua:assert (qua:deep-equal '(foo bar) (quote (foo bar))))
+
 ;;;; Untyped lambda
 (def #'lam1 (lambda () 10 11 12))
 (def #'lam2 (lambda ()))
@@ -37,6 +41,10 @@
 (defun lam3 (x)
   1 2 3 x)
 (qua:assert (qua:deep-equal 4 (lam3 4)))
+
+;;;; APPLY
+(qua:assert (qua:deep-equal (list 1 2 3)
+                            (apply #'list (list 1 2 3))))
 
 ;;;; MAP-LIST
 (qua:assert (qua:deep-equal (list 1 1 1)
