@@ -1,5 +1,5 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.qua = f()}})(function(){var define,module,exports;return (function(){function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s}return e})()({1:[function(require,module,exports){
-module.exports.main = [null,null,null,null,null,null,null,null,null,["%%def",["qua:function","def"],["qua:function","%%def"]],null,["def",["qua:function","car"],["qua:function","%%car"]],null,["def",["qua:function","cdr"],["qua:function","%%cdr"]],null,["def",["qua:function","cons"],["qua:function","%%cons"]],null,["def",["qua:function","eval"],["qua:function","%%eval"]],null,["def",["qua:function","eq"],["qua:function","%%eq"]],null,["def",["qua:function","if"],["qua:function","%%if"]],null,["def",["qua:function","make-environment"],["qua:function","%%make-environment"]],null,["def",["qua:function","progn"],["qua:function","%%progn"]],null,["def",["qua:function","unwrap"],["qua:function","%%unwrap"]],null,["def",["qua:function","wrap"],["qua:function","%%wrap"]],null,null,null,["def",["qua:function","qua:to-fsym"],["qua:function","%%to-fsym"]],null,null,["def",["qua:function","list*"],["qua:function","%%list*"]],null,["def",["qua:function","quote"],["%%vau",["op"],"#ign","op"]],null,["def",["qua:function","list"],["wrap",["%%vau","args","#ign","args"]]],null,null,["def",["qua:function","vau"],["%%vau",["params","env-param",".","body"],"env",["eval",["list",["qua:function","%%vau"],"params","env-param",["list*",["qua:function","progn"],"body"]],"env"]]],null,["def",["qua:function","make-macro"],["wrap",["vau",["expander"],"#ign",["vau","form","env",["eval",["eval",["cons","expander","form"],["make-environment"]],"env"]]]]],null,["def",["qua:function","macro"],["make-macro",["vau",["params",".","body"],"#ign",["list",["qua:function","make-macro"],["list*",["qua:function","vau"],"params","#ign","body"]]]]],null,["def",["qua:function","defmacro"],["macro",["name","params",".","body"],["list",["qua:function","def"],["qua:to-fsym","name"],["list*",["qua:function","macro"],"params","body"]]]],null,["defmacro","qua:lambda/unchecked",["params",".","body"],["list",["qua:function","wrap"],["list*",["qua:function","vau"],"params","#ign","body"]]],null,null,["defmacro","qua:defun/unchecked",["name","params",".","body"],["list",["qua:function","def"],["qua:to-fsym","name"],["list*",["qua:function","qua:lambda/unchecked"],"params","body"]]],null,null,["def",["qua:function","lambda"],["qua:function","qua:lambda/unchecked"]],["def",["qua:function","defun"],["qua:function","qua:defun/unchecked"]],null,["defun","apply",["fun","args"],["eval",["cons",["unwrap","fun"],"args"],["make-environment"]]],null,["defun","nilp",["obj"],["eq","obj",[]]],null,["defun","qua:map-list",[["qua:function","fun"],"list"],["if",["nilp","list"],[],["cons",["fun",["car","list"]],["qua:map-list",["qua:function","fun"],["cdr","list"]]]]],null,null,["defmacro","let",["bindings",".","body"],["list*",["list*",["qua:function","lambda"],["qua:map-list",["qua:function","car"],"bindings"],"body"],["qua:map-list",["qua:function","cadr"],"bindings"]]],null]
+module.exports.main = [null,null,null,null,null,null,null,null,null,["%%def",["qua:function","def"],["qua:function","%%def"]],null,["def",["qua:function","car"],["qua:function","%%car"]],null,["def",["qua:function","cdr"],["qua:function","%%cdr"]],null,["def",["qua:function","cons"],["qua:function","%%cons"]],null,["def",["qua:function","eval"],["qua:function","%%eval"]],null,["def",["qua:function","eq"],["qua:function","%%eq"]],null,["def",["qua:function","if"],["qua:function","%%if"]],null,["def",["qua:function","make-environment"],["qua:function","%%make-environment"]],null,["def",["qua:function","progn"],["qua:function","%%progn"]],null,["def",["qua:function","unwrap"],["qua:function","%%unwrap"]],null,["def",["qua:function","wrap"],["qua:function","%%wrap"]],null,null,null,["def",["qua:function","qua:to-fun-sym"],["qua:function","%%to-fun-sym"]],null,null,["def",["qua:function","list*"],["qua:function","%%list*"]],null,["def",["qua:function","quote"],["%%vau",["op"],"#ign","op"]],null,["def",["qua:function","list"],["wrap",["%%vau","args","#ign","args"]]],null,null,["def",["qua:function","vau"],["%%vau",["params","env-param",".","body"],"env",["eval",["list",["qua:function","%%vau"],"params","env-param",["list*",["qua:function","progn"],"body"]],"env"]]],null,["def",["qua:function","make-macro"],["wrap",["vau",["expander"],"#ign",["vau","form","env",["eval",["eval",["cons","expander","form"],["make-environment"]],"env"]]]]],null,["def",["qua:function","macro"],["make-macro",["vau",["params",".","body"],"#ign",["list",["qua:function","make-macro"],["list*",["qua:function","vau"],"params","#ign","body"]]]]],null,["def",["qua:function","defmacro"],["macro",["name","params",".","body"],["list",["qua:function","def"],["qua:to-fun-sym","name"],["list*",["qua:function","macro"],"params","body"]]]],null,["defmacro","qua:lambda/unchecked",["params",".","body"],["list",["qua:function","wrap"],["list*",["qua:function","vau"],"params","#ign","body"]]],null,null,["defmacro","qua:defun/unchecked",["name","params",".","body"],["list",["qua:function","def"],["qua:to-fun-sym","name"],["list*",["qua:function","qua:lambda/unchecked"],"params","body"]]],null,null,["def",["qua:function","lambda"],["qua:function","qua:lambda/unchecked"]],["def",["qua:function","defun"],["qua:function","qua:defun/unchecked"]],null,["defun","apply",["fun","args"],["eval",["cons",["unwrap","fun"],"args"],["make-environment"]]],null,["defun","nilp",["obj"],["eq","obj",[]]],null,["defun","qua:map-list",[["qua:function","fun"],"list"],["if",["nilp","list"],[],["cons",["fun",["car","list"]],["qua:map-list",["qua:function","fun"],["cdr","list"]]]]],null,null,["defmacro","let",["bindings",".","body"],["list*",["list*",["qua:function","lambda"],["qua:map-list",["qua:function","car"],"bindings"],"body"],["qua:map-list",["qua:function","cadr"],"bindings"]]],null]
 
 },{}],2:[function(require,module,exports){
 module.exports.main = [null,["def",["qua:function","qua:assert"],["qua:function","%%assert"]],["def",["qua:function","qua:deep-equal"],["qua:function","%%deep-equal"]],null,["qua:assert",["qua:deep-equal",1,["car",["cons",1,2]]]],["qua:assert",["qua:deep-equal",2,["cdr",["cons",1,2]]]],["qua:assert",["qua:deep-equal",1,["car",["list",1,2,3]]]],["qua:assert",["qua:deep-equal",["list",2,3],["cdr",["list",1,2,3]]]],["qua:assert",["qua:deep-equal",1,["car",["list*",1,2,3]]]],["qua:assert",["qua:deep-equal",["cons",2,3],["cdr",["list*",1,2,3]]]],null,["def","e1",["make-environment"]],["eval",["list",["qua:function","def"],["quote","x"],1],"e1"],["qua:assert",["qua:deep-equal",1,["eval",["quote","x"],"e1"]]],["qua:assert",["qua:deep-equal","#void",["progn"]]],["qua:assert",["qua:deep-equal",1,["progn",1]]],["qua:assert",["qua:deep-equal",2,["progn",1,2]]],null,["def","e2",["make-environment"]],["def",["qua:function","fun2"],["wrap",["vau",["p"],"#ign","p"]]],["eval",["list",["qua:function","def"],["quote","x"],2],"e2"],["eval",["list",["qua:function","def"],["quote",["qua:function","fun2"]],["qua:function","fun2"]],"e2"],["qua:assert",["qua:deep-equal",2,["eval",["list",["qua:function","fun2"],["quote","x"]],"e2"]]],null,["qua:assert",["qua:deep-equal",["quote","foo"],["quote","foo"]]],["qua:assert",["qua:deep-equal",["quote",["foo","bar"]],["quote",["foo","bar"]]]],null,["def",["qua:function","lam1"],["lambda",[],10,11,12]],["def",["qua:function","lam2"],["lambda",[]]],["qua:assert",["qua:deep-equal",12,["lam1"]]],["qua:assert",["qua:deep-equal","#void",["lam2"]]],["defun","lam3",["x"],1,2,3,"x"],["qua:assert",["qua:deep-equal",4,["lam3",4]]],null,["qua:assert",["qua:deep-equal",["list",1,2,3],["apply",["qua:function","list"],["list",1,2,3]]]],null,["qua:assert",["qua:deep-equal",["list",1,1,1],["qua:map-list",["lambda",["#ign"],1],["list",1,2,3]]]],null]
@@ -152,24 +152,38 @@ module.exports = function(vm, e) {
 
 },{}],4:[function(require,module,exports){
 // Plugin for the Qua VM that adds a second namespace for functions.
-// This should be loaded before anything else so that all functions
-// defined in other modules go into the function namespace.
+// This should be loaded before anything else so that primitive
+// functions defined in other modules go into the function namespace.
 module.exports = function(vm, e) {
+    // Add function namespace in addition to variable namespace.
     vm.FUN_NS = "f";
+    // If the first element of a list form being evaluated is a
+    // symbol, look up the symbol in the function namespace instead of
+    // the variable namespace.
+    vm.original_eval_operator = vm.eval_operator;
     vm.eval_operator = function(e, op) { // override vm.js
         if (op instanceof vm.Sym) {
-            return vm.lookup(e, vm.to_fsym(op));
+            return vm.lookup(e, vm.to_fun_sym(op));
         } else {
-            return vm.evaluate(null, e, op);
+            return vm.original_eval_operator(e, op);
         }
     };
-    vm.fsym = function(name) { return vm.sym(name, vm.FUN_NS); };
-    vm.to_fsym = function(sym) { vm.assert_type(sym, vm.Sym); return vm.fsym(sym.name); };
-    vm.defun = function(e, name, cmb) { // override vm.js
-        vm.bind(e, vm.to_fsym(name), cmb);
+    // Create a symbol in the function namespace.
+    vm.fun_sym = function(name) { return vm.sym(name, vm.FUN_NS); };
+    // Return a symbol that has the same name as the argument symbol,
+    // but in the function namespace.
+    vm.to_fun_sym = function(sym) {
+        return vm.fun_sym(vm.assert_type(sym, vm.Sym).name);
     };
-    vm.defun(e, vm.sym("%%to-fsym"), vm.jswrap(vm.to_fsym));
-}
+    // Override the VM's function definition utility so that it puts
+    // primitive functions into the function namespace.
+    vm.original_defun = vm.defun;
+    vm.defun = function(e, name, cmb) { // override vm.js
+        vm.original_defun(e, vm.to_fun_sym(name), cmb);
+    };
+    // Primitives:
+    vm.defun(e, vm.sym("%%to-fun-sym"), vm.jswrap(vm.to_fun_sym));
+};
 
 },{}],5:[function(require,module,exports){
 var vm = require("./vm");
@@ -208,7 +222,7 @@ function parse_bytecode(obj) {
 }
 function parse_bytecode_array(arr) {
     if ((arr.length == 2) && arr[0] === "wat-string") { return arr[1]; }
-    if ((arr.length == 2) && arr[0] === "qua:function") { return vm.fsym(arr[1]); }
+    if ((arr.length == 2) && arr[0] === "qua:function") { return vm.fun_sym(arr[1]); }
     var i = arr.indexOf(".");
     if (i === -1) return vm.array_to_list(arr.map(parse_bytecode));
     else { var front = arr.slice(0, i);
