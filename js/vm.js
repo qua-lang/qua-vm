@@ -4,12 +4,15 @@ require("./objsys")(vm);
 vm.evaluate = function(m, e, x) {
     if (x && x.qua_evaluate) return x.qua_evaluate(x, m, e); else return x;
 };
-vm.Sym = vm.make_standard_class("symbol", ["standard-object"],
-                                { "name": {}, "ns": {} });
+vm.Sym =
+    vm.make_class("symbol", ["standard-object"],
+                  { "name": {}, "ns": {} });
 vm.Sym.prototype.qua_evaluate = function(self, m, e) {
     return vm.lookup(e, self);
 };
-vm.Cons = function Cons(car, cdr) { this.car = car; this.cdr = cdr; };
+vm.Cons =
+    vm.make_class("cons", ["standard-object"],
+                  { "car": {}, "cdr": {} });
 vm.Cons.prototype.qua_evaluate = function(self, m, e) {
     return vm.monadic(m,
                       function() { return vm.eval_operator(e, vm.car(self)); },
@@ -103,12 +106,12 @@ vm.jswrap = function(jsfun) { return vm.wrap(new vm.JSFun(jsfun)); };
 /* Forms */
 vm.VAR_NS = "v";
 vm.sym = function(name, ns) {
-    return vm.make_instance(vm.Sym, { "name": name, "ns": ns ? ns : vm.VAR_NS });
+    return vm.make_instance(vm.Sym, { name: name, ns: ns ? ns : vm.VAR_NS });
 };
 vm.sym_key = function(sym) { return sym.qs_name + "_" + sym.qs_ns; };
-vm.cons = function(car, cdr) { return new vm.Cons(car, cdr); };
-vm.car = function(cons) { return vm.assert_type(cons, vm.Cons).car; };
-vm.cdr = function(cons) { return vm.assert_type(cons, vm.Cons).cdr; };
+vm.cons = function(car, cdr) { return vm.make_instance(vm.Cons, { car: car, cdr: cdr }); };
+vm.car = function(cons) { return vm.assert_type(cons, vm.Cons).qs_car; };
+vm.cdr = function(cons) { return vm.assert_type(cons, vm.Cons).qs_cdr; };
 vm.elt = function(cons, i) { return (i === 0) ? vm.car(cons) : vm.elt(vm.cdr(cons), i - 1); };
 vm.Nil = function Nil() {}; vm.NIL = new vm.Nil();
 vm.is_nil = function(obj) { return obj === vm.NIL; };

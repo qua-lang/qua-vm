@@ -39,7 +39,7 @@ module.exports = function(vm) {
     vm.THE_GENERIC_CLASS_STANDARD_CLASS.qua_isa = vm.GenericClass;
     vm.THE_GENERIC_CLASS_GENERIC_CLASS.qua_isa = vm.GenericClass;
     /* Setup class hierarchy */
-    vm.make_standard_class = function(name, direct_superclasses, slots) {
+    vm.make_class = function(name, direct_superclasses, slots) {
         var generic_class = eval("(function G() {})");
         //var generic_class = Object.create(vm.GenericClass.prototype);
         generic_class["qua_isa"] = vm.GenericClass;
@@ -56,13 +56,13 @@ module.exports = function(vm) {
         concrete_class.prototype = Object.create(generic_class.prototype);
         return concrete_class;
     };
-    vm.Object = vm.make_standard_class("object", [], {});
-    vm.StandardObject = vm.make_standard_class("standard-object", [], {});
-    vm.BuiltInObject = vm.make_standard_class("built-in-object", [], {});
-    vm.Class = vm.make_standard_class("class", ["standard-object"], {});
-    vm.Number = vm.make_standard_class("number", ["built-in-object"], {});
-    vm.String = vm.make_standard_class("string", ["built-in-object"], {});
-    vm.Boolean = vm.make_standard_class("boolean", ["built-in-object"], {});
+    vm.Object = vm.make_class("object", [], {});
+    vm.StandardObject = vm.make_class("standard-object", [], {});
+    vm.BuiltInObject = vm.make_class("built-in-object", [], {});
+    vm.Class = vm.make_class("class", ["standard-object"], {});
+    vm.Number = vm.make_class("number", ["built-in-object"], {});
+    vm.String = vm.make_class("string", ["built-in-object"], {});
+    vm.Boolean = vm.make_class("boolean", ["built-in-object"], {});
     /* Objects */
     vm.allocate_instance = function(cls) {
         //vm.assert_type(cls, vm.StandardClass);
