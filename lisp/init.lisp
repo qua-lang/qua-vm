@@ -91,3 +91,12 @@
   (list* (list* #'lambda (qua:map-list #'car bindings)
                 body)
          (qua:map-list #'cadr bindings)))
+
+; The usual sequential-binding LET* where the right hand side of each
+; binding has all earlier bindings in scope (if any).
+(defmacro let* (bindings . body)
+  (if (nilp bindings)
+      (list* #'let () body)
+      (list #'let (list (car bindings))
+            (list* #'let* (cdr bindings) body))))
+

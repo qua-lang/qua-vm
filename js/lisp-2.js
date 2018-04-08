@@ -20,7 +20,7 @@ module.exports = function(vm, e) {
     // Return a symbol that has the same name as the argument symbol,
     // but in the function namespace.
     vm.to_fun_sym = function(sym) {
-        return vm.fun_sym(vm.assert_type(sym, vm.Sym).name);
+        return vm.fun_sym(vm.assert_type(sym, vm.Sym).qs_name);
     };
     // Override the VM's function definition utility so that it puts
     // primitive functions into the function namespace.

@@ -1,12 +1,11 @@
 var vm = module.exports;
+require("./objsys")(vm);
 /* Evaluation */
 vm.evaluate = function(m, e, x) {
     if (x && x.qua_evaluate) return x.qua_evaluate(x, m, e); else return x;
 };
-vm.Sym = function Sym(name, ns) {
-    this.name = vm.assert_type(name, "string");
-    this.ns = vm.assert_type(ns, "string");
-};
+vm.Sym = vm.make_standard_class("symbol", ["standard-object"],
+                                { "name": {}, "ns": {} });
 vm.Sym.prototype.qua_evaluate = function(self, m, e) {
     return vm.lookup(e, self);
 };
@@ -103,8 +102,10 @@ vm.JSFun.prototype.qua_combine = function(self, m, e, o) {
 vm.jswrap = function(jsfun) { return vm.wrap(new vm.JSFun(jsfun)); };
 /* Forms */
 vm.VAR_NS = "v";
-vm.sym = function(name, ns) { return new vm.Sym(name, ns ? ns : vm.VAR_NS); };
-vm.sym_key = function(sym) { return sym.name + "_" + sym.ns; };
+vm.sym = function(name, ns) {
+    return vm.make_instance(vm.Sym, { "name": name, "ns": ns ? ns : vm.VAR_NS });
+};
+vm.sym_key = function(sym) { return sym.qs_name + "_" + sym.qs_ns; };
 vm.cons = function(car, cdr) { return new vm.Cons(car, cdr); };
 vm.car = function(cons) { return vm.assert_type(cons, vm.Cons).car; };
 vm.cdr = function(cons) { return vm.assert_type(cons, vm.Cons).cdr; };
@@ -122,7 +123,7 @@ vm.lookup = function(e, sym) {
     vm.assert_type(sym, vm.Sym);
     var key = vm.sym_key(sym);
     if (key in e.bindings) return e.bindings[key];
-    else return vm.error("unbound: " + sym.name + " (" + sym.ns + ")");
+    else return vm.error("unbound: " + sym.qs_name + " (" + sym.qs_ns + ")");
 };
 vm.bind = function(e, lhs, rhs) {
     vm.assert_type(e, vm.Env);
