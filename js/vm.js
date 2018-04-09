@@ -4,15 +4,11 @@ require("./objsys")(vm);
 vm.evaluate = function(m, e, x) {
     if (x && x.qua_evaluate) return x.qua_evaluate(x, m, e); else return x;
 };
-vm.Sym =
-    vm.make_class("symbol", ["standard-object"],
-                  { "name": {}, "ns": {} });
+vm.Sym = vm.defclass("symbol", ["standard-object"], { "name": {}, "ns": {} });
 vm.Sym.prototype.qua_evaluate = function(self, m, e) {
     return vm.lookup(e, self);
 };
-vm.Cons =
-    vm.make_class("cons", ["standard-object"],
-                  { "car": {}, "cdr": {} });
+vm.Cons = vm.defclass("cons", ["standard-object"], { "car": {}, "cdr": {} });
 vm.Cons.prototype.qua_evaluate = function(self, m, e) {
     return vm.monadic(m,
                       function() { return vm.eval_operator(e, vm.car(self)); },

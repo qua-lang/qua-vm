@@ -240,12 +240,12 @@ module.exports = function(vm) {
             "type-arguments": {}
         },
         "qs_direct-superclasses": ["class"],
-        prototype: Object.create(null)
+        prototype: {}
     };
     vm.StandardClass = { // the concrete class
         "qs_generic-class": vm.THE_GENERIC_CLASS_STANDARD_CLASS,
         "qs_type-arguments": [],
-        prototype: Object.create(vm.THE_GENERIC_CLASS_STANDARD_CLASS.prototype)
+        prototype: vm.THE_GENERIC_CLASS_STANDARD_CLASS.prototype
     };
     vm.StandardClass.qua_isa = vm.StandardClass;
     /* Bootstrap GENERIC-CLASS */
@@ -260,46 +260,44 @@ module.exports = function(vm) {
             "direct-superclasses": {}
         },
         "qs_direct-superclasses": ["class"],
-        prototype: Object.create(null)
+        prototype: {}
     };
     vm.GenericClass = { // the concrete class
-        "qua_isa": vm.StandardClass,
+        qua_isa: vm.StandardClass,
         "qs_generic-class": vm.THE_GENERIC_CLASS_GENERIC_CLASS,
         "qs_type-arguments": [],
-        prototype: Object.create(vm.THE_GENERIC_CLASS_GENERIC_CLASS.prototype)
+        prototype: vm.THE_GENERIC_CLASS_GENERIC_CLASS.prototype
     };
     vm.THE_GENERIC_CLASS_STANDARD_CLASS.qua_isa = vm.GenericClass;
     vm.THE_GENERIC_CLASS_GENERIC_CLASS.qua_isa = vm.GenericClass;
     /* Setup class hierarchy */
-    vm.make_class = function(name, direct_superclasses, slots) {
-        var generic_class = eval("(function G() {})");
-        //var generic_class = Object.create(vm.GenericClass.prototype);
-        generic_class["qua_isa"] = vm.GenericClass;
+    vm.defclass = function(name, direct_superclasses, slots) {
+        function generic_class() {};
+        generic_class.qua_isa = vm.GenericClass;
+        generic_class.name = name;
         generic_class["qs_name"] = name;
         generic_class["qs_type-parameters"] = [];
         generic_class["qs_direct-superclasses"] = direct_superclasses;
         generic_class["qs_slots"] = slots;
-        generic_class.prototype = Object.create(null);
-        var concrete_class = eval("(function C() {})");
-        //var concrete_class = Object.create(vm.StandardClass.prototype);
-        concrete_class["qua_isa"] = vm.StandardClass;
+        function concrete_class() {};
+        concrete_class.qua_isa = vm.StandardClass;
+        concrete_class.name = name;
         concrete_class["qs_generic-class"] = generic_class;
         concrete_class["qs_type-arguments"] = [];
-        concrete_class.prototype = Object.create(generic_class.prototype);
+        concrete_class.prototype = generic_class.prototype;
         return concrete_class;
     };
-    vm.Object = vm.make_class("object", [], {});
-    vm.StandardObject = vm.make_class("standard-object", [], {});
-    vm.BuiltInObject = vm.make_class("built-in-object", [], {});
-    vm.Class = vm.make_class("class", ["standard-object"], {});
-    vm.Number = vm.make_class("number", ["built-in-object"], {});
-    vm.String = vm.make_class("string", ["built-in-object"], {});
-    vm.Boolean = vm.make_class("boolean", ["built-in-object"], {});
+    vm.Object = vm.defclass("object", [], {});
+    vm.StandardObject = vm.defclass("standard-object", [], {});
+    vm.BuiltInObject = vm.defclass("built-in-object", [], {});
+    vm.Class = vm.defclass("class", ["standard-object"], {});
+    vm.Number = vm.defclass("number", ["built-in-object"], {});
+    vm.String = vm.defclass("string", ["built-in-object"], {});
+    vm.Boolean = vm.defclass("boolean", ["built-in-object"], {});
     /* Objects */
-    vm.allocate_instance = function(cls) {
-        //vm.assert_type(cls, vm.StandardClass);
-        var obj = Object.create(cls.prototype);
-        obj.qua_isa = cls;
+    vm.allocate_instance = function(concrete_class) {
+        var obj = Object.create(concrete_class.prototype);
+        obj.qua_isa = concrete_class;
         return obj;
     };
     vm.initialize_instance = function(obj, initargs) {
@@ -309,8 +307,8 @@ module.exports = function(vm) {
         }
         return obj;
     };
-    vm.make_instance = function(cls, initargs) {
-        var obj = vm.allocate_instance(cls);
+    vm.make_instance = function(concrete_class, initargs) {
+        var obj = vm.allocate_instance(concrete_class);
         return vm.initialize_instance(obj, initargs);
     };
     vm.class_of = function(obj) {
@@ -318,9 +316,9 @@ module.exports = function(vm) {
             return obj.qua_isa;
         } else {
             switch (typeof(obj)) {
-            case "string": return vm.STRING;
-            case "number": return vm.NUMBER;
-            case "boolean": return vm.BOOLEAN;
+            case "string": return vm.String;
+            case "number": return vm.Number;
+            case "boolean": return vm.Boolean;
             default: return vm.error("classless object: " + obj);
             }
         }
@@ -433,15 +431,11 @@ require("./objsys")(vm);
 vm.evaluate = function(m, e, x) {
     if (x && x.qua_evaluate) return x.qua_evaluate(x, m, e); else return x;
 };
-vm.Sym =
-    vm.make_class("symbol", ["standard-object"],
-                  { "name": {}, "ns": {} });
+vm.Sym = vm.defclass("symbol", ["standard-object"], { "name": {}, "ns": {} });
 vm.Sym.prototype.qua_evaluate = function(self, m, e) {
     return vm.lookup(e, self);
 };
-vm.Cons =
-    vm.make_class("cons", ["standard-object"],
-                  { "car": {}, "cdr": {} });
+vm.Cons = vm.defclass("cons", ["standard-object"], { "car": {}, "cdr": {} });
 vm.Cons.prototype.qua_evaluate = function(self, m, e) {
     return vm.monadic(m,
                       function() { return vm.eval_operator(e, vm.car(self)); },
