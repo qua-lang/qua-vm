@@ -77,6 +77,8 @@ module.exports = function(vm) {
     vm.designate_string = function(name) {
         if (name instanceof vm.Sym) {
             return name.qs_name;
+        } else if (name instanceof vm.Keyword) {
+            return name.qs_name;
         } else {
             vm.assert_type(name, "string");
             return name;
@@ -138,8 +140,8 @@ module.exports = function(vm) {
     };
     vm.initialize_instance = function(obj, initargs) {
         var initargs_dict = vm.designate_dict(initargs);
-        for (name in initargs) {
-            var value = initargs[name];
+        for (name in initargs_dict) {
+            var value = initargs_dict[name];
             vm.set_slot_value(obj, name, value);
         }
         return obj;
@@ -171,9 +173,7 @@ module.exports = function(vm) {
         }
     };
     vm.designate_dict = function(dict_des) {
-        if (dict_des === undefined) {
-            return Object.create(null);
-        } else if (vm.is_list(dict_des)) {
+        if (vm.is_list(dict_des)) {
             return vm.plist_to_dict(dict_des);
         } else {
             vm.assert_type(dict_des, "object");
@@ -181,8 +181,15 @@ module.exports = function(vm) {
         }
     };
     vm.plist_to_dict = function(plist) {
-        return 12;
-    }
+        var arr = vm.list_to_array(plist);
+        var dict = Object.create(null);
+        for (var i = 0; i < arr.length; i = i + 2) {
+            var indicator = vm.designate_string(arr[i]);
+            var property = arr[i + 1];
+            dict[indicator] = property;
+        }
+        return dict;
+    };
     // Instanceof does not work for properly for the STANDARD-CLASS
     // and GENERIC-CLASS classes themselves, so we need these crutches
     // to determine if an object is a class.
@@ -251,7 +258,7 @@ module.exports = function(vm) {
     /* Slots */
     vm.slot_value = function(obj, name) {
         var key = vm.slot_key(name);
-        if (Object.hasOwnProperty(obj, key)) {
+        if (obj.hasOwnProperty(key)) {
             return obj[key];
         } else {
             return vm.slot_unbound_hook(obj, name);
@@ -268,6 +275,9 @@ module.exports = function(vm) {
     };
     vm.slot_boundp = function(obj, name) {
         var key = vm.slot_key(name);
-        return Object.hasOwnProperty(obj, key);
+        return obj.hasOwnProperty(key);
+    };
+    vm.slot_unbound_hook = function(obj, name) {
+        return vm.error("slot unbound: " + vm.designate_string(name));
     };
 };

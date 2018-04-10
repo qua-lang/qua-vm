@@ -1,6 +1,6 @@
 var vm = module.exports;
-require("./vm-util")(vm);
-require("./vm-obj")(vm);
+require("./util")(vm);
+require("./obj")(vm);
 /* Evaluation */
 vm.evaluate = function(m, e, x) {
     if (x && x.qua_evaluate) return x.qua_evaluate(x, m, e); else return x;

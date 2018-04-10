@@ -100,3 +100,5 @@
       (list #'let (list (car bindings))
             (list* #'let* (cdr bindings) body))))
 
+(defun make-instance (class-designator . initargs)
+  (%%make-instance class-designator initargs))

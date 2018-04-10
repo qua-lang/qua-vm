@@ -1,7 +1,7 @@
 ;; Test bindings
 (def #'qua:assert #'%%assert)
 (def #'qua:deep-equal #'%%deep-equal)
-(def #'prn #'%%print)
+(def #'pr #'%%print)
 
 ;;;; Forms
 (qua:assert (qua:deep-equal 1 (car (cons 1 2))))
@@ -52,4 +52,8 @@
                             (qua:map-list (lambda (#ign) 1)
                                           (list 1 2 3))))
 
-(prn (%%make-instance "symbol" :name "foo"))
+;;;; Objects
+(qua:assert (qua:deep-equal 'foo
+                            (make-instance 'symbol :name "foo" :ns "v")))
+(qua:assert (qua:deep-equal :foo
+                            (make-instance 'keyword :name "foo")))
