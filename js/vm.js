@@ -1,5 +1,6 @@
 var vm = module.exports;
-require("./objsys")(vm);
+require("./vm-util")(vm);
+require("./vm-obj")(vm);
 /* Evaluation */
 vm.evaluate = function(m, e, x) {
     if (x && x.qua_evaluate) return x.qua_evaluate(x, m, e); else return x;
@@ -156,25 +157,6 @@ vm.reverse_list = function(list) {
     var res = vm.NIL;
     while(!vm.is_nil(list)) { res = vm.cons(vm.car(list), res); list = vm.cdr(list); }
     return res;
-};
-vm.assert = function(x) { if (!x) vm.error("assertion failed"); };
-vm.error = function(err) { throw new Error(err); };
-/* JS type checks */
-vm.assert_type = function(obj, type_spec) {
-    if (vm.check_type(obj, type_spec)) return obj;
-    else return vm.error("type error: " + obj + " should be " + type_spec + " but is " + typeof(obj));
-};
-vm.check_type = function(obj, type_spec) {
-    if (typeof(type_spec) === "string") {
-        return (typeof(obj) === type_spec);
-    } else if (Array.isArray(type_spec)) {
-        vm.assert(type_spec.length === 1);
-        var elt_type_spec = type_spec[0];
-        vm.assert(Array.isArray(obj));
-        obj.forEach(function(elt) { vm.assert_type(elt, elt_type_spec); });
-    } else {
-        return (obj instanceof type_spec);
-    }
 };
 /* API */
 vm.make_env = function(parent) { return new vm.Env(parent); };
