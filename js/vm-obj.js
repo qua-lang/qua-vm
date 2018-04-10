@@ -66,8 +66,8 @@ module.exports = function(vm) {
     /* Setup class hierarchy */
     vm.Object = vm.defclass("object", [], {});
     vm.StandardObject = vm.defclass("standard-object", ["object"], {});
-    vm.Class = vm.defclass("class", ["object"], {});
-    vm.Combiner = vm.defclass("combiner", ["object"], {});
+    vm.Class = vm.defclass("class", ["standard-object"], {});
+    vm.Combiner = vm.defclass("combiner", ["standard-object"], {});
     vm.Fexpr = vm.defclass("fexpr", ["combiner"], {});
     vm.Function = vm.defclass("function", ["combiner"], {});
     vm.Number = vm.defclass("number", ["object"], {});
@@ -113,10 +113,10 @@ module.exports = function(vm) {
         return vm.is_standard_class(obj) || vm.is_generic_class(obj);
     };
     vm.is_standard_class = function(obj) {
-        return (obj && (obj.qua_isa === vm.StandardClass));
+        return obj && (obj.qua_isa === vm.StandardClass);
     };
     vm.is_generic_class = function(obj) {
-        return (obj && (obj.qua_isa === vm.GenericClass));
+        return obj && (obj.qua_isa === vm.GenericClass);
     };
     vm.assert_is_class = function(obj) {
         vm.assert(vm.is_class(obj));
