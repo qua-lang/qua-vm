@@ -52,4 +52,4 @@
                             (qua:map-list (lambda (#ign) 1)
                                           (list 1 2 3))))
 
-(prn (%%make-instance "class"))
+(prn (%%make-instance "symbol" :name "foo"))
