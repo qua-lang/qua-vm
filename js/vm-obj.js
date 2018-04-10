@@ -39,7 +39,8 @@ module.exports = function(vm) {
     vm.THE_GENERIC_CLASS_STANDARD_CLASS.qua_isa = vm.GenericClass;
     vm.THE_GENERIC_CLASS_GENERIC_CLASS.qua_isa = vm.GenericClass;
     /* Class registry */
-    vm.GENERIC_CLASS_TABLE = {};
+    vm.GENERIC_CLASSES = {};
+    vm.STANDARD_CLASSES = {};
     vm.defclass = function(name, direct_superclasses, slots) {
         vm.assert_type(name, "string");
         vm.assert_type(direct_superclasses, ["string"]);
@@ -50,11 +51,12 @@ module.exports = function(vm) {
         generic_class["qs_type-parameters"] = [];
         generic_class["qs_direct-superclasses"] = direct_superclasses;
         generic_class["qs_slots"] = slots;
-        vm.GENERIC_CLASS_TABLE[name] = generic_class;
+        vm.GENERIC_CLASSES[name] = generic_class;
         function standard_class() {};
         standard_class.qua_isa = vm.StandardClass;
         standard_class["qs_generic-class"] = generic_class;
         standard_class["qs_type-arguments"] = [];
+        vm.STANDARD_CLASSES[name] = standard_class;
         // A concrete class' prototype is essentially superfluous but
         // required to support JS's instanceof (which determines
         // whether a constructor function's prototype occurs in the
@@ -63,6 +65,49 @@ module.exports = function(vm) {
         standard_class.prototype = generic_class.prototype;
         return standard_class;
     };
+    vm.find_generic_class = function(name) {
+        return vm.GENERIC_CLASSES[vm.generic_class_key(name)];
+    };
+    vm.find_standard_class = function(name) {
+        return vm.STANDARD_CLASSES[vm.standard_class_key(name)];
+    };
+    // Classes, methods, and slots have names which can be specified
+    // as strings or symbols from Lisp.  Internally, they're always
+    // strings.
+    vm.designate_string = function(name) {
+        if (name instanceof vm.Sym) {
+            return name.qs_name;
+        } else {
+            vm.assert_type(name, "string");
+            return name;
+        }
+    };
+    vm.generic_class_key = function(name) {
+        return vm.designate_string(name);
+    };
+    vm.standard_class_key = function(name) {
+        return vm.designate_string(name);
+    };
+    vm.method_key = function(name) {
+        return "qm_" + vm.designate_string(name);
+    };
+    vm.slot_key = function(name) {
+        return "qs_" + vm.designate_string(name);
+    };
+    vm.designate_generic_class = function(class_des) {
+        if (vm.is_generic_class(class_des)) {
+            return class_des;
+        } else {
+            return vm.find_generic_class(class_des);
+        }
+    }
+    vm.designate_standard_class = function(class_des) {
+        if (vm.is_standard_class(class_des)) {
+            return class_des;
+        } else {
+            return vm.find_standard_class(class_des);
+        }
+    }
     /* Setup class hierarchy */
     vm.Object = vm.defclass("object", [], {});
     vm.StandardObject = vm.defclass("standard-object", ["object"], {});
@@ -72,10 +117,19 @@ module.exports = function(vm) {
     vm.Function = vm.defclass("function", ["combiner"], {});
     vm.Number = vm.defclass("number", ["object"], {});
     vm.String = vm.defclass("string", ["object"], {});
+    vm.Boolean = vm.defclass("boolean", ["object"], {});
+    vm.JSArray = vm.defclass("js-array", ["number"], {});
+    vm.JSFunction = vm.defclass("js-function", ["number"], {});
     vm.JSNumber = vm.defclass("js-number", ["number"], {});
     vm.JSString = vm.defclass("js-string", ["string"], {});
-    vm.Boolean = vm.defclass("boolean", ["object"], {});
+    vm.Null = vm.defclass("null", ["string"], {});
+    vm.Undefined = vm.defclass("undefined", ["string"], {});
     /* Objects */
+    vm.make_instance = function(class_des, initargs) {
+        var standard_class = vm.designate_standard_class(class_des);
+        var obj = vm.allocate_instance(standard_class);
+        return vm.initialize_instance(obj, initargs);
+    };
     vm.allocate_instance = function(standard_class) {
         vm.assert(vm.is_standard_class(standard_class));
         var obj = Object.create(standard_class.prototype);
@@ -83,16 +137,12 @@ module.exports = function(vm) {
         return obj;
     };
     vm.initialize_instance = function(obj, initargs) {
-        vm.assert_type(initargs, "object");
+        var initargs_dict = vm.designate_dict(initargs);
         for (name in initargs) {
             var value = initargs[name];
-            obj["qs_" + name] = value;
+            vm.set_slot_value(obj, name, value);
         }
         return obj;
-    };
-    vm.make_instance = function(standard_class, initargs) {
-        var obj = vm.allocate_instance(standard_class);
-        return vm.initialize_instance(obj, initargs);
     };
     vm.class_of = function(obj) {
         if (obj && obj.qua_isa) {
@@ -102,57 +152,122 @@ module.exports = function(vm) {
             case "string": return vm.JSString;
             case "number": return vm.JSNumber;
             case "boolean": return vm.Boolean;
-            default: vm.panic("classless object: " + obj);
+            case "function": return vm.JSFunction;
+            case "undefined": return vm.JSUndefined;
+            default:
+            if (obj === null) {
+                return vm.JSNull;
+            } else if (Array.isArray(obj)) {
+                return vm.JSArray;
+            } else {
+                var proto = Object.getPrototypeOf(obj);
+                if (proto) {
+                    return vm.unknown_class_hook(proto);
+                } else {
+                    return vm.JSObject;
+                }
+            }
             }
         }
     };
-    // At the moment, instanceof does not work for properly for the
-    // STANDARD-CLASS and GENERIC-CLASS classes themselves, so we need
-    // this crutch to determine if an object is a class.
-    vm.is_class = function(obj) {
-        return vm.is_standard_class(obj) || vm.is_generic_class(obj);
+    vm.designate_dict = function(dict_des) {
+        if (dict_des === undefined) {
+            return Object.create(null);
+        } else if (vm.is_list(dict_des)) {
+            return vm.plist_to_dict(dict_des);
+        } else {
+            vm.assert_type(dict_des, "object");
+            return dict_des;
+        }
     };
+    vm.plist_to_dict = function(plist) {
+        return 12;
+    }
+    // Instanceof does not work for properly for the STANDARD-CLASS
+    // and GENERIC-CLASS classes themselves, so we need these crutches
+    // to determine if an object is a class.
     vm.is_standard_class = function(obj) {
         return obj && (obj.qua_isa === vm.StandardClass);
     };
     vm.is_generic_class = function(obj) {
         return obj && (obj.qua_isa === vm.GenericClass);
     };
-    vm.assert_is_class = function(obj) {
-        vm.assert(vm.is_class(obj));
-    };
     /* Methods */
-    vm.find_method = function(obj, name) {
+    vm.put_method = function(generic_class, name, combiner) {
+        vm.assert(vm.is_generic_class(generic_class));
         vm.assert_type(name, "string");
-        if (obj && obj["qm_" + name]) {
-            return obj["qm_" + name];
+        vm.assert((combiner instanceof vm.Opv) || (combiner instanceof vm.Apv));
+        generic_class.prototype["qm_" + name] = combiner;
+        return combiner;
+    };
+    vm.call_method = function(obj, name, args, environment) {
+        vm.assert_type(name, "string");
+        var method = vm.compute_effective_method(obj, name);
+        if (method) {
+            return vm.combine(null, environment, method, args);
+        } else {
+            return vm.method_not_found_hook(obj, name);
+        }
+    };
+    vm.find_method = function(obj, name) {
+        var key = vm.method_key(name);
+        if (obj && obj[key]) {
+            return obj[key];
         } else {
             return vm.find_method_using_standard_class(obj, vm.class_of(obj), name);
         }
     };
-    vm.find_method_using_standard_class = function(obj, standard_class, name) {
-        if (standard_class.prototype["qm_" + name]) {
-            return standard_class.prototype["qm_" + name];
+    vm.find_method_using_standard_class = function(obj, cls, name) {
+        vm.assert(vm.is_standard_class(cls));
+        return vm.find_method_using_generic_class(obj, cls["qs_generic-class"], name);
+    };
+    vm.find_method_using_generic_class = function(obj, gcls, name) {
+        vm.assert(vm.is_generic_class(gcls));
+        var key = vm.method_key(name);
+        if (gcls.prototype[key]) {
+            return gcls.prototype[key];
         } else {
-            return vm.find_method_using_generic_class(obj, standard_class["qs_generic-class"], name);
+            var methods = vm.find_superclass_methods(obj, gcls, name);
+            switch (methods.length) {
+            case 0: return null;
+            case 1: return methods[0];
+            default: return vm.ambiguous_method_hook(obj, name);
+            }
         }
     };
-    vm.find_method_using_generic_class = function(obj, generic_class, name) {
-        var methods = vm.find_methods_using_superclasses(obj, generic_class, name);
-        switch (methods.length) {
-        case 0: return vm.method_not_found_error(obj, name);
-        case 1: return methods[0];
-        default: return vm.ambiguous_method_error(obj, name);
-        }
-    };
-    vm.find_methods_using_superclasses = function(obj, generic_class, name) {
+    vm.find_superclass_methods = function(obj, gcls, name) {
         var methods = [];
-        var superclass_names = generic_class["qs_direct-superclasses"];
+        var superclass_names = gcls["qs_direct-superclasses"];
         superclass_names.forEach(function(superclass_name) {
-                var superclass = vm.GENERIC_CLASS_TABLE[superclass_name];
-                if (!superclass) vm.panic("class not found: " + superclass_name);
-                
+                var gsuper = vm.GENERIC_CLASSES[vm.generic_class_key(superclass_name)];
+                vm.assert(vm.is_generic_class(gsuper));
+                var method = vm.find_method_using_generic_class(obj, gsuper, name);
+                if (method) {
+                    methods.push(method);
+                }
             });
         return methods;
+    };
+    /* Slots */
+    vm.slot_value = function(obj, name) {
+        var key = vm.slot_key(name);
+        if (Object.hasOwnProperty(obj, key)) {
+            return obj[key];
+        } else {
+            return vm.slot_unbound_hook(obj, name);
+        }
+    };
+    vm.set_slot_value = function(obj, name, value) {
+        var key = vm.slot_key(name);
+        try {
+            obj[key] = value;
+            return value;
+        } catch(exc) {
+            return vm.set_slot_value_error_hook(obj, name, value, exc);
+        };
+    };
+    vm.slot_boundp = function(obj, name) {
+        var key = vm.slot_key(name);
+        return Object.hasOwnProperty(obj, key);
     };
 };

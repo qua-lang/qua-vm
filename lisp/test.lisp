@@ -1,6 +1,7 @@
 ;; Test bindings
 (def #'qua:assert #'%%assert)
 (def #'qua:deep-equal #'%%deep-equal)
+(def #'prn #'%%print)
 
 ;;;; Forms
 (qua:assert (qua:deep-equal 1 (car (cons 1 2))))
@@ -50,3 +51,5 @@
 (qua:assert (qua:deep-equal (list 1 1 1)
                             (qua:map-list (lambda (#ign) 1)
                                           (list 1 2 3))))
+
+(prn (%%make-instance "class"))

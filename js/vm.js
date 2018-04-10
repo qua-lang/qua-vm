@@ -9,6 +9,10 @@ vm.Sym = vm.defclass("symbol", ["standard-object"], { "name": {}, "ns": {} });
 vm.Sym.prototype.qua_evaluate = function(self, m, e) {
     return vm.lookup(e, self);
 };
+vm.Keyword = vm.defclass("keyword", ["standard-object"], { "name": {} });
+vm.Keyword.prototype.qua_evaluate = function(self, m, e) {
+    return self;
+};
 vm.Cons = vm.defclass("cons", ["standard-object"], { "car": {}, "cdr": {} });
 vm.Cons.prototype.qua_evaluate = function(self, m, e) {
     return vm.monadic(m,
@@ -106,6 +110,7 @@ vm.sym = function(name, ns) {
     return vm.make_instance(vm.Sym, { name: name, ns: ns ? ns : vm.VAR_NS });
 };
 vm.sym_key = function(sym) { return sym.qs_name + "_" + sym.qs_ns; };
+vm.keyword = function(name) { return vm.make_instance(vm.Keyword, { name: name }); };
 vm.cons = function(car, cdr) { return vm.make_instance(vm.Cons, { car: car, cdr: cdr }); };
 vm.car = function(cons) { return vm.assert_type(cons, vm.Cons).qs_car; };
 vm.cdr = function(cons) { return vm.assert_type(cons, vm.Cons).qs_cdr; };
@@ -158,6 +163,9 @@ vm.reverse_list = function(list) {
     while(!vm.is_nil(list)) { res = vm.cons(vm.car(list), res); list = vm.cdr(list); }
     return res;
 };
+vm.is_list = function(obj) {
+    return vm.is_nil(obj) || obj instanceof vm.Cons;
+};
 /* API */
 vm.make_env = function(parent) { return new vm.Env(parent); };
 vm.def = vm.bind;
@@ -178,6 +186,16 @@ vm.init = function(e) {
     vm.defun(e, vm.sym("%%unwrap"), vm.jswrap(vm.unwrap));
     // Environments
     vm.defun(e, vm.sym("%%make-environment"), vm.jswrap(vm.make_env));
+    // Object system
+    vm.defun(e, vm.sym("%%call-method"), vm.jswrap(vm.call_method));
+    vm.defun(e, vm.sym("%%class-of"), vm.jswrap(vm.class_of));
+    vm.defun(e, vm.sym("%%find-generic-class"), vm.jswrap(vm.find_generic_class));
+    vm.defun(e, vm.sym("%%find-standard-class"), vm.jswrap(vm.find_standard_class));
+    vm.defun(e, vm.sym("%%make-instance"), vm.jswrap(vm.make_instance));
+    vm.defun(e, vm.sym("%%put-method"), vm.jswrap(vm.put_method));
+    vm.defun(e, vm.sym("%%set-slot-value"), vm.jswrap(vm.set_slot_value));
+    vm.defun(e, vm.sym("%%slot-boundp"), vm.jswrap(vm.slot_boundp));
+    vm.defun(e, vm.sym("%%slot-value"), vm.jswrap(vm.slot_value));
     // Misc
     vm.defun(e, vm.sym("%%eq"), vm.jswrap(function(a, b) { return a === b; }));
 };

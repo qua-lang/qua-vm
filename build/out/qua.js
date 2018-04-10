@@ -2,7 +2,7 @@
 module.exports.main = [null,null,null,null,null,null,null,null,null,["%%def",["qua:function","def"],["qua:function","%%def"]],null,["def",["qua:function","car"],["qua:function","%%car"]],null,["def",["qua:function","cdr"],["qua:function","%%cdr"]],null,["def",["qua:function","cons"],["qua:function","%%cons"]],null,["def",["qua:function","eval"],["qua:function","%%eval"]],null,["def",["qua:function","eq"],["qua:function","%%eq"]],null,["def",["qua:function","if"],["qua:function","%%if"]],null,["def",["qua:function","make-environment"],["qua:function","%%make-environment"]],null,["def",["qua:function","progn"],["qua:function","%%progn"]],null,["def",["qua:function","unwrap"],["qua:function","%%unwrap"]],null,["def",["qua:function","wrap"],["qua:function","%%wrap"]],null,null,null,["def",["qua:function","qua:to-fun-sym"],["qua:function","%%to-fun-sym"]],null,null,["def",["qua:function","list*"],["qua:function","%%list*"]],null,["def",["qua:function","quote"],["%%vau",["op"],"#ign","op"]],null,["def",["qua:function","list"],["wrap",["%%vau","args","#ign","args"]]],null,null,["def",["qua:function","vau"],["%%vau",["params","env-param",".","body"],"env",["eval",["list",["qua:function","%%vau"],"params","env-param",["list*",["qua:function","progn"],"body"]],"env"]]],null,["def",["qua:function","make-macro"],["wrap",["vau",["expander"],"#ign",["vau","form","env",["eval",["eval",["cons","expander","form"],["make-environment"]],"env"]]]]],null,["def",["qua:function","macro"],["make-macro",["vau",["params",".","body"],"#ign",["list",["qua:function","make-macro"],["list*",["qua:function","vau"],"params","#ign","body"]]]]],null,["def",["qua:function","defmacro"],["macro",["name","params",".","body"],["list",["qua:function","def"],["qua:to-fun-sym","name"],["list*",["qua:function","macro"],"params","body"]]]],null,["defmacro","qua:lambda/unchecked",["params",".","body"],["list",["qua:function","wrap"],["list*",["qua:function","vau"],"params","#ign","body"]]],null,null,["defmacro","qua:defun/unchecked",["name","params",".","body"],["list",["qua:function","def"],["qua:to-fun-sym","name"],["list*",["qua:function","qua:lambda/unchecked"],"params","body"]]],null,null,["def",["qua:function","lambda"],["qua:function","qua:lambda/unchecked"]],["def",["qua:function","defun"],["qua:function","qua:defun/unchecked"]],null,["defun","apply",["fun","args"],["eval",["cons",["unwrap","fun"],"args"],["make-environment"]]],null,["defun","nilp",["obj"],["eq","obj",[]]],null,["defun","qua:map-list",[["qua:function","fun"],"list"],["if",["nilp","list"],[],["cons",["fun",["car","list"]],["qua:map-list",["qua:function","fun"],["cdr","list"]]]]],null,null,["defmacro","let",["bindings",".","body"],["list*",["list*",["qua:function","lambda"],["qua:map-list",["qua:function","car"],"bindings"],"body"],["qua:map-list",["qua:function","cadr"],"bindings"]]],null,null,["defmacro","let*",["bindings",".","body"],["if",["nilp","bindings"],["list*",["qua:function","let"],[],"body"],["list",["qua:function","let"],["list",["car","bindings"]],["list*",["qua:function","let*"],["cdr","bindings"],"body"]]]],null,null]
 
 },{}],2:[function(require,module,exports){
-module.exports.main = [null,["def",["qua:function","qua:assert"],["qua:function","%%assert"]],["def",["qua:function","qua:deep-equal"],["qua:function","%%deep-equal"]],null,["qua:assert",["qua:deep-equal",1,["car",["cons",1,2]]]],["qua:assert",["qua:deep-equal",2,["cdr",["cons",1,2]]]],["qua:assert",["qua:deep-equal",1,["car",["list",1,2,3]]]],["qua:assert",["qua:deep-equal",["list",2,3],["cdr",["list",1,2,3]]]],["qua:assert",["qua:deep-equal",1,["car",["list*",1,2,3]]]],["qua:assert",["qua:deep-equal",["cons",2,3],["cdr",["list*",1,2,3]]]],null,["def","e1",["make-environment"]],["eval",["list",["qua:function","def"],["quote","x"],1],"e1"],["qua:assert",["qua:deep-equal",1,["eval",["quote","x"],"e1"]]],["qua:assert",["qua:deep-equal","#void",["progn"]]],["qua:assert",["qua:deep-equal",1,["progn",1]]],["qua:assert",["qua:deep-equal",2,["progn",1,2]]],null,["def","e2",["make-environment"]],["def",["qua:function","fun2"],["wrap",["vau",["p"],"#ign","p"]]],["eval",["list",["qua:function","def"],["quote","x"],2],"e2"],["eval",["list",["qua:function","def"],["quote",["qua:function","fun2"]],["qua:function","fun2"]],"e2"],["qua:assert",["qua:deep-equal",2,["eval",["list",["qua:function","fun2"],["quote","x"]],"e2"]]],null,["qua:assert",["qua:deep-equal",["quote","foo"],["quote","foo"]]],["qua:assert",["qua:deep-equal",["quote",["foo","bar"]],["quote",["foo","bar"]]]],null,["def",["qua:function","lam1"],["lambda",[],10,11,12]],["def",["qua:function","lam2"],["lambda",[]]],["qua:assert",["qua:deep-equal",12,["lam1"]]],["qua:assert",["qua:deep-equal","#void",["lam2"]]],["defun","lam3",["x"],1,2,3,"x"],["qua:assert",["qua:deep-equal",4,["lam3",4]]],null,["qua:assert",["qua:deep-equal",["list",1,2,3],["apply",["qua:function","list"],["list",1,2,3]]]],null,["qua:assert",["qua:deep-equal",["list",1,1,1],["qua:map-list",["lambda",["#ign"],1],["list",1,2,3]]]],null]
+module.exports.main = [null,["def",["qua:function","qua:assert"],["qua:function","%%assert"]],["def",["qua:function","qua:deep-equal"],["qua:function","%%deep-equal"]],["def",["qua:function","prn"],["qua:function","%%print"]],null,["qua:assert",["qua:deep-equal",1,["car",["cons",1,2]]]],["qua:assert",["qua:deep-equal",2,["cdr",["cons",1,2]]]],["qua:assert",["qua:deep-equal",1,["car",["list",1,2,3]]]],["qua:assert",["qua:deep-equal",["list",2,3],["cdr",["list",1,2,3]]]],["qua:assert",["qua:deep-equal",1,["car",["list*",1,2,3]]]],["qua:assert",["qua:deep-equal",["cons",2,3],["cdr",["list*",1,2,3]]]],null,["def","e1",["make-environment"]],["eval",["list",["qua:function","def"],["quote","x"],1],"e1"],["qua:assert",["qua:deep-equal",1,["eval",["quote","x"],"e1"]]],["qua:assert",["qua:deep-equal","#void",["progn"]]],["qua:assert",["qua:deep-equal",1,["progn",1]]],["qua:assert",["qua:deep-equal",2,["progn",1,2]]],null,["def","e2",["make-environment"]],["def",["qua:function","fun2"],["wrap",["vau",["p"],"#ign","p"]]],["eval",["list",["qua:function","def"],["quote","x"],2],"e2"],["eval",["list",["qua:function","def"],["quote",["qua:function","fun2"]],["qua:function","fun2"]],"e2"],["qua:assert",["qua:deep-equal",2,["eval",["list",["qua:function","fun2"],["quote","x"]],"e2"]]],null,["qua:assert",["qua:deep-equal",["quote","foo"],["quote","foo"]]],["qua:assert",["qua:deep-equal",["quote",["foo","bar"]],["quote",["foo","bar"]]]],null,["def",["qua:function","lam1"],["lambda",[],10,11,12]],["def",["qua:function","lam2"],["lambda",[]]],["qua:assert",["qua:deep-equal",12,["lam1"]]],["qua:assert",["qua:deep-equal","#void",["lam2"]]],["defun","lam3",["x"],1,2,3,"x"],["qua:assert",["qua:deep-equal",4,["lam3",4]]],null,["qua:assert",["qua:deep-equal",["list",1,2,3],["apply",["qua:function","list"],["list",1,2,3]]]],null,["qua:assert",["qua:deep-equal",["list",1,1,1],["qua:map-list",["lambda",["#ign"],1],["list",1,2,3]]]],["prn",["%%make-instance",["wat-string","class"]]]]
 
 },{}],3:[function(require,module,exports){
 // Plugin for the Qua VM that adds the delimcc API for delimited control.
@@ -223,6 +223,7 @@ function parse_bytecode(obj) {
 function parse_bytecode_array(arr) {
     if ((arr.length == 2) && arr[0] === "wat-string") { return arr[1]; }
     if ((arr.length == 2) && arr[0] === "qua:function") { return vm.fun_sym(arr[1]); }
+    if ((arr.length == 2) && arr[0] === "qua:keyword") { return vm.keyword(arr[1]); }
     var i = arr.indexOf(".");
     if (i === -1) return vm.array_to_list(arr.map(parse_bytecode));
     else { var front = arr.slice(0, i);
@@ -255,6 +256,9 @@ var id_special_char =
 var id_char = choice(range("a", "z"), range("A", "Z"), range("0", "9"), id_special_char);
 // Kludge: don't allow single dot as id, so as not to conflict with dotted pair stx.
 var id_stx = action(join_action(butnot(repeat1(id_char), "."), ""), handle_identifier);
+var keyword_stx = action(sequence(":", id_stx), function(ast) {
+        return ["qua:keyword", ast[1]];
+    });
 function handle_identifier(str) {
     if ((str[0] === ".") && (str.length > 1)) { return ["js-getter", ["wat-string", str.substring(1)]]; }
     else if (str[0] === "@") { return ["js-invoker", ["wat-string", str.substring(1)]]; }
@@ -301,7 +305,7 @@ var cmt_stx = action(sequence(";", repeat0(negate(line_terminator)), optional(li
 var whitespace_stx = action(choice(" ", "\n", "\r", "\t"), nothing_action);
 function nothing_action(ast) { return null; } // HACK!
 var x_stx = whitespace(choice(ign_stx, void_stx, nil_stx, nil_stx_2, t_stx, f_stx, null_stx, undef_stx, number_stx,
-                              quote_stx, compound_stx, id_stx, string_stx, cmt_stx));
+                              quote_stx, compound_stx, keyword_stx, id_stx, string_stx, cmt_stx));
 var program_stx = whitespace(repeat0(choice(x_stx, whitespace_stx))); // HACK!
 
 },{"jsparse":16}],8:[function(require,module,exports){
@@ -326,6 +330,7 @@ module.exports = function(vm, e) {
     function assert(x) { if (!x) return vm.error("assertion failure"); }
     vm.defun(e, vm.sym("%%assert"), vm.jswrap(assert));
     vm.defun(e, vm.sym("%%deep-equal"), vm.jswrap(deep_equal));
+    vm.defun(e, vm.sym("%%print"), vm.jswrap(console.log));
 }
 
 },{"deep-equal":13}],10:[function(require,module,exports){
@@ -370,7 +375,8 @@ module.exports = function(vm) {
     vm.THE_GENERIC_CLASS_STANDARD_CLASS.qua_isa = vm.GenericClass;
     vm.THE_GENERIC_CLASS_GENERIC_CLASS.qua_isa = vm.GenericClass;
     /* Class registry */
-    vm.GENERIC_CLASS_TABLE = {};
+    vm.GENERIC_CLASSES = {};
+    vm.STANDARD_CLASSES = {};
     vm.defclass = function(name, direct_superclasses, slots) {
         vm.assert_type(name, "string");
         vm.assert_type(direct_superclasses, ["string"]);
@@ -381,11 +387,12 @@ module.exports = function(vm) {
         generic_class["qs_type-parameters"] = [];
         generic_class["qs_direct-superclasses"] = direct_superclasses;
         generic_class["qs_slots"] = slots;
-        vm.GENERIC_CLASS_TABLE[name] = generic_class;
+        vm.GENERIC_CLASSES[name] = generic_class;
         function standard_class() {};
         standard_class.qua_isa = vm.StandardClass;
         standard_class["qs_generic-class"] = generic_class;
         standard_class["qs_type-arguments"] = [];
+        vm.STANDARD_CLASSES[name] = standard_class;
         // A concrete class' prototype is essentially superfluous but
         // required to support JS's instanceof (which determines
         // whether a constructor function's prototype occurs in the
@@ -394,19 +401,71 @@ module.exports = function(vm) {
         standard_class.prototype = generic_class.prototype;
         return standard_class;
     };
+    vm.find_generic_class = function(name) {
+        return vm.GENERIC_CLASSES[vm.generic_class_key(name)];
+    };
+    vm.find_standard_class = function(name) {
+        return vm.STANDARD_CLASSES[vm.standard_class_key(name)];
+    };
+    // Classes, methods, and slots have names which can be specified
+    // as strings or symbols from Lisp.  Internally, they're always
+    // strings.
+    vm.designate_string = function(name) {
+        if (name instanceof vm.Sym) {
+            return name.qs_name;
+        } else {
+            vm.assert_type(name, "string");
+            return name;
+        }
+    };
+    vm.generic_class_key = function(name) {
+        return vm.designate_string(name);
+    };
+    vm.standard_class_key = function(name) {
+        return vm.designate_string(name);
+    };
+    vm.method_key = function(name) {
+        return "qm_" + vm.designate_string(name);
+    };
+    vm.slot_key = function(name) {
+        return "qs_" + vm.designate_string(name);
+    };
+    vm.designate_generic_class = function(class_des) {
+        if (vm.is_generic_class(class_des)) {
+            return class_des;
+        } else {
+            return vm.find_generic_class(class_des);
+        }
+    }
+    vm.designate_standard_class = function(class_des) {
+        if (vm.is_standard_class(class_des)) {
+            return class_des;
+        } else {
+            return vm.find_standard_class(class_des);
+        }
+    }
     /* Setup class hierarchy */
     vm.Object = vm.defclass("object", [], {});
     vm.StandardObject = vm.defclass("standard-object", ["object"], {});
-    vm.Class = vm.defclass("class", ["object"], {});
-    vm.Combiner = vm.defclass("combiner", ["object"], {});
+    vm.Class = vm.defclass("class", ["standard-object"], {});
+    vm.Combiner = vm.defclass("combiner", ["standard-object"], {});
     vm.Fexpr = vm.defclass("fexpr", ["combiner"], {});
     vm.Function = vm.defclass("function", ["combiner"], {});
     vm.Number = vm.defclass("number", ["object"], {});
     vm.String = vm.defclass("string", ["object"], {});
+    vm.Boolean = vm.defclass("boolean", ["object"], {});
+    vm.JSArray = vm.defclass("js-array", ["number"], {});
+    vm.JSFunction = vm.defclass("js-function", ["number"], {});
     vm.JSNumber = vm.defclass("js-number", ["number"], {});
     vm.JSString = vm.defclass("js-string", ["string"], {});
-    vm.Boolean = vm.defclass("boolean", ["object"], {});
+    vm.Null = vm.defclass("null", ["string"], {});
+    vm.Undefined = vm.defclass("undefined", ["string"], {});
     /* Objects */
+    vm.make_instance = function(class_des, initargs) {
+        var standard_class = vm.designate_standard_class(class_des);
+        var obj = vm.allocate_instance(standard_class);
+        return vm.initialize_instance(obj, initargs);
+    };
     vm.allocate_instance = function(standard_class) {
         vm.assert(vm.is_standard_class(standard_class));
         var obj = Object.create(standard_class.prototype);
@@ -414,16 +473,12 @@ module.exports = function(vm) {
         return obj;
     };
     vm.initialize_instance = function(obj, initargs) {
-        vm.assert_type(initargs, "object");
+        var initargs_dict = vm.designate_dict(initargs);
         for (name in initargs) {
             var value = initargs[name];
-            obj["qs_" + name] = value;
+            vm.set_slot_value(obj, name, value);
         }
         return obj;
-    };
-    vm.make_instance = function(standard_class, initargs) {
-        var obj = vm.allocate_instance(standard_class);
-        return vm.initialize_instance(obj, initargs);
     };
     vm.class_of = function(obj) {
         if (obj && obj.qua_isa) {
@@ -433,58 +488,123 @@ module.exports = function(vm) {
             case "string": return vm.JSString;
             case "number": return vm.JSNumber;
             case "boolean": return vm.Boolean;
-            default: vm.panic("classless object: " + obj);
+            case "function": return vm.JSFunction;
+            case "undefined": return vm.JSUndefined;
+            default:
+            if (obj === null) {
+                return vm.JSNull;
+            } else if (Array.isArray(obj)) {
+                return vm.JSArray;
+            } else {
+                var proto = Object.getPrototypeOf(obj);
+                if (proto) {
+                    return vm.unknown_class_hook(proto);
+                } else {
+                    return vm.JSObject;
+                }
+            }
             }
         }
     };
-    // At the moment, instanceof does not work for properly for the
-    // STANDARD-CLASS and GENERIC-CLASS classes themselves, so we need
-    // this crutch.
-    vm.is_class = function(obj) {
-        return vm.is_standard_class(obj) || vm.is_generic_class(obj);
+    vm.designate_dict = function(dict_des) {
+        if (dict_des === undefined) {
+            return Object.create(null);
+        } else if (vm.is_list(dict_des)) {
+            return vm.plist_to_dict(dict_des);
+        } else {
+            vm.assert_type(dict_des, "object");
+            return dict_des;
+        }
     };
+    vm.plist_to_dict = function(plist) {
+        return 12;
+    }
+    // Instanceof does not work for properly for the STANDARD-CLASS
+    // and GENERIC-CLASS classes themselves, so we need these crutches
+    // to determine if an object is a class.
     vm.is_standard_class = function(obj) {
-        return (obj && (obj.qua_isa === vm.StandardClass));
+        return obj && (obj.qua_isa === vm.StandardClass);
     };
     vm.is_generic_class = function(obj) {
-        return (Object.getPrototypeOf(obj) === vm.GenericClass.prototype);
-    };
-    vm.assert_is_class = function(obj) {
-        vm.assert(vm.is_class(obj));
+        return obj && (obj.qua_isa === vm.GenericClass);
     };
     /* Methods */
-    vm.find_method = function(obj, name) {
+    vm.put_method = function(generic_class, name, combiner) {
+        vm.assert(vm.is_generic_class(generic_class));
         vm.assert_type(name, "string");
-        if (obj && obj["qm_" + name]) {
-            return obj["qm_" + name];
+        vm.assert((combiner instanceof vm.Opv) || (combiner instanceof vm.Apv));
+        generic_class.prototype["qm_" + name] = combiner;
+        return combiner;
+    };
+    vm.call_method = function(obj, name, args, environment) {
+        vm.assert_type(name, "string");
+        var method = vm.compute_effective_method(obj, name);
+        if (method) {
+            return vm.combine(null, environment, method, args);
+        } else {
+            return vm.method_not_found_hook(obj, name);
+        }
+    };
+    vm.find_method = function(obj, name) {
+        var key = vm.method_key(name);
+        if (obj && obj[key]) {
+            return obj[key];
         } else {
             return vm.find_method_using_standard_class(obj, vm.class_of(obj), name);
         }
     };
-    vm.find_method_using_standard_class = function(obj, standard_class, name) {
-        if (standard_class.prototype["qm_" + name]) {
-            return standard_class.prototype["qm_" + name];
+    vm.find_method_using_standard_class = function(obj, cls, name) {
+        vm.assert(vm.is_standard_class(cls));
+        return vm.find_method_using_generic_class(obj, cls["qs_generic-class"], name);
+    };
+    vm.find_method_using_generic_class = function(obj, gcls, name) {
+        vm.assert(vm.is_generic_class(gcls));
+        var key = vm.method_key(name);
+        if (gcls.prototype[key]) {
+            return gcls.prototype[key];
         } else {
-            return vm.find_method_using_generic_class(obj, standard_class["qs_generic-class"], name);
+            var methods = vm.find_superclass_methods(obj, gcls, name);
+            switch (methods.length) {
+            case 0: return null;
+            case 1: return methods[0];
+            default: return vm.ambiguous_method_hook(obj, name);
+            }
         }
     };
-    vm.find_method_using_generic_class = function(obj, generic_class, name) {
-        var methods = vm.find_methods_using_superclasses(obj, generic_class, name);
-        switch (methods.length) {
-        case 0: return vm.method_not_found_error(obj, name);
-        case 1: return methods[0];
-        default: return vm.ambiguous_method_error(obj, name);
-        }
-    };
-    vm.find_methods_using_superclasses = function(obj, generic_class, name) {
+    vm.find_superclass_methods = function(obj, gcls, name) {
         var methods = [];
-        var superclass_names = generic_class["qs_direct-superclasses"];
+        var superclass_names = gcls["qs_direct-superclasses"];
         superclass_names.forEach(function(superclass_name) {
-                var superclass = vm.GENERIC_CLASS_TABLE[superclass_name];
-                if (!superclass) vm.panic("class not found: " + superclass_name);
-                
+                var gsuper = vm.GENERIC_CLASSES[vm.generic_class_key(superclass_name)];
+                vm.assert(vm.is_generic_class(gsuper));
+                var method = vm.find_method_using_generic_class(obj, gsuper, name);
+                if (method) {
+                    methods.push(method);
+                }
             });
         return methods;
+    };
+    /* Slots */
+    vm.slot_value = function(obj, name) {
+        var key = vm.slot_key(name);
+        if (Object.hasOwnProperty(obj, key)) {
+            return obj[key];
+        } else {
+            return vm.slot_unbound_hook(obj, name);
+        }
+    };
+    vm.set_slot_value = function(obj, name, value) {
+        var key = vm.slot_key(name);
+        try {
+            obj[key] = value;
+            return value;
+        } catch(exc) {
+            return vm.set_slot_value_error_hook(obj, name, value, exc);
+        };
+    };
+    vm.slot_boundp = function(obj, name) {
+        var key = vm.slot_key(name);
+        return Object.hasOwnProperty(obj, key);
     };
 };
 
@@ -523,6 +643,10 @@ vm.evaluate = function(m, e, x) {
 vm.Sym = vm.defclass("symbol", ["standard-object"], { "name": {}, "ns": {} });
 vm.Sym.prototype.qua_evaluate = function(self, m, e) {
     return vm.lookup(e, self);
+};
+vm.Keyword = vm.defclass("keyword", ["standard-object"], { "name": {} });
+vm.Keyword.prototype.qua_evaluate = function(self, m, e) {
+    return self;
 };
 vm.Cons = vm.defclass("cons", ["standard-object"], { "car": {}, "cdr": {} });
 vm.Cons.prototype.qua_evaluate = function(self, m, e) {
@@ -621,6 +745,7 @@ vm.sym = function(name, ns) {
     return vm.make_instance(vm.Sym, { name: name, ns: ns ? ns : vm.VAR_NS });
 };
 vm.sym_key = function(sym) { return sym.qs_name + "_" + sym.qs_ns; };
+vm.keyword = function(name) { return vm.make_instance(vm.Keyword, { name: name }); };
 vm.cons = function(car, cdr) { return vm.make_instance(vm.Cons, { car: car, cdr: cdr }); };
 vm.car = function(cons) { return vm.assert_type(cons, vm.Cons).qs_car; };
 vm.cdr = function(cons) { return vm.assert_type(cons, vm.Cons).qs_cdr; };
@@ -673,6 +798,9 @@ vm.reverse_list = function(list) {
     while(!vm.is_nil(list)) { res = vm.cons(vm.car(list), res); list = vm.cdr(list); }
     return res;
 };
+vm.is_list = function(obj) {
+    return vm.is_nil(obj) || obj instanceof vm.Cons;
+};
 /* API */
 vm.make_env = function(parent) { return new vm.Env(parent); };
 vm.def = vm.bind;
@@ -693,6 +821,16 @@ vm.init = function(e) {
     vm.defun(e, vm.sym("%%unwrap"), vm.jswrap(vm.unwrap));
     // Environments
     vm.defun(e, vm.sym("%%make-environment"), vm.jswrap(vm.make_env));
+    // Object system
+    vm.defun(e, vm.sym("%%call-method"), vm.jswrap(vm.call_method));
+    vm.defun(e, vm.sym("%%class-of"), vm.jswrap(vm.class_of));
+    vm.defun(e, vm.sym("%%find-generic-class"), vm.jswrap(vm.find_generic_class));
+    vm.defun(e, vm.sym("%%find-standard-class"), vm.jswrap(vm.find_standard_class));
+    vm.defun(e, vm.sym("%%make-instance"), vm.jswrap(vm.make_instance));
+    vm.defun(e, vm.sym("%%put-method"), vm.jswrap(vm.put_method));
+    vm.defun(e, vm.sym("%%set-slot-value"), vm.jswrap(vm.set_slot_value));
+    vm.defun(e, vm.sym("%%slot-boundp"), vm.jswrap(vm.slot_boundp));
+    vm.defun(e, vm.sym("%%slot-value"), vm.jswrap(vm.slot_value));
     // Misc
     vm.defun(e, vm.sym("%%eq"), vm.jswrap(function(a, b) { return a === b; }));
 };
