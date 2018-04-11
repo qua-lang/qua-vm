@@ -9,10 +9,6 @@ vm.Sym = vm.defclass("symbol", ["standard-object"], { "name": {}, "ns": {} });
 vm.Sym.prototype.qua_evaluate = function(self, m, e) {
     return vm.lookup(e, self);
 };
-vm.Keyword = vm.defclass("keyword", ["standard-object"], { "name": {} });
-vm.Keyword.prototype.qua_evaluate = function(self, m, e) {
-    return self;
-};
 vm.Cons = vm.defclass("cons", ["standard-object"], { "car": {}, "cdr": {} });
 vm.Cons.prototype.qua_evaluate = function(self, m, e) {
     return vm.monadic(m,
@@ -110,11 +106,12 @@ vm.sym = function(name, ns) {
     return vm.make_instance(vm.Sym, { name: name, ns: ns ? ns : vm.VAR_NS });
 };
 vm.sym_key = function(sym) { return sym.qs_name + "_" + sym.qs_ns; };
-vm.keyword = function(name) { return vm.make_instance(vm.Keyword, { name: name }); };
 vm.cons = function(car, cdr) { return vm.make_instance(vm.Cons, { car: car, cdr: cdr }); };
 vm.car = function(cons) { return vm.assert_type(cons, vm.Cons).qs_car; };
 vm.cdr = function(cons) { return vm.assert_type(cons, vm.Cons).qs_cdr; };
 vm.elt = function(cons, i) { return (i === 0) ? vm.car(cons) : vm.elt(vm.cdr(cons), i - 1); };
+vm.Keyword = vm.defclass("keyword", ["standard-object"], { "name": {} });
+vm.keyword = function(name) { return vm.make_instance(vm.Keyword, { name: name }); };
 vm.Nil = function Nil() {}; vm.NIL = new vm.Nil();
 vm.is_nil = function(obj) { return obj === vm.NIL; };
 vm.Ign = function Ign() {}; vm.IGN = new vm.Ign();
