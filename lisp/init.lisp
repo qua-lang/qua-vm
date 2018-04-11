@@ -128,11 +128,19 @@
 (defun make (class-desig . initargs)
   (%%make-instance class-desig initargs))
 
-(defmacro defgeneric (name #ign)
-  (list #'def (qua:to-fun-sym name)
-        (vau (self-form . args) denv
-          (let ((self (eval self-form denv)))
-            (call-method self name (cons self args) denv)))))
+(deffexpr the-environment () env env)
+
+(deffexpr setq (lhs rhs env) denv
+  (eval (list #'def lhs 
+              (list (unwrap #'eval) rhs denv))
+        (eval env denv)))
+
+(deffexpr defgeneric (name #ign) env
+  (eval (list #'def (qua:to-fun-sym name)
+              (vau (self-form . args) denv
+                   (let ((self (eval self-form denv)))
+                     (call-method self name (cons self args) denv))))
+        env))
 
 (deffexpr defmethod (name ((self class-desig) . args) . body) env
   (let ((class (find-class class-desig))

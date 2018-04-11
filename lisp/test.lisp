@@ -84,3 +84,10 @@
   "wowzers!")
 (qua:assert (qua:deep-equal "wow!" (my-generic obj1)))
 (qua:assert (qua:deep-equal "wowzers!" (my-generic obj2)))
+
+;;;; SETQ
+(let ()
+  (def x 1)
+  (def env (the-environment))
+  (setq x 2 env)
+  (qua:assert (qua:deep-equal 2 x)))
