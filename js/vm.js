@@ -195,6 +195,7 @@ vm.init = function(e) {
     vm.defun(e, vm.sym("%%slot-value"), vm.jswrap(vm.slot_value));
     // Misc
     vm.defun(e, vm.sym("%%eq"), vm.jswrap(function(a, b) { return a === b; }));
+    vm.defun(e, vm.sym("%%pr"), vm.jswrap(console.log));
 };
 vm.eval = function(x, e) {
     return vm.evaluate(null, e, x); // change to x,e

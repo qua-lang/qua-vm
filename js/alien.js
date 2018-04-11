@@ -1,3 +1,4 @@
+// Native JS support
 module.exports = function(vm, e) {
     vm.JSObject = vm.defclass("js:object", ["object"], {});
     vm.JSArray = vm.defclass("js:array", ["js:object"], {});

@@ -1,7 +1,6 @@
 ;; Test bindings
 (def #'qua:assert #'%%assert)
 (def #'qua:deep-equal #'%%deep-equal)
-(def #'pr #'%%pr)
 
 ;;;; Forms
 (qua:assert (qua:deep-equal 1 (car (cons 1 2))))

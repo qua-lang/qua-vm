@@ -1,3 +1,4 @@
+// Object system
 module.exports = function(vm) {
     /* Bootstrap STANDARD-CLASS */
     vm.THE_GENERIC_CLASS_STANDARD_CLASS = {

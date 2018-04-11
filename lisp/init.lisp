@@ -16,10 +16,12 @@
 (def #'eq #'%%eq) ; Compare two values for pointer equality.
 (def #'if #'%%if) ; Evaluate either of two branches depending on a test.
 (def #'make-environment #'%%make-environment) ; Create new lexical environment.
+(def #'pr #'%%pr) ; Print line.
 (def #'progn #'%%progn) ; Evaluate expressions in order.
 (def #'unwrap #'%%unwrap) ; Extract fexpr underlying a function.
 (def #'wrap #'%%wrap) ; Construct a function out of a fexpr.
 
+(def #'find-class #'%%find-generic-class)
 (def #'class-of #'%%class-of)
 
 ;; Use the QUA package for stuff that's not expected to be called by
@@ -37,6 +39,13 @@
   (%%vau (params env-param . body) env
     (eval (list #'%%vau params env-param 
                 (list* #'progn body))
+          env)))
+
+; Define a named fexpr in the current environment.
+(def #'deffexpr 
+  (vau (name params env-param . body) env
+    (eval (list #'def (qua:to-fun-sym name) 
+                (list* #'vau params env-param body))
           env)))
 
 ; Create a macro given an expander fexpr that receives and returns a form.
@@ -78,6 +87,9 @@
   (eval (cons (unwrap fun) args)
         (make-environment)))
 
+(defun funcall (fun . args)
+  (apply fun args))
+
 ; Return true if an object is #NIL, false otherwise.
 (defun nilp (obj) (eq obj #nil))
 
@@ -86,6 +98,14 @@
   (if (nilp list)
       #nil
     (cons (fun (car list)) (qua:map-list #'fun (cdr list)))))
+
+(defun qua:compose (f g)
+  (lambda (arg) (funcall f (funcall g arg))))
+
+(def #'caar (qua:compose #'car #'car))
+(def #'cadr (qua:compose #'car #'cdr))
+(def #'cdar (qua:compose #'cdr #'car))
+(def #'cddr (qua:compose #'cdr #'cdr))
 
 ; The usual parallel-binding LET with left to right evaluation of
 ; value expressions.
@@ -102,5 +122,11 @@
       (list #'let (list (car bindings))
             (list* #'let* (cdr bindings) body))))
 
-(defun make-instance (class-designator . initargs)
-  (%%make-instance class-designator initargs))
+(defun make-instance (class-desig . initargs)
+  (%%make-instance class-desig initargs))
+
+(deffexpr defmethod (name ((self class-desig) . args) . body) env
+  (let ((class (find-class class-desig)))
+    (pr class)))
+
+(defmethod foo ((self number)))
