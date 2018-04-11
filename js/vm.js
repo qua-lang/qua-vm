@@ -189,10 +189,10 @@ vm.init = function(e) {
     // Environments
     vm.defun(e, vm.sym("%%make-environment"), vm.jswrap(vm.make_env));
     // Object system
-    vm.defun(e, vm.sym("%%call-method"), vm.jswrap(vm.call_method));
     vm.defun(e, vm.sym("%%class-of"), vm.jswrap(vm.class_of));
     vm.defun(e, vm.sym("%%ensure-class"), vm.jswrap(vm.defclass));
     vm.defun(e, vm.sym("%%find-generic-class"), vm.jswrap(vm.find_generic_class));
+    vm.defun(e, vm.sym("%%find-method"), vm.jswrap(vm.find_method));
     vm.defun(e, vm.sym("%%find-standard-class"), vm.jswrap(vm.find_standard_class));
     vm.defun(e, vm.sym("%%make-instance"), vm.jswrap(vm.make_instance));
     vm.defun(e, vm.sym("%%put-method"), vm.jswrap(vm.put_method));

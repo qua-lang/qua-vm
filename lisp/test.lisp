@@ -57,9 +57,16 @@
 (qua:assert (qua:deep-equal :foo
                             (make 'keyword :name "foo")))
 
-(defgeneric foo (self))
-(defmethod foo ((self js:number) x) x)
-(defmethod foo ((self boolean)) 13)
+(defgeneric describe-yourself (self))
+(defmethod describe-yourself ((self js:number)) "a number")
+(defmethod describe-yourself ((self boolean)) "a boolean")
+(defmethod describe-yourself ((self symbol)) "a symbol")
+(defmethod describe-yourself ((self object)) "any other object")
+(qua:assert (qua:deep-equal "a number" (describe-yourself 33)))
+(qua:assert (qua:deep-equal "a boolean" (describe-yourself #t)))
+(qua:assert (qua:deep-equal "a symbol" (describe-yourself 'foo)))
+(qua:assert (qua:deep-equal "any other object" (describe-yourself :hello)))
+(qua:assert (qua:deep-equal "any other object" (describe-yourself (list 1 2))))
 
 ;;;; "Keyword arguments"
 (defun fun-with-keywords (:x x-param :y y-param)

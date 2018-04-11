@@ -182,14 +182,6 @@ module.exports = function(vm) {
         generic_class.prototype[vm.method_key(name)] = combiner;
         return combiner;
     };
-    vm.call_method = function(obj, name, args, environment) {
-        var method = vm.find_method(obj, name);
-        if (method) {
-            return vm.combine(null, environment, method, args);
-        } else {
-            return vm.method_not_found_hook(obj, name);
-        }
-    };
     vm.find_method = function(obj, name) {
         var key = vm.method_key(name);
         if (obj && obj[key]) {

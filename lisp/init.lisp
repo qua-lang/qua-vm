@@ -24,7 +24,7 @@
 (def #'class-of #'%%class-of)
 (def #'find-class #'%%find-generic-class)
 (def #'put-method #'%%put-method)
-(def #'call-method #'%%call-method)
+(def #'find-method #'%%find-method)
 (def #'slot-value #'%%slot-value)
 
 ;; Use the QUA package for stuff that's not expected to be called by
@@ -135,11 +135,14 @@
               (list (unwrap #'eval) rhs denv))
         (eval env denv)))
 
+(defun call-method (obj name args)
+  (let ((method (find-method obj name)))
+    (apply method args)))
+
 (deffexpr defgeneric (name #ign) env
   (eval (list #'def (qua:to-fun-sym name)
-              (vau (self-form . args) denv
-                   (let ((self (eval self-form denv)))
-                     (call-method self name (cons self args) denv))))
+              (lambda args
+                (call-method (car args) name args)))
         env))
 
 (deffexpr defmethod (name ((self class-desig) . args) . body) env
