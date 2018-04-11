@@ -21,8 +21,10 @@
 (def #'unwrap #'%%unwrap) ; Extract fexpr underlying a function.
 (def #'wrap #'%%wrap) ; Construct a function out of a fexpr.
 
-(def #'find-class #'%%find-generic-class)
 (def #'class-of #'%%class-of)
+(def #'find-class #'%%find-generic-class)
+(def #'put-method #'%%put-method)
+(def #'call-method #'%%call-method)
 
 ;; Use the QUA package for stuff that's not expected to be called by
 ;; the user or that doesn't have a final API yet.
@@ -69,18 +71,18 @@
     (list #'def (qua:to-fun-sym name) (list* #'macro params body))))
 
 ; Create a function that doesn't do any type checking.
-(defmacro qua:lambda/unchecked (params . body)
+(defmacro ur-lambda (params . body)
   (list #'wrap (list* #'vau params #ign body)))
 
 ; Define a named function that doesn't do any type checking in the
 ; current environment.
-(defmacro qua:defun/unchecked (name params . body)
-  (list #'def (qua:to-fun-sym name) (list* #'qua:lambda/unchecked params body)))
+(defmacro ur-defun (name params . body)
+  (list #'def (qua:to-fun-sym name) (list* #'ur-lambda params body)))
 
 ; Use the unchecked versions for LAMBDA and DEFUN for now
 ; which will later use checked versions.
-(def #'lambda #'qua:lambda/unchecked)
-(def #'defun #'qua:defun/unchecked)
+(def #'lambda #'ur-lambda)
+(def #'defun #'ur-defun)
 
 ; Apply a function to a list of arguments.
 (defun apply (fun args)
@@ -125,8 +127,14 @@
 (defun make-instance (class-desig . initargs)
   (%%make-instance class-desig initargs))
 
-(deffexpr defmethod (name ((self class-desig) . args) . body) env
-  (let ((class (find-class class-desig)))
-    (pr class)))
+(defmacro defgeneric (name #ign)
+  (list #'def (qua:to-fun-sym name)
+        (vau (self-form . args) denv
+          (let ((self (eval self-form denv)))
+            (call-method self name (cons self args) denv)))))
 
-(defmethod foo ((self number)))
+(deffexpr defmethod (name ((self class-desig) . args) . body) env
+  (let ((class (find-class class-desig))
+        (fun (eval (list* #'lambda (list* self args) body) env)))
+    (put-method class name fun)
+    name))

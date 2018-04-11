@@ -179,14 +179,12 @@ module.exports = function(vm) {
     /* Methods */
     vm.put_method = function(generic_class, name, combiner) {
         vm.assert(vm.is_generic_class(generic_class));
-        vm.assert_type(name, "string");
         vm.assert((combiner instanceof vm.Opv) || (combiner instanceof vm.Apv));
-        generic_class.prototype["qm_" + name] = combiner;
+        generic_class.prototype[vm.method_key(name)] = combiner;
         return combiner;
     };
     vm.call_method = function(obj, name, args, environment) {
-        vm.assert_type(name, "string");
-        var method = vm.compute_effective_method(obj, name);
+        var method = vm.find_method(obj, name);
         if (method) {
             return vm.combine(null, environment, method, args);
         } else {

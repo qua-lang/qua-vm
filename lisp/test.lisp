@@ -56,3 +56,9 @@
                             (make-instance 'symbol :name "foo" :ns "v")))
 (qua:assert (qua:deep-equal :foo
                             (make-instance 'keyword :name "foo")))
+
+(defgeneric foo (self))
+(defmethod foo ((self js:number) x) x)
+(defmethod foo ((self boolean)) 13)
+(pr (foo 12 10))
+(pr (foo #t))
