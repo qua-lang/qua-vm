@@ -20,6 +20,8 @@
 (def #'unwrap #'%%unwrap) ; Extract fexpr underlying a function.
 (def #'wrap #'%%wrap) ; Construct a function out of a fexpr.
 
+(def #'class-of #'%%class-of)
+
 ;; Use the QUA package for stuff that's not expected to be called by
 ;; the user or that doesn't have a final API yet.
 (def #'qua:to-fun-sym #'%%to-fun-sym) ; Turn any symbol into a function namespaced one.

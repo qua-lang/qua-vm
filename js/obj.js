@@ -72,8 +72,8 @@ module.exports = function(vm) {
         return vm.STANDARD_CLASSES[vm.standard_class_key(name)];
     };
     // Classes, methods, and slots have names which can be specified
-    // as strings or symbols from Lisp.  Internally, they're always
-    // strings.
+    // as symbols, keywords, or strings from Lisp.  Internally,
+    // they're always strings.
     vm.designate_string = function(name) {
         if (name instanceof vm.Sym) {
             return name.qs_name;
@@ -102,14 +102,14 @@ module.exports = function(vm) {
         } else {
             return vm.find_generic_class(class_des);
         }
-    }
+    };
     vm.designate_standard_class = function(class_des) {
         if (vm.is_standard_class(class_des)) {
             return class_des;
         } else {
             return vm.find_standard_class(class_des);
         }
-    }
+    };
     /* Setup class hierarchy */
     vm.Object = vm.defclass("object", [], {});
     vm.StandardObject = vm.defclass("standard-object", ["object"], {});
@@ -120,12 +120,6 @@ module.exports = function(vm) {
     vm.Number = vm.defclass("number", ["object"], {});
     vm.String = vm.defclass("string", ["object"], {});
     vm.Boolean = vm.defclass("boolean", ["object"], {});
-    vm.JSArray = vm.defclass("js-array", ["number"], {});
-    vm.JSFunction = vm.defclass("js-function", ["number"], {});
-    vm.JSNumber = vm.defclass("js-number", ["number"], {});
-    vm.JSString = vm.defclass("js-string", ["string"], {});
-    vm.Null = vm.defclass("null", ["string"], {});
-    vm.Undefined = vm.defclass("undefined", ["string"], {});
     /* Objects */
     vm.make_instance = function(class_des, initargs) {
         var standard_class = vm.designate_standard_class(class_des);
@@ -150,28 +144,10 @@ module.exports = function(vm) {
         if (obj && obj.qua_isa) {
             return obj.qua_isa;
         } else {
-            switch (typeof(obj)) {
-            case "string": return vm.JSString;
-            case "number": return vm.JSNumber;
-            case "boolean": return vm.Boolean;
-            case "function": return vm.JSFunction;
-            case "undefined": return vm.JSUndefined;
-            default:
-            if (obj === null) {
-                return vm.JSNull;
-            } else if (Array.isArray(obj)) {
-                return vm.JSArray;
-            } else {
-                var proto = Object.getPrototypeOf(obj);
-                if (proto) {
-                    return vm.unknown_class_hook(proto);
-                } else {
-                    return vm.JSObject;
-                }
-            }
-            }
+            return vm.class_of_hook(obj);
         }
     };
+    vm.class_of_hook = function(obj) { vm.panic("object is missing class: " + obj); };
     vm.designate_dict = function(dict_des) {
         if (vm.is_list(dict_des)) {
             return vm.plist_to_dict(dict_des);

@@ -1,10 +1,43 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.qua = f()}})(function(){var define,module,exports;return (function(){function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s}return e})()({1:[function(require,module,exports){
-module.exports.main = [null,null,null,null,null,null,null,null,null,["%%def",["qua:function","def"],["qua:function","%%def"]],null,["def",["qua:function","car"],["qua:function","%%car"]],null,["def",["qua:function","cdr"],["qua:function","%%cdr"]],null,["def",["qua:function","cons"],["qua:function","%%cons"]],null,["def",["qua:function","eval"],["qua:function","%%eval"]],null,["def",["qua:function","eq"],["qua:function","%%eq"]],null,["def",["qua:function","if"],["qua:function","%%if"]],null,["def",["qua:function","make-environment"],["qua:function","%%make-environment"]],null,["def",["qua:function","progn"],["qua:function","%%progn"]],null,["def",["qua:function","unwrap"],["qua:function","%%unwrap"]],null,["def",["qua:function","wrap"],["qua:function","%%wrap"]],null,null,null,["def",["qua:function","qua:to-fun-sym"],["qua:function","%%to-fun-sym"]],null,null,["def",["qua:function","list*"],["qua:function","%%list*"]],null,["def",["qua:function","quote"],["%%vau",["op"],"#ign","op"]],null,["def",["qua:function","list"],["wrap",["%%vau","args","#ign","args"]]],null,null,["def",["qua:function","vau"],["%%vau",["params","env-param",".","body"],"env",["eval",["list",["qua:function","%%vau"],"params","env-param",["list*",["qua:function","progn"],"body"]],"env"]]],null,["def",["qua:function","make-macro"],["wrap",["vau",["expander"],"#ign",["vau","form","env",["eval",["eval",["cons","expander","form"],["make-environment"]],"env"]]]]],null,["def",["qua:function","macro"],["make-macro",["vau",["params",".","body"],"#ign",["list",["qua:function","make-macro"],["list*",["qua:function","vau"],"params","#ign","body"]]]]],null,["def",["qua:function","defmacro"],["macro",["name","params",".","body"],["list",["qua:function","def"],["qua:to-fun-sym","name"],["list*",["qua:function","macro"],"params","body"]]]],null,["defmacro","qua:lambda/unchecked",["params",".","body"],["list",["qua:function","wrap"],["list*",["qua:function","vau"],"params","#ign","body"]]],null,null,["defmacro","qua:defun/unchecked",["name","params",".","body"],["list",["qua:function","def"],["qua:to-fun-sym","name"],["list*",["qua:function","qua:lambda/unchecked"],"params","body"]]],null,null,["def",["qua:function","lambda"],["qua:function","qua:lambda/unchecked"]],["def",["qua:function","defun"],["qua:function","qua:defun/unchecked"]],null,["defun","apply",["fun","args"],["eval",["cons",["unwrap","fun"],"args"],["make-environment"]]],null,["defun","nilp",["obj"],["eq","obj",[]]],null,["defun","qua:map-list",[["qua:function","fun"],"list"],["if",["nilp","list"],[],["cons",["fun",["car","list"]],["qua:map-list",["qua:function","fun"],["cdr","list"]]]]],null,null,["defmacro","let",["bindings",".","body"],["list*",["list*",["qua:function","lambda"],["qua:map-list",["qua:function","car"],"bindings"],"body"],["qua:map-list",["qua:function","cadr"],"bindings"]]],null,null,["defmacro","let*",["bindings",".","body"],["if",["nilp","bindings"],["list*",["qua:function","let"],[],"body"],["list",["qua:function","let"],["list",["car","bindings"]],["list*",["qua:function","let*"],["cdr","bindings"],"body"]]]],["defun","make-instance",["class-designator",".","initargs"],["%%make-instance","class-designator","initargs"]],null]
+module.exports.main = [null,null,null,null,null,null,null,null,null,["%%def",["qua:function","def"],["qua:function","%%def"]],null,["def",["qua:function","car"],["qua:function","%%car"]],null,["def",["qua:function","cdr"],["qua:function","%%cdr"]],null,["def",["qua:function","cons"],["qua:function","%%cons"]],null,["def",["qua:function","eval"],["qua:function","%%eval"]],null,["def",["qua:function","eq"],["qua:function","%%eq"]],null,["def",["qua:function","if"],["qua:function","%%if"]],null,["def",["qua:function","make-environment"],["qua:function","%%make-environment"]],null,["def",["qua:function","progn"],["qua:function","%%progn"]],null,["def",["qua:function","unwrap"],["qua:function","%%unwrap"]],null,["def",["qua:function","wrap"],["qua:function","%%wrap"]],null,["def",["qua:function","class-of"],["qua:function","%%class-of"]],null,null,["def",["qua:function","qua:to-fun-sym"],["qua:function","%%to-fun-sym"]],null,null,["def",["qua:function","list*"],["qua:function","%%list*"]],null,["def",["qua:function","quote"],["%%vau",["op"],"#ign","op"]],null,["def",["qua:function","list"],["wrap",["%%vau","args","#ign","args"]]],null,null,["def",["qua:function","vau"],["%%vau",["params","env-param",".","body"],"env",["eval",["list",["qua:function","%%vau"],"params","env-param",["list*",["qua:function","progn"],"body"]],"env"]]],null,["def",["qua:function","make-macro"],["wrap",["vau",["expander"],"#ign",["vau","form","env",["eval",["eval",["cons","expander","form"],["make-environment"]],"env"]]]]],null,["def",["qua:function","macro"],["make-macro",["vau",["params",".","body"],"#ign",["list",["qua:function","make-macro"],["list*",["qua:function","vau"],"params","#ign","body"]]]]],null,["def",["qua:function","defmacro"],["macro",["name","params",".","body"],["list",["qua:function","def"],["qua:to-fun-sym","name"],["list*",["qua:function","macro"],"params","body"]]]],null,["defmacro","qua:lambda/unchecked",["params",".","body"],["list",["qua:function","wrap"],["list*",["qua:function","vau"],"params","#ign","body"]]],null,null,["defmacro","qua:defun/unchecked",["name","params",".","body"],["list",["qua:function","def"],["qua:to-fun-sym","name"],["list*",["qua:function","qua:lambda/unchecked"],"params","body"]]],null,null,["def",["qua:function","lambda"],["qua:function","qua:lambda/unchecked"]],["def",["qua:function","defun"],["qua:function","qua:defun/unchecked"]],null,["defun","apply",["fun","args"],["eval",["cons",["unwrap","fun"],"args"],["make-environment"]]],null,["defun","nilp",["obj"],["eq","obj",[]]],null,["defun","qua:map-list",[["qua:function","fun"],"list"],["if",["nilp","list"],[],["cons",["fun",["car","list"]],["qua:map-list",["qua:function","fun"],["cdr","list"]]]]],null,null,["defmacro","let",["bindings",".","body"],["list*",["list*",["qua:function","lambda"],["qua:map-list",["qua:function","car"],"bindings"],"body"],["qua:map-list",["qua:function","cadr"],"bindings"]]],null,null,["defmacro","let*",["bindings",".","body"],["if",["nilp","bindings"],["list*",["qua:function","let"],[],"body"],["list",["qua:function","let"],["list",["car","bindings"]],["list*",["qua:function","let*"],["cdr","bindings"],"body"]]]],["defun","make-instance",["class-designator",".","initargs"],["%%make-instance","class-designator","initargs"]],null]
 
 },{}],2:[function(require,module,exports){
-module.exports.main = [null,["def",["qua:function","qua:assert"],["qua:function","%%assert"]],["def",["qua:function","qua:deep-equal"],["qua:function","%%deep-equal"]],["def",["qua:function","pr"],["qua:function","%%print"]],null,["qua:assert",["qua:deep-equal",1,["car",["cons",1,2]]]],["qua:assert",["qua:deep-equal",2,["cdr",["cons",1,2]]]],["qua:assert",["qua:deep-equal",1,["car",["list",1,2,3]]]],["qua:assert",["qua:deep-equal",["list",2,3],["cdr",["list",1,2,3]]]],["qua:assert",["qua:deep-equal",1,["car",["list*",1,2,3]]]],["qua:assert",["qua:deep-equal",["cons",2,3],["cdr",["list*",1,2,3]]]],null,["def","e1",["make-environment"]],["eval",["list",["qua:function","def"],["quote","x"],1],"e1"],["qua:assert",["qua:deep-equal",1,["eval",["quote","x"],"e1"]]],["qua:assert",["qua:deep-equal","#void",["progn"]]],["qua:assert",["qua:deep-equal",1,["progn",1]]],["qua:assert",["qua:deep-equal",2,["progn",1,2]]],null,["def","e2",["make-environment"]],["def",["qua:function","fun2"],["wrap",["vau",["p"],"#ign","p"]]],["eval",["list",["qua:function","def"],["quote","x"],2],"e2"],["eval",["list",["qua:function","def"],["quote",["qua:function","fun2"]],["qua:function","fun2"]],"e2"],["qua:assert",["qua:deep-equal",2,["eval",["list",["qua:function","fun2"],["quote","x"]],"e2"]]],null,["qua:assert",["qua:deep-equal",["quote","foo"],["quote","foo"]]],["qua:assert",["qua:deep-equal",["quote",["foo","bar"]],["quote",["foo","bar"]]]],null,["def",["qua:function","lam1"],["lambda",[],10,11,12]],["def",["qua:function","lam2"],["lambda",[]]],["qua:assert",["qua:deep-equal",12,["lam1"]]],["qua:assert",["qua:deep-equal","#void",["lam2"]]],["defun","lam3",["x"],1,2,3,"x"],["qua:assert",["qua:deep-equal",4,["lam3",4]]],null,["qua:assert",["qua:deep-equal",["list",1,2,3],["apply",["qua:function","list"],["list",1,2,3]]]],null,["qua:assert",["qua:deep-equal",["list",1,1,1],["qua:map-list",["lambda",["#ign"],1],["list",1,2,3]]]],null,["qua:assert",["qua:deep-equal",["quote","foo"],["make-instance",["quote","symbol"],["qua:keyword","name"],["wat-string","foo"],["qua:keyword","ns"],["wat-string","v"]]]],["qua:assert",["qua:deep-equal",["qua:keyword","foo"],["make-instance",["quote","keyword"],["qua:keyword","name"],["wat-string","foo"]]]],null]
+module.exports.main = [null,["def",["qua:function","qua:assert"],["qua:function","%%assert"]],["def",["qua:function","qua:deep-equal"],["qua:function","%%deep-equal"]],["def",["qua:function","pr"],["qua:function","%%print"]],null,["qua:assert",["qua:deep-equal",1,["car",["cons",1,2]]]],["qua:assert",["qua:deep-equal",2,["cdr",["cons",1,2]]]],["qua:assert",["qua:deep-equal",1,["car",["list",1,2,3]]]],["qua:assert",["qua:deep-equal",["list",2,3],["cdr",["list",1,2,3]]]],["qua:assert",["qua:deep-equal",1,["car",["list*",1,2,3]]]],["qua:assert",["qua:deep-equal",["cons",2,3],["cdr",["list*",1,2,3]]]],null,["def","e1",["make-environment"]],["eval",["list",["qua:function","def"],["quote","x"],1],"e1"],["qua:assert",["qua:deep-equal",1,["eval",["quote","x"],"e1"]]],["qua:assert",["qua:deep-equal","#void",["progn"]]],["qua:assert",["qua:deep-equal",1,["progn",1]]],["qua:assert",["qua:deep-equal",2,["progn",1,2]]],null,["def","e2",["make-environment"]],["def",["qua:function","fun2"],["wrap",["vau",["p"],"#ign","p"]]],["eval",["list",["qua:function","def"],["quote","x"],2],"e2"],["eval",["list",["qua:function","def"],["quote",["qua:function","fun2"]],["qua:function","fun2"]],"e2"],["qua:assert",["qua:deep-equal",2,["eval",["list",["qua:function","fun2"],["quote","x"]],"e2"]]],null,["qua:assert",["qua:deep-equal",["quote","foo"],["quote","foo"]]],["qua:assert",["qua:deep-equal",["quote",["foo","bar"]],["quote",["foo","bar"]]]],null,["def",["qua:function","lam1"],["lambda",[],10,11,12]],["def",["qua:function","lam2"],["lambda",[]]],["qua:assert",["qua:deep-equal",12,["lam1"]]],["qua:assert",["qua:deep-equal","#void",["lam2"]]],["defun","lam3",["x"],1,2,3,"x"],["qua:assert",["qua:deep-equal",4,["lam3",4]]],null,["qua:assert",["qua:deep-equal",["list",1,2,3],["apply",["qua:function","list"],["list",1,2,3]]]],null,["qua:assert",["qua:deep-equal",["list",1,1,1],["qua:map-list",["lambda",["#ign"],1],["list",1,2,3]]]],null,["qua:assert",["qua:deep-equal",["quote","foo"],["make-instance",["quote","symbol"],["qua:keyword","name"],["wat-string","foo"],["qua:keyword","ns"],["wat-string","v"]]]],["qua:assert",["qua:deep-equal",["qua:keyword","foo"],["make-instance",["quote","keyword"],["qua:keyword","name"],["wat-string","foo"]]]],["pr",["class-of",true]]]
 
 },{}],3:[function(require,module,exports){
+module.exports = function(vm, e) {
+    vm.JSObject = vm.defclass("js:object", ["object"], {});
+    vm.JSArray = vm.defclass("js:array", ["js:object"], {});
+    vm.JSFunction = vm.defclass("js:function", ["js:object"], {});
+    vm.JSNumber = vm.defclass("js:number", ["number", "js:object"], {});
+    vm.JSString = vm.defclass("js:string", ["string", "js:object"], {});
+    vm.JSNull = vm.defclass("js:null", ["js:object"], {});
+    vm.JSUndefined = vm.defclass("js:undefined", ["js:object"], {});
+    vm.class_of_hook = function(obj) { // override obj.js
+        switch (typeof(obj)) {
+        case "string": return vm.JSString;
+        case "number": return vm.JSNumber;
+        case "boolean": return vm.Boolean;
+        case "function": return vm.JSFunction;
+        case "undefined": return vm.JSUndefined;
+        default:
+        if (obj === null) {
+            return vm.JSNull;
+        } else if (Array.isArray(obj)) {
+            return vm.JSArray;
+        } else {
+            var proto = Object.getPrototypeOf(obj);
+            if (proto) {
+                return vm.unknown_class_hook(proto);
+            } else {
+                return vm.JSObject;
+            }
+        }
+        }
+    };
+};
+
+},{}],4:[function(require,module,exports){
 // Plugin for the Qua VM that adds the delimcc API for delimited control.
 // Documentation: http://okmij.org/ftp/continuations/implementations.html
 // Also adds continuation-aware implementations of qua:loop and qua:rescue.
@@ -150,7 +183,7 @@ module.exports = function(vm, e) {
     vm.defun(e, vm.sym("%%push-prompt-subcont"), vm.PushPromptSubcont);
 }
 
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 // Plugin for the Qua VM that adds a second namespace for functions.
 // This should be loaded before anything else so that primitive
 // functions defined in other modules go into the function namespace.
@@ -185,7 +218,7 @@ module.exports = function(vm, e) {
     vm.defun(e, vm.sym("%%to-fun-sym"), vm.jswrap(vm.to_fun_sym));
 };
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 var vm = require("./vm");
 var parser = require("./parser");
 var init_bytecode = require("../build/out/init.js").main;
@@ -194,6 +227,7 @@ var test_bytecode = require("../build/out/test.js").main;
 var e = vm.make_env();
 require("./lisp-2")(vm, e);
 require("./cont")(vm, e);
+require("./alien")(vm, e);
 require("./print")(vm, e);
 require("./optim")(vm, e);
 require("./test")(vm, e);
@@ -230,7 +264,7 @@ function parse_bytecode_array(arr) {
         return vm.array_to_list(front.map(parse_bytecode), parse_bytecode(arr[i + 1])); }
 }
 
-},{"../build/out/init.js":1,"../build/out/test.js":2,"./cont":3,"./lisp-2":4,"./optim":7,"./parser":8,"./print":9,"./test":10,"./vm":12}],6:[function(require,module,exports){
+},{"../build/out/init.js":1,"../build/out/test.js":2,"./alien":3,"./cont":4,"./lisp-2":5,"./optim":8,"./parser":9,"./print":10,"./test":11,"./vm":13}],7:[function(require,module,exports){
 module.exports = function(vm) {
     /* Bootstrap STANDARD-CLASS */
     vm.THE_GENERIC_CLASS_STANDARD_CLASS = {
@@ -305,8 +339,8 @@ module.exports = function(vm) {
         return vm.STANDARD_CLASSES[vm.standard_class_key(name)];
     };
     // Classes, methods, and slots have names which can be specified
-    // as strings or symbols from Lisp.  Internally, they're always
-    // strings.
+    // as symbols, keywords, or strings from Lisp.  Internally,
+    // they're always strings.
     vm.designate_string = function(name) {
         if (name instanceof vm.Sym) {
             return name.qs_name;
@@ -335,14 +369,14 @@ module.exports = function(vm) {
         } else {
             return vm.find_generic_class(class_des);
         }
-    }
+    };
     vm.designate_standard_class = function(class_des) {
         if (vm.is_standard_class(class_des)) {
             return class_des;
         } else {
             return vm.find_standard_class(class_des);
         }
-    }
+    };
     /* Setup class hierarchy */
     vm.Object = vm.defclass("object", [], {});
     vm.StandardObject = vm.defclass("standard-object", ["object"], {});
@@ -353,12 +387,6 @@ module.exports = function(vm) {
     vm.Number = vm.defclass("number", ["object"], {});
     vm.String = vm.defclass("string", ["object"], {});
     vm.Boolean = vm.defclass("boolean", ["object"], {});
-    vm.JSArray = vm.defclass("js-array", ["number"], {});
-    vm.JSFunction = vm.defclass("js-function", ["number"], {});
-    vm.JSNumber = vm.defclass("js-number", ["number"], {});
-    vm.JSString = vm.defclass("js-string", ["string"], {});
-    vm.Null = vm.defclass("null", ["string"], {});
-    vm.Undefined = vm.defclass("undefined", ["string"], {});
     /* Objects */
     vm.make_instance = function(class_des, initargs) {
         var standard_class = vm.designate_standard_class(class_des);
@@ -383,28 +411,10 @@ module.exports = function(vm) {
         if (obj && obj.qua_isa) {
             return obj.qua_isa;
         } else {
-            switch (typeof(obj)) {
-            case "string": return vm.JSString;
-            case "number": return vm.JSNumber;
-            case "boolean": return vm.Boolean;
-            case "function": return vm.JSFunction;
-            case "undefined": return vm.JSUndefined;
-            default:
-            if (obj === null) {
-                return vm.JSNull;
-            } else if (Array.isArray(obj)) {
-                return vm.JSArray;
-            } else {
-                var proto = Object.getPrototypeOf(obj);
-                if (proto) {
-                    return vm.unknown_class_hook(proto);
-                } else {
-                    return vm.JSObject;
-                }
-            }
-            }
+            return vm.class_of_hook(obj);
         }
     };
+    vm.class_of_hook = function(obj) { vm.panic("object is missing class: " + obj); };
     vm.designate_dict = function(dict_des) {
         if (vm.is_list(dict_des)) {
             return vm.plist_to_dict(dict_des);
@@ -515,7 +525,7 @@ module.exports = function(vm) {
     };
 };
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 module.exports = function(vm, e) {
     vm.list_star = function() {
         var len = arguments.length; var c = len >= 1 ? arguments[len-1] : NIL;
@@ -524,7 +534,7 @@ module.exports = function(vm, e) {
     vm.defun(e, vm.sym("%%list*"), vm.jswrap(vm.list_star));
 }
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 var jsparse = require("jsparse");
 module.exports.parse_sexp = parse_sexp;
 
@@ -593,7 +603,7 @@ var x_stx = whitespace(choice(ign_stx, void_stx, nil_stx, nil_stx_2, t_stx, f_st
                               quote_stx, compound_stx, keyword_stx, id_stx, string_stx, cmt_stx));
 var program_stx = whitespace(repeat0(choice(x_stx, whitespace_stx))); // HACK!
 
-},{"jsparse":16}],9:[function(require,module,exports){
+},{"jsparse":17}],10:[function(require,module,exports){
 module.exports = function(vm, e) {
     vm.to_sexp = function(obj) {
         return obj.qua_to_sexp(obj);
@@ -608,7 +618,7 @@ module.exports = function(vm, e) {
     };
 }
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 // Adds utility functions for testing the built-ins to a VM
 var deep_equal = require("deep-equal");
 module.exports = function(vm, e) {
@@ -618,7 +628,7 @@ module.exports = function(vm, e) {
     vm.defun(e, vm.sym("%%print"), vm.jswrap(console.log));
 }
 
-},{"deep-equal":13}],11:[function(require,module,exports){
+},{"deep-equal":14}],12:[function(require,module,exports){
 module.exports = function(vm) {
     vm.assert_type = function(obj, type_spec) {
         if (vm.check_type(obj, type_spec)) return obj;
@@ -642,7 +652,7 @@ module.exports = function(vm) {
     vm.panic = vm.error;
 };
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 var vm = module.exports;
 require("./util")(vm);
 require("./obj")(vm);
@@ -848,7 +858,7 @@ vm.eval = function(x, e) {
     return vm.evaluate(null, e, x); // change to x,e
 };
 
-},{"./obj":6,"./util":11}],13:[function(require,module,exports){
+},{"./obj":7,"./util":12}],14:[function(require,module,exports){
 var pSlice = Array.prototype.slice;
 var objectKeys = require('./lib/keys.js');
 var isArguments = require('./lib/is_arguments.js');
@@ -944,7 +954,7 @@ function objEquiv(a, b, opts) {
   return typeof a === typeof b;
 }
 
-},{"./lib/is_arguments.js":14,"./lib/keys.js":15}],14:[function(require,module,exports){
+},{"./lib/is_arguments.js":15,"./lib/keys.js":16}],15:[function(require,module,exports){
 var supportsArgumentsClass = (function(){
   return Object.prototype.toString.call(arguments)
 })() == '[object Arguments]';
@@ -966,7 +976,7 @@ function unsupported(object){
     false;
 };
 
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 exports = module.exports = typeof Object.keys === 'function'
   ? Object.keys : shim;
 
@@ -977,7 +987,7 @@ function shim (obj) {
   return keys;
 }
 
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 // Copyright (C) 2007 Chris Double.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -1667,5 +1677,5 @@ jsparse.inject_into = function inject_into(into) {
 }
 
 
-},{}]},{},[5])(5)
+},{}]},{},[6])(6)
 });
