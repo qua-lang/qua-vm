@@ -53,9 +53,9 @@
 
 ;;;; Objects
 (qua:assert (qua:deep-equal 'foo
-                            (make-instance 'symbol :name "foo" :ns "v")))
+                            (make 'symbol :name "foo" :ns "v")))
 (qua:assert (qua:deep-equal :foo
-                            (make-instance 'keyword :name "foo")))
+                            (make 'keyword :name "foo")))
 
 (defgeneric foo (self))
 (defmethod foo ((self js:number) x) x)
@@ -68,3 +68,19 @@
 (qua:assert (qua:deep-equal (list 2 4)
                             (fun-with-keywords :x 2 :y 4)))
 
+;;;; Basic classes
+(defclass my-class ())
+(defgeneric my-generic (self))
+(defmethod my-generic ((self my-class))
+  "wow!")
+(def obj1 (make 'my-class))
+
+(defclass my-subclass (my-class))
+(def obj2 (make 'my-subclass))
+
+(qua:assert (qua:deep-equal "wow!" (my-generic obj1)))
+(qua:assert (qua:deep-equal "wow!" (my-generic obj2)))
+(defmethod my-generic ((self my-subclass))
+  "wowzers!")
+(qua:assert (qua:deep-equal "wow!" (my-generic obj1)))
+(qua:assert (qua:deep-equal "wowzers!" (my-generic obj2)))

@@ -45,7 +45,6 @@ module.exports = function(vm) {
     vm.defclass = function(name, direct_superclasses, slots) {
         vm.assert_type(name, "string");
         vm.assert_type(direct_superclasses, ["string"]);
-        vm.assert_type(slots, "object");
         function generic_class() {};
         generic_class.qua_isa = vm.GenericClass;
         generic_class["qs_name"] = name;

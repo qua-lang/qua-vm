@@ -16,7 +16,7 @@
 (def #'eq #'%%eq) ; Compare two values for pointer equality.
 (def #'if #'%%if) ; Evaluate either of two branches depending on a test.
 (def #'make-environment #'%%make-environment) ; Create new lexical environment.
-(def #'pr #'%%pr) ; Print line.
+(def #'print #'%%print) ; Print line.
 (def #'progn #'%%progn) ; Evaluate expressions in order.
 (def #'unwrap #'%%unwrap) ; Extract fexpr underlying a function.
 (def #'wrap #'%%wrap) ; Construct a function out of a fexpr.
@@ -25,6 +25,7 @@
 (def #'find-class #'%%find-generic-class)
 (def #'put-method #'%%put-method)
 (def #'call-method #'%%call-method)
+(def #'slot-value #'%%slot-value)
 
 ;; Use the QUA package for stuff that's not expected to be called by
 ;; the user or that doesn't have a final API yet.
@@ -124,7 +125,7 @@
       (list #'let (list (car bindings))
             (list* #'let* (cdr bindings) body))))
 
-(defun make-instance (class-desig . initargs)
+(defun make (class-desig . initargs)
   (%%make-instance class-desig initargs))
 
 (defmacro defgeneric (name #ign)
@@ -138,3 +139,9 @@
         (fun (eval (list* #'lambda (list* self args) body) env)))
     (put-method class name fun)
     name))
+
+(deffexpr defclass (name superclasses . #ign) #ign
+  (let ((string-list (qua:map-list (lambda (superclass)
+                                     (slot-value superclass 'name))
+                                   superclasses)))
+    (%%ensure-class (slot-value name 'name) (%%list-to-array string-list))))

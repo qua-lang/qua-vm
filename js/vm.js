@@ -191,6 +191,7 @@ vm.init = function(e) {
     // Object system
     vm.defun(e, vm.sym("%%call-method"), vm.jswrap(vm.call_method));
     vm.defun(e, vm.sym("%%class-of"), vm.jswrap(vm.class_of));
+    vm.defun(e, vm.sym("%%ensure-class"), vm.jswrap(vm.defclass));
     vm.defun(e, vm.sym("%%find-generic-class"), vm.jswrap(vm.find_generic_class));
     vm.defun(e, vm.sym("%%find-standard-class"), vm.jswrap(vm.find_standard_class));
     vm.defun(e, vm.sym("%%make-instance"), vm.jswrap(vm.make_instance));
@@ -200,7 +201,8 @@ vm.init = function(e) {
     vm.defun(e, vm.sym("%%slot-value"), vm.jswrap(vm.slot_value));
     // Misc
     vm.defun(e, vm.sym("%%eq"), vm.jswrap(function(a, b) { return a === b; }));
-    vm.defun(e, vm.sym("%%pr"), vm.jswrap(console.log));
+    vm.defun(e, vm.sym("%%print"), vm.jswrap(console.log));
+    vm.defun(e, vm.sym("%%list-to-array"), vm.jswrap(vm.list_to_array));
 };
 vm.eval = function(x, e) {
     return vm.evaluate(null, e, x); // change to x,e
