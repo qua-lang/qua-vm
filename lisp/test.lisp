@@ -60,5 +60,11 @@
 (defgeneric foo (self))
 (defmethod foo ((self js:number) x) x)
 (defmethod foo ((self boolean)) 13)
-(pr (foo 12 10))
-(pr (foo #t))
+
+;;;; "Keyword arguments"
+(defun fun-with-keywords (:x x-param :y y-param)
+  (list x-param y-param))
+
+(qua:assert (qua:deep-equal (list 2 4)
+                            (fun-with-keywords :x 2 :y 4)))
+

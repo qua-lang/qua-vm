@@ -143,6 +143,11 @@ vm.Cons.prototype.qua_bind = function(self, e, rhs) {
 vm.Nil.prototype.qua_bind = function(self, e, rhs) {
     if (!vm.is_nil(rhs)) return vm.error("NIL expected, but got: " + JSON.stringify(rhs));
 };
+vm.Keyword.prototype.qua_bind = function(self, e, rhs) {
+    if (!(rhs && (rhs instanceof vm.Keyword) && (rhs.qs_name === self.qs_name))) {
+        return vm.error(":" + self.qs_name + " expected, but got: " + JSON.stringify(rhs));
+    }
+};
 vm.Ign.prototype.qua_bind = function(self, e, rhs) {};
 /* Utilities */
 vm.list = function() {
