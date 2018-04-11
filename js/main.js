@@ -1,5 +1,5 @@
 var vm = require("./vm");
-var parser = require("./parser");
+var parser = require("./read");
 var init_bytecode = require("../build/out/init.js").main;
 var test_bytecode = require("../build/out/test.js").main;
 
