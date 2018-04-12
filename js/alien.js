@@ -33,4 +33,5 @@ module.exports = function(vm, e) {
     //vm.JSGlobal.qua_setter = jswrap(function(new_val, name) { global[name] = new_val; });
     vm.defun(e, vm.sym("%%js:global"), vm.JSGlobal);
     vm.defun(e, vm.sym("%%js:get"), vm.jswrap(function(obj, name) { return obj[name]; }));
+    vm.defun(e, vm.sym("%%js:apply"), vm.jswrap(function(fun, self, args) { return fun.apply(self, args); }));
 };

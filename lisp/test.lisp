@@ -122,5 +122,5 @@
 (qua:assert (qua:deep-equal "v" (.qs_ns 'foo)))
 (qua:assert (qua:deep-equal "f" (.qs_ns '#'foo)))
 
-(print @toString)
+;;;; JS method invocation
 (qua:assert (qua:deep-equal "12" (@toString 12)))

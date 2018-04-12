@@ -12,22 +12,27 @@
 (def #'car #'%%car) ; Access first element of pair.
 (def #'cdr #'%%cdr) ; Access second element of pair.
 (def #'cons #'%%cons) ; Construct a new pair.
-(def #'eval #'%%eval) ; Evaluate an expression in an environment.
 (def #'eq #'%%eq) ; Compare two values for pointer equality.
+(def #'eval #'%%eval) ; Evaluate an expression in an environment.
 (def #'if #'%%if) ; Evaluate either of two branches depending on a test.
 (def #'make-environment #'%%make-environment) ; Create new lexical environment.
 (def #'print #'%%print) ; Print line.
 (def #'progn #'%%progn) ; Evaluate expressions in order.
 (def #'unwrap #'%%unwrap) ; Extract fexpr underlying a function.
 (def #'wrap #'%%wrap) ; Construct a function out of a fexpr.
-
+;; Objects:
 (def #'class-of #'%%class-of)
 (def #'find-class #'%%find-generic-class)
-(def #'put-method #'%%put-method)
 (def #'find-method #'%%find-method)
-(def #'slot-value #'%%slot-value)
+(def #'put-method #'%%put-method)
 (def #'set-slot-value #'%%set-slot-value)
 (def #'slot-bound-p #'%%slot-bound-p)
+(def #'slot-value #'%%slot-value)
+;; JS:
+(def #'js:apply #'%%js:apply)
+(def #'js:get #'%%js:get)
+(def #'js:global #'%%js:global)
+(def #'js:list-to-array #'%%list-to-array)
 
 ;; Use the QUA package for stuff that's not expected to be called by
 ;; the user or that doesn't have a final API yet.
@@ -133,17 +138,24 @@
             (list* #'let* (cdr bindings) body))))
 
 ;;;; JS stuff
+
+; Equal to syntax .prop-name
+(defun js:getter (prop-name)
+  (lambda (obj)
+    (js:get obj prop-name)))
+
+; Equal to syntax @fun-name
+(defun js:invoker (fun-name)
+  (lambda (this . args)
+    (let ((fun (js:get this fun-name)))
+      (js:apply fun this (js:list-to-array args)))))
+
+; {}
 (defun js:create-object ()
   (@create $Object))
-(defun %%js:getter (prop-name)
-  (lambda (obj)
-    (%%js:get obj prop-name)))
-(defun %%js:invoker (fun-name)
-  (lambda (this . args)
-    (let ((fun (%%js:get this fun-name)))
-      (@apply this fun (%%list-to-array args)))))
 
 ;;;; Objects
+
 (defun make (class-desig . initargs)
   (%%make-instance class-desig initargs))
 
@@ -174,7 +186,7 @@
   (let ((string-list (qua:map-list (lambda (superclass)
                                      (slot-value superclass 'name))
                                    superclasses)))
-    (%%ensure-class (slot-value name 'name) (%%list-to-array string-list))))
+    (%%ensure-class (slot-value name 'name) (js:list-to-array string-list))))
 
 (defgeneric hash-object (self))
 (defgeneric compare-object (self))
