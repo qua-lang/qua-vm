@@ -92,9 +92,25 @@
 (qua:assert (qua:deep-equal "wow!" (my-generic obj1)))
 (qua:assert (qua:deep-equal "wowzers!" (my-generic obj2)))
 
+;;;; Slots
+(defclass class-with-slots ()
+  (x :type number
+   y :type number))
+(def object-with-slots (make 'class-with-slots :x 2 :y 4))
+(qua:assert (qua:deep-equal 2 (slot-value object-with-slots 'x)))
+(qua:assert (qua:deep-equal 4 (slot-value object-with-slots 'y)))
+(qua:assert (slot-bound-p object-with-slots 'x))
+(qua:assert (slot-bound-p object-with-slots 'y))
+(qua:assert (not (slot-bound-p object-with-slots 'z)))
+(set-slot-value object-with-slots 'x 6)
+(set-slot-value object-with-slots 'y 8)
+(qua:assert (qua:deep-equal 6 (slot-value object-with-slots 'x)))
+(qua:assert (qua:deep-equal 8 (slot-value object-with-slots 'y)))
+
 ;;;; SETQ
 (let ()
   (def x 1)
   (def env (the-environment))
   (setq x 2 env)
   (qua:assert (qua:deep-equal 2 x)))
+

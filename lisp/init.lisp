@@ -26,6 +26,8 @@
 (def #'put-method #'%%put-method)
 (def #'find-method #'%%find-method)
 (def #'slot-value #'%%slot-value)
+(def #'set-slot-value #'%%set-slot-value)
+(def #'slot-bound-p #'%%slot-bound-p)
 
 ;; Use the QUA package for stuff that's not expected to be called by
 ;; the user or that doesn't have a final API yet.
@@ -85,11 +87,16 @@
 (def #'lambda #'ur-lambda)
 (def #'defun #'ur-defun)
 
+(defun not (boolean)
+  (if boolean #f #t))
+
 ; Apply a function to a list of arguments.
 (defun apply (fun args)
   (eval (cons (unwrap fun) args)
         (make-environment)))
 
+; Similar to an ordinary function call, but can be used to call a
+; function from the variable namespace.
 (defun funcall (fun . args)
   (apply fun args))
 

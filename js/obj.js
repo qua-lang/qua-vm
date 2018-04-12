@@ -239,7 +239,7 @@ module.exports = function(vm) {
             return vm.set_slot_value_error_hook(obj, name, value, exc);
         };
     };
-    vm.slot_boundp = function(obj, name) {
+    vm.slot_bound_p = function(obj, name) {
         var key = vm.slot_key(name);
         return obj.hasOwnProperty(key);
     };
