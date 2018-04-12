@@ -22,6 +22,7 @@
 (def #'wrap #'%%wrap) ; Construct a function out of a fexpr.
 ;; Objects:
 (def #'class-of #'%%class-of)
+(def #'ensure-class #'%%ensure-class)
 (def #'find-class #'%%find-generic-class)
 (def #'find-method #'%%find-method)
 (def #'put-method #'%%put-method)
@@ -33,6 +34,7 @@
 (def #'js:get #'%%js:get)
 (def #'js:global #'%%js:global)
 (def #'js:list-to-array #'%%list-to-array)
+(def #'js:set #'%%js:set)
 
 ;; Use the QUA package for stuff that's not expected to be called by
 ;; the user or that doesn't have a final API yet.
@@ -137,12 +139,44 @@
       (list #'let (list (car bindings))
             (list* #'let* (cdr bindings) body))))
 
+;;;; SETQ
+
+(deffexpr the-environment () env env)
+
+(deffexpr setq (env lhs rhs) denv
+  (eval (list #'def lhs 
+              (list (unwrap #'eval) rhs denv))
+        (eval env denv)))
+
+;;;; SETF
+
+(def #'defconstant #'def)
+
+(defconstant qua:setter-prop "qua_setter")
+
+(defun setter (obj)
+  (js:get obj qua:setter-prop))
+
+(js:set #'setter qua:setter-prop
+        (lambda (new-setter getter)
+          (js:set getter qua:setter-prop new-setter)))
+
+(defmacro setf ((getter-form . args) new-val)
+  (let ((getter (if (symbolp getter-form)
+                    (qua:to-fun-sym getter-form)
+                  getter-form)))
+    (list* (list #'setter getter) new-val args)))
+
 ;;;; JS stuff
 
 ; Equal to syntax .prop-name
 (defun js:getter (prop-name)
-  (lambda (obj)
-    (js:get obj prop-name)))
+  (let ((getter (lambda (obj)
+                  (js:get obj prop-name))))
+    (js:set getter qua:setter-prop
+            (lambda (new-val obj)
+              (js:set obj prop-name new-val)))
+    getter))
 
 ; Equal to syntax @fun-name
 (defun js:invoker (fun-name)
@@ -151,20 +185,13 @@
       (js:apply fun this (js:list-to-array args)))))
 
 ; {}
-(defun js:create-object ()
-  (@create $Object))
+(defun js:create-object (proto)
+  (@create $Object proto))
 
 ;;;; Objects
 
 (defun make (class-desig . initargs)
   (%%make-instance class-desig initargs))
-
-(deffexpr the-environment () env env)
-
-(deffexpr setq (lhs rhs env) denv
-  (eval (list #'def lhs 
-              (list (unwrap #'eval) rhs denv))
-        (eval env denv)))
 
 (defun call-method (obj name args)
   (let ((method (find-method obj name)))
@@ -186,9 +213,8 @@
   (let ((string-list (qua:map-list (lambda (superclass)
                                      (slot-value superclass 'name))
                                    superclasses)))
-    (%%ensure-class (slot-value name 'name) (js:list-to-array string-list))))
+    (ensure-class (slot-value name 'name) (js:list-to-array string-list))))
 
 (defgeneric hash-object (self))
 (defgeneric compare-object (self))
 (defgeneric print-object (self stream))
-

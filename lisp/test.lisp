@@ -108,11 +108,18 @@
 (qua:assert (qua:deep-equal 8 (slot-value object-with-slots 'y)))
 
 ;;;; SETQ
-(let ()
-  (def x 1)
-  (def env (the-environment))
-  (setq x 2 env)
+(let ((x 1))
+  (setq (the-environment) x 2)
   (qua:assert (qua:deep-equal 2 x)))
+
+;;;; SETF
+(let ((foo 1))
+  (defun foo () foo)
+  (qua:assert (qua:deep-equal (foo) 1))
+  (def env (the-environment))
+  (js:set #'foo "qua_setter" (lambda (new-val) (setq env foo new-val)))
+  (setf (foo) 2)
+  (qua:assert (qua:deep-equal (foo) 2)))
 
 ;;;; JS getter
 (qua:assert (qua:deep-equal "String" (%%js:get (%%js:get "foo" "constructor") "name")))
@@ -121,6 +128,12 @@
 (qua:assert (qua:deep-equal "foo" (.qs_name 'foo)))
 (qua:assert (qua:deep-equal "v" (.qs_ns 'foo)))
 (qua:assert (qua:deep-equal "f" (.qs_ns '#'foo)))
+; Can set slots
+;(let ((obj (js:create-object #null))))
+;  (setf (.message obj) "foo")
+;  (print obj))
+;  (qua:assert (qua:deep-equal "foo" (.message obj))))
 
 ;;;; JS method invocation
-(qua:assert (qua:deep-equal "12" (@toString 12)))
+;(qua:assert (qua:deep-equal "12" (@toString 12)))
+
