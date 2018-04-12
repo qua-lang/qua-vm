@@ -129,10 +129,9 @@
 (qua:assert (qua:deep-equal "v" (.qs_ns 'foo)))
 (qua:assert (qua:deep-equal "f" (.qs_ns '#'foo)))
 ; Can set slots
-;(let ((obj (js:create-object #null))))
-;  (setf (.message obj) "foo")
-;  (print obj))
-;  (qua:assert (qua:deep-equal "foo" (.message obj))))
+(let ((obj (js:create-object #null)))
+  (setf (.message obj) "foo")
+  (qua:assert (qua:deep-equal "foo" (.message obj))))
 
 ;;;; JS method invocation
 ;(qua:assert (qua:deep-equal "12" (@toString 12)))

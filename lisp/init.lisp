@@ -80,6 +80,9 @@
   (macro (name params . body)
     (list #'def (qua:to-fun-sym name) (list* #'macro params body))))
 
+; Ahem
+(def #'defconstant #'def)
+
 ; Create a function that doesn't do any type checking.
 (defmacro ur-lambda (params . body)
   (list #'wrap (list* #'vau params #ign body)))
@@ -150,8 +153,6 @@
 
 ;;;; SETF
 
-(def #'defconstant #'def)
-
 (defconstant qua:setter-prop "qua_setter")
 
 (defun setter (obj)
@@ -173,9 +174,9 @@
 (defun js:getter (prop-name)
   (let ((getter (lambda (obj)
                   (js:get obj prop-name))))
-    (js:set getter qua:setter-prop
-            (lambda (new-val obj)
-              (js:set obj prop-name new-val)))
+    (setf (setter getter)
+          (lambda (new-val obj)
+            (js:set obj prop-name new-val)))
     getter))
 
 ; Equal to syntax @fun-name
