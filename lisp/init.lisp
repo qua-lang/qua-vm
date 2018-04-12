@@ -163,3 +163,8 @@
                                      (slot-value superclass 'name))
                                    superclasses)))
     (%%ensure-class (slot-value name 'name) (%%list-to-array string-list))))
+
+(defgeneric hash-object (self))
+(defgeneric compare-object (self))
+(defgeneric print-object (self stream))
+

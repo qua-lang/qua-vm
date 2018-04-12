@@ -1,8 +1,8 @@
 // Object system
 module.exports = function(vm) {
-    /* Bootstrap STANDARD-CLASS */
-    vm.THE_GENERIC_CLASS_STANDARD_CLASS = {
-        "qs_name": "standard-class",
+    /* Bootstrap CONCRETE-CLASS */
+    vm.THE_GENERIC_CLASS_CONCRETE_CLASS = {
+        "qs_name": "concrete-class",
         "qs_type-parameters": [],
         "qs_slots": {
             "generic-class": {},
@@ -11,12 +11,12 @@ module.exports = function(vm) {
         "qs_direct-superclasses": ["class"],
         prototype: {}
     };
-    vm.StandardClass = { // the concrete class
-        "qs_generic-class": vm.THE_GENERIC_CLASS_STANDARD_CLASS,
+    vm.ConcreteClass = { // the concrete class
+        "qs_generic-class": vm.THE_GENERIC_CLASS_CONCRETE_CLASS,
         "qs_type-arguments": [],
-        prototype: vm.THE_GENERIC_CLASS_STANDARD_CLASS.prototype
+        prototype: vm.THE_GENERIC_CLASS_CONCRETE_CLASS.prototype
     };
-    vm.StandardClass.qua_isa = vm.StandardClass;
+    vm.ConcreteClass.qua_isa = vm.ConcreteClass;
     /* Bootstrap GENERIC-CLASS */
     vm.THE_GENERIC_CLASS_GENERIC_CLASS = {
         "qs_name": "generic-class",
@@ -32,16 +32,16 @@ module.exports = function(vm) {
         prototype: {}
     };
     vm.GenericClass = { // the concrete class
-        qua_isa: vm.StandardClass,
+        qua_isa: vm.ConcreteClass,
         "qs_generic-class": vm.THE_GENERIC_CLASS_GENERIC_CLASS,
         "qs_type-arguments": [],
         prototype: vm.THE_GENERIC_CLASS_GENERIC_CLASS.prototype
     };
-    vm.THE_GENERIC_CLASS_STANDARD_CLASS.qua_isa = vm.GenericClass;
+    vm.THE_GENERIC_CLASS_CONCRETE_CLASS.qua_isa = vm.GenericClass;
     vm.THE_GENERIC_CLASS_GENERIC_CLASS.qua_isa = vm.GenericClass;
     /* Class registry */
     vm.GENERIC_CLASSES = {};
-    vm.STANDARD_CLASSES = {};
+    vm.CONCRETE_CLASSES = {};
     vm.defclass = function(name, direct_superclasses, slots) {
         vm.assert_type(name, "string");
         vm.assert_type(direct_superclasses, ["string"]);
@@ -52,24 +52,24 @@ module.exports = function(vm) {
         generic_class["qs_direct-superclasses"] = direct_superclasses;
         generic_class["qs_slots"] = slots;
         vm.GENERIC_CLASSES[name] = generic_class;
-        function standard_class() {};
-        standard_class.qua_isa = vm.StandardClass;
-        standard_class["qs_generic-class"] = generic_class;
-        standard_class["qs_type-arguments"] = [];
-        vm.STANDARD_CLASSES[name] = standard_class;
+        function concrete_class() {};
+        concrete_class.qua_isa = vm.ConcreteClass;
+        concrete_class["qs_generic-class"] = generic_class;
+        concrete_class["qs_type-arguments"] = [];
+        vm.CONCRETE_CLASSES[name] = concrete_class;
         // A concrete class' prototype is essentially superfluous but
         // required to support JS's instanceof (which determines
         // whether a constructor function's prototype occurs in the
         // prototype chain of an object).  We can share it with the
         // generic class, since a concrete class cannot have methods.
-        standard_class.prototype = generic_class.prototype;
-        return standard_class;
+        concrete_class.prototype = generic_class.prototype;
+        return concrete_class;
+    };
+    vm.find_concrete_class = function(name) {
+        return vm.CONCRETE_CLASSES[vm.concrete_class_key(name)];
     };
     vm.find_generic_class = function(name) {
         return vm.GENERIC_CLASSES[vm.generic_class_key(name)];
-    };
-    vm.find_standard_class = function(name) {
-        return vm.STANDARD_CLASSES[vm.standard_class_key(name)];
     };
     // Classes, methods, and slots have names which can be specified
     // as symbols, keywords, or strings from Lisp.  Internally,
@@ -84,10 +84,10 @@ module.exports = function(vm) {
             return name;
         }
     };
-    vm.generic_class_key = function(name) {
+    vm.concrete_class_key = function(name) {
         return vm.designate_string(name);
     };
-    vm.standard_class_key = function(name) {
+    vm.generic_class_key = function(name) {
         return vm.designate_string(name);
     };
     vm.method_key = function(name) {
@@ -96,18 +96,18 @@ module.exports = function(vm) {
     vm.slot_key = function(name) {
         return "qs_" + vm.designate_string(name);
     };
+    vm.designate_concrete_class = function(class_des) {
+        if (vm.is_concrete_class(class_des)) {
+            return class_des;
+        } else {
+            return vm.find_concrete_class(class_des);
+        }
+    };
     vm.designate_generic_class = function(class_des) {
         if (vm.is_generic_class(class_des)) {
             return class_des;
         } else {
             return vm.find_generic_class(class_des);
-        }
-    };
-    vm.designate_standard_class = function(class_des) {
-        if (vm.is_standard_class(class_des)) {
-            return class_des;
-        } else {
-            return vm.find_standard_class(class_des);
         }
     };
     /* Setup class hierarchy */
@@ -122,14 +122,14 @@ module.exports = function(vm) {
     vm.Boolean = vm.defclass("boolean", ["object"], {});
     /* Objects */
     vm.make_instance = function(class_des, initargs) {
-        var standard_class = vm.designate_standard_class(class_des);
-        var obj = vm.allocate_instance(standard_class);
+        var concrete_class = vm.designate_concrete_class(class_des);
+        var obj = vm.allocate_instance(concrete_class);
         return vm.initialize_instance(obj, initargs);
     };
-    vm.allocate_instance = function(standard_class) {
-        vm.assert(vm.is_standard_class(standard_class));
-        var obj = Object.create(standard_class.prototype);
-        obj.qua_isa = standard_class;
+    vm.allocate_instance = function(concrete_class) {
+        vm.assert(vm.is_concrete_class(concrete_class));
+        var obj = Object.create(concrete_class.prototype);
+        obj.qua_isa = concrete_class;
         return obj;
     };
     vm.initialize_instance = function(obj, initargs) {
@@ -166,11 +166,11 @@ module.exports = function(vm) {
         }
         return dict;
     };
-    // Instanceof does not work for properly for the STANDARD-CLASS
+    // Instanceof does not work for properly for the CONCRETE-CLASS
     // and GENERIC-CLASS classes themselves, so we need these crutches
     // to determine if an object is a class.
-    vm.is_standard_class = function(obj) {
-        return obj && (obj.qua_isa === vm.StandardClass);
+    vm.is_concrete_class = function(obj) {
+        return obj && (obj.qua_isa === vm.ConcreteClass);
     };
     vm.is_generic_class = function(obj) {
         return obj && (obj.qua_isa === vm.GenericClass);
@@ -187,11 +187,11 @@ module.exports = function(vm) {
         if (obj && obj[key]) {
             return obj[key];
         } else {
-            return vm.find_method_using_standard_class(obj, vm.class_of(obj), name);
+            return vm.find_method_using_concrete_class(obj, vm.class_of(obj), name);
         }
     };
-    vm.find_method_using_standard_class = function(obj, cls, name) {
-        vm.assert(vm.is_standard_class(cls));
+    vm.find_method_using_concrete_class = function(obj, cls, name) {
+        vm.assert(vm.is_concrete_class(cls));
         return vm.find_method_using_generic_class(obj, cls["qs_generic-class"], name);
     };
     vm.find_method_using_generic_class = function(obj, gcls, name) {
