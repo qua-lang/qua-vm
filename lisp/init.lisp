@@ -132,6 +132,18 @@
       (list #'let (list (car bindings))
             (list* #'let* (cdr bindings) body))))
 
+;;;; JS stuff
+(defun js:create-object ()
+  (@create $Object))
+(defun %%js:getter (prop-name)
+  (lambda (obj)
+    (%%js:get obj prop-name)))
+(defun %%js:invoker (fun-name)
+  (lambda (this . args)
+    (let ((fun (%%js:get this fun-name)))
+      (@apply this fun (%%list-to-array args)))))
+
+;;;; Objects
 (defun make (class-desig . initargs)
   (%%make-instance class-desig initargs))
 

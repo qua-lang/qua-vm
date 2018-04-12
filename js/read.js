@@ -18,9 +18,9 @@ var keyword_stx = action(sequence(":", id_stx), function(ast) {
         return ["qua:keyword", ast[1]];
     });
 function handle_identifier(str) {
-    if ((str[0] === ".") && (str.length > 1)) { return ["js-getter", ["wat-string", str.substring(1)]]; }
-    else if (str[0] === "@") { return ["js-invoker", ["wat-string", str.substring(1)]]; }
-    else if (str[0] === "$") { return ["js-global", ["wat-string", str.substring(1)]]; }
+    if ((str[0] === ".") && (str.length > 1)) { return ["%%js:getter", ["wat-string", str.substring(1)]]; }
+    else if (str[0] === "@") { return ["%%js:invoker", ["wat-string", str.substring(1)]]; }
+    else if (str[0] === "$") { return ["%%js:global", ["wat-string", str.substring(1)]]; }
     else if (str.startsWith("#'")) { return ["qua:function", str.substring(2)]; }
     else return str; }
 var escape_char = choice("\"", "\\", "n", "r", "t", "0");

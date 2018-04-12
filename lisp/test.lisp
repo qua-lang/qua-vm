@@ -114,3 +114,10 @@
   (setq x 2 env)
   (qua:assert (qua:deep-equal 2 x)))
 
+;;;; JS getter
+(qua:assert (qua:deep-equal "String" (%%js:get (%%js:get "foo" "constructor") "name")))
+(qua:assert (qua:deep-equal "String" (.name (.constructor "foo"))))
+; Can access raw Qua slots
+(qua:assert (qua:deep-equal "foo" (.qs_name 'foo)))
+(qua:assert (qua:deep-equal "v" (.qs_ns 'foo)))
+(qua:assert (qua:deep-equal "f" (.qs_ns '#'foo)))
