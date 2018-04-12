@@ -43,6 +43,7 @@
 ;; Optimization bindings:
 (def #'list* #'%%list*) ; Construct list of arguments, with the final argument as tail.
 
+(def #'defconstant #'def) ; Ahem
 (def #'quote (%%vau (op) #ign op)) ; Prevent evaluation of its operand.
 (def #'list (wrap (%%vau args #ign args))) ; Construct list of arguments.
 
@@ -80,9 +81,6 @@
   (macro (name params . body)
     (list #'def (qua:to-fun-sym name) (list* #'macro params body))))
 
-; Ahem
-(def #'defconstant #'def)
-
 ; Create a function that doesn't do any type checking.
 (defmacro ur-lambda (params . body)
   (list #'wrap (list* #'vau params #ign body)))
@@ -114,25 +112,25 @@
 (defun nilp (obj) (eq obj #nil))
 
 ; Produce a new list by applying a function to each element of a list.
-(defun qua:map-list (#'fun list)
+(defun map-list (#'fun list)
   (if (nilp list)
       #nil
-    (cons (fun (car list)) (qua:map-list #'fun (cdr list)))))
+    (cons (fun (car list)) (map-list #'fun (cdr list)))))
 
-(defun qua:compose (f g)
+(defun compose (f g)
   (lambda (arg) (funcall f (funcall g arg))))
 
-(def #'caar (qua:compose #'car #'car))
-(def #'cadr (qua:compose #'car #'cdr))
-(def #'cdar (qua:compose #'cdr #'car))
-(def #'cddr (qua:compose #'cdr #'cdr))
+(def #'caar (compose #'car #'car))
+(def #'cadr (compose #'car #'cdr))
+(def #'cdar (compose #'cdr #'car))
+(def #'cddr (compose #'cdr #'cdr))
 
 ; The usual parallel-binding LET with left to right evaluation of
 ; value expressions.
 (defmacro let (bindings . body)
-  (list* (list* #'lambda (qua:map-list #'car bindings)
+  (list* (list* #'lambda (map-list #'car bindings)
                 body)
-         (qua:map-list #'cadr bindings)))
+         (map-list #'cadr bindings)))
 
 ; The usual sequential-binding LET* where the right hand side of each
 ; binding has all earlier bindings in scope (if any).
@@ -141,6 +139,13 @@
       (list* #'let () body)
       (list #'let (list (car bindings))
             (list* #'let* (cdr bindings) body))))
+
+(defmacro letrec (bindings . body)
+  (list* #'let ()
+         (list #'def
+               (map-list #'car bindings)
+               (list* #'list (map-list #'cadr bindings)))
+         body))
 
 ;;;; SETQ
 
@@ -189,6 +194,32 @@
 (defun js:create-object (proto)
   (@create $Object proto))
 
+;;;; Symbols
+
+(defun symbol-name (sym)
+  (slot-value sym 'name))
+
+;;;; Dictionaries
+
+(defun make-dict () (js:create-object #null))
+(defun dict-get (dict key) (js:get dict key))
+(defun dict-put (dict key val) (js:set dict key val))
+
+;;;; Property lists
+
+(defun plist-to-dict (plist)
+  (letrec ((dict (make-dict))
+           (#'add-to-dict
+            (lambda (plist)
+              (if (nilp plist)
+                  dict
+                (progn 
+                  (dict-put dict (symbol-name (car plist)) (cadr plist))
+                  (add-to-dict (cddr plist)))))))
+          (add-to-dict plist)))
+
+(defun js:object plist (plist-to-dict plist))
+
 ;;;; Objects
 
 (defun make (class-desig . initargs)
@@ -211,7 +242,7 @@
     name))
 
 (deffexpr defclass (name superclasses . #ign) #ign
-  (let ((string-list (qua:map-list (lambda (superclass)
+  (let ((string-list (map-list (lambda (superclass)
                                      (slot-value superclass 'name))
                                    superclasses)))
     (ensure-class (slot-value name 'name) (js:list-to-array string-list))))

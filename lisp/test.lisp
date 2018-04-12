@@ -48,8 +48,8 @@
 
 ;;;; MAP-LIST
 (qua:assert (qua:deep-equal (list 1 1 1)
-                            (qua:map-list (lambda (#ign) 1)
-                                          (list 1 2 3))))
+                            (map-list (lambda (#ign) 1)
+                                      (list 1 2 3))))
 
 ;;;; Objects
 (qua:assert (qua:deep-equal 'foo
@@ -121,6 +121,14 @@
   (setf (foo) 2)
   (qua:assert (qua:deep-equal (foo) 2)))
 
+;;;; Dictionaries
+
+(let ((dict (make-dict)))
+  (dict-put dict "foo" 12)
+  (dict-put dict "bar" 14)
+  (qua:assert (qua:deep-equal 12 (dict-get dict "foo")))
+  (qua:assert (qua:deep-equal 14 (dict-get dict "bar"))))
+
 ;;;; JS getter
 (qua:assert (qua:deep-equal "String" (%%js:get (%%js:get "foo" "constructor") "name")))
 (qua:assert (qua:deep-equal "String" (.name (.constructor "foo"))))
@@ -134,5 +142,9 @@
   (qua:assert (qua:deep-equal "foo" (.message obj))))
 
 ;;;; JS method invocation
-;(qua:assert (qua:deep-equal "12" (@toString 12)))
+(qua:assert (qua:deep-equal "12" (@toString 12)))
 
+;;;; JS object
+(let ((obj (js:object :message "hello" :sent (not #t))))
+  (qua:assert (qua:deep-equal "hello" (.message obj)))
+  (qua:assert (qua:deep-equal #f (.sent obj))))
