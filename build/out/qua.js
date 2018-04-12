@@ -265,7 +265,7 @@ function parse_bytecode_array(arr) {
         return vm.array_to_list(front.map(parse_bytecode), parse_bytecode(arr[i + 1])); }
 }
 
-},{"../build/out/init.js":1,"../build/out/test.js":2,"./alien":3,"./cont":4,"./lisp-2":5,"./optim":8,"./print":9,"./read":10,"./test":11,"./vm":13}],7:[function(require,module,exports){
+},{"../build/out/init.js":1,"../build/out/test.js":2,"./alien":3,"./cont":4,"./lisp-2":5,"./optim":8,"./print":9,"./read":10,"./test":11,"./vm":14}],7:[function(require,module,exports){
 // Object system
 module.exports = function(vm) {
     /* Bootstrap CONCRETE-CLASS */
@@ -482,6 +482,7 @@ module.exports = function(vm) {
         superclass_names.forEach(function(superclass_name) {
                 var gsuper = vm.GENERIC_CLASSES[vm.generic_class_key(superclass_name)];
                 vm.assert(vm.is_generic_class(gsuper));
+                // TODO: not reentrant
                 var method = vm.find_method_using_generic_class(obj, gsuper, name);
                 if (method) {
                     methods.push(method);
@@ -609,7 +610,7 @@ var x_stx = whitespace(choice(ign_stx, void_stx, nil_stx, nil_stx_2, t_stx, f_st
                               quote_stx, compound_stx, keyword_stx, id_stx, string_stx, cmt_stx));
 var program_stx = whitespace(repeat0(choice(x_stx, whitespace_stx))); // HACK!
 
-},{"jsparse":17}],11:[function(require,module,exports){
+},{"jsparse":18}],11:[function(require,module,exports){
 // Adds utility functions for testing the built-ins to a VM
 var deep_equal = require("deep-equal");
 module.exports = function(vm, e) {
@@ -618,7 +619,12 @@ module.exports = function(vm, e) {
     vm.defun(e, vm.sym("%%deep-equal"), vm.jswrap(deep_equal));
 }
 
-},{"deep-equal":14}],12:[function(require,module,exports){
+},{"deep-equal":15}],12:[function(require,module,exports){
+// Type system
+module.exports = function(vm) {
+
+};
+},{}],13:[function(require,module,exports){
 module.exports = function(vm) {
     vm.assert_type = function(obj, type_spec) {
         if (vm.check_type(obj, type_spec)) return obj;
@@ -642,10 +648,11 @@ module.exports = function(vm) {
     vm.panic = vm.error;
 };
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 var vm = module.exports;
 require("./util")(vm);
 require("./obj")(vm);
+require("./type")(vm);
 /* Evaluation */
 vm.evaluate = function(m, e, x) {
     if (x && x.qua_evaluate) return x.qua_evaluate(x, m, e); else return x;
@@ -853,7 +860,7 @@ vm.eval = function(x, e) {
     return vm.evaluate(null, e, x); // change to x,e
 };
 
-},{"./obj":7,"./util":12}],14:[function(require,module,exports){
+},{"./obj":7,"./type":12,"./util":13}],15:[function(require,module,exports){
 var pSlice = Array.prototype.slice;
 var objectKeys = require('./lib/keys.js');
 var isArguments = require('./lib/is_arguments.js');
@@ -949,7 +956,7 @@ function objEquiv(a, b, opts) {
   return typeof a === typeof b;
 }
 
-},{"./lib/is_arguments.js":15,"./lib/keys.js":16}],15:[function(require,module,exports){
+},{"./lib/is_arguments.js":16,"./lib/keys.js":17}],16:[function(require,module,exports){
 var supportsArgumentsClass = (function(){
   return Object.prototype.toString.call(arguments)
 })() == '[object Arguments]';
@@ -971,7 +978,7 @@ function unsupported(object){
     false;
 };
 
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 exports = module.exports = typeof Object.keys === 'function'
   ? Object.keys : shim;
 
@@ -982,7 +989,7 @@ function shim (obj) {
   return keys;
 }
 
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 // Copyright (C) 2007 Chris Double.
 //
 // Redistribution and use in source and binary forms, with or without

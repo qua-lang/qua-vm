@@ -214,6 +214,7 @@ module.exports = function(vm) {
         superclass_names.forEach(function(superclass_name) {
                 var gsuper = vm.GENERIC_CLASSES[vm.generic_class_key(superclass_name)];
                 vm.assert(vm.is_generic_class(gsuper));
+                // TODO: not reentrant
                 var method = vm.find_method_using_generic_class(obj, gsuper, name);
                 if (method) {
                     methods.push(method);

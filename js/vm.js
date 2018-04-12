@@ -1,6 +1,7 @@
 var vm = module.exports;
 require("./util")(vm);
 require("./obj")(vm);
+require("./type")(vm);
 /* Evaluation */
 vm.evaluate = function(m, e, x) {
     if (x && x.qua_evaluate) return x.qua_evaluate(x, m, e); else return x;
