@@ -240,21 +240,34 @@
 
 (defun call-with-escape (#'fun)
   (let* ((tag (list))
-         (escape-function (lambda opt-val
-                            (let ((val (optional opt-val #void)))
-                              (%%raise (list tag val))))))
+         (escape (lambda opt-val
+                   (let ((val (optional opt-val #void)))
+                     (%%raise (list tag val))))))
     (%%rescue (lambda (exc)
                 (if (and (consp exc) (eq tag (car exc)))
                     (cadr exc)
                   (%%raise exc)))
               (lambda ()
-                (fun escape-function)))))
+                (fun escape)))))
 
 (defmacro block (name . body)
   (list #'call-with-escape (list* #'lambda (list name) body)))
 
 (defun return-from (escape . opt-val)
   (apply escape opt-val))
+
+(defun unwind-protect* (protected-thunk #'cleanup-thunk)
+  (let ((result (%%rescue (lambda (exc)
+                            (cleanup-thunk)
+                            (%%raise exc))
+                          protected-thunk)))
+    (cleanup-thunk)
+    result))
+
+(defmacro unwind-protect (protected-form . cleanup-forms)
+  (list #'unwind-protect*
+        (list #'lambda () protected-form)
+        (list* #'lambda () cleanup-forms)))
 
 ;;;; Reference cells
 
@@ -300,9 +313,12 @@
                            (coro:continuation yield-rec)
                            (lambda () val))))
 
+(defun coro:yieldp (yield-rec)
+  (and (slot-bound-p yield-rec 'val) (slot-bound-p yield-rec 'cont)))
+
 (defun dynamic-wind* (#'pre #'body #'post)
   (block exit
-    (let ((thunk (mut 'function (lambda () (coro:run (body))))))
+    (let ((thunk (mut (lambda () (coro:run (body))))))
       (loop
         (pre)
         (let ((res (funcall (ref thunk))))

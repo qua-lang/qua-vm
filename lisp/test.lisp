@@ -163,6 +163,23 @@
 (qua:expect 2 (block x 1 (return-from x 2) 3))
 (qua:expect #void (block x 1 (return-from x) 3))
 
+(qua:expect 1 (unwind-protect 1))
+(qua:expect 1 (unwind-protect 1 2))
+(qua:expect 1 (unwind-protect 1 2 3))
+(let ((cell (mut #f)))
+  (qua:expect 1 (unwind-protect 1 (setf (ref cell) #t)))
+  (qua:expect #t (ref cell)))
+(let ((cell (mut #f)))
+  (block exit
+    (%%rescue (lambda (exc)
+                (qua:expect "foo" exc)
+                (qua:expect #t (ref cell))
+                (return-from exit))
+              (lambda ()
+                (unwind-protect (%%raise "foo")
+                  (setf (ref cell) #t))))
+    (qua:assert #f)))
+
 ;;;; Coroutines
 
 (let ((coro (coro:run (lambda ()
