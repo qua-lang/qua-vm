@@ -43,9 +43,10 @@
 ;; Optimization bindings:
 (def #'list* #'%%list*) ; Construct list of arguments, with the final argument as tail.
 
-(def #'defconstant #'def) ; Ahem
-(def #'quote (%%vau (op) #ign op)) ; Prevent evaluation of its operand.
+;; Basics:
+(def #'quote (%%vau (op) #ign op)) ; Prevent evaluation of its single operand.
 (def #'list (wrap (%%vau args #ign args))) ; Construct list of arguments.
+(def #'the-environment (%%vau #ign env env)) ; Return current lexical environment.
 
 ; Construct a fexpr.  Primitive %%VAU has only one body statement, so use PROGN.
 (def #'vau
@@ -147,9 +148,12 @@
                (list* #'list (map-list #'cadr bindings)))
          body))
 
-;;;; SETQ
+;;;; Symbols
 
-(deffexpr the-environment () env env)
+(defun symbol-name (sym)
+  (slot-value sym 'name))
+
+;;;; SETQ
 
 (deffexpr setq (env lhs rhs) denv
   (eval (list #'def lhs 
@@ -157,6 +161,8 @@
         (eval env denv)))
 
 ;;;; SETF
+
+(def #'defconstant #'def)
 
 (defconstant qua:setter-prop "qua_setter")
 
@@ -194,36 +200,25 @@
 (defun js:create-object (proto)
   (@create $Object proto))
 
-;;;; Symbols
-
-(defun symbol-name (sym)
-  (slot-value sym 'name))
-
-;;;; Dictionaries
-
-(defun make-dict () (js:create-object #null))
-(defun dict-get (dict key) (js:get dict key))
-(defun dict-put (dict key val) (js:set dict key val))
-
 ;;;; Property lists
 
-(defun plist-to-dict (plist)
-  (letrec ((dict (make-dict))
+(defun js:plist-to-object (plist)
+  (letrec ((obj (js:create-object #null))
            (#'add-to-dict
             (lambda (plist)
               (if (nilp plist)
-                  dict
+                  obj
                 (progn 
-                  (dict-put dict (symbol-name (car plist)) (cadr plist))
+                  (js:set obj (symbol-name (car plist)) (cadr plist))
                   (add-to-dict (cddr plist)))))))
           (add-to-dict plist)))
 
-(defun js:object plist (plist-to-dict plist))
+(defun js:object plist (js:plist-to-object plist))
 
 ;;;; Objects
 
 (defun make (class-desig . initargs)
-  (%%make-instance class-desig initargs))
+  (%%make-instance class-desig (js:plist-to-object initargs)))
 
 (defun call-method (obj name args)
   (let ((method (find-method obj name)))

@@ -121,14 +121,6 @@
   (setf (foo) 2)
   (qua:assert (qua:deep-equal (foo) 2)))
 
-;;;; Dictionaries
-
-(let ((dict (make-dict)))
-  (dict-put dict "foo" 12)
-  (dict-put dict "bar" 14)
-  (qua:assert (qua:deep-equal 12 (dict-get dict "foo")))
-  (qua:assert (qua:deep-equal 14 (dict-get dict "bar"))))
-
 ;;;; JS getter
 (qua:assert (qua:deep-equal "String" (%%js:get (%%js:get "foo" "constructor") "name")))
 (qua:assert (qua:deep-equal "String" (.name (.constructor "foo"))))
