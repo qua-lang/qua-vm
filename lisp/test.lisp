@@ -188,6 +188,13 @@
 ;;;; DYNAMIC-WIND
 (qua:expect 1 (dynamic-wind (lambda ()) (lambda () 1) (lambda ())))
 
+(let ((cell (mut 0)))
+  (qua:expect 2 (dynamic-wind
+                 (lambda () (setf (ref cell) 1))
+                 (lambda () (qua:expect 1 (ref cell)) 2)
+                 (lambda () (setf (ref cell) 3))))
+  (qua:expect 3 (ref cell)))
+
 ;;;; Dynamic variables
 
 (defdynamic *my-dynamic* 1)
