@@ -204,8 +204,9 @@ vm.init = function(e) {
     vm.defun(e, vm.sym("%%eq"), vm.jswrap(function(a, b) { return a === b; }));
     vm.defun(e, vm.sym("%%print"), vm.jswrap(console.log));
     vm.defun(e, vm.sym("%%list-to-array"), vm.jswrap(vm.list_to_array));
-    // Temp
+    // Temp until I have TYPEP
     vm.defun(e, vm.sym("symbolp"), vm.jswrap(function(sym) { return sym instanceof vm.Sym; }));
+    vm.defun(e, vm.sym("consp"), vm.jswrap(function(list) { return list instanceof vm.Cons; }));
 };
 vm.eval = function(x, e) {
     return vm.evaluate(null, e, x); // change to x,e

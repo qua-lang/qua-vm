@@ -96,13 +96,10 @@
 (def #'lambda #'ur-lambda)
 (def #'defun #'ur-defun)
 
-(defun not (boolean)
-  (if boolean #f #t))
-
 ; Apply a function to a list of arguments.
-(defun apply (fun args)
+(defun apply (fun args . opt-env)
   (eval (cons (unwrap fun) args)
-        (make-environment)))
+        (optional opt-env (make-environment))))
 
 ; Similar to an ordinary function call, but can be used to call a
 ; function from the variable namespace.
@@ -150,13 +147,36 @@
                (list* #'list (map-list #'cadr bindings)))
          body))
 
-(def #'defconstant #'def)
+(defun not (boolean)
+  (if boolean #f #t))
+
+(deffexpr cond clauses env
+  (if (nilp clauses)
+      #void
+      (let ((((test . body) . clauses) clauses))
+        (if (eval test env)
+            (apply (wrap #'progn) body env)
+            (apply (wrap #'cond) clauses env)))))
+
+(deffexpr and ops env
+  (cond ((nilp ops)           #t)
+        ((nilp (cdr ops))     (eval (car ops) env))
+        ((eval (car ops) env) (apply (wrap #'and) (cdr ops) env))
+        (#t                   #f)))
+
+(deffexpr or ops env
+  (cond ((nilp ops)           #f)
+        ((nilp (cdr ops))     (eval (car ops) env))
+        ((eval (car ops) env) #t)
+        (#t                   (apply (wrap #'or) (cdr ops) env))))
 
 (defun symbol-name (sym)
   (slot-value sym 'name))
 
 (defun optional (opt-arg default)
   (if (nilp opt-arg) default (car opt-arg)))
+
+(def #'defconstant #'def)
 
 ;;;; SETQ
 

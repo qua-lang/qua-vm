@@ -132,6 +132,23 @@
                            (lambda ()
                              (%%raise 'foo))))
 
+(qua:expect #void (cond))
+(qua:expect 1 (cond ((qua:deep-equal 1 1) 1)))
+(qua:expect #void (cond (#f 1)))
+(qua:expect 2 (cond (#f 1) (#t 2) (#t 3)))
+
+(qua:expect #t (and))
+(qua:expect #t (and #t))
+(qua:expect #f (and #f))
+(qua:expect #t (and #t #t #t))
+(qua:expect #f (and #t #t #t #f))
+
+(qua:expect #f (or))
+(qua:expect #t (or #t))
+(qua:expect #f (or #f))
+(qua:expect #f (or #f #f #f))
+(qua:expect #t (or #f #f #f #t))
+
 ;;;; Coroutines
 
 (let ((coro (coro:run (lambda ()
