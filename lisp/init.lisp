@@ -261,7 +261,7 @@
 (defclass mut (standard-object)
   (val))
 
-(defun mut (type val)
+(defun mut (val)
   (make 'mut :val val))
 
 (defun ref (mut)
@@ -302,7 +302,7 @@
 
 (defun dynamic-wind* (#'pre #'body #'post)
   (block exit
-    (let ((thunk (mut (lambda () (coro:run (body))))))
+    (let ((thunk (mut 'function (lambda () (coro:run (body))))))
       (loop
         (pre)
         (let ((res (funcall (ref thunk))))

@@ -123,7 +123,7 @@
   (qua:assert (qua:deep-equal (foo) 2)))
 
 ;;;; Reference cells
-(let ((cell (mut 'object 12)))
+(let ((cell (mut 12)))
   (qua:expect 12 (ref cell))
   (setf (ref cell) 14)
   (qua:expect 14 (ref cell)))
