@@ -321,8 +321,8 @@
     (let ((thunk (mut (lambda () (coro:run (body))))))
       (loop
         (pre)
-        (let ((res (funcall (ref thunk))))
-          (post)
+        (let ((res (unwind-protect (funcall (ref thunk))
+                     (post))))
           (if (coro:yieldp res)
               (let ((reenter (coro:yield (coro:value res))))
                 (setf (ref thunk) (lambda () (coro:resume res reenter))))
@@ -333,6 +333,20 @@
         (list* #'lambda () pre)
         (list* #'lambda () body)
         (list* #'lambda () post)))
+
+;;;; Dynamic variables
+
+(deffexpr defdynamic (name val) env
+  (setq env name (mut val)))
+
+(def #'dynamic #'ref)
+
+(defun dynamic-let* (var val #'body-thunk)
+  (let ((old-val (dynamic var)))
+    (dynamic-wind
+     (setf (dynamic var) val)
+     (body-thunk)
+     (setf (dynamic var) old-val))))
 
 ;;;; JS stuff
 

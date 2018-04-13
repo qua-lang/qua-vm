@@ -180,6 +180,11 @@
                   (setf (ref cell) #t))))
     (qua:assert #f)))
 
+;;;; Dynamic variables
+
+(defdynamic *my-dynamic* 1)
+
+
 ;;;; Coroutines
 
 (let ((coro (coro:run (lambda ()
