@@ -180,10 +180,21 @@
                   (setf (ref cell) #t))))
     (qua:assert #f)))
 
+(qua:expect #void (prog1))
+(qua:expect 1 (prog1 1 2 3))
+(qua:expect 2 (prog2 1 2 3))
+(qua:expect #void (prog2 1))
+
+;;;; DYNAMIC-WIND
+(qua:expect 1 (dynamic-wind (lambda ()) (lambda () 1) (lambda ())))
+
 ;;;; Dynamic variables
 
 (defdynamic *my-dynamic* 1)
-
+(qua:expect 1 (dynamic *my-dynamic*))
+;(dynamic-let* *my-dynamic* 2
+;              (lambda ()
+;                (qua:expect 2 (dynamic *my-dynamic*))))
 
 ;;;; Coroutines
 

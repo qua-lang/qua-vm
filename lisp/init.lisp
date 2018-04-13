@@ -256,13 +256,22 @@
 (defun return-from (escape . opt-val)
   (apply escape opt-val))
 
+(deffexpr prog1 forms env
+  (if (nilp forms)
+      #void
+    (let ((result (eval (car forms) env)))
+      (eval (list* #'progn (cdr forms)) env)
+      result)))
+
+(defmacro prog2 (form . forms)
+  (list #'progn form (list* #'prog1 forms)))
+
 (defun unwind-protect* (protected-thunk #'cleanup-thunk)
-  (let ((result (%%rescue (lambda (exc)
-                            (cleanup-thunk)
-                            (%%raise exc))
-                          protected-thunk)))
-    (cleanup-thunk)
-    result))
+  (prog1 (%%rescue (lambda (exc)
+                     (cleanup-thunk)
+                     (%%raise exc))
+                   protected-thunk)
+    (cleanup-thunk)))
 
 (defmacro unwind-protect (protected-form . cleanup-forms)
   (list #'unwind-protect*
@@ -313,40 +322,36 @@
                            (coro:continuation yield-rec)
                            (lambda () val))))
 
-(defun coro:yieldp (yield-rec)
-  (and (slot-bound-p yield-rec 'val) (slot-bound-p yield-rec 'cont)))
+(defun coro:yield-rec-p (yield-rec)
+  (and (not (eq yield-rec #undefined)) 
+       (slot-bound-p yield-rec 'val)
+       (slot-bound-p yield-rec 'cont)))
 
-(defun dynamic-wind* (#'pre #'body #'post)
+(defun dynamic-wind (#'pre #'body #'post)
   (block exit
-    (let ((thunk (mut (lambda () (coro:run (body))))))
+    (let ((thunk (mut (lambda () (coro:run #'body)))))
       (loop
         (pre)
         (let ((res (unwind-protect (funcall (ref thunk))
                      (post))))
-          (if (coro:yieldp res)
+          (if (coro:yield-rec-p res)
               (let ((reenter (coro:yield (coro:value res))))
                 (setf (ref thunk) (lambda () (coro:resume res reenter))))
               (return-from exit res)))))))
 
-(defmacro dynamic-wind (pre body post)
-  (list #'dynamic-wind*
-        (list* #'lambda () pre)
-        (list* #'lambda () body)
-        (list* #'lambda () post)))
-
 ;;;; Dynamic variables
 
-(deffexpr defdynamic (name val) env
-  (setq env name (mut val)))
+(defmacro defdynamic (name val)
+  (list #'def name (list #'mut val)))
 
 (def #'dynamic #'ref)
 
 (defun dynamic-let* (var val #'body-thunk)
   (let ((old-val (dynamic var)))
     (dynamic-wind
-     (setf (dynamic var) val)
-     (body-thunk)
-     (setf (dynamic var) old-val))))
+     (lambda () (setf (dynamic var) val))
+     #'body-thunk
+     (lambda () (setf (dynamic var) old-val)))))
 
 ;;;; JS stuff
 
