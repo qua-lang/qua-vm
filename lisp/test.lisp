@@ -122,6 +122,12 @@
   (setf (foo) 2)
   (qua:assert (qua:deep-equal (foo) 2)))
 
+;;;; Reference cells
+(let ((cell (mut 'object 12)))
+  (qua:expect 12 (ref cell))
+  (setf (ref cell) 14)
+  (qua:expect 14 (ref cell)))
+
 ;;;; Simple control
 
 (qua:expect 2 (%%rescue (lambda (exc) exc)
@@ -148,24 +154,6 @@
 (qua:expect #f (or #f))
 (qua:expect #f (or #f #f #f))
 (qua:expect #t (or #f #f #f #t))
-
-(defun call-with-escape (#'fun)
-  (let* ((tag (list))
-         (escape-function (lambda opt-val
-                            (let ((val (optional opt-val #void)))
-                              (%%raise (list tag val))))))
-    (%%rescue (lambda (exc)
-                (if (and (consp exc) (eq tag (car exc)))
-                    (cadr exc)
-                  (%%raise exc)))
-              (lambda ()
-                (fun escape-function)))))
-
-(defmacro block (name . body)
-  (list #'call-with-escape (list* #'lambda (list name) body)))
-
-(defun return-from (escape . opt-val)
-  (apply escape opt-val))
 
 (qua:expect 1 (call-with-escape (lambda (#ign) 1)))
 (qua:expect 2 (call-with-escape (lambda (escape) 1 (return-from escape 2) 3)))

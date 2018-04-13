@@ -235,6 +235,40 @@
 
 ;;;; Simple control
 
+(defmacro loop body
+  (list* #'%%loop (list* #'lambda () body)))
+
+(defun call-with-escape (#'fun)
+  (let* ((tag (list))
+         (escape-function (lambda opt-val
+                            (let ((val (optional opt-val #void)))
+                              (%%raise (list tag val))))))
+    (%%rescue (lambda (exc)
+                (if (and (consp exc) (eq tag (car exc)))
+                    (cadr exc)
+                  (%%raise exc)))
+              (lambda ()
+                (fun escape-function)))))
+
+(defmacro block (name . body)
+  (list #'call-with-escape (list* #'lambda (list name) body)))
+
+(defun return-from (escape . opt-val)
+  (apply escape opt-val))
+
+;;;; Reference cells
+
+(defclass mut (standard-object)
+  (val))
+
+(defun mut (type val)
+  (make 'mut :val val))
+
+(defun ref (mut)
+  (slot-value mut 'val))
+
+(setf (setter #'ref) (lambda (new-val mut) (set-slot-value mut 'val new-val)))
+
 ;;;; Coroutines
 
 (defclass coro:yield-rec (standard-object)
@@ -271,7 +305,7 @@
     (let ((thunk (mut (lambda () (coro:run (body))))))
       (loop
         (pre)
-        (let ((res ((ref thunk))))
+        (let ((res (funcall (ref thunk))))
           (post)
           (if (coro:yieldp res)
               (let ((reenter (coro:yield (coro:value res))))
