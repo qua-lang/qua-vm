@@ -244,6 +244,24 @@
                            (coro:continuation yield-rec)
                            (lambda () val))))
 
+(defun dynamic-wind* (#'pre #'body #'post)
+  (block exit
+    (let ((thunk (mut (lambda () (coro:run (body))))))
+      (loop
+        (pre)
+        (let ((res ((ref thunk))))
+          (post)
+          (if (coro:yieldp res)
+              (let ((reenter (coro:yield (coro:value res))))
+                (setf (ref thunk) (lambda () (coro:resume res reenter))))
+              (return-from exit res)))))))
+
+(defmacro dynamic-wind (pre body post)
+  (list #'dynamic-wind*
+        (list* #'lambda () pre)
+        (list* #'lambda () body)
+        (list* #'lambda () post)))
+
 ;;;; JS stuff
 
 ; Equal to syntax .prop-name
