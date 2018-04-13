@@ -29,8 +29,7 @@ module.exports = function(vm, e) {
         }
         }
     };
-    vm.JSGlobal = vm.jswrap(function(name) { return eval(name); }); // gulp
-    //vm.JSGlobal.qua_setter = jswrap(function(new_val, name) { global[name] = new_val; });
+    vm.JSGlobal = vm.jswrap(function(name) { return global[name]; }); // from Browserify
     vm.defun(e, vm.sym("%%js:apply"), vm.jswrap(function(fun, self, args) { return fun.apply(self, args); }));
     vm.defun(e, vm.sym("%%js:get"), vm.jswrap(function(obj, name) { return obj[name]; }));
     vm.defun(e, vm.sym("%%js:global"), vm.JSGlobal);
