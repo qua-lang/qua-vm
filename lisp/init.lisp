@@ -213,6 +213,8 @@
 (defgeneric compare-object (self))
 (defgeneric print-object (self stream))
 
+;;;; Simple control
+
 ;;;; Coroutines
 
 (defclass coro:yield-rec (standard-object)

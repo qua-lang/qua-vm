@@ -124,7 +124,7 @@ module.exports = function(vm, e) {
                     var val = vm.combine(null, e, body, vm.NIL);
                 }
             } catch(exc) {
-                // unwrap handler to prevent eval if exc is sym or cons
+                // unwrap handler to prevent double eval of exception
                 var val = vm.combine(null, e, vm.unwrap(handler), vm.list(exc));
             }
             if (isSuspension(val)) {

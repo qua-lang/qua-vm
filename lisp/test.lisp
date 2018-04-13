@@ -1,6 +1,7 @@
 ;; Test bindings
 (def #'qua:assert #'%%assert)
 (def #'qua:deep-equal #'%%deep-equal)
+(defun #'qua:expect (expected actual) (qua:assert (qua:deep-equal expected actual)))
 
 ;;;; Forms
 (qua:assert (qua:deep-equal 1 (car (cons 1 2))))
@@ -120,6 +121,16 @@
   (js:set #'foo "qua_setter" (lambda (new-val) (setq env foo new-val)))
   (setf (foo) 2)
   (qua:assert (qua:deep-equal (foo) 2)))
+
+;;;; Simple control
+
+(qua:expect 2 (%%rescue (lambda (exc) exc)
+                        (lambda ()
+                          2)))
+
+(qua:expect 'foo (%%rescue (lambda (exc) exc)
+                           (lambda ()
+                             (%%raise 'foo))))
 
 ;;;; Coroutines
 
