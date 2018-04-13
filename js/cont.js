@@ -3,13 +3,13 @@
 // Also adds continuation-aware implementations of qua:loop and qua:rescue.
 module.exports = function(vm, e) {
     /* Continuations */
-    function StackFrame(fun, next) { this.fun = fun; this.next = next;};
+    function StackFrame(fun, next) { this.fun = fun; this.next = next; };
     function Resumption(k, f) { this.k = k; this.f = f; };
     function Suspension(prompt, handler) { this.prompt = prompt; this.handler = handler; this.k = null; };
     function isResumption(m) { return m instanceof Resumption; };
     function isSuspension(x) { return x instanceof Suspension; };
     function suspendFrame(sus, fun) { sus.k = new StackFrame(fun, sus.k); };
-    function resumeFrame(k, f) { return k.fun(k.next, f); };
+    function resumeFrame(k, f) { return k.fun(new Resumption(k.next, f)); };
     vm.monadic = function(m, a, b) { // override vm.js
         if (isResumption(m)) {
             var val = resumeFrame(m.k, m.f);
@@ -26,17 +26,17 @@ module.exports = function(vm, e) {
     vm.PushPrompt = vm.wrap({
         qua_combine: function do_push_prompt(self, m, e, o) {
             var prompt = vm.elt(o, 0);
-            var body = vm.elt(o, 1);
+            var body_thunk = vm.elt(o, 1);
             if (isResumption(m)) {
                 var val = resumeFrame(m.k, m.f);
             } else {
-                var val = vm.combine(null, e, body, vm.NIL);
+                var val = vm.combine(null, e, body_thunk, vm.NIL);
             }
             if (isSuspension(val)) {
                 if (val.prompt === prompt) {
                     var continuation = val.k;
                     var handler = val.handler;
-                    return vm.combine(null, e, handler, vm.cons(continuation, NIL));
+                    return vm.combine(null, e, handler, vm.cons(continuation, vm.NIL));
                 } else {
                     suspendFrame(val, function(m) { return do_push_prompt(self, m, e, o); });
                     return val;
@@ -50,7 +50,7 @@ module.exports = function(vm, e) {
             var prompt = vm.elt(o, 0);
             var handler = vm.elt(o, 1);
             var sus = new Suspension(prompt, handler);
-            suspendFrame(sus, function(m) { return vm.combine(null, e, m.f, NIL); });
+            suspendFrame(sus, function(m) { return vm.combine(null, e, m.f, vm.NIL); });
             return sus;
         }
     });
@@ -84,7 +84,7 @@ module.exports = function(vm, e) {
                 if (val.prompt === prompt) {
                     var continuation = val.k;
                     var handler = val.handler;
-                    return vm.combine(null, e, handler, vm.cons(continuation, NIL));
+                    return vm.combine(null, e, handler, vm.cons(continuation, vm.NIL));
                 } else {
                     suspendFrame(val, function(m) { return do_push_prompt_subcont(self, m, e, o); });
                     return val;

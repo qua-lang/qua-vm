@@ -121,6 +121,27 @@
   (setf (foo) 2)
   (qua:assert (qua:deep-equal (foo) 2)))
 
+;;;; Coroutines
+
+(let ((coro (coro:run (lambda ()
+                        1))))
+  (qua:assert (qua:deep-equal 1 coro)))
+
+(let ((coro (coro:run (lambda ()
+                        (qua:assert (qua:deep-equal 2 (coro:yield 1)))
+                        (qua:assert (qua:deep-equal #void (coro:yield)))
+                        3))))
+  (qua:assert (qua:deep-equal 1 (coro:value coro)))
+  (def coro (coro:resume coro 2))
+  (qua:assert (qua:deep-equal #void (coro:value coro)))
+  (def coro (coro:resume coro))
+  (qua:assert (qua:deep-equal coro 3)))
+
+;;;; JS object
+(let ((obj (js:object :message "hello" :sent (not #t))))
+  (qua:assert (qua:deep-equal "hello" (.message obj)))
+  (qua:assert (qua:deep-equal #f (.sent obj))))
+
 ;;;; JS getter
 (qua:assert (qua:deep-equal "String" (%%js:get (%%js:get "foo" "constructor") "name")))
 (qua:assert (qua:deep-equal "String" (.name (.constructor "foo"))))
@@ -136,7 +157,3 @@
 ;;;; JS method invocation
 (qua:assert (qua:deep-equal "12" (@toString 12)))
 
-;;;; JS object
-(let ((obj (js:object :message "hello" :sent (not #t))))
-  (qua:assert (qua:deep-equal "hello" (.message obj)))
-  (qua:assert (qua:deep-equal #f (.sent obj))))

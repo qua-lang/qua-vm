@@ -133,7 +133,7 @@
                 body)
          (map-list #'cadr bindings)))
 
-; The usual sequential-binding LET* where the right hand side of each
+; The usual sequential-binding LET* where the value expression of each
 ; binding has all earlier bindings in scope (if any).
 (defmacro let* (bindings . body)
   (if (nilp bindings)
@@ -141,6 +141,8 @@
       (list #'let (list (car bindings))
             (list* #'let* (cdr bindings) body))))
 
+; Kernel's LETREC where the value expression of each binding has all
+; other bindings in scope.
 (defmacro letrec (bindings . body)
   (list* #'let ()
          (list #'def
@@ -148,10 +150,13 @@
                (list* #'list (map-list #'cadr bindings)))
          body))
 
-;;;; Symbols
+(def #'defconstant #'def)
 
 (defun symbol-name (sym)
   (slot-value sym 'name))
+
+(defun optional (opt-arg default)
+  (if (nilp opt-arg) default (car opt-arg)))
 
 ;;;; SETQ
 
@@ -161,8 +166,6 @@
         (eval env denv)))
 
 ;;;; SETF
-
-(def #'defconstant #'def)
 
 (defconstant qua:setter-prop "qua_setter")
 
@@ -178,6 +181,68 @@
                     (qua:to-fun-sym getter-form)
                   getter-form)))
     (list* (list #'setter getter) new-val args)))
+
+;;;; Objects
+
+(defun make (class-desig . initargs)
+  (%%make-instance class-desig (js:plist-to-object initargs)))
+
+(defun call-method (obj name args)
+  (let ((method (find-method obj name)))
+    (apply method args)))
+
+(deffexpr defgeneric (name #ign) env
+  (eval (list #'def (qua:to-fun-sym name)
+              (lambda args
+                (call-method (car args) name args)))
+        env))
+
+(deffexpr defmethod (name ((self class-desig) . args) . body) env
+  (let ((class (find-class class-desig))
+        (fun (eval (list* #'lambda (list* self args) body) env)))
+    (put-method class name fun)
+    name))
+
+(deffexpr defclass (name superclasses . #ign) #ign
+  (let ((string-list (map-list (lambda (superclass)
+                                     (slot-value superclass 'name))
+                                   superclasses)))
+    (ensure-class (slot-value name 'name) (js:list-to-array string-list))))
+
+(defgeneric hash-object (self))
+(defgeneric compare-object (self))
+(defgeneric print-object (self stream))
+
+;;;; Coroutines
+
+(defclass coro:yield-rec (standard-object)
+  (val
+   cont))
+
+(defun coro:make-yield-rec (val cont)
+  (make 'coro:yield-rec :val val :cont cont))
+
+(defun coro:value (yield-rec)
+  (slot-value yield-rec 'val))
+
+(defun coro:continuation (yield-rec)
+  (slot-value yield-rec 'cont))
+
+(defconstant coro:the-prompt 'coro:prompt)
+
+(defun coro:run (thunk)
+  (%%push-prompt coro:the-prompt thunk))
+
+(defun coro:yield opt-val
+  (let ((val (optional opt-val #void)))
+    (%%take-subcont coro:the-prompt
+                    (lambda (cont) (coro:make-yield-rec val cont)))))
+
+(defun coro:resume (yield-rec . opt-val)
+  (let ((val (optional opt-val #void)))
+    (%%push-prompt-subcont coro:the-prompt
+                           (coro:continuation yield-rec)
+                           (lambda () val))))
 
 ;;;; JS stuff
 
@@ -215,33 +280,3 @@
 
 (defun js:object plist (js:plist-to-object plist))
 
-;;;; Objects
-
-(defun make (class-desig . initargs)
-  (%%make-instance class-desig (js:plist-to-object initargs)))
-
-(defun call-method (obj name args)
-  (let ((method (find-method obj name)))
-    (apply method args)))
-
-(deffexpr defgeneric (name #ign) env
-  (eval (list #'def (qua:to-fun-sym name)
-              (lambda args
-                (call-method (car args) name args)))
-        env))
-
-(deffexpr defmethod (name ((self class-desig) . args) . body) env
-  (let ((class (find-class class-desig))
-        (fun (eval (list* #'lambda (list* self args) body) env)))
-    (put-method class name fun)
-    name))
-
-(deffexpr defclass (name superclasses . #ign) #ign
-  (let ((string-list (map-list (lambda (superclass)
-                                     (slot-value superclass 'name))
-                                   superclasses)))
-    (ensure-class (slot-value name 'name) (js:list-to-array string-list))))
-
-(defgeneric hash-object (self))
-(defgeneric compare-object (self))
-(defgeneric print-object (self stream))
