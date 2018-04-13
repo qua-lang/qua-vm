@@ -266,11 +266,11 @@
 (defmacro prog2 (form . forms)
   (list #'progn form (list* #'prog1 forms)))
 
-(defun unwind-protect* (protected-thunk #'cleanup-thunk)
+(defun unwind-protect* (#'protected-thunk #'cleanup-thunk)
   (prog1 (%%rescue (lambda (exc)
                      (cleanup-thunk)
                      (%%raise exc))
-                   protected-thunk)
+                   #'protected-thunk)
     (cleanup-thunk)))
 
 (defmacro unwind-protect (protected-form . cleanup-forms)
