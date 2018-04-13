@@ -195,6 +195,17 @@
                  (lambda () (setf (ref cell) 3))))
   (qua:expect 3 (ref cell)))
 
+(let* ((cell (mut 0))
+       (coro (coro:run (lambda ()
+                         (dynamic-wind
+                          (lambda () (setf (ref cell) 1))
+                          (lambda ()
+                            (qua:expect 1 (ref cell))
+                            (coro:yield))
+                          (lambda ()
+                            (setf (ref cell) 2)))))))
+  (qua:expect 2 (ref cell)))
+
 ;;;; Dynamic variables
 
 (defdynamic *my-dynamic* 1)

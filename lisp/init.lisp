@@ -332,12 +332,13 @@
     (let ((thunk (mut (lambda () (coro:run #'body)))))
       (loop
         (pre)
-        (let ((res (unwind-protect (funcall (ref thunk))
+        (let ((res (unwind-protect
+                       (funcall (ref thunk))
                      (post))))
           (if (coro:yield-rec-p res)
               (let ((reenter (coro:yield (coro:value res))))
                 (setf (ref thunk) (lambda () (coro:resume res reenter))))
-              (return-from exit res)))))))
+            (return-from exit res)))))))
 
 ;;;; Dynamic variables
 
@@ -373,8 +374,6 @@
 ; {}
 (defun js:create-object (proto)
   (@create $Object proto))
-
-;;;; Property lists
 
 (defun js:plist-to-object (plist)
   (letrec ((obj (js:create-object #null))
