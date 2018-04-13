@@ -149,6 +149,32 @@
 (qua:expect #f (or #f #f #f))
 (qua:expect #t (or #f #f #f #t))
 
+(defun call-with-escape (#'fun)
+  (let* ((tag (list))
+         (escape-function (lambda opt-val
+                            (let ((val (optional opt-val #void)))
+                              (%%raise (list tag val))))))
+    (%%rescue (lambda (exc)
+                (if (and (consp exc) (eq tag (car exc)))
+                    (cadr exc)
+                  (%%raise exc)))
+              (lambda ()
+                (fun escape-function)))))
+
+(defmacro block (name . body)
+  (list #'call-with-escape (list* #'lambda (list name) body)))
+
+(defun return-from (escape . opt-val)
+  (apply escape opt-val))
+
+(qua:expect 1 (call-with-escape (lambda (#ign) 1)))
+(qua:expect 2 (call-with-escape (lambda (escape) 1 (return-from escape 2) 3)))
+(qua:expect #void (call-with-escape (lambda (escape) 1 (return-from escape) 3)))
+(qua:expect #void (block x))
+(qua:expect 1 (block x 1))
+(qua:expect 2 (block x 1 (return-from x 2) 3))
+(qua:expect #void (block x 1 (return-from x) 3))
+
 ;;;; Coroutines
 
 (let ((coro (coro:run (lambda ()
