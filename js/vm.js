@@ -200,6 +200,7 @@ vm.init = function(e) {
     vm.defun(e, vm.sym("%%set-slot-value"), vm.jswrap(vm.set_slot_value));
     vm.defun(e, vm.sym("%%slot-bound-p"), vm.jswrap(vm.slot_bound_p));
     vm.defun(e, vm.sym("%%slot-value"), vm.jswrap(vm.slot_value));
+    vm.defun(e, vm.sym("%%subclassp"), vm.jswrap(vm.subclassp));
     // Misc
     vm.defun(e, vm.sym("%%eq"), vm.jswrap(function(a, b) { return a === b; }));
     vm.defun(e, vm.sym("%%print"), vm.jswrap(console.log));

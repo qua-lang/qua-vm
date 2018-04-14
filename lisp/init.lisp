@@ -29,6 +29,7 @@
 (def #'set-slot-value #'%%set-slot-value)
 (def #'slot-bound-p #'%%slot-bound-p)
 (def #'slot-value #'%%slot-value)
+(def #'subclassp #'%%subclassp)
 ;; JS:
 (def #'js:apply #'%%js:apply)
 (def #'js:get #'%%js:get)
@@ -106,14 +107,17 @@
 (defun funcall (fun . args)
   (apply fun args))
 
-; Return true if an object is #NIL, false otherwise.
+; Return true if an object is #NIL or #VOID, false otherwise.
 (defun nilp (obj) (eq obj #nil))
+(defun voidp (obj) (eq obj #void))
 
 ; Produce a new list by applying a function to each element of a list.
 (defun map-list (#'fun list)
   (if (nilp list)
       #nil
     (cons (fun (car list)) (map-list #'fun (cdr list)))))
+
+(def #'for-each #'map-list)
 
 (defun compose (f g)
   (lambda (arg) (funcall f (funcall g arg))))
@@ -235,10 +239,19 @@
 (defgeneric compare-object (self))
 (defgeneric print-object (self stream))
 
+(defun typep (obj type)
+  (subclassp (class-of obj) (find-class type)))
+
 ;;;; Simple control
 
 (defmacro loop body
   (list #'%%loop (list* #'lambda () body)))
+
+(defmacro when (test . body)
+  (list #'if test (list #'progn body) #void))
+
+(defmacro unless (test . body)
+  (list #'if test #void (list #'progn body)))
 
 (defun call-with-escape (#'fun)
   (let* ((tag (list))
@@ -418,22 +431,10 @@
 (defclass store-value (restart)
   (value))
 
+;;; Handler frames
+
 (defdynamic current-condition-handler-frame)
 (defdynamic current-restart-handler-frame)
-
-(defun signal (condition)
-  (signal-condition condition (dynamic current-condition-handler-frame)))
-
-(defun warn (condition)
-  (signal condition)
-  (print "Warning:" condition))
-
-(defun error (condition)
-  (signal condition)
-  (invoke-debugger condition))
-
-(defun invoke-restart (restart)
-  (signal-condition restart (dynamic current-restart-handler-frame)))
 
 (defclass handler ()
   (condition-type
@@ -445,6 +446,9 @@
         :condition-type condition-type
         :handler-function handler-function
         :associated-condition (optional opt-associated-condition)))
+
+(defun handle-condition (handler condition)
+  (funcall (slot-value handler 'handler-function) condition))
 
 (defclass handler-frame ()
   (handlers
@@ -465,7 +469,59 @@
     (dynamic-let* current-condition-handler-frame handler-frame
                   (lambda ()
                     (eval (list* #'progn body) env)))))
-          
-(defun signal-condition (condition handler-frame))
-  
 
+;;; Signaling
+          
+(defun signal (condition)
+  (signal-condition condition (dynamic current-condition-handler-frame)))
+
+(defun warn (condition)
+  (signal condition)
+  (print "Warning:" condition))
+
+(defun error (condition)
+  (signal condition)
+  (invoke-debugger condition))
+
+(defun invoke-restart (restart)
+  (signal-condition restart (dynamic current-restart-handler-frame)))
+
+(defun signal-condition (condition dynamic-frame)
+  (let ((handler-and-frame (find-applicable-handler condition dynamic-frame)))
+    (if (voidp handler-and-frame)
+        #void
+      (let (((handler frame) handler-and-frame))
+        (call-condition-handler condition handler frame)
+        ;; signal unhandled: continue search for handlers
+        (signal-condition condition (slot-value frame 'parent))))))
+
+(defun find-applicable-handler (condition dynamic-frame)
+  (if (voidp dynamic-frame)
+      #void
+    (block found
+           (for-each (lambda (handler)
+                       (when (condition-applicable? condition handler)
+                         (return-from found (list handler dynamic-frame))))
+                     (slot-value dynamic-frame 'handlers))
+           (find-applicable-handler condition (slot-value dynamic-frame 'parent)))))
+
+(defgeneric condition-applicable? (condition handler))
+
+(defmethod condition-applicable? ((condition condition) handler)
+  (typep condition (slot-value handler 'condition-type)))
+
+(defmethod condition-applicable? ((restart restart) handler)
+  (and (typep restart (slot-value handler 'condition-type))
+       (or (voidp (slot-value restart 'associated-condition))
+           (voidp (slot-value handler 'associated-condition))
+           (eq (slot-value restart 'associated-condition)
+               (slot-value handler 'associated-condition)))))
+
+(defgeneric call-condition-handler (condition handler handler-frame))
+
+(defmethod call-condition-handler ((condition condition) handler handler-frame)
+  (dynamic-let* current-condition-handler-frame (slot-value handler-frame 'parent)
+    (handle-condition handler condition)))
+
+(defmethod call-condition-handler ((restart restart) handler handler-frame)
+  (handle-condition handler restart))

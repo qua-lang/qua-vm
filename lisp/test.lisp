@@ -273,9 +273,10 @@
 
 (qua:expect #void (handler-bind ()))
 (qua:expect #t (handler-bind () 1 2 (eq #t #t)))
-(qua:expect 2
+(qua:expect 1
             (block b
               (handler-bind ((condition (lambda (c) (return-from b 1))))
                 (signal (make 'condition))
                 2)))
 
+(qua:expect #void (signal (make 'condition)))
