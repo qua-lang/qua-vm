@@ -173,8 +173,10 @@
 (defun symbol-name (sym)
   (slot-value sym 'name))
 
-(defun optional (opt-arg default)
-  (if (nilp opt-arg) default (car opt-arg)))
+(defun optional (opt-arg . opt-default)
+  (if (nilp opt-arg)
+      (if (nilp opt-default) #void (car opt-default))
+    (car opt-arg)))
 
 (def #'defconstant #'def)
 
@@ -241,7 +243,7 @@
 (defun call-with-escape (#'fun)
   (let* ((tag (list))
          (escape (lambda opt-val
-                   (let ((val (optional opt-val #void)))
+                   (let ((val (optional opt-val)))
                      (%%raise (list tag val))))))
     (%%rescue (lambda (exc)
                 (if (and (consp exc) (eq tag (car exc)))
@@ -312,12 +314,12 @@
   (%%push-prompt coro:the-prompt thunk))
 
 (defun coro:yield opt-val
-  (let ((val (optional opt-val #void)))
+  (let ((val (optional opt-val)))
     (%%take-subcont coro:the-prompt
                     (lambda (cont) (coro:make-yield-rec val cont)))))
 
 (defun coro:resume (yield-rec . opt-val)
-  (let ((val (optional opt-val #void)))
+  (let ((val (optional opt-val)))
     (%%push-prompt-subcont coro:the-prompt
                            (coro:continuation yield-rec)
                            (lambda () val))))
@@ -342,7 +344,7 @@
 ;;;; Dynamic variables
 
 (defmacro defdynamic (name . opt-val)
-  (list #'def name (list #'mut (optional opt-val #void))))
+  (list #'def name (list #'mut (optional opt-val))))
 
 (def #'dynamic #'ref)
 
@@ -402,7 +404,7 @@
   (message))
 
 (defclass runtime-error (error))
-(defclass control-error (error))
+(defclass control-error (runtime-error))
 (defclass restart-control-error (control-error)
   (restart))
 
@@ -416,21 +418,44 @@
 (defclass store-value (restart)
   (value))
 
-(defdynamic condition-handler-frame)
-(defdynamic restart-handler-frame)
+(defdynamic current-condition-handler-frame)
+(defdynamic current-restart-handler-frame)
 
 (defun signal (condition)
-  (signal-condition c (dynamic condition-handler-frame)))
+  (signal-condition condition (dynamic current-condition-handler-frame)))
 
 (defun warn (condition)
   (signal condition)
-  (print condition))
+  (print "Warning:" condition))
 
 (defun error (condition)
   (signal condition)
   (invoke-debugger condition))
 
 (defun invoke-restart (restart)
-  (signal-condition restart (dynamic restart-handler-frame)))
+  (signal-condition restart (dynamic current-restart-handler-frame)))
+
+(defclass handler ()
+  (condition-type
+   handler-function
+   associated-condition))
+
+(defun make-handler (condition-type handler-function . opt-associated-condition)
+  (make 'handler
+        :condition-type condition-type
+        :handler-function handler-function
+        :associated-condition (optional opt-associated-condition)))
+
+(defclass handler-frame ()
+  (handlers
+   parent))
+
+(defun make-handler-frame (handlers . opt-parent)
+  (make 'handler-frame :handlers handlers :parent (optional opt-parent)))
+
+;; spec ::= (class-name function-form)
+;(deffexpr handler-bind (specs . body) env
+  
 
 (defun signal-condition (condition handler-frame))  
+
