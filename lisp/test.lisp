@@ -288,6 +288,12 @@
 
 (qua:expect #void (signal (make 'condition)))
 
+(qua:expect "foo"
+            (block exit
+              (handler-bind ((condition (lambda #ign (invoke-restart (make 'continue)))))
+                (restart-bind ((continue (lambda #ign (return-from exit "foo"))))
+                  (signal (make 'condition))))))
+
 ;;;; Subclassing
 (qua:assert (subclassp (find-generic-class 'serious-condition) (find-generic-class 'object)))
 (qua:assert (subclassp (find-generic-class 'error) (find-generic-class 'serious-condition)))

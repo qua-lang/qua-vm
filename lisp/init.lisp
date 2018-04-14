@@ -475,6 +475,21 @@
                   (lambda ()
                     (eval (list* #'progn body) env)))))
 
+;; handler-spec ::= (restart-class-name handler-function-form . opt-associated-condition)
+(deffexpr restart-bind (handler-specs . body) env
+  (let* ((handlers
+          (map-list (lambda ((class-name function-form . opt-associated-condition))
+                      (make-handler class-name
+                                    (eval function-form env)
+                                    (eval (optional opt-associated-condition) env)))
+                    handler-specs))
+         (handler-frame
+          (make-handler-frame handlers
+                              (dynamic current-restart-handler-frame))))
+    (dynamic-let* current-restart-handler-frame handler-frame
+                  (lambda ()
+                    (eval (list* #'progn body) env)))))
+
 ;;; Signaling
           
 (defun signal (condition)
@@ -517,7 +532,7 @@
 
 (defmethod condition-applicable? ((restart restart) handler)
   (and (typep restart (slot-value handler 'condition-type))
-       (or (voidp (slot-value restart 'associated-condition))
+       (or (not (slot-bound-p restart 'associated-condition))
            (voidp (slot-value handler 'associated-condition))
            (eq (slot-value restart 'associated-condition)
                (slot-value handler 'associated-condition)))))
