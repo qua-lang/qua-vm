@@ -453,16 +453,19 @@
 (defun make-handler-frame (handlers . opt-parent)
   (make 'handler-frame :handlers handlers :parent (optional opt-parent)))
 
-;; spec ::= (class-name function-form)
-(deffexpr handler-bind (specs . body) env
+;; handler-spec ::= (condition-class-name handler-function-form)
+(deffexpr handler-bind (handler-specs . body) env
   (let* ((handlers
-          (map-list
-           (lambda (spec)
-             (make-handler class-name (eval function-form env)))
-           specs))
+          (map-list (lambda ((class-name function-form))
+                      (make-handler class-name (eval function-form env)))
+                    handler-specs))
          (handler-frame
-          (make-handler-frame handlers (dynamic current-condition-handler-frame))))
-    ))
-              
-(defun signal-condition (condition handler-frame))  
+          (make-handler-frame handlers
+                              (dynamic current-condition-handler-frame))))
+    (dynamic-let* current-condition-handler-frame handler-frame
+                  (lambda ()
+                    (eval (list* #'progn body) env)))))
+          
+(defun signal-condition (condition handler-frame))
+  
 
