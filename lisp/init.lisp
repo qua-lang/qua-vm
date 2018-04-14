@@ -259,7 +259,7 @@
   (list #'if test #void (list #'progn body)))
 
 (defun call-with-escape (#'fun)
-  (let* ((tag (list))
+  (let* ((tag (list 'tag))
          (escape (lambda opt-val
                    (let ((val (optional opt-val)))
                      (%%raise (list tag val))))))
