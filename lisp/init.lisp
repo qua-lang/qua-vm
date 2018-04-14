@@ -341,8 +341,8 @@
 
 ;;;; Dynamic variables
 
-(defmacro defdynamic (name val)
-  (list #'def name (list #'mut val)))
+(defmacro defdynamic (name . opt-val)
+  (list #'def name (list #'mut (optional opt-val #void))))
 
 (def #'dynamic #'ref)
 
@@ -387,3 +387,50 @@
 
 (defun js:object plist (js:plist-to-object plist))
 
+;;;; Conditions
+
+(defclass condition (standard-object))
+(defclass serious-condition (condition))
+(defclass error (serious-condition))
+(defclass warning (condition))
+
+(defclass simple-condition (condition)
+  (message))
+(defclass simple-warning (warning)
+  (message))
+(defclass simple-error (error)
+  (message))
+
+(defclass runtime-error (error))
+(defclass control-error (error))
+(defclass restart-control-error (control-error)
+  (restart))
+
+(defclass restart (condition)
+  (associated-condition))
+
+(defclass abort (restart))
+(defclass continue (restart))
+(defclass use-value (restart)
+  (value))
+(defclass store-value (restart)
+  (value))
+
+(defdynamic condition-handler-frame)
+(defdynamic restart-handler-frame)
+
+(defun signal (condition)
+  (signal-condition c (dynamic condition-handler-frame)))
+
+(defun warn (condition)
+  (signal condition)
+  (print condition))
+
+(defun error (condition)
+  (signal condition)
+  (invoke-debugger condition))
+
+(defun invoke-restart (restart)
+  (signal-condition restart (dynamic restart-handler-frame)))
+
+(defun signal-condition (condition handler-frame))  
