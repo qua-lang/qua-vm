@@ -93,6 +93,9 @@
 (qua:assert (qua:deep-equal "wow!" (my-generic obj1)))
 (qua:assert (qua:deep-equal "wowzers!" (my-generic obj2)))
 
+;;;; Subclassing
+(qua:assert (subclassp 'standard-object 'object))
+
 ;;;; Slots
 (defclass class-with-slots ()
   (x :type number
