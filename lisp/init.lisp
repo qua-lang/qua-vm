@@ -530,10 +530,15 @@
 (defmethod condition-applicable? ((condition condition) handler)
   (typep condition (slot-value handler 'condition-type)))
 
+(defun slot-void-p (obj slot-name)
+  (if (slot-bound-p obj slot-name)
+      (voidp (slot-value obj slot-name))
+    #t))
+
 (defmethod condition-applicable? ((restart restart) handler)
   (and (typep restart (slot-value handler 'condition-type))
-       (or (not (slot-bound-p restart 'associated-condition))
-           (voidp (slot-value handler 'associated-condition))
+       (or (slot-void-p restart 'associated-condition)
+           (slot-void-p handler 'associated-condition)
            (eq (slot-value restart 'associated-condition)
                (slot-value handler 'associated-condition)))))
 
