@@ -242,7 +242,7 @@ module.exports = function(vm) {
     };
     vm.slot_bound_p = function(obj, name) {
         var key = vm.slot_key(name);
-        return obj.hasOwnProperty(key);
+        return obj && obj.hasOwnProperty(key);
     };
     vm.slot_unbound_hook = function(obj, name) {
         return vm.error("slot unbound: " + vm.designate_string(name));

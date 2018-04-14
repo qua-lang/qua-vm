@@ -236,7 +236,7 @@
 ;;;; Simple control
 
 (defmacro loop body
-  (list* #'%%loop (list* #'lambda () body)))
+  (list #'%%loop (list* #'lambda () body)))
 
 (defun call-with-escape (#'fun)
   (let* ((tag (list))
@@ -323,8 +323,7 @@
                            (lambda () val))))
 
 (defun coro:yield-rec-p (yield-rec)
-  (and (not (eq yield-rec #undefined)) 
-       (slot-bound-p yield-rec 'val)
+  (and (slot-bound-p yield-rec 'val)
        (slot-bound-p yield-rec 'cont)))
 
 (defun dynamic-wind (#'pre #'body #'post)

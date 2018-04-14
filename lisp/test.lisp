@@ -201,9 +201,12 @@
                           (lambda () (setf (ref cell) 1))
                           (lambda ()
                             (qua:expect 1 (ref cell))
-                            (coro:yield))
+                            (coro:yield)
+                            (qua:expect 1 (ref cell)))
                           (lambda ()
                             (setf (ref cell) 2)))))))
+  (qua:expect 2 (ref cell))
+  (def coro (coro:resume coro))
   (qua:expect 2 (ref cell)))
 
 ;;;; Dynamic variables

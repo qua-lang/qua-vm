@@ -1,7 +1,7 @@
 module.exports = function(vm) {
     vm.assert_type = function(obj, type_spec) {
         if (vm.check_type(obj, type_spec)) return obj;
-        else return vm.panic("type error: " + obj + " should be " + JSON.stringify(type_spec) + " but is " + typeof(obj));
+        else return vm.panic("type error: " + obj + " should be " + type_spec["qs_generic-class"].qs_name + " but is " + obj.constructor.name);
     };
     vm.check_type = function(obj, type_spec) {
         if (typeof(type_spec) === "string") {
