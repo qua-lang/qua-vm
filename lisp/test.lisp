@@ -291,6 +291,8 @@
 ;;;; Subclassing
 (qua:assert (subclassp (find-generic-class 'serious-condition) (find-generic-class 'object)))
 (qua:assert (subclassp (find-generic-class 'error) (find-generic-class 'serious-condition)))
+(qua:assert (subclassp (find-generic-class 'error) (find-generic-class 'object)))
+(qua:assert (not (subclassp (find-generic-class 'object) (find-generic-class 'error))))
 
 (qua:assert (typep 12 'js:number))
 (qua:assert (typep 12 'number))
