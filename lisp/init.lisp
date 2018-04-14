@@ -243,6 +243,9 @@
 (defun typep (obj class-spec)
   (subclassp (generic-class-of obj) (find-generic-class class-spec)))
 
+(defun symbolp (sym) (typep sym 'symbol))
+(defun consp (cons) (typep cons 'cons))
+
 ;;;; Simple control
 
 (defmacro loop body
