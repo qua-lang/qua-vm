@@ -190,11 +190,12 @@ vm.init = function(e) {
     // Environments
     vm.defun(e, vm.sym("%%make-environment"), vm.jswrap(vm.make_env));
     // Object system
-    vm.defun(e, vm.sym("%%class-of"), vm.jswrap(vm.class_of));
+    vm.defun(e, vm.sym("%%concrete-class-of"), vm.jswrap(vm.concrete_class_of));
     vm.defun(e, vm.sym("%%ensure-class"), vm.jswrap(vm.defclass));
     vm.defun(e, vm.sym("%%find-concrete-class"), vm.jswrap(vm.find_concrete_class));
     vm.defun(e, vm.sym("%%find-generic-class"), vm.jswrap(vm.find_generic_class));
     vm.defun(e, vm.sym("%%find-method"), vm.jswrap(vm.find_method));
+    vm.defun(e, vm.sym("%%generic-class-of"), vm.jswrap(vm.generic_class_of));
     vm.defun(e, vm.sym("%%make-instance"), vm.jswrap(vm.make_instance));
     vm.defun(e, vm.sym("%%put-method"), vm.jswrap(vm.put_method));
     vm.defun(e, vm.sym("%%set-slot-value"), vm.jswrap(vm.set_slot_value));

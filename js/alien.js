@@ -7,7 +7,7 @@ module.exports = function(vm, e) {
     vm.JSString = vm.defclass("js:string", ["string", "js:object"], {});
     vm.JSNull = vm.defclass("js:null", ["js:object"], {});
     vm.JSUndefined = vm.defclass("js:undefined", ["js:object"], {});
-    vm.class_of_hook = function(obj) { // override obj.js
+    vm.concrete_class_of_hook = function(obj) { // override obj.js
         switch (typeof(obj)) {
         case "string": return vm.JSString;
         case "number": return vm.JSNumber;

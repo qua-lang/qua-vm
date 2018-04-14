@@ -93,9 +93,6 @@
 (qua:assert (qua:deep-equal "wow!" (my-generic obj1)))
 (qua:assert (qua:deep-equal "wowzers!" (my-generic obj2)))
 
-;;;; Subclassing
-(qua:assert (subclassp 'standard-object 'object))
-
 ;;;; Slots
 (defclass class-with-slots ()
   (x :type number
@@ -282,4 +279,20 @@
                 (signal (make 'condition))
                 2)))
 
+(qua:expect 2
+            (block b
+              (handler-bind ((warning (lambda (c) (return-from b 1)))
+                             (serious-condition (lambda (c) (return-from b 2))))
+                (signal (make 'error))
+                3)))
+
 (qua:expect #void (signal (make 'condition)))
+
+;;;; Subclassing
+(qua:assert (subclassp (find-generic-class 'serious-condition) (find-generic-class 'object)))
+(qua:assert (subclassp (find-generic-class 'error) (find-generic-class 'serious-condition)))
+
+(qua:assert (typep 12 'js:number))
+(qua:assert (typep 12 'number))
+(qua:assert (typep 12 'object))
+(qua:assert (not (typep 12 'standard-object)))

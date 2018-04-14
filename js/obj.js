@@ -140,14 +140,19 @@ module.exports = function(vm) {
         }
         return obj;
     };
-    vm.class_of = function(obj) {
+    vm.concrete_class_of = function(obj) {
         if (obj && obj.qua_isa) {
             return obj.qua_isa;
         } else {
-            return vm.class_of_hook(obj);
+            return vm.concrete_class_of_hook(obj);
         }
     };
-    vm.class_of_hook = function(obj) { vm.panic("object is missing class: " + obj); };
+    vm.concrete_class_of_hook = function(obj) { vm.panic("object is missing class: " + obj); };
+    vm.generic_class_of = function(obj) {
+        var ccls = vm.concrete_class_of(obj);
+        vm.assert(vm.is_concrete_class(ccls));
+        return ccls["qs_generic-class"];
+    };
     vm.designate_dict = function(dict_des) {
         if (vm.is_list(dict_des)) {
             return vm.plist_to_dict(dict_des);
@@ -175,36 +180,29 @@ module.exports = function(vm) {
     vm.is_generic_class = function(obj) {
         return obj && (obj.qua_isa === vm.GenericClass);
     };
-    vm.subclassp = function(cls, other_class) {
-        if (vm.is_concrete_class(cls)) {
-            return vm.subclassp_using_concrete_class(cls, other_class);
-        } else if (vm.is_generic_class(cls)) {
-            return vm.subclassp_using_generic_class(cls, other_class);
-        } else {
-            vm.panic();
-        }
-    };
-    vm.subclassp_using_concrete_class = function(concrete_class, other_class) {
-        vm.assert(vm.is_concrete_class(concrete_class));
-        if (concrete_class === other_class) {
-            return true;
-        } else {
-            var generic_class = concrete_class["qs_generic-class"];
-            return vm.subclassp_using_generic_class(generic_class, other_class);
-        }
-    };
-    vm.subclassp_using_generic_class = function(generic_class, other_class) {
+    vm.subclassp = function(generic_class, other_class) {
+        vm.assert(vm.is_generic_class(generic_class));
+        vm.assert(vm.is_generic_class(other_class));
         if (generic_class === other_class) {
             return true;
         } else {
+            var tag = {};
             var superclass_names = generic_class["qs_direct-superclasses"];
-            superclass_names.forEach(function(superclass_name) {
-                    var gsuper = vm.GENERIC_CLASSES[vm.generic_class_key(superclass_name)];
-                    vm.assert(vm.is_generic_class(gsuper));
-                    if (vm.subclassp(gsuper, other_class)) {
-                        return true;
-                    }
-                });
+            try {
+                superclass_names.forEach(function(superclass_name) {
+                        var superclass = vm.GENERIC_CLASSES[vm.generic_class_key(superclass_name)];
+                        vm.assert(vm.is_generic_class(superclass));
+                        if (vm.subclassp(superclass, other_class)) {
+                            throw tag;
+                        }
+                    });
+            } catch(exc) {
+                if (exc === tag) {
+                    return true;
+                } else {
+                    throw exc;
+                }
+            }
             return false;
         }
     };
@@ -220,7 +218,7 @@ module.exports = function(vm) {
         if (obj && obj[key]) {
             return obj[key];
         } else {
-            return vm.find_method_using_concrete_class(obj, vm.class_of(obj), name);
+            return vm.find_method_using_concrete_class(obj, vm.concrete_class_of(obj), name);
         }
     };
     vm.find_method_using_concrete_class = function(obj, cls, name) {

@@ -21,10 +21,11 @@
 (def #'unwrap #'%%unwrap) ; Extract fexpr underlying a function.
 (def #'wrap #'%%wrap) ; Construct a function out of a fexpr.
 ;; Objects:
-(def #'class-of #'%%class-of)
+(def #'concrete-class-of #'%%concrete-class-of)
 (def #'ensure-class #'%%ensure-class)
-(def #'find-class #'%%find-generic-class)
+(def #'find-generic-class #'%%find-generic-class)
 (def #'find-method #'%%find-method)
+(def #'generic-class-of #'%%generic-class-of)
 (def #'put-method #'%%put-method)
 (def #'set-slot-value #'%%set-slot-value)
 (def #'slot-bound-p #'%%slot-bound-p)
@@ -224,7 +225,7 @@
         env))
 
 (deffexpr defmethod (name ((self class-desig) . args) . body) env
-  (let ((class (find-class class-desig))
+  (let ((class (find-generic-class class-desig))
         (fun (eval (list* #'lambda (list* self args) body) env)))
     (put-method class name fun)
     name))
@@ -239,8 +240,8 @@
 (defgeneric compare-object (self))
 (defgeneric print-object (self stream))
 
-(defun typep (obj type)
-  (subclassp (class-of obj) (find-class type)))
+(defun typep (obj class-spec)
+  (subclassp (generic-class-of obj) (find-generic-class class-spec)))
 
 ;;;; Simple control
 
@@ -520,6 +521,7 @@
 (defgeneric call-condition-handler (condition handler handler-frame))
 
 (defmethod call-condition-handler ((condition condition) handler handler-frame)
+  ;; Condition firewall
   (dynamic-let* current-condition-handler-frame (slot-value handler-frame 'parent)
     (handle-condition handler condition)))
 
