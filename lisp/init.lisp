@@ -23,6 +23,7 @@
 ;; Objects:
 (def #'concrete-class-of #'%%concrete-class-of)
 (def #'ensure-class #'%%ensure-class)
+(def #'find-concrete-class #'%%find-concrete-class)
 (def #'find-generic-class #'%%find-generic-class)
 (def #'find-method #'%%find-method)
 (def #'generic-class-of #'%%generic-class-of)

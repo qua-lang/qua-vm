@@ -5,11 +5,11 @@ module.exports = function(vm) {
         "qs_name": "concrete-class",
         "qs_type-parameters": [],
         "qs_slots": {
-            "generic-class": {},
-            "type-arguments": {}
+            "generic-class": Object.create(null),
+            "type-arguments": Object.create(null)
         },
         "qs_direct-superclasses": ["class"],
-        prototype: {}
+        prototype: Object.create(null)
     };
     vm.ConcreteClass = { // the concrete class
         "qs_generic-class": vm.THE_GENERIC_CLASS_CONCRETE_CLASS,
@@ -22,14 +22,14 @@ module.exports = function(vm) {
         "qs_name": "generic-class",
         "qs_type-parameters": [],
         "qs_slots": {
-            "name": {},
-            "type-parameters": {},
-            "methods": {},
-            "slots": {},
-            "direct-superclasses": {}
+            "name": Object.create(null),
+            "type-parameters": Object.create(null),
+            "methods": Object.create(null),
+            "slots": Object.create(null),
+            "direct-superclasses": Object.create(null)
         },
         "qs_direct-superclasses": ["class"],
-        prototype: {}
+        prototype: Object.create(null)
     };
     vm.GenericClass = { // the concrete class
         qua_isa: vm.ConcreteClass,
@@ -40,8 +40,8 @@ module.exports = function(vm) {
     vm.THE_GENERIC_CLASS_CONCRETE_CLASS.qua_isa = vm.GenericClass;
     vm.THE_GENERIC_CLASS_GENERIC_CLASS.qua_isa = vm.GenericClass;
     /* Class registry */
-    vm.GENERIC_CLASSES = {};
-    vm.CONCRETE_CLASSES = {};
+    vm.GENERIC_CLASSES = Object.create(null);
+    vm.CONCRETE_CLASSES = Object.create(null);
     vm.defclass = function(name, direct_superclasses, slots) {
         vm.assert_type(name, "string");
         vm.assert_type(direct_superclasses, ["string"]);
@@ -50,7 +50,7 @@ module.exports = function(vm) {
         generic_class["qs_name"] = name;
         generic_class["qs_type-parameters"] = [];
         generic_class["qs_direct-superclasses"] = direct_superclasses;
-        generic_class["qs_slots"] = slots;
+        generic_class["qs_slots"] = slots ? slots : Object.create(null);
         vm.GENERIC_CLASSES[name] = generic_class;
         function concrete_class() {};
         concrete_class.qua_isa = vm.ConcreteClass;
@@ -111,15 +111,15 @@ module.exports = function(vm) {
         }
     };
     /* Setup class hierarchy */
-    vm.Object = vm.defclass("object", [], {});
-    vm.StandardObject = vm.defclass("standard-object", ["object"], {});
-    vm.Class = vm.defclass("class", ["standard-object"], {});
-    vm.Combiner = vm.defclass("combiner", ["standard-object"], {});
-    vm.Fexpr = vm.defclass("fexpr", ["combiner"], {});
-    vm.Function = vm.defclass("function", ["combiner"], {});
-    vm.Number = vm.defclass("number", ["object"], {});
-    vm.String = vm.defclass("string", ["object"], {});
-    vm.Boolean = vm.defclass("boolean", ["object"], {});
+    vm.Object = vm.defclass("object", []);
+    vm.StandardObject = vm.defclass("standard-object", ["object"]);
+    vm.Class = vm.defclass("class", ["standard-object"]);
+    vm.Combiner = vm.defclass("combiner", ["standard-object"]);
+    vm.Fexpr = vm.defclass("fexpr", ["combiner"]);
+    vm.Function = vm.defclass("function", ["combiner"]);
+    vm.Number = vm.defclass("number", ["object"]);;
+    vm.String = vm.defclass("string", ["object"]);
+    vm.Boolean = vm.defclass("boolean", ["object"]);
     /* Objects */
     vm.make_instance = function(class_des, initargs) {
         var concrete_class = vm.designate_concrete_class(class_des);

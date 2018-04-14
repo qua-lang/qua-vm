@@ -298,3 +298,6 @@
 (qua:assert (typep 12 'number))
 (qua:assert (typep 12 'object))
 (qua:assert (not (typep 12 'standard-object)))
+
+(qua:assert (typep (.qs_direct-superclasses (find-generic-class 'object)) 'js:array))
+(qua:assert (typep (.qs_slots (find-generic-class 'object)) 'js:object))
