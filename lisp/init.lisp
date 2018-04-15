@@ -356,8 +356,7 @@
                            (lambda () val))))
 
 (defun coro:yield-rec-p (yield-rec)
-  (and (slot-bound-p yield-rec 'val)
-       (slot-bound-p yield-rec 'cont)))
+  (typep yield-rec 'coro:yield-rec))
 
 (defun dynamic-wind (#'pre #'body #'post)
   (block exit
