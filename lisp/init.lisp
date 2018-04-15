@@ -355,8 +355,10 @@
                            (coro:continuation yield-rec)
                            (lambda () val))))
 
+;; Should use TYPEP
 (defun coro:yield-rec-p (yield-rec)
-  (typep yield-rec 'coro:yield-rec))
+  (and (slot-bound-p yield-rec 'cont)
+       (slot-bound-p yield-rec 'val)))
 
 (defun dynamic-wind (#'pre #'body #'post)
   (block exit
