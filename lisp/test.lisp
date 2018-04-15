@@ -215,9 +215,9 @@
 
 (progn
   (qua:expect 1 (dynamic *my-dynamic*))
-  (dynamic-let* *my-dynamic* 2
-                (lambda ()
-                  (qua:expect 2 (dynamic *my-dynamic*))))
+  (dynamic-let-1 *my-dynamic* 2
+                 (lambda ()
+                   (qua:expect 2 (dynamic *my-dynamic*))))
   (qua:expect 1 (dynamic *my-dynamic*)))
 
 (block exit
@@ -227,10 +227,10 @@
               (qua:expect 1 (dynamic *my-dynamic*))
               (return-from exit))
             (lambda ()
-              (dynamic-let* *my-dynamic* 2
-                            (lambda ()
-                              (qua:expect 2 (dynamic *my-dynamic*))
-                              (%%raise "foo")))))
+              (dynamic-let-1 *my-dynamic* 2
+                             (lambda ()
+                               (qua:expect 2 (dynamic *my-dynamic*))
+                               (%%raise "foo")))))
   (qua:assert #f))
 
 ;;;; Coroutines

@@ -380,7 +380,7 @@
 
 (def #'dynamic #'ref)
 
-(defun dynamic-let* (var val #'body-thunk)
+(defun dynamic-let-1 (var val #'body-thunk)
   (let ((old-val (dynamic var)))
     (dynamic-wind
      (lambda () (setf (dynamic var) val))
@@ -487,9 +487,9 @@
          (handler-frame
           (make-handler-frame handlers
                               (dynamic current-condition-handler-frame))))
-    (dynamic-let* current-condition-handler-frame handler-frame
-                  (lambda ()
-                    (eval (list* #'progn body) env)))))
+    (dynamic-let-1 current-condition-handler-frame handler-frame
+                   (lambda ()
+                     (eval (list* #'progn body) env)))))
 
 ;; handler-spec ::= (restart-class-name handler-function-form . opt-associated-condition)
 (deffexpr restart-bind (handler-specs . body) env
@@ -502,9 +502,9 @@
          (handler-frame
           (make-handler-frame handlers
                               (dynamic current-restart-handler-frame))))
-    (dynamic-let* current-restart-handler-frame handler-frame
-                  (lambda ()
-                    (eval (list* #'progn body) env)))))
+    (dynamic-let-1 current-restart-handler-frame handler-frame
+                   (lambda ()
+                     (eval (list* #'progn body) env)))))
 
 ;;; Condition signaling
           
@@ -562,7 +562,7 @@
 
 (defmethod call-condition-handler ((condition condition) handler handler-frame)
   ; Condition firewall
-  (dynamic-let* current-condition-handler-frame (slot-value handler-frame 'parent)
+  (dynamic-let-1 current-condition-handler-frame (slot-value handler-frame 'parent)
     (handle-condition handler condition)))
 
 (defmethod call-condition-handler ((restart restart) handler handler-frame)
