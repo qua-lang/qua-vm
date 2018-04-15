@@ -7,7 +7,8 @@
 ;; These will then later be overridden with the safer user language
 ;; combiners.
 
-;; Rebind symbols to final names already, where it makes some sense:
+;;;; Import primitive bindings
+
 (%%def #'def #'%%def) ; Bind new symbols in the current environment.
 (def #'car #'%%car) ; Access first element of pair.
 (def #'cdr #'%%cdr) ; Access second element of pair.
@@ -38,18 +39,19 @@
 (def #'js:global #'%%js:global)
 (def #'js:list-to-array #'%%list-to-array)
 (def #'js:set #'%%js:set)
-
 ;; Use the QUA package for stuff that's not expected to be called by
 ;; the user or that doesn't have a final API yet.
 (def #'qua:to-fun-sym #'%%to-fun-sym) ; Turn any symbol into a function namespaced one.
-
 ;; Optimization bindings:
 (def #'list* #'%%list*) ; Construct list of arguments, with the final argument as tail.
 
-;; Basics:
+;;;; Basics
+
 (def #'quote (%%vau (op) #ign op)) ; Prevent evaluation of its single operand.
 (def #'list (wrap (%%vau args #ign args))) ; Construct list of arguments.
 (def #'the-environment (%%vau #ign env env)) ; Return current lexical environment.
+
+;;;; Fexprs
 
 ; Construct a fexpr.  Primitive %%VAU has only one body statement, so use PROGN.
 (def #'vau
@@ -64,6 +66,8 @@
     (eval (list #'def (qua:to-fun-sym name) 
                 (list* #'vau params env-param body))
           env)))
+
+;;;; Macros
 
 ; Create a macro given an expander fexpr that receives and returns a form.
 (def #'make-macro
@@ -84,6 +88,8 @@
 (def #'defmacro
   (macro (name params . body)
     (list #'def (qua:to-fun-sym name) (list* #'macro params body))))
+
+;;;; Functions
 
 ; Create a function that doesn't do any type checking.
 (defmacro ur-lambda (params . body)
@@ -109,9 +115,21 @@
 (defun funcall (fun . args)
   (apply fun args))
 
+(defun compose (f g)
+  (lambda (arg) (funcall f (funcall g arg))))
+
+;;;; Forms
+
 ; Return true if an object is #NIL or #VOID, false otherwise.
 (defun nilp (obj) (eq obj #nil))
 (defun voidp (obj) (eq obj #void))
+
+(def #'caar (compose #'car #'car))
+(def #'cadr (compose #'car #'cdr))
+(def #'cdar (compose #'cdr #'car))
+(def #'cddr (compose #'cdr #'cdr))
+
+(defun symbol-name (sym) (slot-value sym 'name))
 
 ; Produce a new list by applying a function to each element of a list.
 (defun map-list (#'fun list)
@@ -121,13 +139,7 @@
 
 (def #'for-each #'map-list)
 
-(defun compose (f g)
-  (lambda (arg) (funcall f (funcall g arg))))
-
-(def #'caar (compose #'car #'car))
-(def #'cadr (compose #'car #'cdr))
-(def #'cdar (compose #'cdr #'car))
-(def #'cddr (compose #'cdr #'cdr))
+;;;; Lexical bindings
 
 ; The usual parallel-binding LET with left to right evaluation of
 ; value expressions.
@@ -153,6 +165,8 @@
                (list* #'list (map-list #'cadr bindings)))
          body))
 
+;;;; Logic
+
 (defun not (boolean)
   (if boolean #f #t))
 
@@ -176,8 +190,7 @@
         ((eval (car ops) env) #t)
         (#t                   (apply (wrap #'or) (cdr ops) env))))
 
-(defun symbol-name (sym)
-  (slot-value sym 'name))
+;;;; Misc. language
 
 (defun optional (opt-arg . opt-default)
   (if (nilp opt-arg)
@@ -186,14 +199,14 @@
 
 (def #'defconstant #'def)
 
-;;;; SETQ
+;;;; Environment mutation
 
 (deffexpr setq (env lhs rhs) denv
   (eval (list #'def lhs 
               (list (unwrap #'eval) rhs denv))
         (eval env denv)))
 
-;;;; SETF
+;;;; Generalized reference
 
 (defconstant qua:setter-prop "qua_setter")
 
@@ -210,7 +223,7 @@
                   getter-form)))
     (list* (list #'setter getter) new-val args)))
 
-;;;; Objects
+;;;; Objects and classes
 
 (defun make (class-desig . initargs)
   (%%make-instance class-desig (js:plist-to-object initargs)))
