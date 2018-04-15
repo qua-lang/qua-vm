@@ -269,6 +269,9 @@
 ;;;; JS method invocation
 (qua:assert (qua:deep-equal "12" (@toString 12)))
 
+;;;; JS arrays
+(qua:expect 2 (js:get (js:array 1 2 3) 1))
+
 ;;;; Conditions
 
 (qua:expect #void (handler-bind ()))

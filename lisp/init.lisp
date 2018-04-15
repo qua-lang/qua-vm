@@ -421,6 +421,8 @@
 
 (defun js:object plist (js:plist-to-object plist))
 
+(defun js:array elements (js:list-to-array elements))
+
 ;;;; Conditions
 
 (defclass condition (standard-object))
@@ -450,7 +452,7 @@
 (defclass store-value (restart)
   (value))
 
-;;; Handler frames
+;;; Condition handlers
 
 (defdynamic current-condition-handler-frame)
 (defdynamic current-restart-handler-frame)
@@ -504,7 +506,7 @@
                   (lambda ()
                     (eval (list* #'progn body) env)))))
 
-;;; Signaling
+;;; Condition signaling
           
 (defun signal (condition)
   (signal-condition condition (dynamic current-condition-handler-frame)))
@@ -559,9 +561,16 @@
 (defgeneric call-condition-handler (condition handler handler-frame))
 
 (defmethod call-condition-handler ((condition condition) handler handler-frame)
-  ;; Condition firewall
+  ; Condition firewall
   (dynamic-let* current-condition-handler-frame (slot-value handler-frame 'parent)
     (handle-condition handler condition)))
 
 (defmethod call-condition-handler ((restart restart) handler handler-frame)
   (handle-condition handler restart))
+
+;;;; Types
+
+(defclass gl:type-param (standard-object)
+  (in
+   out))
+
