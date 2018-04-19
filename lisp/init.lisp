@@ -265,6 +265,9 @@
 (defmacro loop body
   (list #'%%loop (list* #'lambda () body)))
 
+(defmacro if (test then else)
+  (list #'%%if test then else))
+
 (defmacro when (test . body)
   (list #'if test (list #'progn body) #void))
 
