@@ -225,7 +225,7 @@
 
 ;;;; Objects and classes
 
-(defun make (class-desig . initargs)
+(defun make-instance (class-desig . initargs)
   (%%make-instance class-desig (js:plist-to-object initargs)))
 
 (defun call-method (obj name args)
@@ -320,7 +320,7 @@
   (val))
 
 (defun mut (val)
-  (make 'mut :val val))
+  (make-instance 'mut :val val))
 
 (defun ref (mut)
   (slot-value mut 'val))
@@ -334,7 +334,7 @@
    cont))
 
 (defun coro:make-yield-rec (val cont)
-  (make 'coro:yield-rec :val val :cont cont))
+  (make-instance 'coro:yield-rec :val val :cont cont))
 
 (defun coro:value (yield-rec)
   (slot-value yield-rec 'val))
@@ -466,10 +466,10 @@
    associated-condition))
 
 (defun make-handler (condition-type handler-function . opt-associated-condition)
-  (make 'handler
-        :condition-type condition-type
-        :handler-function handler-function
-        :associated-condition (optional opt-associated-condition)))
+  (make-instance 'handler
+                 :condition-type condition-type
+                 :handler-function handler-function
+                 :associated-condition (optional opt-associated-condition)))
 
 (defun handle-condition (handler condition)
   (funcall (slot-value handler 'handler-function) condition))
@@ -479,7 +479,7 @@
    parent))
 
 (defun make-handler-frame (handlers . opt-parent)
-  (make 'handler-frame :handlers handlers :parent (optional opt-parent)))
+  (make-instance 'handler-frame :handlers handlers :parent (optional opt-parent)))
 
 ;; handler-spec ::= (condition-class-name handler-function-form)
 (deffexpr handler-bind (handler-specs . body) env
@@ -573,7 +573,24 @@
 
 ;;;; Types
 
-(defclass gl:type-param (standard-object)
+(defclass qua:type () ())
+(defclass qua:type-variable (qua:type)
+  (name))
+(defclass qua:class-type (qua:type)
+  (name
+   parameters))
+(defclass qua:type-parameter ()
   (in
    out))
 
+(defclass qua:function-parameter ()
+  (name
+   type))
+(defclass qua:function-signature ()
+  (required-parameters
+   result-type))
+    
+(defun qua:parse-ordinary-function-signature (list)
+  (if (nilp list)
+      (make-instance 'qua:function-signature :required-parameters () :result-type #void)
+    ))

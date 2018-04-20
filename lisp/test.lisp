@@ -54,9 +54,9 @@
 
 ;;;; Objects
 (qua:assert (qua:deep-equal 'foo
-                            (make 'symbol :name "foo" :ns "v")))
+                            (make-instance 'symbol :name "foo" :ns "v")))
 (qua:assert (qua:deep-equal :foo
-                            (make 'keyword :name "foo")))
+                            (make-instance 'keyword :name "foo")))
 
 (defgeneric describe-yourself (self))
 (defmethod describe-yourself ((self js:number)) "a number")
@@ -81,10 +81,10 @@
 (defgeneric my-generic (self))
 (defmethod my-generic ((self my-class))
   "wow!")
-(def obj1 (make 'my-class))
+(def obj1 (make-instance 'my-class))
 
 (defclass my-subclass (my-class))
-(def obj2 (make 'my-subclass))
+(def obj2 (make-instance 'my-subclass))
 
 (qua:assert (qua:deep-equal "wow!" (my-generic obj1)))
 (qua:assert (qua:deep-equal "wow!" (my-generic obj2)))
@@ -97,7 +97,7 @@
 (defclass class-with-slots ()
   (x :type number
    y :type number))
-(def object-with-slots (make 'class-with-slots :x 2 :y 4))
+(def object-with-slots (make-instance 'class-with-slots :x 2 :y 4))
 (qua:assert (qua:deep-equal 2 (slot-value object-with-slots 'x)))
 (qua:assert (qua:deep-equal 4 (slot-value object-with-slots 'y)))
 (qua:assert (slot-bound-p object-with-slots 'x))
@@ -279,23 +279,23 @@
 (qua:expect 1
             (block b
               (handler-bind ((condition (lambda (c) (return-from b 1))))
-                (signal (make 'condition))
+                (signal (make-instance 'condition))
                 2)))
 
 (qua:expect 2
             (block b
               (handler-bind ((warning (lambda (c) (return-from b 1)))
                              (serious-condition (lambda (c) (return-from b 2))))
-                (signal (make 'error))
+                (signal (make-instance 'error))
                 3)))
 
-(qua:expect #void (signal (make 'condition)))
+(qua:expect #void (signal (make-instance 'condition)))
 
 (qua:expect "foo"
             (block exit
-              (handler-bind ((condition (lambda #ign (invoke-restart (make 'continue)))))
+              (handler-bind ((condition (lambda #ign (invoke-restart (make-instance 'continue)))))
                 (restart-bind ((continue (lambda #ign (return-from exit "foo"))))
-                  (signal (make 'condition))))))
+                  (signal (make-instance 'condition))))))
 
 ;;;; Subclassing
 (qua:assert (subclassp (find-generic-class 'serious-condition) (find-generic-class 'object)))
