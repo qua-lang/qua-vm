@@ -590,8 +590,10 @@
   (let ((val (eval expr env)))
     (block match
       (for-each (lambda ((type-spec . body))
-                  (when (typep val type-spec)
-                    (return-from match (eval (list* #'progn body) env))))
+                  (if (eq type-spec #t)
+                      (return-from match (eval (list* #'progn body) env))
+                    (when (typep val type-spec)
+                      (return-from match (eval (list* #'progn body) env)))))
                 clauses)
       #void)))
 

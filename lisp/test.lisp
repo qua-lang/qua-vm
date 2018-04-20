@@ -316,5 +316,9 @@
 (qua:expect 2 (typecase #t (number 1) (boolean 2)))
 (qua:expect 1 (typecase 10 (number 1) (boolean 2)))
 (qua:expect #void (typecase "foo" (number 1) (boolean 2)))
+
+(qua:expect "default" (typecase 'whatever (#t "default")))
+(qua:expect 1 (typecase 'whatever (symbol 1) (#t "default")))
+(qua:expect "default" (typecase 'whatever (number 1) (#t "default")))
 ;(qua:expect (make-instance 'qua:class-type :name "foo" :generic-parameters '())
 ;            (qua:parse-type-spec 'foo))
