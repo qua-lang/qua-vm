@@ -326,3 +326,5 @@
 
 (qua:expect (make-instance 'qua:class-type :name "foo" :generic-params '())
             (qua:parse-type-spec 'foo))
+(qua:expect (make-instance 'qua:type-variable :name "foo")
+            (qua:parse-type-spec '?foo))
