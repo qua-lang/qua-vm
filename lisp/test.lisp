@@ -155,6 +155,11 @@
 (qua:expect #f (or #f #f #f))
 (qua:expect #t (or #f #f #f #t))
 
+(qua:expect #void (case 12))
+(qua:expect 1 (case 1 (1 1) (2 2) (3 3)))
+(qua:expect 3 (case 3 (1 1) (2 2) (3 3)))
+(qua:expect #void (case 4 (1 1) (2 2) (3 3)))
+
 (qua:expect 1 (call-with-escape (lambda (#ign) 1)))
 (qua:expect 2 (call-with-escape (lambda (escape) 1 (return-from escape 2) 3)))
 (qua:expect #void (call-with-escape (lambda (escape) 1 (return-from escape) 3)))
@@ -324,7 +329,9 @@
 (qua:assert (type-variable-p '?t))
 (qua:assert (not (type-variable-p 't)))
 
-(qua:expect (make-instance 'qua:class-type :name "foo" :generic-params '())
-            (qua:parse-type-spec 'foo))
 (qua:expect (make-instance 'qua:type-variable :name "?foo")
             (qua:parse-type-spec '?foo))
+(qua:expect (make-instance 'qua:class-type :name "foo" :generic-params '())
+            (qua:parse-type-spec 'foo))
+(qua:expect (make-instance 'qua:class-type :name "foo" :generic-params '())
+            (qua:parse-type-spec '(foo)))

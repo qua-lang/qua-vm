@@ -22,7 +22,7 @@ module.exports = function(vm, e) {
         } else {
             var proto = Object.getPrototypeOf(obj);
             if (proto) {
-                return vm.unknown_class_hook(proto);
+                return vm.unknown_class_hook(obj);
             } else {
                 return vm.JSObject;
             }

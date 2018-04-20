@@ -45,6 +45,8 @@
 ;; Optimization bindings:
 (def #'list* #'%%list*) ; Construct list of arguments, with the final argument as tail.
 
+(def #'= #'eq)
+
 ;;;; Basics
 
 (def #'quote (%%vau (op) #ign op)) ; Prevent evaluation of its single operand.
@@ -268,6 +270,15 @@
                       (return-from match (eval (list* #'progn body) env))
                     (when (typep val type-spec)
                       (return-from match (eval (list* #'progn body) env)))))
+                clauses)
+      #void)))
+
+(deffexpr case (expr . clauses) env
+  (let ((val (eval expr env)))
+    (block match
+      (for-each (lambda ((other-val . body))
+                  (when (= val (eval other-val env))
+                    (return-from match (eval (list* #'progn body) env))))
                 clauses)
       #void)))
 
@@ -614,11 +625,13 @@
     (cons
      (let (((class-name . generic-param-specs) type-spec))
        (make-instance 'qua:class-type
-                      :name (symbol-name type-spec)
+                      :name (symbol-name class-name)
                       :generic-params (map-list #'qua:parse-generic-param generic-param-specs))))
     (#t
      (error (make-instance 'simple-error :message "Illegal type-spec")))))
 
 (defun qua:parse-generic-param (gp-spec)
-  
-  )
+  (typecase gp-spec
+    (symbol
+     (let ((type (qua:parse-type-spec gp-spec)))
+       (make-instance 'qua:generic-param :in-type type :out-type type)))))         
