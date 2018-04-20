@@ -37,7 +37,7 @@ function parse_bytecode_array(arr) {
     if ((arr.length == 2) && arr[0] === "wat-string") { return arr[1]; }
     if ((arr.length == 2) && arr[0] === "qua:function") { return vm.fun_sym(arr[1]); }
     if ((arr.length == 2) && arr[0] === "qua:keyword") { return vm.keyword(arr[1]); }
-    if ((arr.length == 2) && arr[0] === "qua:type-variable") { return vm.make_type_var(arr[1]); }
+    if ((arr.length == 2) && arr[0] === "qua:type-variable") { return vm.make_instance("qua:type-variable", { "name": arr[1] }); }
     var i = arr.indexOf(".");
     if (i === -1) return vm.array_to_list(arr.map(parse_bytecode));
     else { var front = arr.slice(0, i);

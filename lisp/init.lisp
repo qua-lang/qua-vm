@@ -608,3 +608,27 @@
   (if (nilp list)
       (make-instance 'qua:function-signature :required-parameters () :result-type #void)
     ))
+
+(defclass type-error (error) ())
+
+(deffexpr etypecase typecase-args env
+  (eval (list* #'typecase typecase-args) env)
+  (error (make 'type-error)))
+
+(defun qua:parse-type-spec (type-spec)
+  (let* ((#'parse-generic-parameters
+          (lambda (gp-spec)
+            
+            ))
+         (#'make-class-type
+          (lambda (name gp-specs)
+            (make-instance 'qua:class-type
+                           :name name
+                           :generics (parse-generic-parameters gp-specs)))))
+    (typecase type-spec
+      (symbol (make-class-type (symbol-name type-spec) ()))
+      (cons (let (((class-name . gp-specs) type-spec))
+              (make-class-type (symbol-name class-name) gp-specs)))
+      (qua:type-variable type-spec)
+      (#t (error (make-instance 'simple-error :message "Illegal type-spec"))))))
+
