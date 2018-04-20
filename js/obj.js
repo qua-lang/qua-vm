@@ -148,7 +148,7 @@ module.exports = function(vm) {
         }
     };
     vm.concrete_class_of_hook = function(obj) { vm.panic("object is missing class: " + obj); };
-    vm.unknown_class_hook = function(obj) { vm.panic("object is missing class: " + obj); };
+    vm.unknown_class_hook = function(obj) { vm.panic("unknown class: " + obj); };
     vm.generic_class_of = function(obj) {
         var ccls = vm.concrete_class_of(obj);
         vm.assert(vm.is_concrete_class(ccls));

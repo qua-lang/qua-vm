@@ -260,6 +260,17 @@
 (defun symbolp (sym) (typep sym 'symbol))
 (defun consp (cons) (typep cons 'cons))
 
+(deffexpr typecase (expr . clauses) env
+  (let ((val (eval expr env)))
+    (block match
+      (for-each (lambda ((type-spec . body))
+                  (if (eq type-spec #t)
+                      (return-from match (eval (list* #'progn body) env))
+                    (when (typep val type-spec)
+                      (return-from match (eval (list* #'progn body) env)))))
+                clauses)
+      #void)))
+
 ;;;; Simple control
 
 (defmacro loop body
@@ -580,55 +591,34 @@
 
 (defclass qua:class-type (qua:type)
   (name
-   generic-parameters))
+   generic-params))
 
-(defclass qua:generic-parameter (standard-object)
+(defclass qua:generic-param (standard-object)
   (in-type
    out-type))
 
-(deffexpr typecase (expr . clauses) env
-  (let ((val (eval expr env)))
-    (block match
-      (for-each (lambda ((type-spec . body))
-                  (if (eq type-spec #t)
-                      (return-from match (eval (list* #'progn body) env))
-                    (when (typep val type-spec)
-                      (return-from match (eval (list* #'progn body) env)))))
-                clauses)
-      #void)))
-
-(defclass qua:function-parameter ()
-  (name
-   type))
-(defclass qua:function-signature ()
-  (required-parameters
-   result-type))
-    
-(defun qua:parse-ordinary-function-signature (list)
-  (if (nilp list)
-      (make-instance 'qua:function-signature :required-parameters () :result-type #void)
-    ))
-
 (defclass type-error (error) ())
 
-(deffexpr etypecase typecase-args env
-  (eval (list* #'typecase typecase-args) env)
-  (error (make 'type-error)))
+(defun type-variable-p (symbol)
+  (eq "?" (js:get (symbol-name symbol) 0)))
 
 (defun qua:parse-type-spec (type-spec)
-  (let* ((#'parse-generic-parameters
-          (lambda (gp-spec)
-            
-            ))
-         (#'make-class-type
-          (lambda (name gp-specs)
-            (make-instance 'qua:class-type
-                           :name name
-                           :generics (parse-generic-parameters gp-specs)))))
-    (typecase type-spec
-      (symbol (make-class-type (symbol-name type-spec) ()))
-      (cons (let (((class-name . gp-specs) type-spec))
-              (make-class-type (symbol-name class-name) gp-specs)))
-      (qua:type-variable type-spec)
-      (#t (error (make-instance 'simple-error :message "Illegal type-spec"))))))
+  (typecase type-spec
+    (symbol
+     (if (type-variable-p type-spec)
+         (make-instance 'qua:type-variable
+                        :name (symbol-name type-spec))
+         (make-instance 'qua:class-type
+                        :name (symbol-name type-spec)
+                        :generic-params '())))
+    (cons
+     (let (((class-name . generic-param-specs) type-spec))
+       (make-instance 'qua:class-type
+                      :name (symbol-name type-spec)
+                      :generic-params (map-list #'qua:parse-generic-param generic-param-specs))))
+    (#t
+     (error (make-instance 'simple-error :message "Illegal type-spec")))))
 
+(defun qua:parse-generic-param (gp-spec)
+  
+  )

@@ -320,5 +320,9 @@
 (qua:expect "default" (typecase 'whatever (#t "default")))
 (qua:expect 1 (typecase 'whatever (symbol 1) (#t "default")))
 (qua:expect "default" (typecase 'whatever (number 1) (#t "default")))
-;(qua:expect (make-instance 'qua:class-type :name "foo" :generic-parameters '())
-;            (qua:parse-type-spec 'foo))
+
+(qua:assert (type-variable-p '?t))
+(qua:assert (not (type-variable-p 't)))
+
+(qua:expect (make-instance 'qua:class-type :name "foo" :generic-params '())
+            (qua:parse-type-spec 'foo))
