@@ -610,6 +610,12 @@
 
 (defclass type-error (error) ())
 
+(defconstant qua:the-top-type
+  (make-instance 'qua:class-type :name "top" :generic-params '()))
+
+(defconstant qua:the-bottom-type
+  (make-instance 'qua:class-type :name "bottom" :generic-params '()))
+
 (defun type-variable-p (symbol)
   (eq "?" (js:get (symbol-name symbol) 0)))
 
@@ -626,12 +632,34 @@
      (let (((class-name . generic-param-specs) type-spec))
        (make-instance 'qua:class-type
                       :name (symbol-name class-name)
-                      :generic-params (map-list #'qua:parse-generic-param generic-param-specs))))
+                      :generic-params (map-list #'qua:parse-generic-param-spec generic-param-specs))))
     (#t
      (error (make-instance 'simple-error :message "Illegal type-spec")))))
 
-(defun qua:parse-generic-param (gp-spec)
+(defun qua:parse-generic-param-spec (gp-spec)
   (typecase gp-spec
     (symbol
      (let ((type (qua:parse-type-spec gp-spec)))
-       (make-instance 'qua:generic-param :in-type type :out-type type)))))         
+       (make-instance 'qua:generic-param :in-type type :out-type type)))
+    (cons
+     (let (((op . rest) gp-spec))
+       (typecase op
+         (keyword
+          (case (symbol-name op)
+            ("io"
+             (let* ((in-type (qua:parse-type-spec (car rest)))
+                    (out-type (qua:parse-type-spec (optional (cdr rest) in-type))))
+               (make-instance 'qua:generic-param :in-type in-type :out-type out-type)))
+            ("in"
+             (let ((in-type (qua:parse-type-spec (car rest))))
+               (make-instance 'qua:generic-param :in-type in-type :out-type qua:the-top-type)))
+            ("out"
+             (let ((out-type (qua:parse-type-spec (car rest))))
+               (make-instance 'qua:generic-param :in-type qua:the-bottom-type :out-type out-type)))))
+         (#t
+          (let ((type (qua:parse-type-spec gp-spec)))
+            (make-instance 'qua:generic-param :in-type type :out-type type))))))))
+
+(defun invoke-debugger (arg)
+  (print arg)
+  (%%raise arg))

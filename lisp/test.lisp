@@ -335,3 +335,24 @@
             (qua:parse-type-spec 'foo))
 (qua:expect (make-instance 'qua:class-type :name "foo" :generic-params '())
             (qua:parse-type-spec '(foo)))
+
+(qua:expect (make-instance 'qua:generic-param
+                           :in-type (qua:parse-type-spec 'number)
+                           :out-type (qua:parse-type-spec 'boolean))
+            (qua:parse-generic-param-spec '(:io number boolean)))
+(qua:expect (make-instance 'qua:generic-param
+                           :in-type (qua:parse-type-spec 'number)
+                           :out-type qua:the-top-type)
+            (qua:parse-generic-param-spec '(:in number)))
+(qua:expect (make-instance 'qua:generic-param
+                           :in-type qua:the-bottom-type
+                           :out-type (qua:parse-type-spec 'number))
+            (qua:parse-generic-param-spec '(:out number)))
+(qua:expect (make-instance 'qua:generic-param
+                           :in-type (qua:parse-type-spec 'number)
+                           :out-type (qua:parse-type-spec 'number))
+            (qua:parse-generic-param-spec 'number))
+(qua:expect (make-instance 'qua:generic-param
+                           :in-type (qua:parse-type-spec '(hash-set number))
+                           :out-type (qua:parse-type-spec '(hash-set number)))
+            (qua:parse-generic-param-spec '(hash-set number)))
