@@ -329,13 +329,6 @@
 (qua:assert (type-variable-p '?t))
 (qua:assert (not (type-variable-p 't)))
 
-(qua:expect (make-instance 'qua:type-variable :name "?foo")
-            (qua:parse-type-spec '?foo))
-(qua:expect (make-instance 'qua:class-type :name "foo" :generic-params '())
-            (qua:parse-type-spec 'foo))
-(qua:expect (make-instance 'qua:class-type :name "foo" :generic-params '())
-            (qua:parse-type-spec '(foo)))
-
 (qua:expect (make-instance 'qua:generic-param
                            :in-type (qua:parse-type-spec 'number)
                            :out-type (qua:parse-type-spec 'boolean))
@@ -356,3 +349,19 @@
                            :in-type (qua:parse-type-spec '(hash-set number))
                            :out-type (qua:parse-type-spec '(hash-set number)))
             (qua:parse-generic-param-spec '(hash-set number)))
+
+(qua:expect (make-instance 'qua:type-variable :name "?foo")
+            (qua:parse-type-spec '?foo))
+(qua:expect (make-instance 'qua:class-type :name "foo" :generic-params '())
+            (qua:parse-type-spec 'foo))
+(qua:expect (make-instance 'qua:class-type :name "foo" :generic-params '())
+            (qua:parse-type-spec '(foo)))
+(qua:expect (make-instance 'qua:class-type
+                           :name "hash-set"
+                           :generic-params
+                           (list 
+                            (make-instance 'qua:generic-param
+                                           :in-type (qua:parse-type-spec 'number)
+                                           :out-type (qua:parse-type-spec 'number))))
+            (qua:parse-type-spec '(hash-set number)))
+
