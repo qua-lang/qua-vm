@@ -310,3 +310,11 @@
 
 (qua:assert (typep (.qs_direct-superclasses (find-generic-class 'object)) 'js:array))
 (qua:assert (typep (.qs_slots (find-generic-class 'object)) 'js:object))
+
+;;;; Types
+(qua:expect #void (typecase #t))
+(qua:expect 2 (typecase #t (number 1) (boolean 2)))
+(qua:expect 1 (typecase 10 (number 1) (boolean 2)))
+(qua:expect #void (typecase "foo" (number 1) (boolean 2)))
+;(qua:expect (make-instance 'qua:class-type :name "foo" :generic-parameters '())
+;            (qua:parse-type-spec 'foo))

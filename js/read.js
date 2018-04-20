@@ -17,6 +17,9 @@ var id_stx = action(join_action(butnot(repeat1(id_char), "."), ""), handle_ident
 var keyword_stx = action(sequence(":", id_stx), function(ast) {
         return ["qua:keyword", ast[1]];
     });
+var type_var_stx = action(sequence("?", id_stx), function(ast) {
+        return ["qua:type-variable", ast[1]];
+    });
 function handle_identifier(str) {
     if ((str[0] === ".") && (str.length > 1)) { return ["js:getter", ["wat-string", str.substring(1)]]; }
     else if (str[0] === "@") { return ["js:invoker", ["wat-string", str.substring(1)]]; }
@@ -63,5 +66,5 @@ var cmt_stx = action(sequence(";", repeat0(negate(line_terminator)), optional(li
 var whitespace_stx = action(choice(" ", "\n", "\r", "\t"), nothing_action);
 function nothing_action(ast) { return null; } // HACK!
 var x_stx = whitespace(choice(ign_stx, void_stx, nil_stx, nil_stx_2, t_stx, f_stx, null_stx, undef_stx, number_stx,
-                              quote_stx, compound_stx, keyword_stx, id_stx, string_stx, cmt_stx));
+                              quote_stx, compound_stx, keyword_stx, type_var_stx, id_stx, string_stx, cmt_stx));
 var program_stx = whitespace(repeat0(choice(x_stx, whitespace_stx))); // HACK!

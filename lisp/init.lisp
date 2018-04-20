@@ -573,15 +573,27 @@
 
 ;;;; Types
 
-(defclass qua:type () ())
+(defclass qua:type (standard-object) ())
+
 (defclass qua:type-variable (qua:type)
   (name))
+
 (defclass qua:class-type (qua:type)
   (name
-   parameters))
-(defclass qua:type-parameter ()
-  (in
-   out))
+   generic-parameters))
+
+(defclass qua:generic-parameter (standard-object)
+  (in-type
+   out-type))
+
+(deffexpr typecase (expr . clauses) env
+  (let ((val (eval expr env)))
+    (block match
+      (for-each (lambda ((type-spec . body))
+                  (when (typep val type-spec)
+                    (return-from match (eval (list* #'progn body) env))))
+                clauses)
+      #void)))
 
 (defclass qua:function-parameter ()
   (name
