@@ -262,13 +262,16 @@
 (defun symbolp (sym) (typep sym 'symbol))
 (defun consp (cons) (typep cons 'cons))
 
-(deffexpr typecase (expr . clauses) env
+;; Want to use TYPECASE to write type system, including TYPEP, but
+;; would run into trouble because of recursion.  So, define version of
+;; TYPECASE that doesn't use TYPEP but SUBCLASSP instead.
+(deffexpr qua:typecase (expr . clauses) env
   (let ((val (eval expr env)))
     (block match
       (for-each (lambda ((type-spec . body))
                   (if (eq type-spec #t)
                       (return-from match (eval (list* #'progn body) env))
-                    (when (typep val type-spec)
+                    (when (subclassp (generic-class-of val) (find-generic-class type-spec))
                       (return-from match (eval (list* #'progn body) env)))))
                 clauses)
       #void)))
@@ -620,7 +623,7 @@
   (eq "?" (js:get (symbol-name symbol) 0)))
 
 (defun qua:parse-type-spec (type-spec)
-  (typecase type-spec
+  (qua:typecase type-spec
     (symbol
      (if (type-variable-p type-spec)
          (make-instance 'qua:type-variable
@@ -637,13 +640,13 @@
      (error (make-instance 'simple-error :message "Illegal type-spec")))))
 
 (defun qua:parse-generic-param-spec (gp-spec)
-  (typecase gp-spec
+  (qua:typecase gp-spec
     (symbol
      (let ((type (qua:parse-type-spec gp-spec)))
        (make-instance 'qua:generic-param :in-type type :out-type type)))
     (cons
      (let (((op . rest) gp-spec))
-       (typecase op
+       (qua:typecase op
          (keyword
           (case (symbol-name op)
             ("io"

@@ -317,14 +317,14 @@
 (qua:assert (typep (.qs_slots (find-generic-class 'object)) 'js:object))
 
 ;;;; Types
-(qua:expect #void (typecase #t))
-(qua:expect 2 (typecase #t (number 1) (boolean 2)))
-(qua:expect 1 (typecase 10 (number 1) (boolean 2)))
-(qua:expect #void (typecase "foo" (number 1) (boolean 2)))
+(qua:expect #void (qua:typecase #t))
+(qua:expect 2 (qua:typecase #t (number 1) (boolean 2)))
+(qua:expect 1 (qua:typecase 10 (number 1) (boolean 2)))
+(qua:expect #void (qua:typecase "foo" (number 1) (boolean 2)))
 
-(qua:expect "default" (typecase 'whatever (#t "default")))
-(qua:expect 1 (typecase 'whatever (symbol 1) (#t "default")))
-(qua:expect "default" (typecase 'whatever (number 1) (#t "default")))
+(qua:expect "default" (qua:typecase 'whatever (#t "default")))
+(qua:expect 1 (qua:typecase 'whatever (symbol 1) (#t "default")))
+(qua:expect "default" (qua:typecase 'whatever (number 1) (#t "default")))
 
 (qua:assert (type-variable-p '?t))
 (qua:assert (not (type-variable-p 't)))
