@@ -131,6 +131,9 @@
 (def #'cdar (compose #'cdr #'car))
 (def #'cddr (compose #'cdr #'cdr))
 
+(defun symbolp (sym) (%%typep sym 'symbol))
+(defun consp (cons) (%%typep cons 'cons))
+
 (defun symbol-name (sym) (slot-value sym 'name))
 
 ; Produce a new list by applying a function to each element of a list.
@@ -255,20 +258,6 @@
 (defgeneric hash-object (self))
 (defgeneric compare-object (self))
 (defgeneric print-object (self stream))
-
-(defun symbolp (sym) (typep sym 'symbol))
-(defun consp (cons) (typep cons 'cons))
-
-(deffexpr typecase (expr . clauses) env
-  (let ((val (eval expr env)))
-    (block match
-      (for-each (lambda ((type-spec . body))
-                  (if (eq type-spec #t)
-                      (return-from match (eval (list* #'progn body) env))
-                    (when (typep val type-spec)
-                      (return-from match (eval (list* #'progn body) env)))))
-                clauses)
-      #void)))
 
 ;;;; Simple control
 
@@ -589,3 +578,16 @@
 
 (defmethod call-condition-handler ((restart restart) handler handler-frame)
   (handle-condition handler restart))
+
+;;;; Types
+
+(deffexpr typecase (expr . clauses) env
+  (let ((val (eval expr env)))
+    (block match
+      (for-each (lambda ((type-spec . body))
+                  (if (eq type-spec #t)
+                      (return-from match (eval (list* #'progn body) env))
+                    (when (typep val type-spec)
+                      (return-from match (eval (list* #'progn body) env)))))
+                clauses)
+      #void)))
