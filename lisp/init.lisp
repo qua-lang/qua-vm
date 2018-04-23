@@ -598,19 +598,6 @@
 
 ;;;; Types
 
-(defclass qua:type (standard-object) ())
-
-(defclass qua:type-variable (qua:type)
-  (name))
-
-(defclass qua:class-type (qua:type)
-  (name
-   generic-params))
-
-(defclass qua:generic-param (standard-object)
-  (in-type
-   out-type))
-
 (defclass type-error (error) ())
 
 (defconstant qua:the-top-type
