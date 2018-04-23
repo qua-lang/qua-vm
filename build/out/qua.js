@@ -408,7 +408,7 @@ module.exports = function(vm) {
         return obj;
     };
     vm.initialize_instance = function(obj, initargs) {
-        var initargs_dict = vm.designate_dict(initargs);
+        var initargs_dict = vm.assert_type(initargs, "object");
         for (name in initargs_dict) {
             var value = initargs_dict[name];
             vm.set_slot_value(obj, name, value);
@@ -428,24 +428,6 @@ module.exports = function(vm) {
         var ccls = vm.concrete_class_of(obj);
         vm.assert(vm.is_concrete_class(ccls));
         return ccls["qs_generic-class"];
-    };
-    vm.designate_dict = function(dict_des) {
-        if (vm.is_list(dict_des)) {
-            return vm.plist_to_dict(dict_des);
-        } else {
-            vm.assert_type(dict_des, "object");
-            return dict_des;
-        }
-    };
-    vm.plist_to_dict = function(plist) {
-        var arr = vm.list_to_array(plist);
-        var dict = Object.create(null);
-        for (var i = 0; i < arr.length; i = i + 2) {
-            var indicator = vm.designate_string(arr[i]);
-            var property = arr[i + 1];
-            dict[indicator] = property;
-        }
-        return dict;
     };
     // Instanceof does not work for properly for the CONCRETE-CLASS
     // and GENERIC-CLASS classes themselves, so we need these crutches
