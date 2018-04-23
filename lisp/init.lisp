@@ -259,9 +259,6 @@
 (defun symbolp (sym) (typep sym 'symbol))
 (defun consp (cons) (typep cons 'cons))
 
-;; Want to use TYPECASE to write type system, including TYPEP, but
-;; would run into trouble because of recursion.  So, define version of
-;; TYPECASE that doesn't use TYPEP but SUBCLASSP instead.
 (deffexpr typecase (expr . clauses) env
   (let ((val (eval expr env)))
     (block match
@@ -270,15 +267,6 @@
                       (return-from match (eval (list* #'progn body) env))
                     (when (typep val type-spec)
                       (return-from match (eval (list* #'progn body) env)))))
-                clauses)
-      #void)))
-
-(deffexpr case (expr . clauses) env
-  (let ((val (eval expr env)))
-    (block match
-      (for-each (lambda ((other-val . body))
-                  (when (= val (eval other-val env))
-                    (return-from match (eval (list* #'progn body) env))))
                 clauses)
       #void)))
 
@@ -335,6 +323,15 @@
   (list #'unwind-protect*
         (list #'lambda () protected-form)
         (list* #'lambda () cleanup-forms)))
+
+(deffexpr case (expr . clauses) env
+  (let ((val (eval expr env)))
+    (block match
+      (for-each (lambda ((other-val . body))
+                  (when (= val (eval other-val env))
+                    (return-from match (eval (list* #'progn body) env))))
+                clauses)
+      #void)))
 
 ;;;; Reference cells
 
