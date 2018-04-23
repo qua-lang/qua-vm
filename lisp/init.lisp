@@ -256,8 +256,8 @@
 (defgeneric compare-object (self))
 (defgeneric print-object (self stream))
 
-(defun typep (obj class-spec)
-  (subclassp (generic-class-of obj) (find-generic-class class-spec)))
+(defun typep (obj type-spec)
+  (%%typep obj type-spec))
 
 (defun symbolp (sym) (typep sym 'symbol))
 (defun consp (cons) (typep cons 'cons))
@@ -595,61 +595,3 @@
 
 (defmethod call-condition-handler ((restart restart) handler handler-frame)
   (handle-condition handler restart))
-
-;;;; Types
-
-(defclass type-error (error) ())
-
-(defconstant qua:the-top-type
-  (make-instance 'qua:class-type :name "top" :generic-params '()))
-
-(defconstant qua:the-bottom-type
-  (make-instance 'qua:class-type :name "bottom" :generic-params '()))
-
-(defun type-variable-p (symbol)
-  (eq "?" (js:get (symbol-name symbol) 0)))
-
-(defun qua:parse-type-spec (type-spec)
-  (qua:typecase type-spec
-    (symbol
-     (if (type-variable-p type-spec)
-         (make-instance 'qua:type-variable
-                        :name (symbol-name type-spec))
-         (make-instance 'qua:class-type
-                        :name (symbol-name type-spec)
-                        :generic-params '())))
-    (cons
-     (let (((class-name . generic-param-specs) type-spec))
-       (make-instance 'qua:class-type
-                      :name (symbol-name class-name)
-                      :generic-params (map-list #'qua:parse-generic-param-spec generic-param-specs))))
-    (#t
-     (error (make-instance 'simple-error :message "Illegal type-spec")))))
-
-(defun qua:parse-generic-param-spec (gp-spec)
-  (qua:typecase gp-spec
-    (symbol
-     (let ((type (qua:parse-type-spec gp-spec)))
-       (make-instance 'qua:generic-param :in-type type :out-type type)))
-    (cons
-     (let (((op . rest) gp-spec))
-       (qua:typecase op
-         (keyword
-          (case (symbol-name op)
-            ("io"
-             (let* ((in-type (qua:parse-type-spec (car rest)))
-                    (out-type (qua:parse-type-spec (optional (cdr rest) in-type))))
-               (make-instance 'qua:generic-param :in-type in-type :out-type out-type)))
-            ("in"
-             (let ((in-type (qua:parse-type-spec (car rest))))
-               (make-instance 'qua:generic-param :in-type in-type :out-type qua:the-top-type)))
-            ("out"
-             (let ((out-type (qua:parse-type-spec (car rest))))
-               (make-instance 'qua:generic-param :in-type qua:the-bottom-type :out-type out-type)))))
-         (#t
-          (let ((type (qua:parse-type-spec gp-spec)))
-            (make-instance 'qua:generic-param :in-type type :out-type type))))))))
-
-(defun invoke-debugger (arg)
-  (print arg)
-  (%%raise arg))
