@@ -456,32 +456,6 @@ module.exports = function(vm) {
     vm.is_generic_class = function(obj) {
         return obj && (obj.qua_isa === vm.GenericClass);
     };
-    vm.subclassp = function(generic_class, other_class) {
-        vm.assert(vm.is_generic_class(generic_class));
-        vm.assert(vm.is_generic_class(other_class));
-        if (generic_class === other_class) {
-            return true;
-        } else {
-            var tag = {};
-            var superclass_names = generic_class["qs_direct-superclasses"];
-            try {
-                superclass_names.forEach(function(superclass_name) {
-                        var superclass = vm.GENERIC_CLASSES[vm.generic_class_key(superclass_name)];
-                        vm.assert(vm.is_generic_class(superclass));
-                        if (vm.subclassp(superclass, other_class)) {
-                            throw tag;
-                        }
-                    });
-            } catch(exc) {
-                if (exc === tag) {
-                    return true;
-                } else {
-                    throw exc;
-                }
-            }
-            return false;
-        }
-    };
     /* Methods */
     vm.put_method = function(generic_class, name, combiner) {
         vm.assert(vm.is_generic_class(generic_class));
@@ -670,7 +644,7 @@ module.exports = function(vm) {
     vm.typep = function(obj, type_designator) {
         var gcls = vm.generic_class_of(obj);
         var type = vm.designate_type(type_designator);
-        return vm.subclassp(gcls, type);
+        return vm.generic_subclassp(gcls, type);
     };
     vm.designate_type = function(type_designator) {
         if (type_designator instanceof vm.Type) {
@@ -684,6 +658,32 @@ module.exports = function(vm) {
             return vm.find_generic_class(type_designator);
         } else {
             return vm.error("Illegal type designator: " + type_designator);
+        }
+    };
+    vm.generic_subclassp = function(generic_class, other_class) {
+        vm.assert(vm.is_generic_class(generic_class));
+        vm.assert(vm.is_generic_class(other_class));
+        if (generic_class === other_class) {
+            return true;
+        } else {
+            var tag = {};
+            var superclass_names = generic_class["qs_direct-superclasses"];
+            try {
+                superclass_names.forEach(function(superclass_name) {
+                        var superclass = vm.GENERIC_CLASSES[vm.generic_class_key(superclass_name)];
+                        vm.assert(vm.is_generic_class(superclass));
+                        if (vm.generic_subclassp(superclass, other_class)) {
+                            throw tag;
+                        }
+                    });
+            } catch(exc) {
+                if (exc === tag) {
+                    return true;
+                } else {
+                    throw exc;
+                }
+            }
+            return false;
         }
     };
 };
