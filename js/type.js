@@ -2,17 +2,19 @@
 module.exports = function(vm) {
     vm.Type = vm.defclass("qua:type", ["standard-object"], {});
     vm.TypeVar = vm.defclass("qua:type-variable", ["qua:type"], { "name": {} });
-    vm.TypeVar.prototype = Object.create(vm.TypeVar.prototype);
+    vm.TypeVar.prototype = Object.create(vm.Type.prototype);
     vm.ClassType = vm.defclass("qua:class-type", ["qua:type"], { "name": {}, "generic-params": {} });
-    vm.ClassType.prototype = Object.create(vm.ClassType.prototype);
+    vm.ClassType.prototype = Object.create(vm.Type.prototype);
     vm.GenericParam = vm.defclass("qua:generic-param", ["standard-object"], { "in-type": {}, "out-type": {} });
     vm.typep = function(obj, type_designator) {
         var gcls = vm.generic_class_of(obj);
-        var type = vm.designate_type(type_designator);
-        return vm.generic_subclassp(gcls, type);
+        var class_type = vm.designate_type(type_designator);
+        vm.assert_type(class_type, vm.ClassType);
+        var other_gcls = vm.find_generic_class(vm.slot_value(class_type, "name"));
+        return vm.generic_subclassp(gcls, other_gcls);
     };
     vm.designate_type = function(type_designator) {
-        if (type_designator instanceof vm.Type) {
+        if (type_designator instanceof vm.ClassType) {
             return type_designator;
         } else {
             return vm.parse_type_spec(type_designator);
@@ -20,9 +22,9 @@ module.exports = function(vm) {
     };
     vm.parse_type_spec = function(type_designator) {
         if (type_designator instanceof vm.Sym) {
-            return vm.find_generic_class(type_designator);
+            return vm.make_instance(vm.ClassType, { "name": vm.sym_name(type_designator) });
         } else {
-            return vm.error("Illegal type designator: " + type_designator);
+            return vm.error("Illegal type designator: " + JSON.stringify(type_designator));
         }
     };
     vm.generic_subclassp = function(generic_class, other_class) {

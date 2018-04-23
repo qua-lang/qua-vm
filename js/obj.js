@@ -117,7 +117,7 @@ module.exports = function(vm) {
     vm.Combiner = vm.defclass("combiner", ["standard-object"]);
     vm.Fexpr = vm.defclass("fexpr", ["combiner"]);
     vm.Function = vm.defclass("function", ["combiner"]);
-    vm.Number = vm.defclass("number", ["object"]);;
+    vm.Number = vm.defclass("number", ["object"]);
     vm.String = vm.defclass("string", ["object"]);
     vm.Boolean = vm.defclass("boolean", ["object"]);
     /* Objects */

@@ -581,6 +581,14 @@
 
 ;;;; Types
 
+(defun qua:parse-type-spec (type-spec)
+  (if (symbolp type-spec)
+      (make-instance 'qua:class-type :name (symbol-name type-spec) :generic-params '())
+      (error)))
+
+(defun typep (obj type-spec)
+  (%%typep obj (qua:parse-type-spec type-spec)))
+
 (deffexpr typecase (expr . clauses) env
   (let ((val (eval expr env)))
     (block match
