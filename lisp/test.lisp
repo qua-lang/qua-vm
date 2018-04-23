@@ -303,10 +303,10 @@
                   (signal (make-instance 'condition))))))
 
 ;;;; Subclassing
-(qua:assert (subclassp (find-generic-class 'serious-condition) (find-generic-class 'object)))
-(qua:assert (subclassp (find-generic-class 'error) (find-generic-class 'serious-condition)))
-(qua:assert (subclassp (find-generic-class 'error) (find-generic-class 'object)))
-(qua:assert (not (subclassp (find-generic-class 'object) (find-generic-class 'error))))
+(qua:assert (typep (make-instance 'serious-condition) 'object))
+(qua:assert (typep (make-instance 'error) 'serious-condition))
+(qua:assert (typep (make-instance 'error) 'object))
+(qua:assert (not (typep (make-instance 'object) 'error)))
 
 (qua:assert (typep 12 'js:number))
 (qua:assert (typep 12 'number))
@@ -317,11 +317,11 @@
 (qua:assert (typep (.qs_slots (find-generic-class 'object)) 'js:object))
 
 ;;;; Types
-(qua:expect #void (qua:typecase #t))
-(qua:expect 2 (qua:typecase #t (number 1) (boolean 2)))
-(qua:expect 1 (qua:typecase 10 (number 1) (boolean 2)))
-(qua:expect #void (qua:typecase "foo" (number 1) (boolean 2)))
+(qua:expect #void (typecase #t))
+(qua:expect 2 (typecase #t (number 1) (boolean 2)))
+(qua:expect 1 (typecase 10 (number 1) (boolean 2)))
+(qua:expect #void (typecase "foo" (number 1) (boolean 2)))
 
-(qua:expect "default" (qua:typecase 'whatever (#t "default")))
-(qua:expect 1 (qua:typecase 'whatever (symbol 1) (#t "default")))
-(qua:expect "default" (qua:typecase 'whatever (number 1) (#t "default")))
+(qua:expect "default" (typecase 'whatever (#t "default")))
+(qua:expect 1 (typecase 'whatever (symbol 1) (#t "default")))
+(qua:expect "default" (typecase 'whatever (number 1) (#t "default")))

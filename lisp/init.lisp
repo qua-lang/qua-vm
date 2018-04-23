@@ -32,7 +32,7 @@
 (def #'set-slot-value #'%%set-slot-value)
 (def #'slot-bound-p #'%%slot-bound-p)
 (def #'slot-value #'%%slot-value)
-(def #'subclassp #'%%subclassp)
+(def #'typep #'%%typep)
 ;; JS:
 (def #'js:apply #'%%js:apply)
 (def #'js:get #'%%js:get)
@@ -256,22 +256,19 @@
 (defgeneric compare-object (self))
 (defgeneric print-object (self stream))
 
-(defun typep (obj type-spec)
-  (%%typep obj type-spec))
-
 (defun symbolp (sym) (typep sym 'symbol))
 (defun consp (cons) (typep cons 'cons))
 
 ;; Want to use TYPECASE to write type system, including TYPEP, but
 ;; would run into trouble because of recursion.  So, define version of
 ;; TYPECASE that doesn't use TYPEP but SUBCLASSP instead.
-(deffexpr qua:typecase (expr . clauses) env
+(deffexpr typecase (expr . clauses) env
   (let ((val (eval expr env)))
     (block match
       (for-each (lambda ((type-spec . body))
                   (if (eq type-spec #t)
                       (return-from match (eval (list* #'progn body) env))
-                    (when (subclassp (generic-class-of val) (find-generic-class type-spec))
+                    (when (typep val type-spec)
                       (return-from match (eval (list* #'progn body) env)))))
                 clauses)
       #void)))
