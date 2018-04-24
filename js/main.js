@@ -1,7 +1,7 @@
 var vm = require("./vm");
 var parser = require("./read");
 var init_bytecode = require("../build/out/init.js").main;
-var test_bytecode = require("../build/out/test.js").main;
+//var test_bytecode = require("../build/out/test.js").main;
 
 var e = vm.make_env();
 require("./lisp-2")(vm, e);
@@ -13,12 +13,12 @@ require("./test")(vm, e);
 vm.init(e);
 vm.time("run initialization",
         function() { vm.eval(parse_bytecode([vm.sym("%%progn")].concat(init_bytecode)), e); });
-vm.time("run tests",
-        function() { vm.eval(parse_bytecode([vm.sym("%%progn")].concat(test_bytecode)), e) });
+//vm.time("run tests",
+        //        function() { vm.eval(parse_bytecode([vm.sym("%%progn")].concat(test_bytecode)), e) });
 
 module.exports.vm = function() {
     return {
-        "eval": function(str) { return vm.eval(parser.parse_sexp(str), e); }
+        "eval": function(str) { return vm.eval(parse_bytecode([vm.sym("%%progn")].concat(parser.parse_sexp(str))), e); }
     };
 };
 

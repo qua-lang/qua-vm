@@ -1,5 +1,10 @@
 // Native JS support
 module.exports = function(vm, e) {
+    vm.original_combine = vm.combine;
+    vm.combine = function(m, e, cmb, o) {
+        if (cmb instanceof Function) return vm.combine(m, e, vm.jswrap(cmb), o);
+        else return vm.original_combine(m, e, cmb, o);
+    };
     vm.JSObject = vm.defclass("js:object", ["object"], {});
     vm.JSArray = vm.defclass("js:array", ["js:object"], {});
     vm.JSFunction = vm.defclass("js:function", ["js:object"], {});
