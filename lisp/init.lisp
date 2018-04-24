@@ -141,9 +141,14 @@
 (defun map-list (#'fun list)
   (if (nilp list)
       #nil
-    (cons (fun (car list)) (map-list #'fun (cdr list)))))
+      (cons (fun (car list)) (map-list #'fun (cdr list)))))
 
 (def #'for-each #'map-list)
+
+(defun fold-list (#'fun init list)
+  (if (nilp list)
+      init
+      (fold-list #'fun (fun init (car list)) (cdr list))))
 
 ;;;; Lexical bindings
 
@@ -434,6 +439,15 @@
 (defun js:object plist (js:plist-to-object plist))
 
 (defun js:array elements (js:list-to-array elements))
+
+(defun js:negative-op (#'binop unit)
+  (lambda (arg1 . rest)
+    (if (nilp rest)
+        (binop unit arg1)
+        (fold-list #'binop arg1 rest))))
+
+(def #'- (js:negative-op (%%js:binop "-") 0))
+(def #'/ (js:negative-op (%%js:binop "/") 1))
 
 ;;;; Conditions
 

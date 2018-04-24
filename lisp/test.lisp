@@ -277,6 +277,12 @@
 ;;;; JS arrays
 (qua:expect 2 (js:get (js:array 1 2 3) 1))
 
+;;;; JS relation ops
+(qua:expect -4 (- 4))
+(qua:expect 4 (- 8 2 2))
+
+(qua:expect 1 (/ 12 4 3))
+
 ;;;; Conditions
 
 (qua:expect #void (handler-bind ()))
@@ -373,3 +379,4 @@
                                            :in-type (qua:parse-type-spec 'number)
                                            :out-type qua:the-top-type)))
             (qua:parse-type-spec '(hash-set (:in number))))
+
