@@ -6,12 +6,13 @@ require("./type")(vm);
 vm.evaluate = function(m, e, x) {
     if (x && x.qua_evaluate) return x.qua_evaluate(x, m, e); else return x;
 };
-vm.Sym = vm.defclass("symbol", ["standard-object"], { "name": {}, "ns": {} });
+vm.THE_CLASS_SYM = vm.defclass("symbol", ["standard-object"], { "name": {}, "ns": {} });
+vm.Sym = function Sym(name, ns) { this.qs_name = name; this.qs_ns = ns; };
 vm.Sym.prototype.qua_evaluate = function(self, m, e) {
     return vm.lookup(e, self);
 };
 vm.THE_CLASS_CONS = vm.defclass("cons", ["standard-object"], { "car": {}, "cdr": {} });
-vm.Cons = function Cons(car, cdr) { this.qs_car = car; this.qs_cdr = cdr; }
+vm.Cons = function Cons(car, cdr) { this.qs_car = car; this.qs_cdr = cdr; };
 vm.Cons.prototype.qua_evaluate = function(self, m, e) {
     return vm.monadic(m,
                       function() { return vm.eval_operator(e, vm.car(self)); },
@@ -104,17 +105,16 @@ vm.JSFun.prototype.qua_combine = function(self, m, e, o) {
 vm.jswrap = function(jsfun) { return vm.wrap(new vm.JSFun(jsfun)); };
 /* Forms */
 vm.VAR_NS = "v";
-vm.sym = function(name, ns) {
-    return vm.make_instance(vm.Sym, { name: name, ns: ns ? ns : vm.VAR_NS });
-};
+vm.sym = function(name, ns) { var s = new vm.Sym(name, ns ? ns : vm.VAR_NS); s.qua_isa = vm.THE_CLASS_SYM; return s; };
 vm.sym_key = function(sym) { return sym.qs_name + "_" + sym.qs_ns; };
 vm.sym_name = function(sym) { return vm.assert_type(sym, vm.Sym).qs_name; };
 vm.cons = function cons(car, cdr) { var c = new vm.Cons(car, cdr); c.qua_isa = vm.THE_CLASS_CONS; return c; }
 vm.car = function(cons) { return vm.assert_type(cons, vm.Cons).qs_car; };
 vm.cdr = function(cons) { return vm.assert_type(cons, vm.Cons).qs_cdr; };
 vm.elt = function(cons, i) { return (i === 0) ? vm.car(cons) : vm.elt(vm.cdr(cons), i - 1); };
-vm.Keyword = vm.defclass("keyword", ["standard-object"], { "name": {} });
-vm.keyword = function(name) { return vm.make_instance(vm.Keyword, { name: name }); };
+vm.THE_CLASS_KEYWORD = vm.defclass("keyword", ["standard-object"], { "name": {} });
+vm.Keyword = function Keyword(name) { this.qs_name = name; }
+vm.keyword = function(name) { var k = new vm.Keyword(name); k.qua_isa = vm.THE_CLASS_KEYWORD; return k; };
 vm.Nil = function Nil() {}; vm.NIL = new vm.Nil();
 vm.is_nil = function(obj) { return obj === vm.NIL; };
 vm.Ign = function Ign() {}; vm.IGN = new vm.Ign();
