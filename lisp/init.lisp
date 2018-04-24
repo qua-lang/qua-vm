@@ -35,15 +35,16 @@
 (def #'typep #'%%typep)
 ;; JS:
 (def #'js:apply #'%%js:apply)
+(def #'js:function #'%%js:function)
 (def #'js:get #'%%js:get)
 (def #'js:global #'%%js:global)
-(def #'js:list-to-array #'%%list-to-array)
 (def #'js:set #'%%js:set)
 ;; Use the QUA package for stuff that's not expected to be called by
 ;; the user or that doesn't have a final API yet.
 (def #'qua:to-fun-sym #'%%to-fun-sym) ; Turn any symbol into a function namespaced one.
 ;; Optimization bindings:
 (def #'list* #'%%list*) ; Construct list of arguments, with the final argument as tail.
+(def #'js:list-to-array #'%%list-to-array)
 
 (def #'= #'eq)
 
@@ -274,10 +275,10 @@
   (list #'%%if test then else))
 
 (defmacro when (test . body)
-  (list #'if test (list #'progn body) #void))
+  (list #'if test (list* #'progn body) #void))
 
 (defmacro unless (test . body)
-  (list #'if test #void (list #'progn body)))
+  (list #'if test #void (list* #'progn body)))
 
 (defun call-with-escape (#'fun)
   (let* ((tag (list 'tag))

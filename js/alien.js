@@ -1,10 +1,16 @@
 // Native JS support
 module.exports = function(vm, e) {
+    // Make all JS functions callable as Lisp combiners
     vm.original_combine = vm.combine;
     vm.combine = function(m, e, cmb, o) {
         if (cmb instanceof Function) return vm.combine(m, e, vm.jswrap(cmb), o);
         else return vm.original_combine(m, e, cmb, o);
     };
+    // Makes a Lisp function callable from JS
+    vm.js_function = function(cmb) {
+        return function() {
+            var args = vm.array_to_list(Array.prototype.slice.call(arguments));
+            return vm.combine(null, null, cmb, args); } };
     vm.JSObject = vm.defclass("js:object", ["object"], {});
     vm.JSArray = vm.defclass("js:array", ["js:object"], {});
     vm.JSFunction = vm.defclass("js:function", ["js:object"], {});
@@ -35,10 +41,11 @@ module.exports = function(vm, e) {
         }
     };
     vm.JSGlobal = vm.jswrap(function(name) { return global[name]; }); // from Browserify
-    vm.binop = function(op) { return vm.jswrap(new Function("a", "b", "return (a " + op + " b)")); };
+    vm.js_binop = function(op) { return vm.jswrap(new Function("a", "b", "return (a " + op + " b)")); };
     vm.defun(e, vm.sym("%%js:apply"), vm.jswrap(function(fun, self, args) { return fun.apply(self, args); }));
+    vm.defun(e, vm.sym("%%js:binop"), vm.jswrap(vm.js_binop));
+    vm.defun(e, vm.sym("%%js:function"), vm.jswrap(vm.js_function));
     vm.defun(e, vm.sym("%%js:get"), vm.jswrap(function(obj, name) { return obj[name]; }));
     vm.defun(e, vm.sym("%%js:global"), vm.JSGlobal);
     vm.defun(e, vm.sym("%%js:set"), vm.jswrap(function(obj, name, val) { return obj[name] = val; }));
-    vm.defun(e, vm.sym("%%js:binop"), vm.jswrap(vm.binop));
 };
