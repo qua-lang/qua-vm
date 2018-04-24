@@ -119,8 +119,8 @@
 (defun funcall (fun . args)
   (apply fun args))
 
-(defun compose (f g)
-  (lambda (arg) (funcall f (funcall g arg))))
+(defun compose (#'f #'g)
+  (lambda (arg) (f (g arg))))
 
 ;;;; Forms
 

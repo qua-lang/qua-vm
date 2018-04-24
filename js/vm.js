@@ -10,7 +10,8 @@ vm.Sym = vm.defclass("symbol", ["standard-object"], { "name": {}, "ns": {} });
 vm.Sym.prototype.qua_evaluate = function(self, m, e) {
     return vm.lookup(e, self);
 };
-vm.Cons = vm.defclass("cons", ["standard-object"], { "car": {}, "cdr": {} });
+vm.THE_CLASS_CONS = vm.defclass("cons", ["standard-object"], { "car": {}, "cdr": {} });
+vm.Cons = function Cons(car, cdr) { this.qs_car = car; this.qs_cdr = cdr; }
 vm.Cons.prototype.qua_evaluate = function(self, m, e) {
     return vm.monadic(m,
                       function() { return vm.eval_operator(e, vm.car(self)); },
@@ -108,7 +109,7 @@ vm.sym = function(name, ns) {
 };
 vm.sym_key = function(sym) { return sym.qs_name + "_" + sym.qs_ns; };
 vm.sym_name = function(sym) { return vm.assert_type(sym, vm.Sym).qs_name; };
-vm.cons = function(car, cdr) { return vm.make_instance(vm.Cons, { car: car, cdr: cdr }); };
+vm.cons = function cons(car, cdr) { var c = new vm.Cons(car, cdr); c.qua_isa = vm.THE_CLASS_CONS; return c; }
 vm.car = function(cons) { return vm.assert_type(cons, vm.Cons).qs_car; };
 vm.cdr = function(cons) { return vm.assert_type(cons, vm.Cons).qs_cdr; };
 vm.elt = function(cons, i) { return (i === 0) ? vm.car(cons) : vm.elt(vm.cdr(cons), i - 1); };
