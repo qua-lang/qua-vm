@@ -240,8 +240,10 @@ require("./print")(vm, e);
 require("./optim")(vm, e);
 require("./test")(vm, e);
 vm.init(e);
-vm.eval(parse_bytecode([vm.sym("%%progn")].concat(init_bytecode)), e);
-vm.eval(parse_bytecode([vm.sym("%%progn")].concat(test_bytecode)), e);
+vm.time("run initialization",
+        function() { vm.eval(parse_bytecode([vm.sym("%%progn")].concat(init_bytecode)), e); });
+vm.time("run tests",
+        function() { vm.eval(parse_bytecode([vm.sym("%%progn")].concat(test_bytecode)), e) });
 
 module.exports.vm = function() {
     return {
@@ -694,6 +696,13 @@ module.exports = function(vm) {
     vm.assert = function(x) { if (!x) vm.panic("assertion failed"); };
     vm.error = function(err) { throw new Error(err); };
     vm.panic = vm.error;
+    vm.time = function(name, fun) {
+        var start = new Date().getTime();
+        fun();
+        var end = new Date().getTime();
+        var time = end - start;
+        console.log(name + ": "  + time + "ms");
+    };
 };
 
 },{}],14:[function(require,module,exports){

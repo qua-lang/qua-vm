@@ -19,4 +19,11 @@ module.exports = function(vm) {
     vm.assert = function(x) { if (!x) vm.panic("assertion failed"); };
     vm.error = function(err) { throw new Error(err); };
     vm.panic = vm.error;
+    vm.time = function(name, fun) {
+        var start = new Date().getTime();
+        fun();
+        var end = new Date().getTime();
+        var time = end - start;
+        console.log(name + ": "  + time + "ms");
+    };
 };
