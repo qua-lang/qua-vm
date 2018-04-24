@@ -440,6 +440,13 @@
 
 (defun js:array elements (js:list-to-array elements))
 
+;; Can't simply use 0 as unit or it won't work with strings
+(def #'+ (let ((#'binop (%%js:binop "+")))
+           (lambda args
+             (if (nilp args)
+                 0
+                 (fold-list #'binop (car args) (cdr args))))))
+
 (defun js:negative-op (#'binop unit)
   (lambda (arg1 . rest)
     (if (nilp rest)

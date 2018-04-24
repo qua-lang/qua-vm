@@ -277,7 +277,10 @@
 ;;;; JS arrays
 (qua:expect 2 (js:get (js:array 1 2 3) 1))
 
-;;;; JS relation ops
+;;;; JS binops
+(qua:expect "foobar" (+ "foo" "ba" "r"))
+(qua:expect 6 (+ 2 2 2))
+
 (qua:expect -4 (- 4))
 (qua:expect 4 (- 8 2 2))
 
