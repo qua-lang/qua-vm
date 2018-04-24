@@ -42,10 +42,14 @@ module.exports = function(vm, e) {
     };
     vm.JSGlobal = vm.jswrap(function(name) { return global[name]; }); // from Browserify
     vm.js_binop = function(op) { return vm.jswrap(new Function("a", "b", "return (a " + op + " b)")); };
+    vm.js_new = function(ctor) {
+        var factoryFunction = ctor.bind.apply(ctor, arguments);
+        return new factoryFunction(); }
     vm.defun(e, vm.sym("%%js:apply"), vm.jswrap(function(fun, self, args) { return fun.apply(self, args); }));
     vm.defun(e, vm.sym("%%js:binop"), vm.jswrap(vm.js_binop));
     vm.defun(e, vm.sym("%%js:function"), vm.jswrap(vm.js_function));
     vm.defun(e, vm.sym("%%js:get"), vm.jswrap(function(obj, name) { return obj[name]; }));
     vm.defun(e, vm.sym("%%js:global"), vm.JSGlobal);
+    vm.defun(e, vm.sym("%%js:new"), vm.js_new);
     vm.defun(e, vm.sym("%%js:set"), vm.jswrap(function(obj, name, val) { return obj[name] = val; }));
 };

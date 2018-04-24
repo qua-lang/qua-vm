@@ -38,6 +38,7 @@
 (def #'js:function #'%%js:function)
 (def #'js:get #'%%js:get)
 (def #'js:global #'%%js:global)
+(def #'js:new #'%%js:new)
 (def #'js:set #'%%js:set)
 ;; Use the QUA package for stuff that's not expected to be called by
 ;; the user or that doesn't have a final API yet.
