@@ -236,6 +236,10 @@
                   getter-form)))
     (list* (list #'setter getter) new-val args)))
 
+(defmacro incf (place . opt-increment)
+  (let ((increment (optional opt-increment 1)))
+    (list #'setf place (list #'+ place increment))))
+
 ;;;; Objects and classes
 
 (defun make-instance (class-desig . initargs)
