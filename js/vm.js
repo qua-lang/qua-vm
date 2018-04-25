@@ -65,7 +65,16 @@ vm.Def = {
         var rhs = vm.elt(o, 1);
         return vm.monadic(m,
                           function() { return vm.evaluate(null, e, rhs); },
-                          function(val) { return vm.bind(e, lhs, val); });
+                          function(val) { return vm.bind(e, lhs, val, vm.do_def); });
+    }
+};
+vm.Setq = {
+    qua_combine: function (self, m, e, o) {
+        var lhs = vm.elt(o, 0);
+        var rhs = vm.elt(o, 1);
+        return vm.monadic(m,
+                          function() { return vm.evaluate(null, e, rhs); },
+                          function(val) { return vm.bind(e, lhs, val, vm.do_setq); });
     }
 };
 vm.Eval = vm.wrap({
@@ -122,6 +131,7 @@ vm.Void = function Void() {}; vm.VOID = new vm.Void();
 /* Environments */
 vm.Env = function(parent) {
     this.bindings = Object.create(parent ? parent.bindings : null);
+    this.parent = parent;
 };
 vm.lookup = function(e, sym) {
     vm.assert_type(e, vm.Env);
@@ -130,28 +140,41 @@ vm.lookup = function(e, sym) {
     if (key in e.bindings) return e.bindings[key];
     else return vm.error("unbound: " + sym.qs_name + " (" + sym.qs_ns + ")");
 };
-vm.bind = function(e, lhs, rhs) {
+vm.bind = function(e, lhs, rhs, doit) {
     vm.assert_type(e, vm.Env);
-    if (lhs.qua_bind) return lhs.qua_bind(lhs, e, rhs);
+    if (lhs.qua_bind) return lhs.qua_bind(lhs, e, rhs, doit ? doit : vm.do_def);
     else return vm.error("cannot match", { lhs: lhs, rhs: rhs });
 };
-vm.Sym.prototype.qua_bind = function(self, e, rhs) {
-    return e.bindings[vm.sym_key(self)] = rhs;
+vm.do_def = function(e, lhs, rhs) {
+    vm.assert_type(lhs, vm.Sym);
+    return e.bindings[vm.sym_key(lhs)] = rhs;
 };
-vm.Cons.prototype.qua_bind = function(self, e, rhs) {
+vm.do_setq = function(e, lhs, rhs) {
+    vm.assert_type(lhs, vm.Sym);
+    if (Object.prototype.hasOwnProperty.call(e.bindings, vm.sym_key(lhs)))
+        return vm.do_def(e, lhs, rhs);
+    else if (e.parent)
+        return vm.do_setq(e.parent, lhs, rhs);
+    else
+        return vm.error("cannot set unbound variable: " + lhs.qs_name);
+};
+vm.Sym.prototype.qua_bind = function(self, e, rhs, doit) {
+    return doit(e, self, rhs);
+};
+vm.Cons.prototype.qua_bind = function(self, e, rhs, doit) {
     return vm.monadic(null,
-                      function() { return vm.bind(e, vm.car(self), vm.car(rhs)); },
-                      function() { return vm.bind(e, vm.cdr(self), vm.cdr(rhs)); });
+                      function() { return vm.bind(e, vm.car(self), vm.car(rhs), doit); },
+                      function() { return vm.bind(e, vm.cdr(self), vm.cdr(rhs), doit); });
 };
-vm.Nil.prototype.qua_bind = function(self, e, rhs) {
+vm.Nil.prototype.qua_bind = function(self, e, rhs, doit) {
     if (!vm.is_nil(rhs)) return vm.error("NIL expected, but got: " + JSON.stringify(rhs));
 };
-vm.Keyword.prototype.qua_bind = function(self, e, rhs) {
+vm.Keyword.prototype.qua_bind = function(self, e, rhs, doit) {
     if (!(rhs && (rhs instanceof vm.Keyword) && (rhs.qs_name === self.qs_name))) {
         return vm.error(":" + self.qs_name + " expected, but got: " + JSON.stringify(rhs));
     }
 };
-vm.Ign.prototype.qua_bind = function(self, e, rhs) {};
+vm.Ign.prototype.qua_bind = function(self, e, rhs, doit) {};
 /* Utilities */
 vm.list = function() {
     return vm.array_to_list(Array.prototype.slice.call(arguments));
@@ -185,6 +208,7 @@ vm.init = function(e) {
     vm.defun(e, vm.sym("%%eval"), vm.Eval);
     vm.defun(e, vm.sym("%%if"), vm.If);
     vm.defun(e, vm.sym("%%progn"), vm.Progn);
+    vm.defun(e, vm.sym("%%setq"), vm.Setq);
     // Combiners
     vm.defun(e, vm.sym("%%vau"), vm.Vau);
     vm.defun(e, vm.sym("%%wrap"), vm.jswrap(vm.wrap));

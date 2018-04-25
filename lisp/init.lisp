@@ -9,7 +9,7 @@
 
 ;;;; Import primitive bindings
 
-(%%def #'def #'%%def) ; Bind new symbols in the current environment.
+(%%def #'def #'%%def) ; Bind new or update symbols in current environment.
 (def #'car #'%%car) ; Access first element of pair.
 (def #'cdr #'%%cdr) ; Access second element of pair.
 (def #'cons #'%%cons) ; Construct a new pair.
@@ -19,6 +19,7 @@
 (def #'make-environment #'%%make-environment) ; Create new lexical environment.
 (def #'print #'%%print) ; Print line.
 (def #'progn #'%%progn) ; Evaluate expressions in order.
+(def #'setq #'%%setq) ; Update existing bindings in current or ancestor environment.
 (def #'unwrap #'%%unwrap) ; Extract fexpr underlying a function.
 (def #'wrap #'%%wrap) ; Construct a function out of a fexpr.
 ;; Objects:
@@ -211,13 +212,6 @@
     (car opt-arg)))
 
 (def #'defconstant #'def)
-
-;;;; Environment mutation
-
-(deffexpr setq (env lhs rhs) denv
-  (eval (list #'def lhs 
-              (list (unwrap #'eval) rhs denv))
-        (eval env denv)))
 
 ;;;; Generalized reference
 

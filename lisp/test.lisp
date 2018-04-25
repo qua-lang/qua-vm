@@ -110,7 +110,7 @@
 
 ;;;; SETQ
 (let ((x 1))
-  (setq (the-environment) x 2)
+  (setq x 2)
   (qua:assert (qua:deep-equal 2 x)))
 
 ;;;; SETF
@@ -118,7 +118,7 @@
   (defun foo () foo)
   (qua:assert (qua:deep-equal (foo) 1))
   (def env (the-environment))
-  (js:set #'foo "qua_setter" (lambda (new-val) (setq env foo new-val)))
+  (js:set #'foo "qua_setter" (lambda (new-val) (setq foo new-val)))
   (setf (foo) 2)
   (qua:assert (qua:deep-equal (foo) 2)))
 
