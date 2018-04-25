@@ -160,9 +160,9 @@
 (qua:expect 3 (case 3 (1 1) (2 2) (3 3)))
 (qua:expect #void (case 4 (1 1) (2 2) (3 3)))
 
-(qua:expect 1 (call-with-escape (lambda (#ign) 1)))
-(qua:expect 2 (call-with-escape (lambda (escape) 1 (return-from escape 2) 3)))
-(qua:expect #void (call-with-escape (lambda (escape) 1 (return-from escape) 3)))
+(qua:expect 1 (qua:call-with-escape (lambda (#ign) 1)))
+(qua:expect 2 (qua:call-with-escape (lambda (escape) 1 (return-from escape 2) 3)))
+(qua:expect #void (qua:call-with-escape (lambda (escape) 1 (return-from escape) 3)))
 (qua:expect #void (block x))
 (qua:expect 1 (block x 1))
 (qua:expect 2 (block x 1 (return-from x 2) 3))

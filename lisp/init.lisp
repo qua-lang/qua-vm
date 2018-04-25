@@ -272,6 +272,14 @@
 (defmacro loop body
   (list #'%%loop (list* #'lambda () body)))
 
+(deffexpr while (test . body) env
+  (let ((body (list* #'progn body)))
+    (block exit
+      (loop
+        (if (eval test env)
+          (eval body env)
+          (return-from exit))))))
+
 (defmacro if (test then else)
   (list #'%%if test then else))
 
@@ -281,7 +289,7 @@
 (defmacro unless (test . body)
   (list #'if test #void (list* #'progn body)))
 
-(defun call-with-escape (#'fun)
+(defun qua:call-with-escape (#'fun)
   (let* ((tag (list 'tag))
          (escape (lambda opt-val
                    (let ((val (optional opt-val)))
@@ -294,7 +302,7 @@
                 (fun escape)))))
 
 (defmacro block (name . body)
-  (list #'call-with-escape (list* #'lambda (list name) body)))
+  (list #'qua:call-with-escape (list* #'lambda (list name) body)))
 
 (defun return-from (escape . opt-val)
   (apply escape opt-val))
@@ -430,6 +438,11 @@
 (def #'> (js:relational-op ">"))
 (def #'<= (js:relational-op "<="))
 (def #'>= (js:relational-op ">="))
+
+(def #'lt #'<)
+(def #'lte #'<=)
+(def #'gt #'>)
+(def #'gte #'>=)
 
 (defun != args (not (apply == args)))
 (defun !== args (not (apply === args)))

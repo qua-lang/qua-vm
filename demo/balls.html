@@ -11,11 +11,12 @@
 (defconstant default-prompt 'default-prompt)
 
 (defun spawn-threads (thread-count)
-  ; Call RUN-THREAD inside a continuation delimited by the default prompt
-  (push-prompt default-prompt
-    (run-thread thread-count))
-  (unless (= thread-count 1)
-    (spawn-threads (- thread-count 1))))
+  (let ((i (mut 0)))
+    (while (lt (ref i) thread-count)
+      ; Call RUN-THREAD inside a continuation delimited by the default prompt
+      (push-prompt default-prompt
+        (run-thread thread-count))
+      (setf (ref i) (+ (ref i) 1)))))
 
 (defun run-thread (thread-id)
   (let ((ball (js:object :x (+ 300 ($random_offset 200))
@@ -37,7 +38,7 @@
     ($setImmediate (js:lambda #ign
                      (push-prompt-subcont default-prompt k)))))
 
-(spawn-threads 100)
+(spawn-threads 150)
 </script>
 
     <canvas id="canvas" width="600" height="480"></canvas>
