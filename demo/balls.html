@@ -8,18 +8,16 @@
 <body>
 <h1><a href="https://github.com/qua-lang/qua-vm">Qua</a></h1>
 <script type="text/lisp" id="main">
-(defconstant default-prompt 'default-prompt)
-
 (defun spawn-threads (thread-count)
   (let ((i 0))
     (while (< i thread-count)
       ; Call RUN-THREAD inside a continuation delimited by the default prompt
-      (push-prompt default-prompt
+      (push-default-prompt
         (run-thread thread-count))
       (incf i))))
 
 (defun run-thread (thread-id)
-  (let ((ball (js:object :x (+ 300 ($random_offset 200))
+  (let ((ball (js-object :x (+ 300 ($random_offset 200))
                          :y (+ 240 ($random_offset 100))
                          :radius 5
                          :color "#ff0000"
@@ -34,9 +32,9 @@
 (defun sleep ()
   ; Abort back up to the default prompt and schedule future resumption
   ; of the suspended continuation.
-  (take-subcont default-prompt k
-    ($setImmediate (js:lambda #ign
-                     (push-prompt-subcont default-prompt k)))))
+  (take-default-subcont k
+    ($setImmediate (js-lambda #ign
+                     (push-default-subcont k)))))
 
 (spawn-threads 150)
 </script>

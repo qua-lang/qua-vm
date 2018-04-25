@@ -35,18 +35,18 @@
 (def #'slot-value #'%%slot-value)
 (def #'typep #'%%typep)
 ;; JS:
-(def #'js:apply #'%%js:apply)
-(def #'js:function #'%%js:function)
-(def #'js:get #'%%js:get)
-(def #'js:global #'%%js:global)
-(def #'js:new #'%%js:new)
-(def #'js:set #'%%js:set)
+(def #'js-apply #'%%js-apply)
+(def #'js-function #'%%js-function)
+(def #'js-get #'%%js-get)
+(def #'js-global #'%%js-global)
+(def #'js-new #'%%js-new)
+(def #'js-set #'%%js-set)
 ;; Use the QUA package for stuff that's not expected to be called by
 ;; the user or that doesn't have a final API yet.
-(def #'qua:to-fun-sym #'%%to-fun-sym) ; Turn any symbol into a function namespaced one.
+(def #'qua-to-fun-sym #'%%to-fun-sym) ; Turn any symbol into a function namespaced one.
 ;; Optimization bindings:
 (def #'list* #'%%list*) ; Construct list of arguments, with the final argument as tail.
-(def #'js:list-to-array #'%%list-to-array)
+(def #'js-list-to-array #'%%list-to-array)
 
 (def #'= #'eq)
 
@@ -68,7 +68,7 @@
 ; Define a named fexpr in the current environment.
 (def #'deffexpr 
   (vau (name params env-param . body) env
-    (eval (list #'def (qua:to-fun-sym name) 
+    (eval (list #'def (qua-to-fun-sym name) 
                 (list* #'vau params env-param body))
           env)))
 
@@ -92,7 +92,7 @@
 ; Define a named macro in the current environment.
 (def #'defmacro
   (macro (name params . body)
-    (list #'def (qua:to-fun-sym name) (list* #'macro params body))))
+    (list #'def (qua-to-fun-sym name) (list* #'macro params body))))
 
 ;;;; Functions
 
@@ -103,7 +103,7 @@
 ; Define a named function that doesn't do any type checking in the
 ; current environment.
 (defmacro ur-defun (name params . body)
-  (list #'def (qua:to-fun-sym name) (list* #'ur-lambda params body)))
+  (list #'def (qua-to-fun-sym name) (list* #'ur-lambda params body)))
 
 ; Use the unchecked versions for LAMBDA and DEFUN for now
 ; which will later use checked versions.
@@ -215,20 +215,20 @@
 
 ;;;; Generalized reference
 
-(defconstant qua:setter-prop "qua_setter")
+(defconstant qua-setter-prop "qua_setter")
 
 (defun setter (obj)
-  (js:get obj qua:setter-prop))
+  (js-get obj qua-setter-prop))
 
-(js:set #'setter qua:setter-prop
+(js-set #'setter qua-setter-prop
         (lambda (new-setter getter)
-          (js:set getter qua:setter-prop new-setter)))
+          (js-set getter qua-setter-prop new-setter)))
 
 (defmacro setf (place new-val)
   (if (symbolp place)
       (list #'setq place new-val)
       (let* (((getter-form . args) place)
-             (getter (if (symbolp getter-form) (qua:to-fun-sym getter-form) getter-form)))
+             (getter (if (symbolp getter-form) (qua-to-fun-sym getter-form) getter-form)))
         (list* (list #'setter getter) new-val args))))
 
 (defmacro incf (place . opt-increment)
@@ -242,14 +242,14 @@
 ;;;; Objects and classes
 
 (defun make-instance (class-desig . initargs)
-  (%%make-instance class-desig (js:plist-to-object initargs)))
+  (%%make-instance class-desig (js-plist-to-object initargs)))
 
 (defun call-method (obj name args)
   (let ((method (find-method obj name)))
     (apply method args)))
 
 (deffexpr defgeneric (name #ign) env
-  (eval (list #'def (qua:to-fun-sym name)
+  (eval (list #'def (qua-to-fun-sym name)
               (lambda args
                 (call-method (car args) name args)))
         env))
@@ -264,7 +264,7 @@
   (let ((string-list (map-list (lambda (superclass)
                                      (slot-value superclass 'name))
                                    superclasses)))
-    (ensure-class (slot-value name 'name) (js:list-to-array string-list))))
+    (ensure-class (slot-value name 'name) (js-list-to-array string-list))))
 
 (defgeneric hash-object (self))
 (defgeneric compare-object (self))
@@ -292,7 +292,7 @@
 (defmacro unless (test . body)
   (list #'if test #void (list* #'progn body)))
 
-(defun qua:call-with-escape (#'fun)
+(defun qua-call-with-escape (#'fun)
   (let* ((tag (list 'tag))
          (escape (lambda opt-val
                    (let ((val (optional opt-val)))
@@ -305,7 +305,7 @@
                 (fun escape)))))
 
 (defmacro block (name . body)
-  (list #'qua:call-with-escape (list* #'lambda (list name) body)))
+  (list #'qua-call-with-escape (list* #'lambda (list name) body)))
 
 (defun return-from (escape . opt-val)
   (apply escape opt-val))
@@ -368,6 +368,17 @@
 (defmacro push-prompt-subcont (prompt continuation . body)
   (list #'%%push-prompt-subcont prompt continuation (list* #'lambda () body)))
 
+(defconstant the-default-prompt :the-default-prompt)
+
+(defmacro push-default-prompt body
+  (list* #'push-prompt the-default-prompt body))
+
+(defmacro take-default-subcont (name . body)
+  (list* #'take-subcont the-default-prompt name body))
+
+(defmacro push-default-subcont (continuation . body)
+  (list* #'push-prompt-subcont the-default-prompt continuation body))
+
 ;;;; Dynamic variables
 
 (defmacro defdynamic (name . opt-val)
@@ -391,44 +402,44 @@
 ;;;; JS stuff
 
 ; Equal to syntax .prop-name
-(defun js:getter (prop-name)
+(defun js-getter (prop-name)
   (let ((getter (lambda (obj)
-                  (js:get obj prop-name))))
+                  (js-get obj prop-name))))
     (setf (setter getter)
           (lambda (new-val obj)
-            (js:set obj prop-name new-val)))
+            (js-set obj prop-name new-val)))
     getter))
 
 ; Equal to syntax @fun-name
-(defun js:invoker (fun-name)
+(defun js-invoker (fun-name)
   (lambda (this . args)
-    (let ((fun (js:get this fun-name)))
-      (js:apply fun this (js:list-to-array args)))))
+    (let ((fun (js-get this fun-name)))
+      (js-apply fun this (js-list-to-array args)))))
 
 ; {}
-(defun js:create-object (proto)
+(defun js-create-object (proto)
   (@create $Object proto))
 
-(defun js:plist-to-object (plist)
-  (letrec ((obj (js:create-object #null))
+(defun js-plist-to-object (plist)
+  (letrec ((obj (js-create-object #null))
            (#'add-to-dict
             (lambda (plist)
               (if (nilp plist)
                   obj
                 (progn 
-                  (js:set obj (symbol-name (car plist)) (cadr plist))
+                  (js-set obj (symbol-name (car plist)) (cadr plist))
                   (add-to-dict (cddr plist)))))))
           (add-to-dict plist)))
 
-(defun js:object plist (js:plist-to-object plist))
+(defun js-object plist (js-plist-to-object plist))
 
-(defun js:array elements (js:list-to-array elements))
+(defun js-array elements (js-list-to-array elements))
 
-(defmacro js:lambda (lambda-list . body)
-  (list #'js:function (list* #'lambda lambda-list body)))
+(defmacro js-lambda (lambda-list . body)
+  (list #'js-function (list* #'lambda lambda-list body)))
 
-(defun js:relational-op (name)
-  (let ((#'binop (%%js:binop name)))
+(defun js-relational-op (name)
+  (let ((#'binop (%%js-binop name)))
     (letrec ((#'op (lambda (arg1 arg2 . rest)
                      (if (binop arg1 arg2)
                          (if (nilp rest)
@@ -437,12 +448,12 @@
                          #f))))
       #'op)))
 
-(def #'== (js:relational-op "=="))
-(def #'=== (js:relational-op "==="))
-(def #'< (js:relational-op "<"))
-(def #'> (js:relational-op ">"))
-(def #'<= (js:relational-op "<="))
-(def #'>= (js:relational-op ">="))
+(def #'== (js-relational-op "=="))
+(def #'=== (js-relational-op "==="))
+(def #'< (js-relational-op "<"))
+(def #'> (js-relational-op ">"))
+(def #'<= (js-relational-op "<="))
+(def #'>= (js-relational-op ">="))
 
 (def #'lt #'<)
 (def #'lte #'<=)
@@ -452,26 +463,26 @@
 (defun != args (not (apply == args)))
 (defun !== args (not (apply === args)))
 
-(def #'* (let ((#'binop (%%js:binop "*")))
+(def #'* (let ((#'binop (%%js-binop "*")))
            (lambda args
              (fold-list #'binop 1 args))))
 
 ;; Can't simply use 0 as unit or it won't work with strings
-(def #'+ (let ((#'binop (%%js:binop "+")))
+(def #'+ (let ((#'binop (%%js-binop "+")))
            (lambda args
              (if (nilp args)
                  0
                  (fold-list #'binop (car args) (cdr args))))))
 
-(defun js:negative-op (name unit)
-  (let ((#'binop (%%js:binop name)))
+(defun js-negative-op (name unit)
+  (let ((#'binop (%%js-binop name)))
     (lambda (arg1 . rest)
       (if (nilp rest)
           (binop unit arg1)
           (fold-list #'binop arg1 rest)))))
 
-(def #'- (js:negative-op "-" 0))
-(def #'/ (js:negative-op "/" 1))
+(def #'- (js-negative-op "-" 0))
+(def #'/ (js-negative-op "/" 1))
 
 ;;;; Conditions
 
@@ -528,7 +539,7 @@
 (defun make-handler-frame (handlers . opt-parent)
   (make-instance 'handler-frame :handlers handlers :parent (optional opt-parent)))
 
-(defun qua:make-handler-bind (#'handler-spec-parser handler-frame-dynamic)
+(defun qua-make-handler-bind (#'handler-spec-parser handler-frame-dynamic)
   (vau (handler-specs . body) env
     (let* ((handlers (map-list (lambda (spec) (handler-spec-parser spec env)) handler-specs))
            (handler-frame (make-handler-frame handlers (dynamic handler-frame-dynamic))))
@@ -537,14 +548,14 @@
 
 ;; handler-spec ::= (condition-class-name handler-function-form)
 (def #'handler-bind
-  (qua:make-handler-bind
+  (qua-make-handler-bind
    (lambda ((class-name function-form) env)
      (make-handler class-name (eval function-form env)))
    current-condition-handler-frame))
 
 ;; handler-spec ::= (restart-class-name handler-function-form . opt-associated-condition)
 (def #'restart-bind
-  (qua:make-handler-bind
+  (qua-make-handler-bind
    (lambda ((class-name function-form . opt-associated-condition) env)
      (make-handler class-name
                    (eval function-form env)
@@ -617,52 +628,52 @@
 
 (defclass type-error (error) ())
 
-(defconstant qua:the-top-type
-  (make-instance 'qua:class-type :name "top" :generic-params '()))
+(defconstant qua-the-top-type
+  (make-instance 'qua-class-type :name "top" :generic-params '()))
 
-(defconstant qua:the-bottom-type
-  (make-instance 'qua:class-type :name "bottom" :generic-params '()))
+(defconstant qua-the-bottom-type
+  (make-instance 'qua-class-type :name "bottom" :generic-params '()))
 
-(defun qua:parse-type-spec (type-spec)
+(defun qua-parse-type-spec (type-spec)
   (if (keywordp type-spec)
-      (make-instance 'qua:type-variable
+      (make-instance 'qua-type-variable
                      :name (symbol-name type-spec))
       (if (symbolp type-spec)
-          (make-instance 'qua:class-type
+          (make-instance 'qua-class-type
                          :name (symbol-name type-spec)
                          :generic-params '())
           (if (consp type-spec)
               (let (((class-name . generic-param-specs) type-spec))
-                (make-instance 'qua:class-type
+                (make-instance 'qua-class-type
                                :name (symbol-name class-name)
-                               :generic-params (map-list #'qua:parse-generic-param-spec
+                               :generic-params (map-list #'qua-parse-generic-param-spec
                                                          generic-param-specs)))
               (error (make-instance 'simple-error :message "Illegal type-spec"))))))
   
-(defun qua:parse-generic-param-spec (gp-spec)
+(defun qua-parse-generic-param-spec (gp-spec)
   (if (symbolp gp-spec)
-      (let ((type (qua:parse-type-spec gp-spec)))
-        (make-instance 'qua:generic-param :in-type type :out-type type))
+      (let ((type (qua-parse-type-spec gp-spec)))
+        (make-instance 'qua-generic-param :in-type type :out-type type))
       (if (consp gp-spec)
           (let (((op . rest) gp-spec))
             (if (keywordp op)
                 (case (symbol-name op)
                       ("io"
-                       (let* ((in-type (qua:parse-type-spec (car rest)))
-                              (out-type (qua:parse-type-spec (optional (cdr rest) in-type))))
-                         (make-instance 'qua:generic-param :in-type in-type :out-type out-type)))
+                       (let* ((in-type (qua-parse-type-spec (car rest)))
+                              (out-type (qua-parse-type-spec (optional (cdr rest) in-type))))
+                         (make-instance 'qua-generic-param :in-type in-type :out-type out-type)))
                       ("in"
-                       (let ((in-type (qua:parse-type-spec (car rest))))
-                         (make-instance 'qua:generic-param :in-type in-type :out-type qua:the-top-type)))
+                       (let ((in-type (qua-parse-type-spec (car rest))))
+                         (make-instance 'qua-generic-param :in-type in-type :out-type qua-the-top-type)))
                       ("out"
-                       (let ((out-type (qua:parse-type-spec (car rest))))
-                         (make-instance 'qua:generic-param :in-type qua:the-bottom-type :out-type out-type))))
-                (let ((type (qua:parse-type-spec gp-spec)))
-                  (make-instance 'qua:generic-param :in-type type :out-type type))))
+                       (let ((out-type (qua-parse-type-spec (car rest))))
+                         (make-instance 'qua-generic-param :in-type qua-the-bottom-type :out-type out-type))))
+                (let ((type (qua-parse-type-spec gp-spec)))
+                  (make-instance 'qua-generic-param :in-type type :out-type type))))
           (error "Illegal generic param spec"))))
 
 (defun typep (obj type-spec)
-  (%%typep obj (qua:parse-type-spec type-spec)))
+  (%%typep obj (qua-parse-type-spec type-spec)))
 
 (deffexpr typecase (expr . clauses) env
   (let ((val (eval expr env)))
@@ -680,4 +691,4 @@
 (defun invoke-debugger (condition)
   (print "DEBUG")
   (print condition)
-  (%%raise (js:new $Error condition)))
+  (%%raise (js-new $Error condition)))
