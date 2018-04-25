@@ -455,6 +455,30 @@
 (defmacro js:lambda (lambda-list . body)
   (list #'js:function (list* #'lambda lambda-list body)))
 
+(defun js:relational-op (name)
+  (let ((#'binop (%%js:binop name)))
+    (letrec ((#'op (lambda (arg1 arg2 . rest)
+                     (if (binop arg1 arg2)
+                         (if (nilp rest)
+                             #t
+                             (apply #'op (list* arg2 rest)))
+                         #f))))
+      #'op)))
+
+(def #'== (js:relational-op "=="))
+(def #'=== (js:relational-op "==="))
+(def #'< (js:relational-op "<"))
+(def #'> (js:relational-op ">"))
+(def #'<= (js:relational-op "<="))
+(def #'>= (js:relational-op ">="))
+
+(defun != args (not (apply == args)))
+(defun !== args (not (apply === args)))
+
+(def #'* (let ((#'binop (%%js:binop "*")))
+           (lambda args
+             (fold-list #'binop 1 args))))
+
 ;; Can't simply use 0 as unit or it won't work with strings
 (def #'+ (let ((#'binop (%%js:binop "+")))
            (lambda args
@@ -462,14 +486,15 @@
                  0
                  (fold-list #'binop (car args) (cdr args))))))
 
-(defun js:negative-op (#'binop unit)
-  (lambda (arg1 . rest)
-    (if (nilp rest)
-        (binop unit arg1)
-        (fold-list #'binop arg1 rest))))
+(defun js:negative-op (name unit)
+  (let ((#'binop (%%js:binop name)))
+    (lambda (arg1 . rest)
+      (if (nilp rest)
+          (binop unit arg1)
+          (fold-list #'binop arg1 rest)))))
 
-(def #'- (js:negative-op (%%js:binop "-") 0))
-(def #'/ (js:negative-op (%%js:binop "/") 1))
+(def #'- (js:negative-op "-" 0))
+(def #'/ (js:negative-op "/" 1))
 
 ;;;; Conditions
 

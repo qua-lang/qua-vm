@@ -281,6 +281,9 @@
 (qua:expect "foobar" (+ "foo" "ba" "r"))
 (qua:expect 6 (+ 2 2 2))
 
+(qua:expect 3 (* 3))
+(qua:expect 24 (* 4 3 2))
+
 (qua:expect -4 (- 4))
 (qua:expect 4 (- 8 2 2))
 
