@@ -50,6 +50,6 @@ module.exports = function(vm, e) {
     vm.defun(e, vm.sym("%%js:function"), vm.jswrap(vm.js_function));
     vm.defun(e, vm.sym("%%js:get"), vm.jswrap(function(obj, name) { return obj[name]; }));
     vm.defun(e, vm.sym("%%js:global"), vm.JSGlobal);
-    vm.defun(e, vm.sym("%%js:new"), vm.js_new);
+    vm.defun(e, vm.sym("%%js:new"), vm.jswrap(vm.js_new));
     vm.defun(e, vm.sym("%%js:set"), vm.jswrap(function(obj, name, val) { return obj[name] = val; }));
 };
