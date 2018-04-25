@@ -375,6 +375,8 @@
 
 (def #'dynamic #'ref)
 
+(def #'dynamic-let-1 #'%%dynamic-let-1)
+
 (deffexpr dynamic-let (bindings . body) env
   (letrec ((#'process-bindings
             (lambda (bs)
@@ -382,7 +384,7 @@
                   (list* #'progn body)
                   (let* ((((name expr) . rest-bs) bs)
                          (value (eval expr env)))
-                    (list #'%%dynamic-let-1 name value
+                    (list #'dynamic-let-1 name value
                           (list #'lambda () (process-bindings rest-bs))))))))
     (eval (process-bindings bindings) env)))
 
@@ -526,31 +528,28 @@
 (defun make-handler-frame (handlers . opt-parent)
   (make-instance 'handler-frame :handlers handlers :parent (optional opt-parent)))
 
+(defun qua:make-handler-bind (#'handler-spec-parser handler-frame-dynamic)
+  (vau (handler-specs . body) env
+    (let* ((handlers (map-list (lambda (spec) (handler-spec-parser spec env)) handler-specs))
+           (handler-frame (make-handler-frame handlers (dynamic handler-frame-dynamic))))
+      (dynamic-let-1 handler-frame-dynamic handler-frame
+        (lambda () (eval (list* #'progn body) env))))))
+
 ;; handler-spec ::= (condition-class-name handler-function-form)
-(deffexpr handler-bind (handler-specs . body) env
-  (let* ((handlers
-          (map-list (lambda ((class-name function-form))
-                      (make-handler class-name (eval function-form env)))
-                    handler-specs))
-         (handler-frame
-          (make-handler-frame handlers
-                              (dynamic current-condition-handler-frame))))
-    (dynamic-let ((current-condition-handler-frame handler-frame))
-      (eval (list* #'progn body) env))))
+(def #'handler-bind
+  (qua:make-handler-bind
+   (lambda ((class-name function-form) env)
+     (make-handler class-name (eval function-form env)))
+   current-condition-handler-frame))
 
 ;; handler-spec ::= (restart-class-name handler-function-form . opt-associated-condition)
-(deffexpr restart-bind (handler-specs . body) env
-  (let* ((handlers
-          (map-list (lambda ((class-name function-form . opt-associated-condition))
-                      (make-handler class-name
-                                    (eval function-form env)
-                                    (eval (optional opt-associated-condition) env)))
-                    handler-specs))
-         (handler-frame
-          (make-handler-frame handlers
-                              (dynamic current-restart-handler-frame))))
-    (dynamic-let ((current-restart-handler-frame handler-frame))
-      (eval (list* #'progn body) env))))
+(def #'restart-bind
+  (qua:make-handler-bind
+   (lambda ((class-name function-form . opt-associated-condition) env)
+     (make-handler class-name
+                   (eval function-form env)
+                   (eval (optional opt-associated-condition) env)))
+   current-restart-handler-frame))
 
 ;;; Condition signaling
           
@@ -682,5 +681,3 @@
   (print "DEBUG")
   (print condition)
   (%%raise (js:new $Error condition)))
-
-
