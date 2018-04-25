@@ -110,9 +110,23 @@
 
 ;;;; SETQ
 (let ((x 1))
-  (setq x 2)
+  (let ((x 3))
+    (setq x 2)
+    (qua:assert (qua:deep-equal 2 x)))
+  (qua:assert (qua:deep-equal 1 x))
+  (let ()
+    (setq x 2)
+    (qua:assert (qua:deep-equal 2 x)))
   (qua:assert (qua:deep-equal 2 x)))
 
+(let ((x #void))
+  (let ((y #void))
+    (let ((z #void))
+      (setq (x y . z) (list 1 2 3 4))
+      (qua:expect 1 x)
+      (qua:expect 2 y)
+      (qua:expect '(3 4) z))))
+    
 ;;;; SETF
 (let ((foo 1))
   (defun foo () foo)
@@ -121,6 +135,19 @@
   (js:set #'foo "qua_setter" (lambda (new-val) (setq foo new-val)))
   (setf (foo) 2)
   (qua:assert (qua:deep-equal (foo) 2)))
+
+(let ((x 12))
+  (qua:expect 12 x)
+  (setf x 14)
+  (qua:expect 14 x)
+  (incf x)
+  (qua:expect 15 x)
+  (incf x 2)
+  (qua:expect 17 x)
+  (decf x)
+  (qua:expect 16 x)
+  (decf x 2)
+  (qua:expect 14 x))
 
 ;;;; Reference cells
 (let ((cell (mut 12)))

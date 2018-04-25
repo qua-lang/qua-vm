@@ -224,11 +224,12 @@
         (lambda (new-setter getter)
           (js:set getter qua:setter-prop new-setter)))
 
-(defmacro setf ((getter-form . args) new-val)
-  (let ((getter (if (symbolp getter-form)
-                    (qua:to-fun-sym getter-form)
-                  getter-form)))
-    (list* (list #'setter getter) new-val args)))
+(defmacro setf (place new-val)
+  (if (symbolp place)
+      (list #'setq place new-val)
+      (let* (((getter-form . args) place)
+             (getter (if (symbolp getter-form) (qua:to-fun-sym getter-form) getter-form)))
+        (list* (list #'setter getter) new-val args))))
 
 (defmacro incf (place . opt-increment)
   (let ((increment (optional opt-increment 1)))

@@ -16,7 +16,7 @@
       ; Call RUN-THREAD inside a continuation delimited by the default prompt
       (push-prompt default-prompt
         (run-thread thread-count))
-      (setq i (+ i 1)))))
+      (incf i))))
 
 (defun run-thread (thread-id)
   (let ((ball (js:object :x (+ 300 ($random_offset 200))
