@@ -240,6 +240,10 @@
   (let ((increment (optional opt-increment 1)))
     (list #'setf place (list #'+ place increment))))
 
+(defmacro decf (place . opt-decrement)
+  (let ((decrement (optional opt-decrement 1)))
+    (list #'setf place (list #'- place decrement))))
+
 ;;;; Objects and classes
 
 (defun make-instance (class-desig . initargs)
