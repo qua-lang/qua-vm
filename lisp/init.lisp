@@ -348,7 +348,11 @@
 (defmacro push-prompt (prompt . body)
   (list #'%%push-prompt prompt (list* #'lambda () body)))
 
-(def #'take-subcont #'%%take-subcont)
+(defmacro take-subcont (prompt name . body)
+  (list #'%%take-subcont prompt (list* #'lambda (list name) body)))
+
+(defmacro push-subcont (continuation . body)
+  (list #'%%push-subcont continuation (list* #'lambda () body)))
 
 (defmacro push-prompt-subcont (prompt continuation . body)
   (list #'%%push-prompt-subcont prompt continuation (list* #'lambda () body)))
