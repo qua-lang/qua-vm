@@ -353,55 +353,6 @@
 (defmacro push-prompt-subcont (prompt continuation . body)
   (list #'%%push-prompt-subcont prompt continuation (list* #'lambda () body)))
 
-;;;; Coroutines
-
-(defclass coro:yield-rec (standard-object)
-  (val
-   cont))
-
-(defun coro:make-yield-rec (val cont)
-  (make-instance 'coro:yield-rec :val val :cont cont))
-
-(defun coro:value (yield-rec)
-  (slot-value yield-rec 'val))
-
-(defun coro:continuation (yield-rec)
-  (slot-value yield-rec 'cont))
-
-(defconstant coro:the-prompt 'coro:prompt)
-
-(defun coro:run (thunk)
-  (%%push-prompt coro:the-prompt thunk))
-
-(defun coro:yield opt-val
-  (let ((val (optional opt-val)))
-    (%%take-subcont coro:the-prompt
-                    (lambda (cont) (coro:make-yield-rec val cont)))))
-
-(defun coro:resume (yield-rec . opt-val)
-  (let ((val (optional opt-val)))
-    (%%push-prompt-subcont coro:the-prompt
-                           (coro:continuation yield-rec)
-                           (lambda () val))))
-
-;; Should use TYPEP
-(defun coro:yield-rec-p (yield-rec)
-  (and (slot-bound-p yield-rec 'cont)
-       (slot-bound-p yield-rec 'val)))
-
-(defun dynamic-wind (#'pre #'body #'post)
-  (block exit
-    (let ((thunk (mut (lambda () (coro:run #'body)))))
-      (loop
-        (pre)
-        (let ((res (unwind-protect
-                       (funcall (ref thunk))
-                     (post))))
-          (if (coro:yield-rec-p res)
-              (let ((reenter (coro:yield (coro:value res))))
-                (setf (ref thunk) (lambda () (coro:resume res reenter))))
-            (return-from exit res)))))))
-
 ;;;; Dynamic variables
 
 (defmacro defdynamic (name . opt-val)
@@ -409,12 +360,16 @@
 
 (def #'dynamic #'ref)
 
-(defun dynamic-let-1 (var val #'body-thunk)
-  (let ((old-val (dynamic var)))
-    (dynamic-wind
-     (lambda () (setf (dynamic var) val))
-     #'body-thunk
-     (lambda () (setf (dynamic var) old-val)))))
+(deffexpr dynamic-let (bindings . body) env
+  (letrec ((#'process-bindings
+            (lambda (bs)
+              (if (nilp bs)
+                  (list* #'progn body)
+                  (let* ((((name expr) . rest-bs) bs)
+                         (value (eval expr env)))
+                    (list #'%%dynamic-let-1 name value
+                          (list #'lambda () (process-bindings rest-bs))))))))
+    (eval (process-bindings bindings) env)))
 
 ;;;; JS stuff
 
@@ -560,9 +515,8 @@
          (handler-frame
           (make-handler-frame handlers
                               (dynamic current-condition-handler-frame))))
-    (dynamic-let-1 current-condition-handler-frame handler-frame
-                   (lambda ()
-                     (eval (list* #'progn body) env)))))
+    (dynamic-let ((current-condition-handler-frame handler-frame))
+      (eval (list* #'progn body) env))))
 
 ;; handler-spec ::= (restart-class-name handler-function-form . opt-associated-condition)
 (deffexpr restart-bind (handler-specs . body) env
@@ -575,9 +529,8 @@
          (handler-frame
           (make-handler-frame handlers
                               (dynamic current-restart-handler-frame))))
-    (dynamic-let-1 current-restart-handler-frame handler-frame
-                   (lambda ()
-                     (eval (list* #'progn body) env)))))
+    (dynamic-let ((current-restart-handler-frame handler-frame))
+      (eval (list* #'progn body) env))))
 
 ;;; Condition signaling
           
@@ -635,7 +588,7 @@
 
 (defmethod call-condition-handler ((condition condition) handler handler-frame)
   ; Condition firewall
-  (dynamic-let-1 current-condition-handler-frame (slot-value handler-frame 'parent)
+  (dynamic-let ((current-condition-handler-frame (slot-value handler-frame 'parent)))
     (handle-condition handler condition)))
 
 (defmethod call-condition-handler ((restart restart) handler handler-frame)

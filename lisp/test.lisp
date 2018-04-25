@@ -190,39 +190,14 @@
 (qua:expect 2 (prog2 1 2 3))
 (qua:expect #void (prog2 1))
 
-;;;; DYNAMIC-WIND
-(qua:expect 1 (dynamic-wind (lambda ()) (lambda () 1) (lambda ())))
-
-(let ((cell (mut 0)))
-  (qua:expect 2 (dynamic-wind
-                 (lambda () (setf (ref cell) 1))
-                 (lambda () (qua:expect 1 (ref cell)) 2)
-                 (lambda () (setf (ref cell) 3))))
-  (qua:expect 3 (ref cell)))
-
-(let* ((cell (mut 0))
-       (coro (coro:run (lambda ()
-                         (dynamic-wind
-                          (lambda () (setf (ref cell) 1))
-                          (lambda ()
-                            (qua:expect 1 (ref cell))
-                            (coro:yield)
-                            (qua:expect 1 (ref cell)))
-                          (lambda ()
-                            (setf (ref cell) 2)))))))
-  (qua:expect 2 (ref cell))
-  (def coro (coro:resume coro))
-  (qua:expect 2 (ref cell)))
-
 ;;;; Dynamic variables
 
 (defdynamic *my-dynamic* 1)
 
 (progn
   (qua:expect 1 (dynamic *my-dynamic*))
-  (dynamic-let-1 *my-dynamic* 2
-                 (lambda ()
-                   (qua:expect 2 (dynamic *my-dynamic*))))
+  (dynamic-let ((*my-dynamic* 2))
+    (qua:expect 2 (dynamic *my-dynamic*)))
   (qua:expect 1 (dynamic *my-dynamic*)))
 
 (block exit
@@ -232,27 +207,10 @@
               (qua:expect 1 (dynamic *my-dynamic*))
               (return-from exit))
             (lambda ()
-              (dynamic-let-1 *my-dynamic* 2
-                             (lambda ()
-                               (qua:expect 2 (dynamic *my-dynamic*))
-                               (%%raise "foo")))))
+              (dynamic-let ((*my-dynamic* 2))
+                (qua:expect 2 (dynamic *my-dynamic*))
+                (%%raise "foo"))))
   (qua:assert #f))
-
-;;;; Coroutines
-
-(let ((coro (coro:run (lambda ()
-                        1))))
-  (qua:assert (qua:deep-equal 1 coro)))
-
-(let ((coro (coro:run (lambda ()
-                        (qua:assert (qua:deep-equal 2 (coro:yield 1)))
-                        (qua:assert (qua:deep-equal #void (coro:yield)))
-                        3))))
-  (qua:assert (qua:deep-equal 1 (coro:value coro)))
-  (def coro (coro:resume coro 2))
-  (qua:assert (qua:deep-equal #void (coro:value coro)))
-  (def coro (coro:resume coro))
-  (qua:assert (qua:deep-equal coro 3)))
 
 ;;;; JS object
 (let ((obj (js:object :message "hello" :sent (not #t))))

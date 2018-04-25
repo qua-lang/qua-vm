@@ -1,6 +1,7 @@
 // Plugin for the Qua VM that adds the delimcc API for delimited control.
 // Documentation: http://okmij.org/ftp/continuations/implementations.html
-// Also adds continuation-aware implementations of qua:loop and qua:rescue.
+// Also adds continuation-aware implementations of loops, exception handling,
+// and dynamically-scoped variables.
 module.exports = function(vm, e) {
     /* Continuations */
     function StackFrame(fun, next) { this.fun = fun; this.next = next; };
@@ -134,11 +135,37 @@ module.exports = function(vm, e) {
             return val;
         }
     });
-    vm.defun(e, vm.sym("%%loop"), vm.Loop);
-    vm.defun(e, vm.sym("%%raise"), vm.jswrap(vm.raise));
-    vm.defun(e, vm.sym("%%rescue"), vm.Rescue);
+    /* Dynamic Variables */
+    vm.Dlet = vm.wrap({
+        qua_combine: function dlet(self, m, e, o) {
+            var dynvar = vm.elt(o, 0);
+            var val = vm.elt(o, 1);
+            var thunk = vm.elt(o, 2);
+            var oldVal = dynvar.qs_val;
+            dynvar.qs_val = val;
+            try {
+                if (isResumption(m)) {
+                    var res = resumeFrame(m.k, m.f);
+                } else {
+                    var res = vm.combine(null, e, thunk, vm.NIL);
+                }
+                if (isSuspension(res)) {
+                    suspendFrame(res, function(m) { return dlet(m, e, o); }, x, e);
+                    return res;
+                } else {
+                    return res;
+                }
+            } finally {
+                dynvar.qs_val = oldVal;
+            }
+        }
+    });
     vm.defun(e, vm.sym("%%push-prompt"), vm.PushPrompt);
     vm.defun(e, vm.sym("%%take-subcont"), vm.TakeSubcont);
     vm.defun(e, vm.sym("%%push-subcont"), vm.PushSubcont);
     vm.defun(e, vm.sym("%%push-prompt-subcont"), vm.PushPromptSubcont);
+    vm.defun(e, vm.sym("%%loop"), vm.Loop);
+    vm.defun(e, vm.sym("%%raise"), vm.jswrap(vm.raise));
+    vm.defun(e, vm.sym("%%rescue"), vm.Rescue);
+    vm.defun(e, vm.sym("%%dynamic-let-1"), vm.Dlet);
 }
