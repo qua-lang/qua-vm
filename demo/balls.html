@@ -8,37 +8,36 @@
 <body>
 <h1><a href="https://github.com/qua-lang/qua-vm">Qua</a></h1>
 <script type="text/lisp" id="main">
-(def default-prompt 'default-prompt)
+(defconstant default-prompt 'default-prompt)
 
-(defun spawn-thread (ct)
-  (%%push-prompt default-prompt
-    (lambda () (run-thread ct)))
-  (print ct)
-  (unless (eq ct 1)
-    (spawn-thread (- ct 1))))
+(defun spawn-threads (thread-count)
+  ; Call RUN-THREAD inside a continuation delimited by the default prompt
+  (push-prompt default-prompt (run-thread thread-count))
+  (unless (= thread-count 1)
+    (spawn-threads (- thread-count 1))))
 
-(defun run-thread (id)
-  (let ((ball (js:object 
-               :x (+ 300 ($random_offset 200))
-               :y (+ 240 ($random_offset 100))
-               :radius 5
-               :color "#ff0000"
-               :dx ($random_offset 3)
-               :dy ($random_offset 3)
-               :id id)))
-    (@push $BALLS ball)
+(defun run-thread (thread-id)
+  (let ((ball (js:object :x (+ 300 ($random_offset 200))
+                         :y (+ 240 ($random_offset 100))
+                         :radius 5
+                         :color "#ff0000"
+                         :dx ($random_offset 3)
+                         :dy ($random_offset 3)
+                         :id thread-id)))
+    (@push $BALLS ball) ; add ball to global array, defined in JS, below
     (loop
-      ($move_ball ball)
+      ($move_ball ball) ; call JS function to perform "heavy lifting"
       (sleep))))
 
 (defun sleep ()
-  (%%take-subcont default-prompt
-                  (lambda (k)
-                    (defun callback #ign
-                      (%%push-prompt-subcont default-prompt k (lambda ())))
-                    ($setImmediate (js:function #'callback)))))
+  ; Abort back up to the default prompt and schedule future resumption
+  ; of the suspended continuation.
+  (take-subcont default-prompt
+   (lambda (k)
+     ($setImmediate (js:lambda #ign
+                      (push-prompt-subcont default-prompt k))))))
 
-(spawn-thread 100)
+(spawn-threads 100)
 </script>
 
     <canvas id="canvas" width="600" height="480"></canvas>

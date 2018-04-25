@@ -343,6 +343,16 @@
 
 (setf (setter #'ref) (lambda (new-val mut) (set-slot-value mut 'val new-val)))
 
+;;;; Continuations
+
+(defmacro push-prompt (prompt . body)
+  (list #'%%push-prompt prompt (list* #'lambda () body)))
+
+(def #'take-subcont #'%%take-subcont)
+
+(defmacro push-prompt-subcont (prompt continuation . body)
+  (list #'%%push-prompt-subcont prompt continuation (list* #'lambda () body)))
+
 ;;;; Coroutines
 
 (defclass coro:yield-rec (standard-object)
@@ -441,6 +451,9 @@
 (defun js:object plist (js:plist-to-object plist))
 
 (defun js:array elements (js:list-to-array elements))
+
+(defmacro js:lambda (lambda-list . body)
+  (list #'js:function (list* #'lambda lambda-list body)))
 
 ;; Can't simply use 0 as unit or it won't work with strings
 (def #'+ (let ((#'binop (%%js:binop "+")))
