@@ -624,23 +624,22 @@
 (defconstant qua:the-bottom-type
   (make-instance 'qua:class-type :name "bottom" :generic-params '()))
 
-(defun qua:type-variable-p (symbol)
-  (eq "?" (js:get (symbol-name symbol) 0))) ; (ahem (ahem))
-
 (defun qua:parse-type-spec (type-spec)
-  (if (symbolp type-spec)
-      (if (qua:type-variable-p type-spec)
-          (make-instance 'qua:type-variable :name (symbol-name type-spec))
-          (make-instance 'qua:class-type :name (symbol-name type-spec)
-                                         :generic-params '()))
-      (if (consp type-spec)
-          (let (((class-name . generic-param-specs) type-spec))
-            (make-instance 'qua:class-type
-                           :name (symbol-name class-name)
-                           :generic-params (map-list #'qua:parse-generic-param-spec
-                                                     generic-param-specs)))
-          (error (make-instance 'simple-error :message "Illegal type-spec")))))
-
+  (if (keywordp type-spec)
+      (make-instance 'qua:type-variable
+                     :name (symbol-name type-spec))
+      (if (symbolp type-spec)
+          (make-instance 'qua:class-type
+                         :name (symbol-name type-spec)
+                         :generic-params '())
+          (if (consp type-spec)
+              (let (((class-name . generic-param-specs) type-spec))
+                (make-instance 'qua:class-type
+                               :name (symbol-name class-name)
+                               :generic-params (map-list #'qua:parse-generic-param-spec
+                                                         generic-param-specs)))
+              (error (make-instance 'simple-error :message "Illegal type-spec"))))))
+  
 (defun qua:parse-generic-param-spec (gp-spec)
   (if (symbolp gp-spec)
       (let ((type (qua:parse-type-spec gp-spec)))
@@ -676,3 +675,12 @@
                       (return-from match (eval (list* #'progn body) env)))))
                 clauses)
       #void)))
+
+;;;; Runtime
+
+(defun invoke-debugger (condition)
+  (print "DEBUG")
+  (print condition)
+  (%%raise (js:new $Error condition)))
+
+

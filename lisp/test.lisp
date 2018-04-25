@@ -13,6 +13,9 @@
 (qua:assert (qua:deep-equal 1 (car (list* 1 2 3))))
 (qua:assert (qua:deep-equal (cons 2 3) (cdr (list* 1 2 3))))
 
+(qua:assert (symbolp 'foo))
+(qua:assert (keywordp :foo))
+
 ;;;; Evaluation
 (def e1 (make-environment))
 (eval (list #'def (quote x) 1) e1)
@@ -340,9 +343,6 @@
 (qua:expect 1 (typecase 'whatever (symbol 1) (#t "default")))
 (qua:expect "default" (typecase 'whatever (number 1) (#t "default")))
 
-(qua:assert (qua:type-variable-p '?t))
-(qua:assert (not (qua:type-variable-p 't)))
-
 (qua:expect (make-instance 'qua:generic-param
                            :in-type (qua:parse-type-spec 'number)
                            :out-type (qua:parse-type-spec 'boolean))
@@ -365,8 +365,8 @@
             (qua:parse-generic-param-spec '(hash-set number)))
 
             
-(qua:expect (make-instance 'qua:type-variable :name "?foo")
-            (qua:parse-type-spec '?foo))
+(qua:expect (make-instance 'qua:type-variable :name "foo")
+            (qua:parse-type-spec :foo))
 (qua:expect (make-instance 'qua:class-type :name "foo" :generic-params '())
             (qua:parse-type-spec 'foo))
 (qua:expect (make-instance 'qua:class-type :name "foo" :generic-params '())
