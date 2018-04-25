@@ -126,6 +126,14 @@
 (let ((cell (mut 12)))
   (qua:expect 12 (ref cell))
   (setf (ref cell) 14)
+  (qua:expect 14 (ref cell))
+  (incf (ref cell))
+  (qua:expect 15 (ref cell))
+  (incf (ref cell) 2)
+  (qua:expect 17 (ref cell))
+  (decf (ref cell))
+  (qua:expect 16 (ref cell))
+  (decf (ref cell) 2)
   (qua:expect 14 (ref cell)))
 
 ;;;; Simple control
