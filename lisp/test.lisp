@@ -279,6 +279,7 @@
 
 ;;;; JS binops
 (qua:expect "foobar" (+ "foo" "ba" "r"))
+(qua:expect 1 (+ 1))
 (qua:expect 6 (+ 2 2 2))
 
 (qua:expect 3 (* 3))
@@ -287,7 +288,15 @@
 (qua:expect -4 (- 4))
 (qua:expect 4 (- 8 2 2))
 
+(qua:expect 0.25 (/ 4))
 (qua:expect 1 (/ 12 4 3))
+
+(qua:assert (< 1 2 3 4 5))
+(qua:assert (not (< 1 2 3 4 5 -1)))
+(qua:assert (> 5 4 3 2 1))
+(qua:assert (not (> 5 4 3 2 1 6)))
+(qua:assert (=== 1 1 1))
+(qua:assert (not (=== 1 1 1 2)))
 
 ;;;; Conditions
 
