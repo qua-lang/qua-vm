@@ -12,7 +12,7 @@
 
 (defun spawn-threads (thread-count)
   (let ((i 0))
-    (while (lt i thread-count)
+    (while (< i thread-count)
       ; Call RUN-THREAD inside a continuation delimited by the default prompt
       (push-prompt default-prompt
         (run-thread thread-count))
