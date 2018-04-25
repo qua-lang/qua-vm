@@ -11,12 +11,12 @@
 (defconstant default-prompt 'default-prompt)
 
 (defun spawn-threads (thread-count)
-  (let ((i (mut 0)))
-    (while (lt (ref i) thread-count)
+  (let ((i 0))
+    (while (lt i thread-count)
       ; Call RUN-THREAD inside a continuation delimited by the default prompt
       (push-prompt default-prompt
         (run-thread thread-count))
-      (incf (ref i)))))
+      (setq i (+ i 1)))))
 
 (defun run-thread (thread-id)
   (let ((ball (js:object :x (+ 300 ($random_offset 200))
