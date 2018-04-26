@@ -222,12 +222,12 @@
 ;;;; Misc. language
 
 ; Use primitive %%EQ for now as generic equality (since it works for JS values)
-(def #'= #'%%eq)
+(def #'equal? #'%%eq)
 
 (defun optional (opt-arg . opt-default)
   (if (nil? opt-arg)
       (if (nil? opt-default) #void (car opt-default))
-    (car opt-arg)))
+      (car opt-arg)))
 
 (def #'defconstant #'def)
 
@@ -351,7 +351,7 @@
   (let ((val (eval expr env)))
     (block match
       (for-each (lambda ((other-val . body))
-                  (when (= val (eval other-val env))
+                  (when (equal? val (eval other-val env))
                     (return-from match (eval (list* #'progn body) env))))
                 clauses)
       #void)))

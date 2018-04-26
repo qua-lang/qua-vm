@@ -304,7 +304,7 @@
 ;;;; Conditions
 
 (%expect #void (handler-bind ()))
-(%expect #t (handler-bind () 1 2 (= #t #t)))
+(%expect #t (handler-bind () 1 2 (equal? #t #t)))
 (%expect 1
             (block b
               (handler-bind ((condition (lambda (c) (return-from b 1))))
