@@ -398,14 +398,13 @@
   (let ((pairs (map-list (lambda ((dynamic-name expr))
                            (cons (eval dynamic-name env) (eval expr env)))
                          bindings)))
-    (letrec ((#'process-pairs
-              (lambda (pairs)
-                (if (nilp pairs)
-                    (eval (list* #'progn body) env)
-                    (let* ((((dynamic . value) . rest-pairs) pairs))
-                      (%dynamic-let-1 dynamic value
-                                      (lambda ()
-                                        (process-pairs rest-pairs))))))))
+    (labels ((process-pairs (pairs)
+               (if (nilp pairs)
+                   (eval (list* #'progn body) env)
+                   (let* ((((dynamic . value) . rest-pairs) pairs))
+                     (%dynamic-let-1 dynamic value
+                                     (lambda ()
+                                       (process-pairs rest-pairs)))))))
       (process-pairs pairs))))
 
 ;;;; JS stuff
@@ -430,15 +429,14 @@
   (@create $Object (optional opt-proto #null)))
 
 (defun plist-to-js-object (plist)
-  (letrec ((obj (create-js-object))
-           (#'add-to-dict
-            (lambda (plist)
-              (if (nilp plist)
-                  obj
-                (progn 
-                  (js-set obj (symbol-name (car plist)) (cadr plist))
-                  (add-to-dict (cddr plist)))))))
-          (add-to-dict plist)))
+  (let ((obj (create-js-object)))
+    (labels ((add-to-dict (plist)
+               (if (nilp plist)
+                   obj
+                   (progn 
+                     (js-set obj (symbol-name (car plist)) (cadr plist))
+                  (add-to-dict (cddr plist))))))
+      (add-to-dict plist))))
 
 (defun js-object plist (plist-to-js-object plist))
 
