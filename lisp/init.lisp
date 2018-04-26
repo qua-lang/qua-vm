@@ -95,18 +95,18 @@
 ;;;; Functions
 
 ; Create a function that doesn't do any type checking.
-(defmacro ur-lambda (params . body)
+(defmacro %lambda (params . body)
   (list #'wrap (list* #'vau params #ign body)))
 
 ; Define a named function that doesn't do any type checking in the
 ; current environment.
-(defmacro ur-defun (name params . body)
-  (list #'def (qua-to-fun-sym name) (list* #'ur-lambda params body)))
+(defmacro %defun (name params . body)
+  (list #'def (qua-to-fun-sym name) (list* #'%lambda params body)))
 
 ; Use the unchecked versions for LAMBDA and DEFUN for now
 ; which will later use checked versions.
-(def #'lambda #'ur-lambda)
-(def #'defun #'ur-defun)
+(def #'lambda #'%lambda)
+(def #'defun #'%defun)
 
 ; Apply a function to a list of arguments.
 (defun apply (fun args . opt-env)
@@ -690,3 +690,6 @@
   (print "DEBUG")
   (print condition)
   (%%raise (js-new $Error condition)))
+
+;;;; Collections
+
