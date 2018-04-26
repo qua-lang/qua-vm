@@ -384,18 +384,21 @@
 
 (def #'dynamic #'ref)
 
-(def #'dynamic-let-1 #'%%dynamic-let-1)
+(def #'%dynamic-let-1 #'%%dynamic-let-1)
 
 (deffexpr dynamic-let (bindings . body) env
-  (letrec ((#'process-bindings
-            (lambda (bs)
-              (if (nilp bs)
-                  (list* #'progn body)
-                  (let* ((((name expr) . rest-bs) bs)
-                         (value (eval expr env)))
-                    (list #'dynamic-let-1 name value
-                          (list #'lambda () (process-bindings rest-bs))))))))
-    (eval (process-bindings bindings) env)))
+  (let ((pairs (map-list (lambda ((dynamic-name expr))
+                           (cons (eval dynamic-name env) (eval expr env)))
+                         bindings)))
+    (letrec ((#'process-pairs
+              (lambda (pairs)
+                (if (nilp pairs)
+                    (eval (list* #'progn body) env)
+                    (let* ((((dynamic . value) . rest-pairs) pairs))
+                      (%dynamic-let-1 dynamic value
+                                      (lambda ()
+                                        (process-pairs rest-pairs))))))))
+      (process-pairs pairs))))
 
 ;;;; JS stuff
 
@@ -415,11 +418,11 @@
       (js-apply fun this (list-to-js-array args)))))
 
 ; {}
-(defun js-create-object (proto)
-  (@create $Object proto))
+(defun create-js-object opt-proto
+  (@create $Object (optional opt-proto #null)))
 
 (defun plist-to-js-object (plist)
-  (letrec ((obj (js-create-object #null))
+  (letrec ((obj (create-js-object))
            (#'add-to-dict
             (lambda (plist)
               (if (nilp plist)
@@ -541,7 +544,7 @@
   (vau (handler-specs . body) env
     (let* ((handlers (map-list (lambda (spec) (handler-spec-parser spec env)) handler-specs))
            (handler-frame (make-handler-frame handlers (dynamic handler-frame-dynamic))))
-      (dynamic-let-1 handler-frame-dynamic handler-frame
+      (%dynamic-let-1 handler-frame-dynamic handler-frame
         (lambda () (eval (list* #'progn body) env))))))
 
 ;; handler-spec ::= (condition-class-name handler-function-form)

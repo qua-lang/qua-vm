@@ -263,7 +263,7 @@
 (%assert (%deep-equal "v" (.qs_ns 'foo)))
 (%assert (%deep-equal "f" (.qs_ns '#'foo)))
 ; Can set slots
-(let ((obj (js-create-object #null)))
+(let ((obj (create-js-object)))
   (setf (.message obj) "foo")
   (%assert (%deep-equal "foo" (.message obj))))
 
