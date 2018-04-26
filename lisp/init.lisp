@@ -48,8 +48,6 @@
 (def #'list* #'%%list*) ; Construct list of arguments, with the final argument as tail.
 (def #'js-list-to-array #'%%list-to-array)
 
-(def #'= #'eq)
-
 ;;;; Basics
 
 (def #'quote (%%vau (op) #ign op)) ; Prevent evaluation of its single operand.
@@ -205,6 +203,9 @@
         (#t                   (apply (wrap #'or) (cdr ops) env))))
 
 ;;;; Misc. language
+
+; Use EQ for now as generic equality (since it works for JS values)
+(def #'= #'eq)
 
 (defun optional (opt-arg . opt-default)
   (if (nilp opt-arg)

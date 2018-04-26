@@ -129,7 +129,7 @@
       (qua-expect 1 x)
       (qua-expect 2 y)
       (qua-expect '(3 4) z))))
-    
+
 ;;;; SETF
 (let ((foo 1))
   (defun foo () foo)
