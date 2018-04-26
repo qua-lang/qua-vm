@@ -228,6 +228,10 @@
 (%expect 2 (prog2 1 2 3))
 (%expect #void (prog2 1))
 
+(%expect 12 (labels ((bar (x) (* x (foo)))
+                     (foo () 4))
+              (bar 3)))
+
 ;;;; Dynamic variables
 
 (defdynamic *my-dynamic* 1)

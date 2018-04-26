@@ -177,6 +177,14 @@
                (list* #'list (map-list #'cadr bindings)))
          body))
 
+; Common Lisp's recursive binder for functions.
+(defmacro labels (fun-bindings . body)
+  (list* #'letrec (map-list
+                   (lambda ((fun-name fun-params . fun-body))
+                     (list (%to-fun-sym fun-name) (list* #'lambda fun-params fun-body)))
+                   fun-bindings)
+         body))
+
 ;;;; Logic
 
 (defun not (boolean)
