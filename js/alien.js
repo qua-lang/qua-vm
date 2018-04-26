@@ -10,7 +10,9 @@ module.exports = function(vm, e) {
     vm.js_function = function(cmb) {
         return function() {
             var args = vm.array_to_list(Array.prototype.slice.call(arguments));
-            return vm.combine(null, null, cmb, args); } };
+            return vm.combine(null, null, cmb, args);
+        }
+    };
     vm.JSObject = vm.defclass("js-object", ["object"], {});
     vm.JSArray = vm.defclass("js-array", ["js-object"], {});
     vm.JSFunction = vm.defclass("js-function", ["js-object"], {});
