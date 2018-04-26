@@ -439,7 +439,7 @@
 (defmacro js-lambda (lambda-list . body)
   (list #'js-function (list* #'lambda lambda-list body)))
 
-(defun js-relational-op (name)
+(defun %js-relational-op (name)
   (let ((#'binop (%%js-binop name)))
     (letrec ((#'op (lambda (arg1 arg2 . rest)
                      (if (binop arg1 arg2)
@@ -449,12 +449,12 @@
                          #f))))
       #'op)))
 
-(def #'== (js-relational-op "=="))
-(def #'=== (js-relational-op "==="))
-(def #'< (js-relational-op "<"))
-(def #'> (js-relational-op ">"))
-(def #'<= (js-relational-op "<="))
-(def #'>= (js-relational-op ">="))
+(def #'== (%js-relational-op "=="))
+(def #'=== (%js-relational-op "==="))
+(def #'< (%js-relational-op "<"))
+(def #'> (%js-relational-op ">"))
+(def #'<= (%js-relational-op "<="))
+(def #'>= (%js-relational-op ">="))
 
 (def #'lt #'<)
 (def #'lte #'<=)
@@ -475,15 +475,15 @@
                  0
                  (fold-list #'binop (car args) (cdr args))))))
 
-(defun js-negative-op (name unit)
+(defun %js-negative-op (name unit)
   (let ((#'binop (%%js-binop name)))
     (lambda (arg1 . rest)
       (if (nilp rest)
           (binop unit arg1)
           (fold-list #'binop arg1 rest)))))
 
-(def #'- (js-negative-op "-" 0))
-(def #'/ (js-negative-op "/" 1))
+(def #'- (%js-negative-op "-" 0))
+(def #'/ (%js-negative-op "/" 1))
 
 ;;;; Conditions
 
