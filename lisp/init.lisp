@@ -444,7 +444,7 @@
                    obj
                    (progn 
                      (js-set obj (symbol-name (car plist)) (cadr plist))
-                  (add-to-dict (cddr plist))))))
+                     (add-to-dict (cddr plist))))))
       (add-to-dict plist))))
 
 (defun js-object plist (plist-to-js-object plist))
