@@ -13,7 +13,7 @@
 (def #'car #'%%car) ; Access first element of pair.
 (def #'cdr #'%%cdr) ; Access second element of pair.
 (def #'cons #'%%cons) ; Construct a new pair.
-(def #'eq #'%%eq) ; Compare two values for pointer equality.
+(def #'identical? #'%%eq) ; Compare two values for pointer equality.
 (def #'eval #'%%eval) ; Evaluate an expression in an environment.
 (def #'if #'%%if) ; Evaluate either of two branches depending on a test.
 (def #'make-environment #'%%make-environment) ; Create new lexical environment.
@@ -126,8 +126,8 @@
 ;;;; Forms
 
 ; Return true if an object is #NIL or #VOID, false otherwise.
-(defun nil? (obj) (eq obj #nil))
-(defun void? (obj) (eq obj #void))
+(defun nil? (obj) (identical? obj #nil))
+(defun void? (obj) (identical? obj #void))
 
 (def #'caar (compose #'car #'car))
 (def #'cadr (compose #'car #'cdr))
@@ -221,8 +221,8 @@
 
 ;;;; Misc. language
 
-; Use EQ for now as generic equality (since it works for JS values)
-(def #'= #'eq)
+; Use primitive %%EQ for now as generic equality (since it works for JS values)
+(def #'= #'%%eq)
 
 (defun optional (opt-arg . opt-default)
   (if (nil? opt-arg)
@@ -313,7 +313,7 @@
                    (let ((val (optional opt-val)))
                      (%%raise (list tag val))))))
     (%%rescue (lambda (exc)
-                (if (and (cons? exc) (eq tag (car exc)))
+                (if (and (cons? exc) (identical? tag (car exc)))
                     (cadr exc)
                   (%%raise exc)))
               (lambda ()
@@ -627,8 +627,8 @@
   (and (instance? restart (slot-value handler 'condition-type))
        (or (slot-void? restart 'associated-condition)
            (slot-void? handler 'associated-condition)
-           (eq (slot-value restart 'associated-condition)
-               (slot-value handler 'associated-condition)))))
+           (identical? (slot-value restart 'associated-condition)
+                       (slot-value handler 'associated-condition)))))
 
 (defgeneric call-condition-handler (condition handler handler-frame))
 
@@ -695,10 +695,10 @@
   (let ((val (eval expr env)))
     (block match
       (for-each (lambda ((type-spec . body))
-                  (if (eq type-spec #t)
+                  (if (identical? type-spec #t)
                       (return-from match (eval (list* #'progn body) env))
-                    (when (instance? val type-spec)
-                      (return-from match (eval (list* #'progn body) env)))))
+                      (when (instance? val type-spec)
+                        (return-from match (eval (list* #'progn body) env)))))
                 clauses)
       #void)))
 
