@@ -122,6 +122,8 @@
 (defun compose (#'f #'g)
   (lambda (arg) (f (g arg))))
 
+(defun identity (x) x)
+
 ;;;; Forms
 
 ; Return true if an object is #NIL or #VOID, false otherwise.
@@ -278,8 +280,11 @@
     (put-method class name fun)
     name))
 
+(def #'%parse-type-spec #'identity) ; Overriden later
+
 (deffexpr defclass (class-spec superclass-specs . #ign) #ign
-  (ensure-class class-spec (list-to-js-array superclass-specs)))
+  (ensure-class (%parse-type-spec class-spec)
+                (list-to-js-array (map-list #'%parse-type-spec superclass-specs))))
 
 (defgeneric hash-object (self))
 (defgeneric compare-object (self))
@@ -675,7 +680,7 @@
       (error (make-instance 'simple-error :message "Illegal type-spec"))))
   
 (defun %parse-generic-param-spec (gp-spec)
-  (if (symbol? gp-spec)
+  (if (or (keyword? gp-spec) (symbol? gp-spec))
       (let ((type (%parse-type-spec gp-spec)))
         (make-instance '%generic-param :in-type type :out-type type))
       (cons? gp-spec)

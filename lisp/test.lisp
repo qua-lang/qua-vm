@@ -397,6 +397,14 @@
                            :generic-params
                            (list 
                             (make-instance '%generic-param
+                                           :in-type (%parse-type-spec :e)
+                                           :out-type (%parse-type-spec :e))))
+            (%parse-type-spec '(hash-set :e)))
+(%expect (make-instance '%class-type
+                           :name "hash-set"
+                           :generic-params
+                           (list 
+                            (make-instance '%generic-param
                                            :in-type (%parse-type-spec 'number)
                                            :out-type %the-top-type)))
             (%parse-type-spec '(hash-set (:in number))))

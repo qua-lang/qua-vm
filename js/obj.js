@@ -42,7 +42,7 @@ module.exports = function(vm) {
     /* Class registry */
     vm.GENERIC_CLASSES = Object.create(null);
     vm.CONCRETE_CLASSES = Object.create(null);
-    vm.defclass = function(name, direct_superclasses, slots) {        
+    vm.defclass = function(name, direct_superclasses, slots) {
         name = vm.designate_string(name);
         function generic_class() {};
         generic_class.qua_isa = vm.GenericClass;
@@ -72,8 +72,8 @@ module.exports = function(vm) {
         return vm.GENERIC_CLASSES[vm.generic_class_key(name)];
     };
     // Classes, methods, and slots have names which can be specified
-    // as symbols, keywords, or strings from Lisp.  Internally,
-    // they're always strings.
+    // as symbols, keywords, strings, or class types from Lisp.
+    // Internally, they're always strings.
     vm.designate_string = function(name) {
         if (name.hasOwnProperty("qs_name")) {
             return name.qs_name;
