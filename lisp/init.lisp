@@ -255,8 +255,8 @@
                 (call-method (car args) name args)))
         env))
 
-(deffexpr defmethod (name ((self class-desig) . args) . body) env
-  (let ((class (find-generic-class class-desig))
+(deffexpr defmethod (name ((self class-spec) . args) . body) env
+  (let ((class (find-generic-class class-spec))
         (fun (eval (list* #'lambda (list* self args) body) env)))
     (put-method class name fun)
     name))
