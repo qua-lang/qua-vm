@@ -42,14 +42,14 @@ module.exports = function(vm) {
     /* Class registry */
     vm.GENERIC_CLASSES = Object.create(null);
     vm.CONCRETE_CLASSES = Object.create(null);
-    vm.defclass = function(name, direct_superclasses, slots) {
-        vm.assert_type(name, "string");
-        vm.assert_type(direct_superclasses, ["string"]);
+    vm.defclass = function(name, direct_superclasses, slots) {        
+        name = vm.designate_string(name);
         function generic_class() {};
         generic_class.qua_isa = vm.GenericClass;
         generic_class["qs_name"] = name;
         generic_class["qs_type-parameters"] = [];
-        generic_class["qs_direct-superclasses"] = direct_superclasses;
+        generic_class["qs_direct-superclasses"] =
+            direct_superclasses.map(vm.designate_string);
         generic_class["qs_slots"] = slots ? slots : Object.create(null);
         vm.GENERIC_CLASSES[name] = generic_class;
         function concrete_class() {};
@@ -75,9 +75,7 @@ module.exports = function(vm) {
     // as symbols, keywords, or strings from Lisp.  Internally,
     // they're always strings.
     vm.designate_string = function(name) {
-        if (name instanceof vm.Sym) {
-            return name.qs_name;
-        } else if (name instanceof vm.Keyword) {
+        if (name.hasOwnProperty("qs_name")) {
             return name.qs_name;
         } else {
             vm.assert_type(name, "string");

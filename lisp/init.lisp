@@ -46,7 +46,7 @@
 (def #'qua-to-fun-sym #'%%to-fun-sym) ; Turn any symbol into a function namespaced one.
 ;; Optimization bindings:
 (def #'list* #'%%list*) ; Construct list of arguments, with the final argument as tail.
-(def #'js-list-to-array #'%%list-to-array)
+(def #'list-to-js-array #'%%list-to-array)
 
 ;;;; Basics
 
@@ -243,7 +243,7 @@
 ;;;; Objects and classes
 
 (defun make-instance (class-desig . initargs)
-  (%%make-instance class-desig (js-plist-to-object initargs)))
+  (%%make-instance class-desig (plist-to-js-object initargs)))
 
 (defun call-method (obj name args)
   (let ((method (find-method obj name)))
@@ -261,11 +261,8 @@
     (put-method class name fun)
     name))
 
-(deffexpr defclass (name superclasses . #ign) #ign
-  (let ((string-list (map-list (lambda (superclass)
-                                     (slot-value superclass 'name))
-                                   superclasses)))
-    (ensure-class (slot-value name 'name) (js-list-to-array string-list))))
+(deffexpr defclass (class-spec superclass-specs . #ign) #ign
+  (ensure-class class-spec (list-to-js-array superclass-specs)))
 
 (defgeneric hash-object (self))
 (defgeneric compare-object (self))
@@ -415,13 +412,13 @@
 (defun js-invoker (fun-name)
   (lambda (this . args)
     (let ((fun (js-get this fun-name)))
-      (js-apply fun this (js-list-to-array args)))))
+      (js-apply fun this (list-to-js-array args)))))
 
 ; {}
 (defun js-create-object (proto)
   (@create $Object proto))
 
-(defun js-plist-to-object (plist)
+(defun plist-to-js-object (plist)
   (letrec ((obj (js-create-object #null))
            (#'add-to-dict
             (lambda (plist)
@@ -432,9 +429,9 @@
                   (add-to-dict (cddr plist)))))))
           (add-to-dict plist)))
 
-(defun js-object plist (js-plist-to-object plist))
+(defun js-object plist (plist-to-js-object plist))
 
-(defun js-array elements (js-list-to-array elements))
+(defun js-array elements (list-to-js-array elements))
 
 (defmacro js-lambda (lambda-list . body)
   (list #'js-function (list* #'lambda lambda-list body)))
