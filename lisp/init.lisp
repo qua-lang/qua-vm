@@ -151,7 +151,7 @@
       init
       (fold-list #'fun (fun init (car list)) (cdr list))))
 
-;;;; Lexical bindings
+;;;; Lexical variable bindings
 
 ; The usual parallel-binding LET with left to right evaluation of
 ; value expressions.
@@ -168,21 +168,28 @@
       (list #'let (list (car bindings))
             (list* #'let* (cdr bindings) body))))
 
-; Kernel's LETREC where the value expression of each binding has all
-; other bindings in scope.
-(defmacro letrec (bindings . body)
+; Kernel's recursive LETREC where the value expression of each binding
+; has all other bindings in scope.
+(defmacro %letrec (bindings . body)
   (list* #'let ()
          (list #'def
                (map-list #'car bindings)
                (list* #'list (map-list #'cadr bindings)))
          body))
 
-; Common Lisp's recursive binder for functions.
+;;;; Lexical function bindings
+
+(defun %fun-binding-xform ((fun-name fun-params . fun-body))
+  (list (%to-fun-sym fun-name) (list* #'lambda fun-params fun-body)))
+
+; Common Lisp's parallel binder for functions.
+(defmacro flet (fun-bindings . body)
+  (list* #'let (map-list #'%fun-binding-xform fun-bindings)
+         body))
+
+; Common Lisp's (self) recursive binder for functions.
 (defmacro labels (fun-bindings . body)
-  (list* #'letrec (map-list
-                   (lambda ((fun-name fun-params . fun-body))
-                     (list (%to-fun-sym fun-name) (list* #'lambda fun-params fun-body)))
-                   fun-bindings)
+  (list* #'%letrec (map-list #'%fun-binding-xform fun-bindings)
          body))
 
 ;;;; Logic
@@ -447,12 +454,12 @@
 
 (defun %js-relational-op (name)
   (let ((#'binop (%%js-binop name)))
-    (letrec ((#'op (lambda (arg1 arg2 . rest)
-                     (if (binop arg1 arg2)
-                         (if (nilp rest)
-                             #t
-                             (apply #'op (list* arg2 rest)))
-                         #f))))
+    (labels ((op (arg1 arg2 . rest)
+               (if (binop arg1 arg2)
+                   (if (nilp rest)
+                       #t
+                       (apply #'op (list* arg2 rest)))
+                   #f)))
       #'op)))
 
 (def #'== (%js-relational-op "=="))
