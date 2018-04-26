@@ -41,9 +41,9 @@
 (def #'js-global #'%%js-global)
 (def #'js-new #'%%js-new)
 (def #'js-set #'%%js-set)
-;; Use the QUA package for stuff that's not expected to be called by
+;; Use one % as prefix for stuff that's not expected to be called by
 ;; the user or that doesn't have a final API yet.
-(def #'qua-to-fun-sym #'%%to-fun-sym) ; Turn any symbol into a function namespaced one.
+(def #'%to-fun-sym #'%%to-fun-sym) ; Turn any symbol into a function namespaced one.
 ;; Optimization bindings:
 (def #'list* #'%%list*) ; Construct list of arguments, with the final argument as tail.
 (def #'list-to-js-array #'%%list-to-array)
@@ -66,7 +66,7 @@
 ; Define a named fexpr in the current environment.
 (def #'deffexpr 
   (vau (name params env-param . body) env
-    (eval (list #'def (qua-to-fun-sym name) 
+    (eval (list #'def (%to-fun-sym name) 
                 (list* #'vau params env-param body))
           env)))
 
@@ -90,7 +90,7 @@
 ; Define a named macro in the current environment.
 (def #'defmacro
   (macro (name params . body)
-    (list #'def (qua-to-fun-sym name) (list* #'macro params body))))
+    (list #'def (%to-fun-sym name) (list* #'macro params body))))
 
 ;;;; Functions
 
@@ -101,7 +101,7 @@
 ; Define a named function that doesn't do any type checking in the
 ; current environment.
 (defmacro %defun (name params . body)
-  (list #'def (qua-to-fun-sym name) (list* #'%lambda params body)))
+  (list #'def (%to-fun-sym name) (list* #'%lambda params body)))
 
 ; Use the unchecked versions for LAMBDA and DEFUN for now
 ; which will later use checked versions.
@@ -216,20 +216,20 @@
 
 ;;;; Generalized reference
 
-(defconstant qua-setter-prop "qua_setter")
+(defconstant %setter-prop "qua_setter")
 
 (defun setter (obj)
-  (js-get obj qua-setter-prop))
+  (js-get obj %setter-prop))
 
-(js-set #'setter qua-setter-prop
+(js-set #'setter %setter-prop
         (lambda (new-setter getter)
-          (js-set getter qua-setter-prop new-setter)))
+          (js-set getter %setter-prop new-setter)))
 
 (defmacro setf (place new-val)
   (if (symbolp place)
       (list #'setq place new-val)
       (let* (((getter-form . args) place)
-             (getter (if (symbolp getter-form) (qua-to-fun-sym getter-form) getter-form)))
+             (getter (if (symbolp getter-form) (%to-fun-sym getter-form) getter-form)))
         (list* (list #'setter getter) new-val args))))
 
 (defmacro incf (place . opt-increment)
@@ -250,7 +250,7 @@
     (apply method args)))
 
 (deffexpr defgeneric (name #ign) env
-  (eval (list #'def (qua-to-fun-sym name)
+  (eval (list #'def (%to-fun-sym name)
               (lambda args
                 (call-method (car args) name args)))
         env))
@@ -290,7 +290,7 @@
 (defmacro unless (test . body)
   (list #'if test #void (list* #'progn body)))
 
-(defun qua-call-with-escape (#'fun)
+(defun %call-with-escape (#'fun)
   (let* ((tag (list 'tag))
          (escape (lambda opt-val
                    (let ((val (optional opt-val)))
@@ -303,7 +303,7 @@
                 (fun escape)))))
 
 (defmacro block (name . body)
-  (list #'qua-call-with-escape (list* #'lambda (list name) body)))
+  (list #'%call-with-escape (list* #'lambda (list name) body)))
 
 (defun return-from (escape . opt-val)
   (apply escape opt-val))
@@ -537,7 +537,7 @@
 (defun make-handler-frame (handlers . opt-parent)
   (make-instance 'handler-frame :handlers handlers :parent (optional opt-parent)))
 
-(defun qua-make-handler-bind (#'handler-spec-parser handler-frame-dynamic)
+(defun %make-handler-bind (#'handler-spec-parser handler-frame-dynamic)
   (vau (handler-specs . body) env
     (let* ((handlers (map-list (lambda (spec) (handler-spec-parser spec env)) handler-specs))
            (handler-frame (make-handler-frame handlers (dynamic handler-frame-dynamic))))
@@ -546,14 +546,14 @@
 
 ;; handler-spec ::= (condition-class-name handler-function-form)
 (def #'handler-bind
-  (qua-make-handler-bind
+  (%make-handler-bind
    (lambda ((class-name function-form) env)
      (make-handler class-name (eval function-form env)))
    current-condition-handler-frame))
 
 ;; handler-spec ::= (restart-class-name handler-function-form . opt-associated-condition)
 (def #'restart-bind
-  (qua-make-handler-bind
+  (%make-handler-bind
    (lambda ((class-name function-form . opt-associated-condition) env)
      (make-handler class-name
                    (eval function-form env)
@@ -626,52 +626,52 @@
 
 (defclass type-error (error) ())
 
-(defconstant qua-the-top-type
-  (make-instance 'qua-class-type :name "top" :generic-params '()))
+(defconstant %the-top-type
+  (make-instance '%class-type :name "top" :generic-params '()))
 
-(defconstant qua-the-bottom-type
-  (make-instance 'qua-class-type :name "bottom" :generic-params '()))
+(defconstant %the-bottom-type
+  (make-instance '%class-type :name "bottom" :generic-params '()))
 
-(defun qua-parse-type-spec (type-spec)
+(defun %parse-type-spec (type-spec)
   (if (keywordp type-spec)
-      (make-instance 'qua-type-variable
+      (make-instance '%type-variable
                      :name (symbol-name type-spec))
       (if (symbolp type-spec)
-          (make-instance 'qua-class-type
+          (make-instance '%class-type
                          :name (symbol-name type-spec)
                          :generic-params '())
           (if (consp type-spec)
               (let (((class-name . generic-param-specs) type-spec))
-                (make-instance 'qua-class-type
+                (make-instance '%class-type
                                :name (symbol-name class-name)
-                               :generic-params (map-list #'qua-parse-generic-param-spec
+                               :generic-params (map-list #'%parse-generic-param-spec
                                                          generic-param-specs)))
               (error (make-instance 'simple-error :message "Illegal type-spec"))))))
   
-(defun qua-parse-generic-param-spec (gp-spec)
+(defun %parse-generic-param-spec (gp-spec)
   (if (symbolp gp-spec)
-      (let ((type (qua-parse-type-spec gp-spec)))
-        (make-instance 'qua-generic-param :in-type type :out-type type))
+      (let ((type (%parse-type-spec gp-spec)))
+        (make-instance '%generic-param :in-type type :out-type type))
       (if (consp gp-spec)
           (let (((op . rest) gp-spec))
             (if (keywordp op)
                 (case (symbol-name op)
                       ("io"
-                       (let* ((in-type (qua-parse-type-spec (car rest)))
-                              (out-type (qua-parse-type-spec (optional (cdr rest) in-type))))
-                         (make-instance 'qua-generic-param :in-type in-type :out-type out-type)))
+                       (let* ((in-type (%parse-type-spec (car rest)))
+                              (out-type (%parse-type-spec (optional (cdr rest) in-type))))
+                         (make-instance '%generic-param :in-type in-type :out-type out-type)))
                       ("in"
-                       (let ((in-type (qua-parse-type-spec (car rest))))
-                         (make-instance 'qua-generic-param :in-type in-type :out-type qua-the-top-type)))
+                       (let ((in-type (%parse-type-spec (car rest))))
+                         (make-instance '%generic-param :in-type in-type :out-type %the-top-type)))
                       ("out"
-                       (let ((out-type (qua-parse-type-spec (car rest))))
-                         (make-instance 'qua-generic-param :in-type qua-the-bottom-type :out-type out-type))))
-                (let ((type (qua-parse-type-spec gp-spec)))
-                  (make-instance 'qua-generic-param :in-type type :out-type type))))
+                       (let ((out-type (%parse-type-spec (car rest))))
+                         (make-instance '%generic-param :in-type %the-bottom-type :out-type out-type))))
+                (let ((type (%parse-type-spec gp-spec)))
+                  (make-instance '%generic-param :in-type type :out-type type))))
           (error "Illegal generic param spec"))))
 
 (defun typep (obj type-spec)
-  (%%typep obj (qua-parse-type-spec type-spec)))
+  (%%typep obj (%parse-type-spec type-spec)))
 
 (deffexpr typecase (expr . clauses) env
   (let ((val (eval expr env)))
@@ -690,6 +690,3 @@
   (print "DEBUG")
   (print condition)
   (%%raise (js-new $Error condition)))
-
-;;;; Collections
-
