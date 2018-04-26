@@ -29,11 +29,11 @@
 (def #'find-generic-class #'%%find-generic-class)
 (def #'find-method #'%%find-method)
 (def #'generic-class-of #'%%generic-class-of)
+(def #'instance? #'%%instance?)
 (def #'put-method #'%%put-method)
 (def #'set-slot-value #'%%set-slot-value)
-(def #'slot-bound-p #'%%slot-bound-p)
+(def #'slot-bound? #'%%slot-bound?)
 (def #'slot-value #'%%slot-value)
-(def #'typep #'%%typep)
 ;; JS:
 (def #'js-apply #'%%js-apply)
 (def #'js-function #'%%js-function)
@@ -118,36 +118,38 @@
 (defun funcall (fun . args)
   (apply fun args))
 
+; Don't need FUNCALL as much as in Common Lisp though, since we can
+; always bind lexical vars in function namespace:
 (defun compose (#'f #'g)
   (lambda (arg) (f (g arg))))
 
 ;;;; Forms
 
 ; Return true if an object is #NIL or #VOID, false otherwise.
-(defun nilp (obj) (eq obj #nil))
-(defun voidp (obj) (eq obj #void))
+(defun nil? (obj) (eq obj #nil))
+(defun void? (obj) (eq obj #void))
 
 (def #'caar (compose #'car #'car))
 (def #'cadr (compose #'car #'cdr))
 (def #'cdar (compose #'cdr #'car))
 (def #'cddr (compose #'cdr #'cdr))
 
-(defun symbolp (sym) (%%typep sym 'symbol))
-(defun keywordp (obj) (%%typep obj 'keyword))
-(defun consp (cons) (%%typep cons 'cons))
+(defun symbol? (sym) (%%instance? sym 'symbol))
+(defun keyword? (obj) (%%instance? obj 'keyword))
+(defun cons? (cons) (%%instance? cons 'cons))
 
 (defun symbol-name (sym) (slot-value sym 'name))
 
 ; Produce a new list by applying a function to each element of a list.
 (defun map-list (#'fun list)
-  (if (nilp list)
+  (if (nil? list)
       #nil
       (cons (fun (car list)) (map-list #'fun (cdr list)))))
 
 (def #'for-each #'map-list)
 
 (defun fold-list (#'fun init list)
-  (if (nilp list)
+  (if (nil? list)
       init
       (fold-list #'fun (fun init (car list)) (cdr list))))
 
@@ -163,7 +165,7 @@
 ; The usual sequential-binding LET* where the value expression of each
 ; binding has all earlier bindings in scope (if any).
 (defmacro let* (bindings . body)
-  (if (nilp bindings)
+  (if (nil? bindings)
       (list* #'let () body)
       (list #'let (list (car bindings))
             (list* #'let* (cdr bindings) body))))
@@ -198,7 +200,7 @@
   (if boolean #f #t))
 
 (deffexpr cond clauses env
-  (if (nilp clauses)
+  (if (nil? clauses)
       #void
       (let ((((test . body) . clauses) clauses))
         (if (eval test env)
@@ -206,14 +208,14 @@
             (apply (wrap #'cond) clauses env)))))
 
 (deffexpr and ops env
-  (cond ((nilp ops)           #t)
-        ((nilp (cdr ops))     (eval (car ops) env))
+  (cond ((nil? ops)           #t)
+        ((nil? (cdr ops))     (eval (car ops) env))
         ((eval (car ops) env) (apply (wrap #'and) (cdr ops) env))
         (#t                   #f)))
 
 (deffexpr or ops env
-  (cond ((nilp ops)           #f)
-        ((nilp (cdr ops))     (eval (car ops) env))
+  (cond ((nil? ops)           #f)
+        ((nil? (cdr ops))     (eval (car ops) env))
         ((eval (car ops) env) #t)
         (#t                   (apply (wrap #'or) (cdr ops) env))))
 
@@ -223,8 +225,8 @@
 (def #'= #'eq)
 
 (defun optional (opt-arg . opt-default)
-  (if (nilp opt-arg)
-      (if (nilp opt-default) #void (car opt-default))
+  (if (nil? opt-arg)
+      (if (nil? opt-default) #void (car opt-default))
     (car opt-arg)))
 
 (def #'defconstant #'def)
@@ -241,10 +243,10 @@
           (js-set getter %setter-prop new-setter)))
 
 (defmacro setf (place new-val)
-  (if (symbolp place)
+  (if (symbol? place)
       (list #'setq place new-val)
       (let* (((getter-form . args) place)
-             (getter (if (symbolp getter-form) (%to-fun-sym getter-form) getter-form)))
+             (getter (if (symbol? getter-form) (%to-fun-sym getter-form) getter-form)))
         (list* (list #'setter getter) new-val args))))
 
 (defmacro incf (place . opt-increment)
@@ -311,7 +313,7 @@
                    (let ((val (optional opt-val)))
                      (%%raise (list tag val))))))
     (%%rescue (lambda (exc)
-                (if (and (consp exc) (eq tag (car exc)))
+                (if (and (cons? exc) (eq tag (car exc)))
                     (cadr exc)
                   (%%raise exc)))
               (lambda ()
@@ -324,7 +326,7 @@
   (apply escape opt-val))
 
 (deffexpr prog1 forms env
-  (if (nilp forms)
+  (if (nil? forms)
       #void
     (let ((result (eval (car forms) env)))
       (eval (list* #'progn (cdr forms)) env)
@@ -406,7 +408,7 @@
                            (cons (eval dynamic-name env) (eval expr env)))
                          bindings)))
     (labels ((process-pairs (pairs)
-               (if (nilp pairs)
+               (if (nil? pairs)
                    (eval (list* #'progn body) env)
                    (let* ((((dynamic . value) . rest-pairs) pairs))
                      (%dynamic-let-1 dynamic value
@@ -438,7 +440,7 @@
 (defun plist-to-js-object (plist)
   (let ((obj (create-js-object)))
     (labels ((add-to-dict (plist)
-               (if (nilp plist)
+               (if (nil? plist)
                    obj
                    (progn 
                      (js-set obj (symbol-name (car plist)) (cadr plist))
@@ -456,7 +458,7 @@
   (let ((#'binop (%%js-binop name)))
     (labels ((op (arg1 arg2 . rest)
                (if (binop arg1 arg2)
-                   (if (nilp rest)
+                   (if (nil? rest)
                        #t
                        (apply #'op (list* arg2 rest)))
                    #f)))
@@ -484,14 +486,14 @@
 ;; Can't simply use 0 as unit or it won't work with strings
 (def #'+ (let ((#'binop (%%js-binop "+")))
            (lambda args
-             (if (nilp args)
+             (if (nil? args)
                  0
                  (fold-list #'binop (car args) (cdr args))))))
 
 (defun %js-negative-op (name unit)
   (let ((#'binop (%%js-binop name)))
     (lambda (arg1 . rest)
-      (if (nilp rest)
+      (if (nil? rest)
           (binop unit arg1)
           (fold-list #'binop arg1 rest)))))
 
@@ -594,7 +596,7 @@
 
 (defun signal-condition (condition dynamic-frame)
   (let ((handler-and-frame (find-applicable-handler condition dynamic-frame)))
-    (if (voidp handler-and-frame)
+    (if (void? handler-and-frame)
         #void
       (let (((handler frame) handler-and-frame))
         (call-condition-handler condition handler frame)
@@ -602,7 +604,7 @@
         (signal-condition condition (slot-value frame 'parent))))))
 
 (defun find-applicable-handler (condition dynamic-frame)
-  (if (voidp dynamic-frame)
+  (if (void? dynamic-frame)
       #void
     (block found
            (for-each (lambda (handler)
@@ -614,17 +616,17 @@
 (defgeneric condition-applicable? (condition handler))
 
 (defmethod condition-applicable? ((condition condition) handler)
-  (typep condition (slot-value handler 'condition-type)))
+  (instance? condition (slot-value handler 'condition-type)))
 
-(defun slot-void-p (obj slot-name)
-  (if (slot-bound-p obj slot-name)
-      (voidp (slot-value obj slot-name))
+(defun slot-void? (obj slot-name)
+  (if (slot-bound? obj slot-name)
+      (void? (slot-value obj slot-name))
     #t))
 
 (defmethod condition-applicable? ((restart restart) handler)
-  (and (typep restart (slot-value handler 'condition-type))
-       (or (slot-void-p restart 'associated-condition)
-           (slot-void-p handler 'associated-condition)
+  (and (instance? restart (slot-value handler 'condition-type))
+       (or (slot-void? restart 'associated-condition)
+           (slot-void? handler 'associated-condition)
            (eq (slot-value restart 'associated-condition)
                (slot-value handler 'associated-condition)))))
 
@@ -649,14 +651,14 @@
   (make-instance '%class-type :name "bottom" :generic-params '()))
 
 (defun %parse-type-spec (type-spec)
-  (if (keywordp type-spec)
+  (if (keyword? type-spec)
       (make-instance '%type-variable
                      :name (symbol-name type-spec))
-      (if (symbolp type-spec)
+      (if (symbol? type-spec)
           (make-instance '%class-type
                          :name (symbol-name type-spec)
                          :generic-params '())
-          (if (consp type-spec)
+          (if (cons? type-spec)
               (let (((class-name . generic-param-specs) type-spec))
                 (make-instance '%class-type
                                :name (symbol-name class-name)
@@ -665,12 +667,12 @@
               (error (make-instance 'simple-error :message "Illegal type-spec"))))))
   
 (defun %parse-generic-param-spec (gp-spec)
-  (if (symbolp gp-spec)
+  (if (symbol? gp-spec)
       (let ((type (%parse-type-spec gp-spec)))
         (make-instance '%generic-param :in-type type :out-type type))
-      (if (consp gp-spec)
+      (if (cons? gp-spec)
           (let (((op . rest) gp-spec))
-            (if (keywordp op)
+            (if (keyword? op)
                 (case (symbol-name op)
                       ("io"
                        (let* ((in-type (%parse-type-spec (car rest)))
@@ -686,8 +688,8 @@
                   (make-instance '%generic-param :in-type type :out-type type))))
           (error "Illegal generic param spec"))))
 
-(defun typep (obj type-spec)
-  (%%typep obj (%parse-type-spec type-spec)))
+(defun instance? (obj type-spec)
+  (%%instance? obj (%parse-type-spec type-spec)))
 
 (deffexpr typecase (expr . clauses) env
   (let ((val (eval expr env)))
@@ -695,7 +697,7 @@
       (for-each (lambda ((type-spec . body))
                   (if (eq type-spec #t)
                       (return-from match (eval (list* #'progn body) env))
-                    (when (typep val type-spec)
+                    (when (instance? val type-spec)
                       (return-from match (eval (list* #'progn body) env)))))
                 clauses)
       #void)))

@@ -13,8 +13,8 @@
 (%assert (%deep-equal 1 (car (list* 1 2 3))))
 (%assert (%deep-equal (cons 2 3) (cdr (list* 1 2 3))))
 
-(%assert (symbolp 'foo))
-(%assert (keywordp :foo))
+(%assert (symbol? 'foo))
+(%assert (keyword? :foo))
 
 ;;;; Evaluation
 (def e1 (make-environment))
@@ -103,9 +103,9 @@
 (def object-with-slots (make-instance 'class-with-slots :x 2 :y 4))
 (%assert (%deep-equal 2 (slot-value object-with-slots 'x)))
 (%assert (%deep-equal 4 (slot-value object-with-slots 'y)))
-(%assert (slot-bound-p object-with-slots 'x))
-(%assert (slot-bound-p object-with-slots 'y))
-(%assert (not (slot-bound-p object-with-slots 'z)))
+(%assert (slot-bound? object-with-slots 'x))
+(%assert (slot-bound? object-with-slots 'y))
+(%assert (not (slot-bound? object-with-slots 'z)))
 (set-slot-value object-with-slots 'x 6)
 (set-slot-value object-with-slots 'y 8)
 (%assert (%deep-equal 6 (slot-value object-with-slots 'x)))
@@ -327,18 +327,18 @@
                   (signal (make-instance 'condition))))))
 
 ;;;; Subclassing
-(%assert (typep (make-instance 'serious-condition) 'object))
-(%assert (typep (make-instance 'error) 'serious-condition))
-(%assert (typep (make-instance 'error) 'object))
-(%assert (not (typep (make-instance 'object) 'error)))
+(%assert (instance? (make-instance 'serious-condition) 'object))
+(%assert (instance? (make-instance 'error) 'serious-condition))
+(%assert (instance? (make-instance 'error) 'object))
+(%assert (not (instance? (make-instance 'object) 'error)))
 
-(%assert (typep 12 'js-number))
-(%assert (typep 12 'number))
-(%assert (typep 12 'object))
-(%assert (not (typep 12 'standard-object)))
+(%assert (instance? 12 'js-number))
+(%assert (instance? 12 'number))
+(%assert (instance? 12 'object))
+(%assert (not (instance? 12 'standard-object)))
 
-(%assert (typep (.qs_direct-superclasses (find-generic-class 'object)) 'js-array))
-(%assert (typep (.qs_slots (find-generic-class 'object)) 'js-object))
+(%assert (instance? (.qs_direct-superclasses (find-generic-class 'object)) 'js-array))
+(%assert (instance? (.qs_slots (find-generic-class 'object)) 'js-object))
 
 ;;;; Types
 (%expect #void (typecase #t))
