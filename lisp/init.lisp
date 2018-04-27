@@ -184,17 +184,17 @@
 
 ;;;; Lexical function bindings
 
-(defun %fun-binding-to-var-binding ((fun-name fun-params . fun-body))
+(defun %var-bindingize ((fun-name fun-params . fun-body))
   (list (%to-fun-sym fun-name) (list* #'lambda fun-params fun-body)))
 
 ; Common Lisp's parallel binder for functions.
 (defmacro flet (fun-bindings . body)
-  (list* #'let (map-list #'%fun-binding-to-var-binding fun-bindings)
+  (list* #'let (map-list #'%var-bindingize fun-bindings)
          body))
 
 ; Common Lisp's (self) recursive binder for functions.
 (defmacro labels (fun-bindings . body)
-  (list* #'%letrec (map-list #'%fun-binding-to-var-binding fun-bindings)
+  (list* #'%letrec (map-list #'%var-bindingize fun-bindings)
          body))
 
 ;;;; Logic
