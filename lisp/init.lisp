@@ -46,6 +46,7 @@
 ;; Optimization bindings:
 (def #'list* #'%%list*) ; Construct list of arguments, with the final argument as tail.
 (def #'list-to-js-array #'%%list-to-array)
+(def #'plist-to-js-object #'%%plist-to-js-object)
 
 ;;;; Basics
 
@@ -448,16 +449,6 @@
 ; {}
 (defun create-js-object opt-proto
   (@create $Object (optional opt-proto #null)))
-
-(defun plist-to-js-object (plist)
-  (let ((obj (create-js-object)))
-    (labels ((add-to-dict (plist)
-               (if (nil? plist)
-                   obj
-                   (progn 
-                     (js-set obj (symbol-name (car plist)) (cadr plist))
-                     (add-to-dict (cddr plist))))))
-      (add-to-dict plist))))
 
 (defun js-object plist (plist-to-js-object plist))
 
