@@ -41,6 +41,7 @@
 (def #'js-global #'%%js-global)
 (def #'js-new #'%%js-new)
 (def #'js-set #'%%js-set)
+(def #'own-property? #'%%own-property?)
 ;; Use one % as prefix for stuff that's not expected to be called by
 ;; the user or that doesn't have a final API yet.
 (def #'%to-fun-sym #'%%to-fun-sym) ; Turn any symbol into a function namespaced one.

@@ -266,7 +266,14 @@
 ;;;; JS object
 (let ((obj (js-object :message "hello" :sent (not #t))))
   (%assert (%deep-equal "hello" (.message obj)))
-  (%assert (%deep-equal #f (.sent obj))))
+  (%assert (%deep-equal #f (.sent obj)))
+  (%assert (own-property? obj "message"))
+  (%assert (own-property? obj :message))
+  (%assert (own-property? obj 'message))
+  (%assert (own-property? obj "sent"))
+  (%assert (own-property? obj :sent))
+  (%assert (own-property? obj 'sent))
+  (%assert (not (own-property? obj 'xyz))))
 
 ;;;; JS getter
 (%assert (%deep-equal "String" (%%js-get (%%js-get "foo" "constructor") "name")))
