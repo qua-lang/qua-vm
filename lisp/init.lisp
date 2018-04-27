@@ -409,6 +409,7 @@
 
 (def #'dynamic #'ref)
 
+; Bind a single dynamic variable.
 (def #'dynamic-bind #'%%dynamic-bind)
 
 ; Parallel dynamic binding: first evaluate all right hand side value
@@ -644,10 +645,10 @@
 
 (defclass type-error (error) ())
 
-(defconstant %the-top-type
+(defconstant +top-type+
   (make-instance '%class-type :name "top" :generic-params '()))
 
-(defconstant %the-bottom-type
+(defconstant +bottom-type+
   (make-instance '%class-type :name "bottom" :generic-params '()))
 
 (defun %parse-type-spec (type-spec)
@@ -680,10 +681,10 @@
                   (make-instance '%generic-param :in-type in-type :out-type out-type)))
                ("in"
                 (let ((in-type (%parse-type-spec (car rest))))
-                  (make-instance '%generic-param :in-type in-type :out-type %the-top-type)))
+                  (make-instance '%generic-param :in-type in-type :out-type +top-type+)))
                ("out"
                 (let ((out-type (%parse-type-spec (car rest))))
-                  (make-instance '%generic-param :in-type %the-bottom-type :out-type out-type))))
+                  (make-instance '%generic-param :in-type +bottom-type+ :out-type out-type))))
              (let ((type (%parse-type-spec gp-spec)))
                (make-instance '%generic-param :in-type type :out-type type))))
       (error "Illegal generic param spec")))

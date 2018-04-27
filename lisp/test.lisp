@@ -362,10 +362,10 @@
          (%parse-generic-param-spec '(:io number boolean)))
 (%expect (make-instance '%generic-param
                         :in-type (%parse-type-spec 'number)
-                        :out-type %the-top-type)
+                        :out-type +top-type+)
          (%parse-generic-param-spec '(:in number)))
 (%expect (make-instance '%generic-param
-                        :in-type %the-bottom-type
+                        :in-type +bottom-type+
                         :out-type (%parse-type-spec 'number))
          (%parse-generic-param-spec '(:out number)))
 (%expect (make-instance '%generic-param
@@ -406,7 +406,7 @@
                         (list 
                          (make-instance '%generic-param
                                         :in-type (%parse-type-spec 'number)
-                                        :out-type %the-top-type)))
+                                        :out-type +top-type+)))
          (%parse-type-spec '(hash-set (:in number))))
 
 ;;;; Generic collections
