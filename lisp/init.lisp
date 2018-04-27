@@ -381,7 +381,8 @@
 (defun ref (mut)
   (slot-value mut 'val))
 
-(setf (setter #'ref) (lambda (new-val mut) (set-slot-value mut 'val new-val)))
+(defsetf #'ref (lambda (new-val mut)
+                 (setf (slot-value mut 'val) new-val)))
 
 ;;;; Continuations
 
