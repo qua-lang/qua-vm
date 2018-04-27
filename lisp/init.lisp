@@ -49,6 +49,9 @@
 (def #'list-to-js-array #'%%list-to-array)
 (def #'plist-to-js-object #'%%plist-to-js-object)
 
+(def #'= #'eq) ; Use EQ for now as generic equality (since it works for JS values)
+(def #'defconstant #'def) ; The only constant is change.
+
 ;;;; Basics
 
 (def #'quote (%%vau (op) #ign op)) ; Prevent evaluation of its single operand.
@@ -173,8 +176,8 @@
        (list #'let (list (car bindings))
              (list* #'let* (cdr bindings) body))))
 
-; Kernel's recursive LETREC where the value expression of each binding
-; has all other bindings in scope.
+; Kernel's recursive parallel-binding LETREC where the value
+; expression of each binding has all other bindings in scope.
 (defmacro %letrec (bindings . body)
   (list* #'let ()
          (list #'def
@@ -189,13 +192,11 @@
 
 ; Common Lisp's parallel binder for functions.
 (defmacro flet (fun-bindings . body)
-  (list* #'let (map-list #'%var-bindingize fun-bindings)
-         body))
+  (list* #'let (map-list #'%var-bindingize fun-bindings) body))
 
 ; Common Lisp's (self) recursive binder for functions.
 (defmacro labels (fun-bindings . body)
-  (list* #'%letrec (map-list #'%var-bindingize fun-bindings)
-         body))
+  (list* #'%letrec (map-list #'%var-bindingize fun-bindings) body))
 
 ;;;; Logic
 
@@ -224,15 +225,10 @@
 
 ;;;; Misc. language
 
-; Use EQ for now as generic equality (since it works for JS values)
-(def #'= #'eq)
-
 (defun optional (opt-arg . opt-default)
   (%if (nil? opt-arg)
        (%if (nil? opt-default) #void (car opt-default))
        (car opt-arg)))
-
-(def #'defconstant #'def)
 
 ;;;; Generalized reference
 
