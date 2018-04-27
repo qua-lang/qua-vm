@@ -112,8 +112,8 @@
 (%assert (slot-bound? object-with-slots 'x))
 (%assert (slot-bound? object-with-slots 'y))
 (%assert (not (slot-bound? object-with-slots 'z)))
-(set-slot-value object-with-slots 'x 6)
-(set-slot-value object-with-slots 'y 8)
+(setf (slot-value object-with-slots 'x) 6)
+(setf (slot-value object-with-slots 'y) 8)
 (%assert (%deep-equal 6 (slot-value object-with-slots 'x)))
 (%assert (%deep-equal 8 (slot-value object-with-slots 'y)))
 

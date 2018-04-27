@@ -237,9 +237,11 @@
 (defun setter (obj)
   (js-get obj +setter-prop+))
 
-(js-set #'setter +setter-prop+
-        (lambda (new-setter getter)
-          (js-set getter +setter-prop+ new-setter)))
+(defun defsetf (access-fn update-fn)
+  (js-set access-fn +setter-prop+ update-fn))
+
+(defsetf #'setter (lambda (new-setter getter)
+                    (js-set getter +setter-prop+ new-setter)))
 
 (defmacro setf (place new-val)
   (%if (symbol? place)
@@ -282,6 +284,9 @@
 (deffexpr defclass (class-spec superclass-specs . #ign) #ign
   (ensure-class (%parse-type-spec class-spec)
                 (list-to-js-array (map-list #'%parse-type-spec superclass-specs))))
+
+(defsetf #'slot-value (lambda (new-val obj slot-name)
+                        (set-slot-value obj slot-name new-val)))
 
 (defgeneric hash-object (self))
 (defgeneric compare-object (self))
