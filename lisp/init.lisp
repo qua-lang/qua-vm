@@ -231,14 +231,14 @@
 
 ;;;; Generalized reference
 
-(defconstant %setter-prop "qua_setter")
+(defconstant +setter-prop+ "qua_setter")
 
 (defun setter (obj)
-  (js-get obj %setter-prop))
+  (js-get obj +setter-prop+))
 
-(js-set #'setter %setter-prop
+(js-set #'setter +setter-prop+
         (lambda (new-setter getter)
-          (js-set getter %setter-prop new-setter)))
+          (js-set getter +setter-prop+ new-setter)))
 
 (defmacro setf (place new-val)
   (%if (symbol? place)
@@ -391,16 +391,16 @@
 (defmacro push-prompt-subcont (prompt continuation . body)
   (list #'%%push-prompt-subcont prompt continuation (list* #'lambda () body)))
 
-(defconstant the-default-prompt :the-default-prompt)
+(defconstant +the-default-prompt+ :the-default-prompt)
 
 (defmacro push-default-prompt body
-  (list* #'push-prompt the-default-prompt body))
+  (list* #'push-prompt +the-default-prompt+ body))
 
 (defmacro take-default-subcont (name . body)
-  (list* #'take-subcont the-default-prompt name body))
+  (list* #'take-subcont +the-default-prompt+ name body))
 
 (defmacro push-default-subcont (continuation . body)
-  (list* #'push-prompt-subcont the-default-prompt continuation body))
+  (list* #'push-prompt-subcont +the-default-prompt+ continuation body))
 
 ;;;; Dynamic variables
 
@@ -409,7 +409,7 @@
 
 (def #'dynamic #'ref)
 
-(def #'%dynamic-let-1 #'%%dynamic-let-1)
+(def #'dynamic-bind #'%%dynamic-bind)
 
 ; Parallel dynamic binding: first evaluate all right hand side value
 ; expressions, then bind all dynamic variables.
@@ -421,9 +421,9 @@
                (%if (nil? pairs)
                     (eval (list* #'progn body) env)
                     (let* ((((dynamic . value) . rest-pairs) pairs))
-                      (%dynamic-let-1 dynamic value
-                                      (lambda ()
-                                        (process-pairs rest-pairs)))))))
+                      (dynamic-bind dynamic value
+                                    (lambda ()
+                                      (process-pairs rest-pairs)))))))
       (process-pairs pairs))))
 
 ;;;; JS stuff
@@ -531,8 +531,8 @@
 
 ;;; Condition handlers
 
-(defdynamic current-condition-handler-frame)
-(defdynamic current-restart-handler-frame)
+(defdynamic *condition-handler-frame*)
+(defdynamic *restart-handler-frame*)
 
 (defclass handler ()
   (condition-type
@@ -559,15 +559,15 @@
   (vau (handler-specs . body) env
     (let* ((handlers (map-list (lambda (spec) (handler-spec-parser spec env)) handler-specs))
            (handler-frame (make-handler-frame handlers (dynamic handler-frame-dynamic))))
-      (%dynamic-let-1 handler-frame-dynamic handler-frame
-        (lambda () (eval (list* #'progn body) env))))))
+      (dynamic-bind handler-frame-dynamic handler-frame
+                    (lambda () (eval (list* #'progn body) env))))))
 
 ;; handler-spec ::= (condition-class-name handler-function-form)
 (def #'handler-bind
   (%make-handler-bind
    (lambda ((class-name function-form) env)
      (make-handler class-name (eval function-form env)))
-   current-condition-handler-frame))
+   *condition-handler-frame*))
 
 ;; handler-spec ::= (restart-class-name handler-function-form . opt-associated-condition)
 (def #'restart-bind
@@ -576,12 +576,12 @@
      (make-handler class-name
                    (eval function-form env)
                    (eval (optional opt-associated-condition) env)))
-   current-restart-handler-frame))
+   *restart-handler-frame*))
 
 ;;; Condition signaling
           
 (defun signal (condition)
-  (signal-condition condition (dynamic current-condition-handler-frame)))
+  (signal-condition condition (dynamic *condition-handler-frame*)))
 
 (defun warn (condition)
   (signal condition)
@@ -592,7 +592,7 @@
   (invoke-debugger condition))
 
 (defun invoke-restart (restart)
-  (signal-condition restart (dynamic current-restart-handler-frame)))
+  (signal-condition restart (dynamic *restart-handler-frame*)))
 
 (defun signal-condition (condition dynamic-frame)
   (let ((handler-and-frame (find-applicable-handler condition dynamic-frame)))
@@ -634,7 +634,7 @@
 
 (defmethod call-condition-handler ((condition condition) handler handler-frame)
   ; Condition firewall
-  (dynamic-let ((current-condition-handler-frame (slot-value handler-frame 'parent)))
+  (dynamic-let ((*condition-handler-frame* (slot-value handler-frame 'parent)))
     (handle-condition handler condition)))
 
 (defmethod call-condition-handler ((restart restart) handler handler-frame)

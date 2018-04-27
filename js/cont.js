@@ -136,8 +136,8 @@ module.exports = function(vm, e) {
         }
     });
     /* Dynamic Variables */
-    vm.Dlet = vm.wrap({
-        qua_combine: function dlet(self, m, e, o) {
+    vm.DynamicBind = vm.wrap({
+        qua_combine: function dynamic_bind(self, m, e, o) {
             var dynvar = vm.elt(o, 0);
             var val = vm.elt(o, 1);
             var thunk = vm.elt(o, 2);
@@ -150,7 +150,7 @@ module.exports = function(vm, e) {
                     var res = vm.combine(null, e, thunk, vm.NIL);
                 }
                 if (isSuspension(res)) {
-                    suspendFrame(res, function(m) { return dlet(m, e, o); }, x, e);
+                    suspendFrame(res, function(m) { return dynamic_bind(m, e, o); }, x, e);
                     return res;
                 } else {
                     return res;
@@ -167,5 +167,5 @@ module.exports = function(vm, e) {
     vm.defun(e, vm.sym("%%loop"), vm.Loop);
     vm.defun(e, vm.sym("%%raise"), vm.jswrap(vm.raise));
     vm.defun(e, vm.sym("%%rescue"), vm.Rescue);
-    vm.defun(e, vm.sym("%%dynamic-let-1"), vm.Dlet);
+    vm.defun(e, vm.sym("%%dynamic-bind"), vm.DynamicBind);
 }
