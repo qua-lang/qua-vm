@@ -112,6 +112,12 @@
 (def #'lambda #'%lambda)
 (def #'defun #'%defun)
 
+; Treat the rest arg as an optional value with optional default.
+(defun optional (opt-arg . opt-default)
+  (%if (nil? opt-arg)
+       (%if (nil? opt-default) #void (car opt-default))
+       (car opt-arg)))
+
 ; Apply a function to a list of arguments.
 (defun apply (fun args . opt-env)
   (eval (cons (unwrap fun) args)
@@ -222,13 +228,6 @@
         ((nil? (cdr ops))     (eval (car ops) env))
         ((eval (car ops) env) #t)
         (#t                   (apply (wrap #'or) (cdr ops) env))))
-
-;;;; Misc. language
-
-(defun optional (opt-arg . opt-default)
-  (%if (nil? opt-arg)
-       (%if (nil? opt-default) #void (car opt-default))
-       (car opt-arg)))
 
 ;;;; Generalized reference
 
