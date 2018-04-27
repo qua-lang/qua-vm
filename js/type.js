@@ -16,13 +16,10 @@ module.exports = function(vm) {
     vm.designate_type = function(type_designator) {
         if (type_designator instanceof vm.ClassType) {
             return type_designator;
-        } else {
-            return vm.parse_type_spec(type_designator);
-        }
-    };
-    vm.parse_type_spec = function(type_designator) {
-        if (type_designator instanceof vm.Sym) {
-            return vm.make_instance(vm.ClassType, { "name": vm.sym_name(type_designator) });
+        } else if (type_designator instanceof vm.Sym) {
+            return vm.make_instance(vm.ClassType,
+                                    { "name": vm.sym_name(type_designator),
+                                      "generic-params": [] });
         } else {
             return vm.error("Illegal type designator: " + JSON.stringify(type_designator));
         }
