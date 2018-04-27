@@ -411,6 +411,8 @@
 
 (def #'%dynamic-let-1 #'%%dynamic-let-1)
 
+; Parallel dynamic binding: first evaluate all right hand side value
+; expressions, then bind all dynamic variables.
 (deffexpr dynamic-let (bindings . body) env
   (let ((pairs (map-list (lambda ((dynamic-name expr))
                            (cons (eval dynamic-name env) (eval expr env)))
