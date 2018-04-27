@@ -340,18 +340,18 @@
                (signal (make-instance 'condition))))))
 
 ;;;; Subclassing
-(%assert (instance? (make-instance 'serious-condition) 'object))
-(%assert (instance? (make-instance 'error) 'serious-condition))
-(%assert (instance? (make-instance 'error) 'object))
-(%assert (not (instance? (make-instance 'object) 'error)))
+(%assert (type? (make-instance 'serious-condition) 'object))
+(%assert (type? (make-instance 'error) 'serious-condition))
+(%assert (type? (make-instance 'error) 'object))
+(%assert (not (type? (make-instance 'object) 'error)))
 
-(%assert (instance? 12 'js-number))
-(%assert (instance? 12 'number))
-(%assert (instance? 12 'object))
-(%assert (not (instance? 12 'standard-object)))
+(%assert (type? 12 'js-number))
+(%assert (type? 12 'number))
+(%assert (type? 12 'object))
+(%assert (not (type? 12 'standard-object)))
 
-(%assert (instance? (.qs_direct-superclasses (find-generic-class 'object)) 'js-array))
-(%assert (instance? (.qs_slots (find-generic-class 'object)) 'js-object))
+(%assert (type? (.qs_direct-superclasses (find-generic-class 'object)) 'js-array))
+(%assert (type? (.qs_slots (find-generic-class 'object)) 'js-object))
 
 ;;;; Types
 (%expect #void (typecase #t))

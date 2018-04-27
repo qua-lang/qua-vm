@@ -29,7 +29,7 @@
 (def #'find-generic-class #'%%find-generic-class)
 (def #'find-method #'%%find-method)
 (def #'generic-class-of #'%%generic-class-of)
-(def #'instance? #'%%instance?)
+(def #'type? #'%%type?)
 (def #'put-method #'%%put-method)
 (def #'set-slot-value #'%%set-slot-value)
 (def #'slot-bound? #'%%slot-bound?)
@@ -147,9 +147,9 @@
 (def #'cdar (compose #'cdr #'car))
 (def #'cddr (compose #'cdr #'cdr))
 
-(defun symbol? (sym) (%%instance? sym 'symbol))
-(defun keyword? (obj) (%%instance? obj 'keyword))
-(defun cons? (cons) (%%instance? cons 'cons))
+(defun symbol? (sym) (%%type? sym 'symbol))
+(defun keyword? (obj) (%%type? obj 'keyword))
+(defun cons? (cons) (%%type? cons 'cons))
 
 (defun symbol-name (sym) (slot-value sym 'name))
 
@@ -618,7 +618,7 @@
 (defgeneric condition-applicable? (condition handler))
 
 (defmethod condition-applicable? ((condition condition) handler)
-  (instance? condition (slot-value handler 'condition-type)))
+  (type? condition (slot-value handler 'condition-type)))
 
 (defun slot-void? (obj slot-name)
   (%if (slot-bound? obj slot-name)
@@ -626,7 +626,7 @@
        #t))
 
 (defmethod condition-applicable? ((restart restart) handler)
-  (and (instance? restart (slot-value handler 'condition-type))
+  (and (type? restart (slot-value handler 'condition-type))
        (or (slot-void? restart 'associated-condition)
            (slot-void? handler 'associated-condition)
            (eq (slot-value restart 'associated-condition)
@@ -690,8 +690,8 @@
                (make-instance '%generic-param :in-type type :out-type type))))
       (error "Illegal generic param spec")))
 
-(defun instance? (obj type-spec)
-  (%%instance? obj (%parse-type-spec type-spec)))
+(defun type? (obj type-spec)
+  (%%type? obj (%parse-type-spec type-spec)))
 
 (deffexpr typecase (expr . clauses) env
   (let ((val (eval expr env)))
@@ -699,7 +699,7 @@
       (for-each (lambda ((type-spec . body))
                   (%if (eq type-spec #t)
                        (return-from match (eval (list* #'progn body) env))
-                       (when (instance? val type-spec)
+                       (when (type? val type-spec)
                          (return-from match (eval (list* #'progn body) env)))))
                 clauses)
       #void)))
