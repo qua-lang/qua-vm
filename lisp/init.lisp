@@ -15,6 +15,7 @@
 (def #'cons #'%%cons) ; Construct a new pair.
 (def #'eq #'%%eq) ; Compare two values for pointer equality.
 (def #'eval #'%%eval) ; Evaluate an expression in an environment.
+(def #'if #'%%if) ; Evaluate either of two expressions depending on a test.
 (def #'make-environment #'%%make-environment) ; Create new lexical environment.
 (def #'print #'%%print) ; Print line.
 (def #'progn #'%%progn) ; Evaluate expressions in order.
@@ -144,16 +145,16 @@
 
 ; Produce a new list by applying a function to each element of a list.
 (defun map-list (#'fun list)
-  (%%if (nil? list)
-        #nil
-        (cons (fun (car list)) (map-list #'fun (cdr list)))))
+  (if (nil? list)
+      #nil
+      (cons (fun (car list)) (map-list #'fun (cdr list)))))
 
 (def #'for-each #'map-list)
 
 (defun fold-list (#'fun init list)
-  (%%if (nil? list)
-        init
-        (fold-list #'fun (fun init (car list)) (cdr list))))
+  (if (nil? list)
+      init
+      (fold-list #'fun (fun init (car list)) (cdr list))))
 
 ;;;; Lexical variable bindings
 
@@ -167,10 +168,10 @@
 ; The usual sequential-binding LET* where the value expression of each
 ; binding has all earlier bindings in scope (if any).
 (defmacro let* (bindings . body)
-  (%%if (nil? bindings)
-        (list* #'let () body)
-        (list #'let (list (car bindings))
-              (list* #'let* (cdr bindings) body))))
+  (if (nil? bindings)
+      (list* #'let () body)
+      (list #'let (list (car bindings))
+            (list* #'let* (cdr bindings) body))))
 
 ; Kernel's recursive LETREC where the value expression of each binding
 ; has all other bindings in scope.
@@ -183,31 +184,31 @@
 
 ;;;; Lexical function bindings
 
-(defun %fun-binding-xform ((fun-name fun-params . fun-body))
+(defun %fun-binding-to-var-binding ((fun-name fun-params . fun-body))
   (list (%to-fun-sym fun-name) (list* #'lambda fun-params fun-body)))
 
 ; Common Lisp's parallel binder for functions.
 (defmacro flet (fun-bindings . body)
-  (list* #'let (map-list #'%fun-binding-xform fun-bindings)
+  (list* #'let (map-list #'%fun-binding-to-var-binding fun-bindings)
          body))
 
 ; Common Lisp's (self) recursive binder for functions.
 (defmacro labels (fun-bindings . body)
-  (list* #'%letrec (map-list #'%fun-binding-xform fun-bindings)
+  (list* #'%letrec (map-list #'%fun-binding-to-var-binding fun-bindings)
          body))
 
 ;;;; Logic
 
 (defun not (boolean)
-  (%%if boolean #f #t))
+  (if boolean #f #t))
 
 (deffexpr cond clauses env
-  (%%if (nil? clauses)
-        #void
-        (let ((((test . body) . clauses) clauses))
-          (%%if (eval test env)
-                (apply (wrap #'progn) body env)
-                (apply (wrap #'cond) clauses env)))))
+  (if (nil? clauses)
+      #void
+      (let ((((test . body) . clauses) clauses))
+        (if (eval test env)
+            (apply (wrap #'progn) body env)
+            (apply (wrap #'cond) clauses env)))))
 
 (deffexpr and ops env
   (cond ((nil? ops)           #t)
@@ -227,9 +228,9 @@
 (def #'= #'eq)
 
 (defun optional (opt-arg . opt-default)
-  (%%if (nil? opt-arg)
-        (%%if (nil? opt-default) #void (car opt-default))
-        (car opt-arg)))
+  (if (nil? opt-arg)
+      (if (nil? opt-default) #void (car opt-default))
+      (car opt-arg)))
 
 (def #'defconstant #'def)
 
@@ -245,11 +246,11 @@
           (js-set getter %setter-prop new-setter)))
 
 (defmacro setf (place new-val)
-  (%%if (symbol? place)
-        (list #'setq place new-val)
-        (let* (((getter-form . args) place)
-               (getter (if (symbol? getter-form) (%to-fun-sym getter-form) getter-form)))
-          (list* (list #'setter getter) new-val args))))
+  (if (symbol? place)
+      (list #'setq place new-val)
+      (let* (((getter-form . args) place)
+             (getter (if (symbol? getter-form) (%to-fun-sym getter-form) getter-form)))
+        (list* (list #'setter getter) new-val args))))
 
 (defmacro incf (place . opt-increment)
   (let ((increment (optional opt-increment 1)))
@@ -280,7 +281,7 @@
     (put-method class name fun)
     name))
 
-(def #'%parse-type-spec #'identity) ; Overriden later
+(def #'%parse-type-spec #'identity) ; Overridden later
 
 (deffexpr defclass (class-spec superclass-specs . #ign) #ign
   (ensure-class (%parse-type-spec class-spec)
@@ -299,9 +300,9 @@
   (let ((body (list* #'progn body)))
     (block exit
       (loop
-        (%%if (eval test env)
-              (eval body env)
-              (return-from exit))))))
+        (if (eval test env)
+            (eval body env)
+            (return-from exit))))))
 
 ; Arc's IF: (if test-1 then-1 ... test-N then-N [else])
 (deffexpr if (test then . rest) env
@@ -309,16 +310,15 @@
         (eval then env)
         (%%if (nil? rest)
               #void
-              (let (((else . rest-rest) rest))
-                (%%if (nil? rest-rest)
-                      (eval else env)
-                      (eval (cons #'if rest) env))))))
+              (%%if (nil? (cdr rest))
+                    (eval (car rest) env)
+                    (eval (cons #'if rest) env)))))
 
 (defmacro when (test . body)
-  (list #'%%if test (list* #'progn body) #void))
+  (list #'if test (list* #'progn body)))
 
 (defmacro unless (test . body)
-  (list #'%%if test #void (list* #'progn body)))
+  (list #'if test #void (list* #'progn body)))
 
 (defun %call-with-escape (#'fun)
   (let* ((tag (list 'tag))
@@ -326,9 +326,9 @@
                    (let ((val (optional opt-val)))
                      (%%raise (list tag val))))))
     (%%rescue (lambda (exc)
-                (%%if (and (cons? exc) (eq tag (car exc)))
-                      (cadr exc)
-                      (%%raise exc)))
+                (if (and (cons? exc) (eq tag (car exc)))
+                    (cadr exc)
+                    (%%raise exc)))
               (lambda ()
                 (fun escape)))))
 
@@ -339,11 +339,11 @@
   (apply escape opt-val))
 
 (deffexpr prog1 forms env
-  (%%if (nil? forms)
-        #void
-        (let ((result (eval (car forms) env)))
-          (eval (list* #'progn (cdr forms)) env)
-          result)))
+  (if (nil? forms)
+      #void
+      (let ((result (eval (car forms) env)))
+        (eval (list* #'progn (cdr forms)) env)
+        result)))
 
 (defmacro prog2 (form . forms)
   (list #'progn form (list* #'prog1 forms)))
