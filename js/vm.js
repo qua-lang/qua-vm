@@ -11,7 +11,7 @@ vm.evaluate = function(m, e, x) {
         try {
             return x.qua_evaluate(x, m, e);
         } catch(exc) {
-            if (exc instanceof vm.Tag) {
+            if ((exc instanceof vm.Tag) || (exc instanceof vm.Panic)) {
                 throw exc;
             } else {
                 return vm.error(exc, e);
@@ -42,7 +42,7 @@ vm.combine = function(m, e, cmb, o) {
         try {
             return cmb.qua_combine(cmb, m, e, o);
         } catch(exc) {
-            if (exc instanceof vm.Tag) {
+            if ((exc instanceof vm.Tag) || (exc instanceof vm.Panic)) {
                 throw exc;
             } else {
                 return vm.error(exc, e);
@@ -138,7 +138,7 @@ vm.JSOperator.prototype.qua_combine = function(self, m, e, o) {
     try {
         return self.js_fn.apply(null, vm.list_to_array(o));
     } catch(exc) {
-        if (exc instanceof vm.Tag) {
+        if ((exc instanceof vm.Tag) || (exc instanceof vm.Panic)) {
             throw exc;
         } else {
             return vm.error(exc, e);
@@ -167,11 +167,12 @@ vm.Env = function(parent) {
     this.bindings = Object.create(parent ? parent.bindings : null);
     this.parent = parent;
 };
-vm.lookup = function(e, sym) {
+vm.lookup = function(e, sym, default_val) {
     vm.assert_type(e, vm.Env);
     vm.assert_type(sym, vm.Sym);
     var key = vm.sym_key(sym);
     if (key in e.bindings) return e.bindings[key];
+    else if (default_val !== undefined) return default_val;
     else return vm.error("unbound: " + sym.qs_name + " (" + sym.qs_ns + ")", e);
 };
 vm.bind = function(e, lhs, rhs, doit) {
@@ -263,7 +264,7 @@ vm.init = function(e) {
     vm.defun(e, vm.sym("%%slot-value"), vm.jswrap(vm.slot_value));
     vm.defun(e, vm.sym("%%type?"), vm.jswrap(vm.typep));
     // Misc
-    vm.def(e, vm.sym("%tag"), vm.Tag);
+    vm.defun(e, vm.sym("%%panic"), vm.panic);
     vm.defun(e, vm.sym("%%eq"), vm.jswrap(function(a, b) { return a === b; }));
     vm.defun(e, vm.sym("%%print"), vm.jswrap(console.log));
     vm.defun(e, vm.sym("%%list-to-array"), vm.jswrap(vm.list_to_array));

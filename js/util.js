@@ -1,4 +1,10 @@
 module.exports = function(vm) {
+    vm.Panic = function Panic(message) {
+        this.message = message;
+    };
+    vm.Panic.prototype.toString = function() {
+        return this.message.toString();
+    };
     vm.assert_type = function(obj, type_spec) {
         if (vm.check_type(obj, type_spec)) return obj;
         else return vm.panic("type error: " + obj + " should be " + type_spec + " but is " + obj);
@@ -17,8 +23,20 @@ module.exports = function(vm) {
         }
     };
     vm.assert = function(x) { if (!x) vm.panic("assertion failed"); };
-    vm.error = function(err) { throw new Error(err); };
-    vm.panic = vm.error;
+    vm.error = function(err, e) {
+        if (vm.check_type(e, vm.Env)) {
+            var invoke_debugger = vm.lookup(e, vm.fun_sym("invoke-debugger"), false);
+            if (invoke_debugger) {
+                return vm.combine(null, e, invoke_debugger, vm.list(err));
+            } else {
+                console.log("INVOKE-DEBUGGER not bound");
+            }
+        } else {
+            console.log("No environment passed to vm.error()");
+        }
+        vm.panic(err);
+    };
+    vm.panic = function(err) { throw new vm.Panic(err); };
     vm.time = function(name, fun) {
         var start = new Date().getTime();
         fun();

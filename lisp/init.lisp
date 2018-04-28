@@ -714,4 +714,4 @@
 (defun invoke-debugger (condition)
   (print "DEBUG")
   (print condition)
-  (%%raise (js-new $Error condition)))
+  (%%panic condition))
