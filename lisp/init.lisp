@@ -601,6 +601,11 @@
 (defun invoke-restart (restart)
   (signal-condition restart (dynamic *restart-handler-frame*)))
 
+(defgeneric invoke-restart-interactively (restart))
+
+(defmethod invoke-restart-interactively ((r restart))
+  (invoke-restart r))
+
 (defun signal-condition (condition dynamic-frame)
   (let ((handler-and-frame (find-applicable-handler condition dynamic-frame)))
     (%if (void? handler-and-frame)
