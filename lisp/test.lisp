@@ -408,3 +408,10 @@
                                         ;  (add list 1)
                                         ;  (add list 2))
 
+;;;; Userland
+
+(%expect 12 (block ret
+              (handler-bind ((unbound-variable
+                              (lambda #ign
+                                (return-from ret 12))))
+                x)))

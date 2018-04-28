@@ -1,9 +1,10 @@
 module.exports = function(vm) {
-    vm.Panic = function Panic(message) {
-        this.message = message;
+    vm.Panic = function Panic(exc) {
+        vm.assert_type(exc, Error);
+        this.exc = exc;
     };
     vm.Panic.prototype.toString = function() {
-        return this.message.toString();
+        return this.exc.stack;
     };
     vm.assert_type = function(obj, type_spec) {
         if (vm.check_type(obj, type_spec)) return obj;
@@ -25,18 +26,18 @@ module.exports = function(vm) {
     vm.assert = function(x) { if (!x) vm.panic("assertion failed"); };
     vm.error = function(err, e) {
         if (vm.check_type(e, vm.Env)) {
-            var invoke_debugger = vm.lookup(e, vm.fun_sym("invoke-debugger"), false);
-            if (invoke_debugger) {
-                return vm.combine(null, e, invoke_debugger, vm.list(err));
+            var error = vm.lookup(e, vm.fun_sym("error"), false);
+            if (error) {
+                return vm.combine(null, e, error, vm.list(err));
             } else {
-                console.log("INVOKE-DEBUGGER not bound");
+                console.log("ERROR not bound");
             }
         } else {
             console.log("No environment passed to vm.error()");
         }
         vm.panic(err);
     };
-    vm.panic = function(err) { throw new vm.Panic(err); };
+    vm.panic = function(err) { throw new vm.Panic(new Error(err)); };
     vm.time = function(name, fun) {
         var start = new Date().getTime();
         fun();

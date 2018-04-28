@@ -173,7 +173,7 @@ vm.lookup = function(e, sym, default_val) {
     var key = vm.sym_key(sym);
     if (key in e.bindings) return e.bindings[key];
     else if (default_val !== undefined) return default_val;
-    else return vm.error("unbound: " + sym.qs_name + " (" + sym.qs_ns + ")", e);
+    else return vm.error(vm.make_instance(vm.UnboundVariable, { "name": sym }), e);
 };
 vm.bind = function(e, lhs, rhs, doit) {
     vm.assert_type(e, vm.Env);
@@ -229,6 +229,13 @@ vm.reverse_list = function(list) {
 vm.is_list = function(obj) {
     return vm.is_nil(obj) || obj instanceof vm.Cons;
 };
+/* Conditions */
+vm.Condition = vm.defclass("condition", ["standard-object"], {});
+vm.SeriousCondition = vm.defclass("serious-condition", ["condition"], {});
+vm.Error = vm.defclass("error", ["serious-condition"], {});
+vm.UnboundVariable = vm.defclass("unbound-variable", ["error"], { "name": {} });
+vm.Restart = vm.defclass("restart", ["standard-object"], { "associated-condition": {} });
+vm.UseValue = vm.defclass("use-value", ["restart"], { "value": {} });
 /* API */
 vm.make_env = function(parent) { return new vm.Env(parent); };
 vm.def = vm.bind;

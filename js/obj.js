@@ -61,6 +61,7 @@ module.exports = function(vm) {
         // prototype chain of an object).  We can share it with the
         // generic class, since a concrete class cannot have methods.
         concrete_class.prototype = generic_class.prototype;
+        concrete_class.prototype.toString = function() { return "#<" + name + ">"; };
         vm.GENERIC_CLASSES[name] = generic_class;
         vm.CONCRETE_CLASSES[name] = concrete_class;
         return concrete_class;

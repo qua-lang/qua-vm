@@ -33,7 +33,7 @@
   ; Abort back up to the default prompt and schedule future resumption
   ; of the suspended continuation.
   (take-default-subcont k
-    ($setImmediate (js-lambda #ign
+    ($setImmediate (async-js-lambda #ign
                      (push-default-subcont k)))))
 
 (spawn-threads 150)

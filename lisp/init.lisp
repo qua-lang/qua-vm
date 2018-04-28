@@ -397,16 +397,16 @@
 (defmacro push-prompt-subcont (prompt continuation . body)
   (list #'%%push-prompt-subcont prompt continuation (list* #'lambda () body)))
 
-(defconstant +the-default-prompt+ :the-default-prompt)
+(defconstant +default-prompt+ (list :default-prompt))
 
 (defmacro push-default-prompt body
-  (list* #'push-prompt +the-default-prompt+ body))
+  (list* #'push-prompt +default-prompt+ body))
 
 (defmacro take-default-subcont (name . body)
-  (list* #'take-subcont +the-default-prompt+ name body))
+  (list* #'take-subcont +default-prompt+ name body))
 
 (defmacro push-default-subcont (continuation . body)
-  (list* #'push-prompt-subcont +the-default-prompt+ continuation body))
+  (list* #'push-prompt-subcont +default-prompt+ continuation body))
 
 ;;;; Dynamic variables
 
@@ -509,7 +509,6 @@
 
 ;;;; Conditions
 
-(defclass condition (standard-object))
 (defclass serious-condition (condition))
 (defclass error (serious-condition))
 (defclass warning (condition))
@@ -526,13 +525,8 @@
 (defclass restart-control-error (control-error)
   (restart))
 
-(defclass restart (condition)
-  (associated-condition))
-
 (defclass abort (restart))
 (defclass continue (restart))
-(defclass use-value (restart)
-  (value))
 (defclass store-value (restart)
   (value))
 
@@ -600,11 +594,6 @@
 
 (defun invoke-restart (restart)
   (signal-condition restart (dynamic *restart-handler-frame*)))
-
-(defgeneric invoke-restart-interactively (restart))
-
-(defmethod invoke-restart-interactively ((r restart))
-  (invoke-restart r))
 
 (defun signal-condition (condition dynamic-frame)
   (let ((handler-and-frame (find-applicable-handler condition dynamic-frame)))
@@ -714,9 +703,27 @@
                 clauses)
       #void)))
 
-;;;; Runtime
+;;;; Debugging and interaction
 
+;; Gets called by the VM if an exception occurs in called JS code and
+;; also if a VM internal routine causes an exception (which is a bug).
 (defun invoke-debugger (condition)
   (print "DEBUG")
   (print condition)
   (%%panic condition))
+
+(defgeneric invoke-restart-interactively (restart))
+
+(defmethod invoke-restart-interactively ((r restart))
+  (invoke-restart r))
+
+;;;; Final events
+
+;; Delimits all user interactions, so that stack traces can be taken.
+(defconstant +user-prompt+ (list :user-prompt))
+
+;; Wrapped around all user code.  Provides useful handler bindings,
+;; prompts, and other dynamic stuff.
+(defun user-eval (#'thunk)
+  (push-prompt +user-prompt+
+    (thunk)))
