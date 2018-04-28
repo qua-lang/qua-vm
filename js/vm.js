@@ -106,12 +106,26 @@ vm.progn = function(m, e, xs) {
                           if (vm.is_nil(cdr)) return res; else return vm.progn(null, e, cdr);
                       });
 };
-/* JS function combiners */
-vm.JSFun = function(jsfun) { this.jsfun = vm.assert_type(jsfun, "function"); };
-vm.JSFun.prototype.qua_combine = function(self, m, e, o) {
-    return self.jsfun.apply(null, vm.list_to_array(o));
+/* Operator that calls JS function to do work */
+vm.JSOperator = function(js_fn) { this.js_fn = vm.assert_type(js_fn, "function"); };
+vm.JSOperator.prototype.qua_combine = function(self, m, e, o) {
+    // Trap all exceptions emanating from the JS function...
+    try {
+        return self.js_fn.apply(null, vm.list_to_array(o));
+    } catch(exc) {
+        // ...but rethrow ones expressing non-erroneous control flow.
+        if (exc instanceof vm.Tag) {
+            throw exc;
+        } else {
+            // Other exceptions are piped into condition system.
+            return vm.error(exc);
+        }
+    }
 };
-vm.jswrap = function(jsfun) { return vm.wrap(new vm.JSFun(jsfun)); };
+vm.jswrap = function(js_fn) { return vm.wrap(new vm.JSOperator(js_fn)); };
+// Instances of this class are thrown as JS exceptions to transfer a
+// value from a RETURN-FROM expression to its enclosing BLOCK.
+vm.Tag = vm.defclass("%%tag", ["standard-object"], { "id": {}, "val": {} });
 /* Forms */
 vm.VAR_NS = "v";
 vm.sym = function(name, ns) { var s = new vm.Sym(name, ns ? ns : vm.VAR_NS); s.qua_isa = vm.THE_CLASS_SYM; return s; };
@@ -229,6 +243,7 @@ vm.init = function(e) {
     vm.defun(e, vm.sym("%%slot-value"), vm.jswrap(vm.slot_value));
     vm.defun(e, vm.sym("%%type?"), vm.jswrap(vm.typep));
     // Misc
+    vm.def(e, vm.sym("%tag"), vm.Tag);
     vm.defun(e, vm.sym("%%eq"), vm.jswrap(function(a, b) { return a === b; }));
     vm.defun(e, vm.sym("%%print"), vm.jswrap(console.log));
     vm.defun(e, vm.sym("%%list-to-array"), vm.jswrap(vm.list_to_array));

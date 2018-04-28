@@ -321,17 +321,16 @@
 (defmacro unless (test . body)
   (list #'%if test #void (list* #'progn body)))
 
-(defun %call-with-escape (#'fun)
-  (let* ((tag (list 'tag))
-         (escape (lambda opt-val
-                   (let ((val (optional opt-val)))
-                     (%%raise (list tag val))))))
+(defun %call-with-escape (#'fn)
+  (labels ((escape opt-val
+             (%%raise (make-instance '%%tag :id #'escape :val (optional opt-val)))))
     (%%rescue (lambda (exc)
-                (%if (and (cons? exc) (eq tag (car exc)))
-                     (cadr exc)
+                (%if (and (type? exc '%%tag)
+                          (eq (slot-value exc 'id) #'escape))
+                     (slot-value exc 'val)
                      (%%raise exc)))
               (lambda ()
-                (fun escape)))))
+                (fn #'escape)))))
 
 (defmacro block (name . body)
   (list #'%call-with-escape (list* #'lambda (list name) body)))

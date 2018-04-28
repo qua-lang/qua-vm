@@ -174,13 +174,8 @@
 
 ;;;; Simple control
 
-(%expect 2 (%%rescue (lambda (exc) exc)
-                     (lambda ()
-                       2)))
-
-(%expect 'foo (%%rescue (lambda (exc) exc)
-                        (lambda ()
-                          (%%raise 'foo))))
+(%expect 3 (block #ign 1 2 3))
+(%expect 2 (block b 1 (return-from b 2) 3))
 
 (%expect #void (cond))
 (%expect 1 (cond ((%deep-equal 1 1) 1)))
@@ -218,16 +213,11 @@
 (let ((cell (mut #f)))
   (%expect 1 (unwind-protect 1 (setf (ref cell) #t)))
   (%expect #t (ref cell)))
-(let ((cell (mut #f)))
+(let ((cell #f))
   (block exit
-    (%%rescue (lambda (exc)
-                (%expect "foo" exc)
-                (%expect #t (ref cell))
-                (return-from exit))
-              (lambda ()
-                (unwind-protect (%%raise "foo")
-                  (setf (ref cell) #t))))
-    (%assert #f)))
+    (unwind-protect (return-from exit)
+      (setf cell #t))
+    (%expect #t cell)))
 
 (%expect #void (prog1))
 (%expect 1 (prog1 1 2 3))
@@ -251,17 +241,13 @@
     (%expect 2 (dynamic *my-dynamic*)))
   (%expect 1 (dynamic *my-dynamic*)))
 
-(block exit
+(progn
   (%expect 1 (dynamic *my-dynamic*))
-  (%%rescue (lambda (exc)
-              (%expect "foo" exc)
-              (%expect 1 (dynamic *my-dynamic*))
-              (return-from exit))
-            (lambda ()
-              (dynamic-let ((*my-dynamic* 2))
-                (%expect 2 (dynamic *my-dynamic*))
-                (%%raise "foo"))))
-  (%assert #f))
+  (block exc
+    (dynamic-let ((*my-dynamic* 2))
+      (%expect 2 (dynamic *my-dynamic*))
+      (return-from exc)))
+  (%expect 1 (dynamic *my-dynamic*)))
 
 ;;;; JS object
 (let ((obj (js-object :message "hello" :sent (not #t))))
