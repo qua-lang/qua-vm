@@ -2,6 +2,7 @@ var vm = module.exports;
 require("./util")(vm);
 require("./obj")(vm);
 require("./type")(vm);
+require("./bytecode")(vm);
 // Instances of this class are thrown as JS exceptions to transfer a
 // value from a RETURN-FROM expression to its enclosing BLOCK.
 vm.Tag = vm.defclass("%%tag", ["standard-object"], { "id": {}, "val": {} });
