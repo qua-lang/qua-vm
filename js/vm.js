@@ -2,9 +2,24 @@ var vm = module.exports;
 require("./util")(vm);
 require("./obj")(vm);
 require("./type")(vm);
+// Instances of this class are thrown as JS exceptions to transfer a
+// value from a RETURN-FROM expression to its enclosing BLOCK.
+vm.Tag = vm.defclass("%%tag", ["standard-object"], { "id": {}, "val": {} });
 /* Evaluation */
 vm.evaluate = function(m, e, x) {
-    if (x && x.qua_evaluate) return x.qua_evaluate(x, m, e); else return x;
+    if (x && x.qua_evaluate) {
+        try {
+            return x.qua_evaluate(x, m, e);
+        } catch(exc) {
+            if (exc instanceof vm.Tag) {
+                throw exc;
+            } else {
+                return vm.error(exc, e);
+            }
+        }
+    } else {
+        return x;
+    }
 };
 vm.THE_CLASS_SYM = vm.defclass("symbol", ["standard-object"], { "name": {}, "ns": {} });
 vm.Sym = function Sym(name, ns) { this.qs_name = name; this.qs_ns = ns; };
@@ -23,8 +38,19 @@ vm.eval_operator = function(e, op) {
 };
 /* Combiners */
 vm.combine = function(m, e, cmb, o) {
-    if (cmb && cmb.qua_combine) return cmb.qua_combine(cmb, m, e, o);
-    else return vm.error("not a combiner: " + cmb);
+    if (cmb && cmb.qua_combine) {
+        try {
+            return cmb.qua_combine(cmb, m, e, o);
+        } catch(exc) {
+            if (exc instanceof vm.Tag) {
+                throw exc;
+            } else {
+                return vm.error(exc, e);
+            }
+        }
+    } else {
+        return vm.error("not a combiner: " + cmb, e);
+    }
 };
 vm.Opv = function(p, ep, x, e) { this.p = p; this.ep = ep; this.x = x; this.e = e; };
 vm.Apv = function(cmb) { this.cmb = cmb; };
@@ -109,23 +135,17 @@ vm.progn = function(m, e, xs) {
 /* Operator that calls JS function to do work */
 vm.JSOperator = function(js_fn) { this.js_fn = vm.assert_type(js_fn, "function"); };
 vm.JSOperator.prototype.qua_combine = function(self, m, e, o) {
-    // Trap all exceptions emanating from the JS function...
     try {
         return self.js_fn.apply(null, vm.list_to_array(o));
     } catch(exc) {
-        // ...but rethrow ones expressing non-erroneous control flow.
         if (exc instanceof vm.Tag) {
             throw exc;
         } else {
-            // Other exceptions are piped into condition system.
-            return vm.error(exc);
+            return vm.error(exc, e);
         }
     }
 };
 vm.jswrap = function(js_fn) { return vm.wrap(new vm.JSOperator(js_fn)); };
-// Instances of this class are thrown as JS exceptions to transfer a
-// value from a RETURN-FROM expression to its enclosing BLOCK.
-vm.Tag = vm.defclass("%%tag", ["standard-object"], { "id": {}, "val": {} });
 /* Forms */
 vm.VAR_NS = "v";
 vm.sym = function(name, ns) { var s = new vm.Sym(name, ns ? ns : vm.VAR_NS); s.qua_isa = vm.THE_CLASS_SYM; return s; };
@@ -152,12 +172,12 @@ vm.lookup = function(e, sym) {
     vm.assert_type(sym, vm.Sym);
     var key = vm.sym_key(sym);
     if (key in e.bindings) return e.bindings[key];
-    else return vm.error("unbound: " + sym.qs_name + " (" + sym.qs_ns + ")");
+    else return vm.error("unbound: " + sym.qs_name + " (" + sym.qs_ns + ")", e);
 };
 vm.bind = function(e, lhs, rhs, doit) {
     vm.assert_type(e, vm.Env);
     if (lhs.qua_bind) return lhs.qua_bind(lhs, e, rhs, doit ? doit : vm.do_def);
-    else return vm.error("cannot match", { lhs: lhs, rhs: rhs });
+    else return vm.error("cannot match", { lhs: lhs, rhs: rhs }, e);
 };
 vm.do_def = function(e, lhs, rhs) {
     vm.assert_type(lhs, vm.Sym);
@@ -170,7 +190,7 @@ vm.do_setq = function(e, lhs, rhs) {
     else if (e.parent)
         return vm.do_setq(e.parent, lhs, rhs);
     else
-        return vm.error("cannot set unbound variable: " + lhs.qs_name);
+        return vm.error("cannot set unbound variable: " + lhs.qs_name, e);
 };
 vm.Sym.prototype.qua_bind = function(self, e, rhs, doit) {
     return doit(e, self, rhs);
@@ -181,11 +201,11 @@ vm.Cons.prototype.qua_bind = function(self, e, rhs, doit) {
                       function() { return vm.bind(e, vm.cdr(self), vm.cdr(rhs), doit); });
 };
 vm.Nil.prototype.qua_bind = function(self, e, rhs, doit) {
-    if (!vm.is_nil(rhs)) return vm.error("NIL expected, but got: " + JSON.stringify(rhs));
+    if (!vm.is_nil(rhs)) return vm.error("NIL expected, but got: " + JSON.stringify(rhs), e);
 };
 vm.Keyword.prototype.qua_bind = function(self, e, rhs, doit) {
     if (!(rhs && (rhs instanceof vm.Keyword) && (rhs.qs_name === self.qs_name))) {
-        return vm.error(":" + self.qs_name + " expected, but got: " + JSON.stringify(rhs));
+        return vm.error(":" + self.qs_name + " expected, but got: " + JSON.stringify(rhs), e);
     }
 };
 vm.Ign.prototype.qua_bind = function(self, e, rhs, doit) {};
