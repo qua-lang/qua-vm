@@ -1,12 +1,18 @@
-var vm = require("./vm");
 var parser = require("./read");
 var init_bytecode = require("../build/out/init.js").main;
 var test_bytecode = require("../build/out/test.js").main;
 
+var vm = {};
+vm.Env = function(parent) {
+    this.bindings = Object.create(parent ? parent.bindings : null);
+    this.parent = parent;
+};
+vm.make_env = function(parent) { return new vm.Env(parent); };
 var e = vm.make_env();
 require("./util")(vm, e);
-require("./lisp-2")(vm, e);
 require("./obj")(vm, e);
+require("./vm")(vm, e);
+require("./lisp-2")(vm, e);
 require("./type")(vm, e);
 require("./cont")(vm, e);
 require("./alien")(vm, e);
