@@ -55,7 +55,8 @@ module.exports = function(vm, e) {
         concrete_class.qua_isa = vm.ConcreteClass;
         concrete_class["qs_generic-class"] = generic_class;
         concrete_class["qs_type-arguments"] = [];
-        concrete_class.prototype = Object.create(generic_class.prototype);
+        // TODO: is this needed someplace?
+        //concrete_class.prototype = Object.create(generic_class.prototype);
         concrete_class.prototype.toString = function() { return "#<" + name + ">"; };
         concrete_class.prototype.qua_isa = concrete_class;
         vm.GENERIC_CLASSES[name] = generic_class;
