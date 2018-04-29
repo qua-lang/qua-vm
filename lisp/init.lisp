@@ -561,12 +561,14 @@
 (defdynamic *restart-handler-frame*)
 
 (defclass handler ()
-  (condition-type
+  (name
+   condition-type
    handler-function
    associated-condition))
 
 (defun make-handler (condition-type handler-function . opt-associated-condition)
   (make-instance 'handler
+                 :name (symbol-name condition-type)
                  :condition-type condition-type
                  :handler-function handler-function
                  :associated-condition (optional opt-associated-condition)))
@@ -733,16 +735,18 @@
 ;; Gets called by the VM if an exception occurs in called JS code and
 ;; also if a VM internal routine causes an exception (which is a bug).
 (defun invoke-debugger (condition)
+  (print "")
+  (print "Welcome to the debugger!")
   (loop
      (block continue
-       (print (+ "Condition: " c))
+       (print (+ "Condition: " condition))
        (let ((restarts (compute-restarts condition)))
          (if (> (list-length restarts) 0)
              (progn
                (print "Restarts:")
                (let ((i 1))
                  (for-each (lambda (restart)
-                             (print (+ i ": " restart))
+                             (print (+ i ": " (slot-value restart 'name)))
                              (incf i))
                            restarts)
                  (print "Enter a restart number:")
@@ -750,9 +754,9 @@
                         (n ($Number s)))
                    (if ($isNaN n)
                        (return-from continue)
-                       (invoke-restart-interactively
-                        (make-instance (.condition-type (list-elt restarts (- n 1)))))))))
-             (%%panic c))))))
+                       (let ((class (slot-value (list-elt restarts (- n 1)) 'condition-type)))
+                         (invoke-restart-interactively (make-instance class)))))))
+             (%%panic condition))))))
 
 (defun compute-restarts (condition)
   (%compute-restarts condition '() (dynamic *restart-handler-frame*)))
@@ -767,7 +771,7 @@
                     (eq (slot-value handler 'associated-condition) condition)))
               (slot-value handler-frame 'handlers))))
         (%compute-restarts condition
-                           (append-lists restarts restart-list)
+                           (append-2-lists restarts restart-list)
                            (slot-value handler-frame 'parent)))))
 
 (defgeneric invoke-restart-interactively (restart))

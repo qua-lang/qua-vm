@@ -1,6 +1,11 @@
-(print "Welcome to Qua Generic Lisp! Enter ^C to exit.")
+(print "Welcome to Qua Generic Lisp! Type ^C to exit.")
 
 (let ((env (the-environment)))
   (loop
-    (print
-     (in-userspace (eval (%%read) env)))))
+     (block abort
+       (restart-bind ((abort (lambda #ign
+                               (print "Aborting")
+                               (return-from abort))))
+         (print
+          (in-userspace
+            (eval (%%read) env)))))))

@@ -37,7 +37,10 @@ module.exports = function(vm) {
         }
         vm.panic(err);
     };
-    vm.panic = function(err) { throw new vm.Panic(new Error(err)); };
+    vm.panic = function(err) {
+        console.log("vm.panic", err);
+        throw new vm.Panic(new Error(err));
+    };
     vm.time = function(name, fun) {
         var start = new Date().getTime();
         fun();
