@@ -511,21 +511,26 @@
 ;;;; Utilities
 
 (defun list-length (list)
-  (if (nil? list)
-      0
-      (+ 1 (list-length (cdr list)))))
+  (%if (nil? list)
+       0
+       (+ 1 (list-length (cdr list)))))
 
 (defun list-elt (list i)
-  (if (= i 0)
-      (car list)
-      (list-elt (cdr list) (- i 1))))
+  (%if (= i 0)
+       (car list)
+       (list-elt (cdr list) (- i 1))))
 
 (defun filter-list (#'pred list)
-  (if (nil? list)
-      '()
-      (%if (pred (car list))
-           (cons (car list) (filter-list #'pred (cdr list)))
-           (filter-list #'pred (cdr list)))))
+  (%if (nil? list)
+       '()
+       (%if (pred (car list))
+            (cons (car list) (filter-list #'pred (cdr list)))
+            (filter-list #'pred (cdr list)))))
+
+(defun append-2-lists (list-1 list-2)
+  (%if (nil? list-1)
+       list-2
+       (cons (car list-1) (append-2-lists (cdr list-1) list-2))))
 
 ;;;; Conditions
 

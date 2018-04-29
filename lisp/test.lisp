@@ -307,6 +307,7 @@
 (%expect 3 (list-elt (list 1 2 3 4) 2))
 
 (%expect '(#void #void) (filter-list #'void? '(1 #void 2 #void)))
+(%expect '(1 2 3 4) (append-2-lists '(1 2) '(3 4)))
 
 ;;;; Conditions
 
