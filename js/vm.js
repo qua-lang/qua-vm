@@ -36,11 +36,12 @@ vm.evaluate = function(m, e, x) {
         return x;
     }
 };
-vm.Sym = function Sym(name, ns) { this.qs_name = name; this.qs_ns = ns; };
+    vm.Sym = vm.defclass("symbol", ["standard-object"], { "name": {}, "ns": {} });
+    vm.Cons = vm.defclass("cons", ["standard-object"], { "car": {}, "cdr": {} });
+    vm.Keyword = vm.defclass("keyword", ["standard-object"], { "name": {} });
 vm.Sym.prototype.qua_evaluate = function(self, m, e) {
     return vm.lookup(e, self);
 };
-vm.Cons = function Cons(car, cdr) { this.qs_car = car; this.qs_cdr = cdr; };
 vm.Cons.prototype.qua_evaluate = function(self, m, e) {
     return vm.monadic(m,
                       function() { return vm.eval_operator(e, vm.car(self)); },
@@ -168,7 +169,6 @@ vm.cons = function cons(car, cdr) { var c = new vm.Cons(car, cdr); return c; }
 vm.car = function(cons) { return vm.assert_type(cons, vm.Cons).qs_car; };
 vm.cdr = function(cons) { return vm.assert_type(cons, vm.Cons).qs_cdr; };
 vm.elt = function(cons, i) { return (i === 0) ? vm.car(cons) : vm.elt(vm.cdr(cons), i - 1); };
-vm.Keyword = function Keyword(name) { this.qs_name = name; }
 vm.keyword = function(name) { var k = new vm.Keyword(name); return k; };
 vm.Nil = function Nil() {}; vm.NIL = new vm.Nil();
 vm.is_nil = function(obj) { return obj === vm.NIL; };
@@ -285,11 +285,6 @@ vm.init = function(e) {
     vm.Number = vm.defclass("number", ["object"]);
     vm.String = vm.defclass("string", ["object"]);
     vm.Boolean = vm.defclass("boolean", ["object"]);
-    // Give every instance of a built-in class an isa pointer to a
-    // synthetic (IOW fake) class.
-    vm.Sym.prototype.qua_isa = vm.defclass("symbol", ["standard-object"], { "name": {}, "ns": {} });
-    vm.Cons.prototype.qua_isa = vm.defclass("cons", ["standard-object"], { "car": {}, "cdr": {} });
-    vm.Keyword.prototype.qua_isa = vm.defclass("keyword", ["standard-object"], { "name": {} });
     // Instances of this class are thrown as JS exceptions to transfer a
     // value from a RETURN-FROM expression to its enclosing BLOCK.
     vm.Tag = vm.defclass("%%tag", ["standard-object"], { "id": {}, "val": {} });

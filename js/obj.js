@@ -51,21 +51,26 @@ module.exports = function(vm, e) {
         generic_class["qs_direct-superclasses"] =
             direct_superclasses.map(vm.designate_string);
         generic_class["qs_slots"] = slots ? slots : Object.create(null);
-        function concrete_class() {};
+        var concrete_class = vm.js_make_constructor(name, Object.keys(generic_class["qs_slots"]));
         concrete_class.qua_isa = vm.ConcreteClass;
         concrete_class["qs_generic-class"] = generic_class;
         concrete_class["qs_type-arguments"] = [];
-        // A concrete class' prototype is essentially superfluous but
-        // required to support JS's instanceof (which determines
-        // whether a constructor function's prototype occurs in the
-        // prototype chain of an object).  We can share it with the
-        // generic class, since a concrete class cannot have methods.
-        concrete_class.prototype = generic_class.prototype;
+        concrete_class.prototype = Object.create(generic_class.prototype);
         concrete_class.prototype.toString = function() { return "#<" + name + ">"; };
+        concrete_class.prototype.qua_isa = concrete_class;
         vm.GENERIC_CLASSES[name] = generic_class;
         vm.CONCRETE_CLASSES[name] = concrete_class;
         return concrete_class;
     };
+    vm.js_make_constructor = function(name, prop_names) {
+        var param_names = prop_names.map(vm.mangle).join(",");
+        var param_inits = prop_names.map(function(prop_name) {
+            return "this['qs_" + prop_name + "']=" + vm.mangle(prop_name) + ";"; }).join("");
+        return eval("(function Qua_" + vm.mangle(name) + "(" + param_names + "){" + param_inits + "})");
+    };
+    vm.mangle = function(name) {
+        return name.replace(/-/g, "_").replace(/%/g, "P");
+    }
     vm.find_concrete_class = function(name) {
         return vm.CONCRETE_CLASSES[vm.concrete_class_key(name)];
     };
@@ -118,7 +123,6 @@ module.exports = function(vm, e) {
     vm.allocate_instance = function(concrete_class) {
         vm.assert(vm.is_concrete_class(concrete_class));
         var obj = Object.create(concrete_class.prototype);
-        obj.qua_isa = concrete_class;
         return obj;
     };
     vm.initialize_instance = function(obj, initargs) {

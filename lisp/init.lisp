@@ -398,7 +398,7 @@
 (defmacro push-prompt-subcont (prompt continuation . body)
   (list #'%%push-prompt-subcont prompt continuation (list* #'lambda () body)))
 
-(defconstant +default-prompt+ (list :default-prompt))
+(defconstant +default-prompt+ :default-prompt)
 
 (defmacro push-default-prompt body
   (list* #'push-prompt +default-prompt+ body))
@@ -782,7 +782,7 @@
 ;;;; Userspace
 
 ;; Delimits all user interactions, so that stack traces can be taken.
-(defconstant +user-prompt+ (list :user-prompt))
+(defconstant +user-prompt+ :user-prompt)
 
 ;; Wrapped around all user code.  Provides useful handler bindings,
 ;; prompts, and other dynamic stuff.

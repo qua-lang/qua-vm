@@ -19,7 +19,9 @@ require("./alien")(vm, e);
 require("./print")(vm, e);
 require("./optim")(vm, e);
 require("./bytecode")(vm, e);
-require("./termio")(vm, e, parser);
+if (!process.browser) {
+    require("./termio")(vm, e, parser);
+}
 require("./test")(vm, e);
 vm.init(e);
 
