@@ -306,6 +306,8 @@
 (%expect 4 (list-length (list 1 2 3 4)))
 (%expect 3 (list-elt (list 1 2 3 4) 2))
 
+(%expect '(#void #void) (filter-list #'void? '(1 #void 2 #void)))
+
 ;;;; Conditions
 
 (%expect #void (handler-bind ()))

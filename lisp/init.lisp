@@ -520,6 +520,13 @@
       (car list)
       (list-elt (cdr list) (- i 1))))
 
+(defun filter-list (#'pred list)
+  (if (nil? list)
+      '()
+      (%if (pred (car list))
+           (cons (car list) (filter-list #'pred (cdr list)))
+           (filter-list #'pred (cdr list)))))
+
 ;;;; Conditions
 
 (defclass serious-condition (condition))
@@ -741,6 +748,22 @@
                        (invoke-restart-interactively
                         (make-instance (.condition-type (list-elt restarts (- n 1)))))))))
              (%%panic c))))))
+
+(defun compute-restarts (condition)
+  (%compute-restarts condition '() (dynamic *restart-handler-frame*)))
+
+(defun %compute-restarts (condition restart-list handler-frame)
+  (if (void? handler-frame)
+      restart-list
+      (let ((restarts
+             (filter-list
+              (lambda (handler)
+                (or (slot-void? handler 'associated-condition)
+                    (eq (slot-value handler 'associated-condition) condition)))
+              (slot-value handler-frame 'handlers))))
+        (%compute-restarts condition
+                           (append-lists restarts restart-list)
+                           (slot-value handler-frame 'parent)))))
 
 (defgeneric invoke-restart-interactively (restart))
 
