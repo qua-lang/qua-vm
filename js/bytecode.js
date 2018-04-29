@@ -1,5 +1,5 @@
 /* Bytecode parser */
-module.exports = function(vm) {
+module.exports = function(vm, e) {
     vm.parse_bytecode = function(obj) {
         switch(Object.prototype.toString.call(obj)) {
         case "[object String]": 

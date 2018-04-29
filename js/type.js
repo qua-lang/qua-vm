@@ -44,4 +44,11 @@ module.exports = function(vm, e) {
             return false;
         }
     };
+    // Types
+    vm.Type = vm.defclass("%type", ["standard-object"], {});
+    vm.TypeVar = vm.defclass("%type-variable", ["%type"], { "name": {} });
+    vm.TypeVar.prototype = Object.create(vm.Type.prototype);
+    vm.ClassType = vm.defclass("%class-type", ["%type"], { "name": {}, "generic-params": {} });
+    vm.ClassType.prototype = Object.create(vm.Type.prototype);
+    vm.GenericParam = vm.defclass("%generic-param", ["standard-object"], { "in-type": {}, "out-type": {} });
 };

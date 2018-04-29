@@ -4,13 +4,16 @@ var init_bytecode = require("../build/out/init.js").main;
 var test_bytecode = require("../build/out/test.js").main;
 
 var e = vm.make_env();
-require("./obj")(vm, e);
+require("./util")(vm, e);
 require("./lisp-2")(vm, e);
+require("./obj")(vm, e);
+require("./type")(vm, e);
 require("./cont")(vm, e);
 require("./alien")(vm, e);
 require("./print")(vm, e);
 require("./optim")(vm, e);
-require("./term")(vm, e, parser);
+require("./bytecode")(vm, e);
+require("./termio")(vm, e, parser);
 require("./test")(vm, e);
 vm.init(e);
 

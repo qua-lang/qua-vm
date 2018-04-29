@@ -1,4 +1,4 @@
-module.exports = function(vm) {
+module.exports = function(vm, e) {
     vm.Panic = function Panic(exc) {
         vm.assert_type(exc, Error);
         this.exc = exc;
@@ -8,7 +8,7 @@ module.exports = function(vm) {
     };
     vm.assert_type = function(obj, type_spec) {
         if (vm.check_type(obj, type_spec)) return obj;
-        else return vm.panic("type error: " + obj + " should be " + type_spec + " but is " + obj);
+        else return vm.error("type error: " + obj + " should be " + type_spec + " but is " + obj, e);
     };
     vm.check_type = function(obj, type_spec) {
         if (typeof(type_spec) === "string") {

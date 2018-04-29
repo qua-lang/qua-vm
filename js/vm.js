@@ -1,6 +1,4 @@
 var vm = module.exports;
-require("./util")(vm);
-require("./type")(vm);
 require("./bytecode")(vm);
 /* Evaluation */
 vm.evaluate = function(m, e, x) {
@@ -287,13 +285,6 @@ vm.init = function(e) {
     vm.UnboundVariable = vm.defclass("unbound-variable", ["error"], { "name": {} });
     vm.Restart = vm.defclass("restart", ["standard-object"], { "associated-condition": {} });
     vm.UseValue = vm.defclass("use-value", ["restart"], { "value": {} });
-    // Types
-    vm.Type = vm.defclass("%type", ["standard-object"], {});
-    vm.TypeVar = vm.defclass("%type-variable", ["%type"], { "name": {} });
-    vm.TypeVar.prototype = Object.create(vm.Type.prototype);
-    vm.ClassType = vm.defclass("%class-type", ["%type"], { "name": {}, "generic-params": {} });
-    vm.ClassType.prototype = Object.create(vm.Type.prototype);
-    vm.GenericParam = vm.defclass("%generic-param", ["standard-object"], { "in-type": {}, "out-type": {} });
 };
 vm.eval = function(x, e) {
     return vm.evaluate(null, e, x); // change to x,e
