@@ -300,6 +300,12 @@
 (%assert (=== 1 1 1))
 (%assert (not (=== 1 1 1 2)))
 
+;;;; Utilities
+
+(%expect 0 (list-length (list)))
+(%expect 4 (list-length (list 1 2 3 4)))
+(%expect 3 (list-elt (list 1 2 3 4) 2))
+
 ;;;; Conditions
 
 (%expect #void (handler-bind ()))

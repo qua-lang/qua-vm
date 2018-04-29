@@ -1,3 +1,6 @@
+(print "Welcome to Qua Generic Lisp! Enter ^C to exit.")
+
 (let ((env (the-environment)))
   (loop
-    (print (eval (%%read) env))))
+    (print
+     (in-userspace (eval (%%read) env)))))

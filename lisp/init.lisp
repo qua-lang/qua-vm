@@ -51,7 +51,7 @@
 (def #'plist-to-js-object #'%%plist-to-js-object)
 
 (def #'= #'eq) ; Use EQ for now as generic equality (since it works for JS values)
-(def #'defconstant #'def) ; The only constant is change.
+(def #'defconstant #'def) ; One man's constant ...
 
 ;;;; Basics
 
@@ -332,6 +332,7 @@
               (lambda ()
                 (fn #'escape)))))
 
+; Unlike CL, block tags are first class lexical objects.
 (defmacro block (name . body)
   (list #'%call-with-escape (list* #'lambda (list name) body)))
 
@@ -506,6 +507,18 @@
 
 (def #'- (%js-negative-op "-" 0))
 (def #'/ (%js-negative-op "/" 1))
+
+;;;; Utilities
+
+(defun list-length (list)
+  (if (nil? list)
+      0
+      (+ 1 (list-length (cdr list)))))
+
+(defun list-elt (list i)
+  (if (= i 0)
+      (car list)
+      (list-elt (cdr list) (- i 1))))
 
 ;;;; Conditions
 
@@ -707,10 +720,25 @@
 
 ;; Gets called by the VM if an exception occurs in called JS code and
 ;; also if a VM internal routine causes an exception (which is a bug).
-(defun invoke-debugger (condition)
-  (print "DEBUG")
-  (print condition)
-  (%%panic condition))
+(defun invoke-debugger (c)
+  (print (+ "Condition: " c))
+  (let ((restarts (compute-restarts c)))
+    (if (> (list-len restarts) 0)
+        (progn
+          (print "Restarts:")
+          (let ((i 1))
+            (for-each (lambda (r)
+                        (print (+ i ": " r))
+                        (incf i))
+                      restarts)
+            (print "Enter a restart number, or cancel to abort:")
+            (let ((s (%%read-line)))
+              (if (nil? s)
+                  (abort)
+                  (let ((n (string-to-number s)))
+                    (invoke-restart-interactively
+                     (make-instance (.handler-class (elt restarts (- n 1))))))))))
+        (%%panic c))))
 
 (defgeneric invoke-restart-interactively (restart))
 
@@ -724,6 +752,9 @@
 
 ;; Wrapped around all user code.  Provides useful handler bindings,
 ;; prompts, and other dynamic stuff.
-(defun user-eval (#'thunk)
+(defun call-in-userspace (#'thunk)
   (push-prompt +user-prompt+
     (thunk)))
+
+(defmacro in-userspace body
+  (list #'call-in-userspace (list* #'lambda () body)))
