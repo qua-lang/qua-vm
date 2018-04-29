@@ -720,32 +720,34 @@
 
 ;; Gets called by the VM if an exception occurs in called JS code and
 ;; also if a VM internal routine causes an exception (which is a bug).
-(defun invoke-debugger (c)
-  (print (+ "Condition: " c))
-  (let ((restarts (compute-restarts c)))
-    (if (> (list-len restarts) 0)
-        (progn
-          (print "Restarts:")
-          (let ((i 1))
-            (for-each (lambda (r)
-                        (print (+ i ": " r))
-                        (incf i))
-                      restarts)
-            (print "Enter a restart number, or cancel to abort:")
-            (let ((s (%%read-line)))
-              (if (nil? s)
-                  (abort)
-                  (let ((n (string-to-number s)))
-                    (invoke-restart-interactively
-                     (make-instance (.handler-class (elt restarts (- n 1))))))))))
-        (%%panic c))))
+(defun invoke-debugger (condition)
+  (loop
+     (block continue
+       (print (+ "Condition: " c))
+       (let ((restarts (compute-restarts condition)))
+         (if (> (list-length restarts) 0)
+             (progn
+               (print "Restarts:")
+               (let ((i 1))
+                 (for-each (lambda (restart)
+                             (print (+ i ": " restart))
+                             (incf i))
+                           restarts)
+                 (print "Enter a restart number:")
+                 (let* ((s (%%read-line))
+                        (n ($Number s)))
+                   (if ($isNaN n)
+                       (return-from continue)
+                       (invoke-restart-interactively
+                        (make-instance (.condition-type (list-elt restarts (- n 1)))))))))
+             (%%panic c))))))
 
 (defgeneric invoke-restart-interactively (restart))
 
 (defmethod invoke-restart-interactively ((r restart))
   (invoke-restart r))
 
-;;;; Final events
+;;;; Userspace
 
 ;; Delimits all user interactions, so that stack traces can be taken.
 (defconstant +user-prompt+ (list :user-prompt))
