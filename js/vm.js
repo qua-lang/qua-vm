@@ -66,18 +66,18 @@ vm.combine = function(m, e, cmb, o) {
         return vm.error("not a combiner: " + cmb, e);
     }
 };
-vm.Opv = function(p, ep, x, e) { this.p = p; this.ep = ep; this.x = x; this.e = e; };
-vm.Apv = function(cmb) { this.cmb = cmb; };
+    vm.Opv = vm.defclass("opv", ["standard-object"], { "p": {}, "ep": {}, "x": {}, "e": {} });
+    vm.Apv = function(cmb) { this.cmb = cmb; };
 vm.wrap = function(cmb) { return new vm.Apv(cmb); };
 vm.unwrap = function(apv) { return apv.cmb; };
 vm.Opv.prototype.qua_combine = function(self, m, e, o) {
-    var xe = vm.make_env(self.e);
+    var xe = vm.make_env(self.qs_e);
     return vm.monadic(m,
-                      function() { return vm.bind(xe, self.p, o); },
+                      function() { return vm.bind(xe, self.qs_p, o); },
                       function() {
                           return vm.monadic(m,
-                                            function() { return vm.bind(xe, self.ep, e); },
-                                            function() { return vm.evaluate(null, xe, self.x); }); });
+                                            function() { return vm.bind(xe, self.qs_ep, e); },
+                                            function() { return vm.evaluate(null, xe, self.qs_x); }); });
 };
 vm.Apv.prototype.qua_combine = function(self, m, e, o) {
     return vm.monadic(m,
