@@ -1,5 +1,5 @@
 // Object system
-module.exports = function(vm) {
+module.exports = function(vm, e) {
     /* Bootstrap CONCRETE-CLASS */
     vm.THE_GENERIC_CLASS_CONCRETE_CLASS = {
         "qs_name": "concrete-class",
@@ -109,16 +109,6 @@ module.exports = function(vm) {
             return vm.find_generic_class(class_des);
         }
     };
-    /* Setup class hierarchy */
-    vm.Object = vm.defclass("object", []);
-    vm.StandardObject = vm.defclass("standard-object", ["object"]);
-    vm.Class = vm.defclass("class", ["standard-object"]);
-    vm.Combiner = vm.defclass("combiner", ["standard-object"]);
-    vm.Fexpr = vm.defclass("fexpr", ["combiner"]);
-    vm.Function = vm.defclass("function", ["combiner"]);
-    vm.Number = vm.defclass("number", ["object"]);
-    vm.String = vm.defclass("string", ["object"]);
-    vm.Boolean = vm.defclass("boolean", ["object"]);
     /* Objects */
     vm.make_instance = function(class_des, initargs) {
         var concrete_class = vm.designate_concrete_class(class_des);

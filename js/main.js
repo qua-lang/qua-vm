@@ -2,8 +2,9 @@ var vm = require("./vm");
 var parser = require("./read");
 var init_bytecode = require("../build/out/init.js").main;
 var test_bytecode = require("../build/out/test.js").main;
-var e = vm.make_env();
 
+var e = vm.make_env();
+require("./obj")(vm, e);
 require("./lisp-2")(vm, e);
 require("./cont")(vm, e);
 require("./alien")(vm, e);

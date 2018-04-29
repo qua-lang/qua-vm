@@ -1,7 +1,7 @@
 var fs = require("fs");
 var parser = require("../js/read");
 var paths = ["lisp/init.lisp", "lisp/collection.lisp"];
-paths.push("lisp/repl.lisp");
+//paths.push("lisp/repl.lisp");
 var code = paths.map(file).join("\n");
 
 function file(path) {

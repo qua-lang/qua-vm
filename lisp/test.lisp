@@ -1,5 +1,9 @@
 ;; Test bindings
-(def #'%assert #'%%assert)
+(deffexpr %assert (expr) env
+  (unless (eval expr env)
+    (print "assertion failed")
+    (print expr)
+    (%%panic "assertion failed")))
 (def #'%deep-equal #'%%deep-equal)
 (defun #'%expect (expected actual) (%assert (%deep-equal expected actual)))
 
@@ -62,11 +66,6 @@
 (%expect 3 (if (= #t #f) 1 (= #t #f) 2 3))
 
 ;;;; Objects
-(%assert (%deep-equal 'foo
-                      (make-instance 'symbol :name "foo" :ns "v")))
-(%assert (%deep-equal :foo
-                      (make-instance 'keyword :name "foo")))
-
 (defgeneric describe-yourself (self))
 (defmethod describe-yourself ((self js-number)) "a number")
 (defmethod describe-yourself ((self boolean)) "a boolean")

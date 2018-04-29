@@ -1,11 +1,7 @@
 var vm = module.exports;
 require("./util")(vm);
-require("./obj")(vm);
 require("./type")(vm);
 require("./bytecode")(vm);
-// Instances of this class are thrown as JS exceptions to transfer a
-// value from a RETURN-FROM expression to its enclosing BLOCK.
-vm.Tag = vm.defclass("%%tag", ["standard-object"], { "id": {}, "val": {} });
 /* Evaluation */
 vm.evaluate = function(m, e, x) {
     if (x && x.qua_evaluate) {
@@ -22,12 +18,10 @@ vm.evaluate = function(m, e, x) {
         return x;
     }
 };
-vm.THE_CLASS_SYM = vm.defclass("symbol", ["standard-object"], { "name": {}, "ns": {} });
 vm.Sym = function Sym(name, ns) { this.qs_name = name; this.qs_ns = ns; };
 vm.Sym.prototype.qua_evaluate = function(self, m, e) {
     return vm.lookup(e, self);
 };
-vm.THE_CLASS_CONS = vm.defclass("cons", ["standard-object"], { "car": {}, "cdr": {} });
 vm.Cons = function Cons(car, cdr) { this.qs_car = car; this.qs_cdr = cdr; };
 vm.Cons.prototype.qua_evaluate = function(self, m, e) {
     return vm.monadic(m,
@@ -149,16 +143,15 @@ vm.JSOperator.prototype.qua_combine = function(self, m, e, o) {
 vm.jswrap = function(js_fn) { return vm.wrap(new vm.JSOperator(js_fn)); };
 /* Forms */
 vm.VAR_NS = "v";
-vm.sym = function(name, ns) { var s = new vm.Sym(name, ns ? ns : vm.VAR_NS); s.qua_isa = vm.THE_CLASS_SYM; return s; };
+vm.sym = function(name, ns) { var s = new vm.Sym(name, ns ? ns : vm.VAR_NS); return s; };
 vm.sym_key = function(sym) { return sym.qs_name + "_" + sym.qs_ns; };
 vm.sym_name = function(sym) { return vm.assert_type(sym, vm.Sym).qs_name; };
-vm.cons = function cons(car, cdr) { var c = new vm.Cons(car, cdr); c.qua_isa = vm.THE_CLASS_CONS; return c; }
+vm.cons = function cons(car, cdr) { var c = new vm.Cons(car, cdr); return c; }
 vm.car = function(cons) { return vm.assert_type(cons, vm.Cons).qs_car; };
 vm.cdr = function(cons) { return vm.assert_type(cons, vm.Cons).qs_cdr; };
 vm.elt = function(cons, i) { return (i === 0) ? vm.car(cons) : vm.elt(vm.cdr(cons), i - 1); };
-vm.THE_CLASS_KEYWORD = vm.defclass("keyword", ["standard-object"], { "name": {} });
 vm.Keyword = function Keyword(name) { this.qs_name = name; }
-vm.keyword = function(name) { var k = new vm.Keyword(name); k.qua_isa = vm.THE_CLASS_KEYWORD; return k; };
+vm.keyword = function(name) { var k = new vm.Keyword(name); return k; };
 vm.Nil = function Nil() {}; vm.NIL = new vm.Nil();
 vm.is_nil = function(obj) { return obj === vm.NIL; };
 vm.Ign = function Ign() {}; vm.IGN = new vm.Ign();
@@ -230,13 +223,6 @@ vm.reverse_list = function(list) {
 vm.is_list = function(obj) {
     return vm.is_nil(obj) || obj instanceof vm.Cons;
 };
-/* Conditions */
-vm.Condition = vm.defclass("condition", ["standard-object"], {});
-vm.SeriousCondition = vm.defclass("serious-condition", ["condition"], {});
-vm.Error = vm.defclass("error", ["serious-condition"], {});
-vm.UnboundVariable = vm.defclass("unbound-variable", ["error"], { "name": {} });
-vm.Restart = vm.defclass("restart", ["standard-object"], { "associated-condition": {} });
-vm.UseValue = vm.defclass("use-value", ["restart"], { "value": {} });
 /* API */
 vm.make_env = function(parent) { return new vm.Env(parent); };
 vm.def = vm.bind;
@@ -276,6 +262,38 @@ vm.init = function(e) {
     vm.defun(e, vm.sym("%%eq"), vm.jswrap(function(a, b) { return a === b; }));
     vm.defun(e, vm.sym("%%print"), vm.jswrap(console.log));
     vm.defun(e, vm.sym("%%list-to-array"), vm.jswrap(vm.list_to_array));
+    /* Setup class hierarchy */
+    vm.Object = vm.defclass("object", []);
+    vm.StandardObject = vm.defclass("standard-object", ["object"]);
+    vm.Class = vm.defclass("class", ["standard-object"]);
+    vm.Combiner = vm.defclass("combiner", ["standard-object"]);
+    vm.Fexpr = vm.defclass("fexpr", ["combiner"]);
+    vm.Function = vm.defclass("function", ["combiner"]);
+    vm.Number = vm.defclass("number", ["object"]);
+    vm.String = vm.defclass("string", ["object"]);
+    vm.Boolean = vm.defclass("boolean", ["object"]);
+    // Give every instance of a built-in class an isa pointer to a
+    // synthetic (IOW fake) class.
+    vm.Sym.prototype.qua_isa = vm.defclass("symbol", ["standard-object"], { "name": {}, "ns": {} });
+    vm.Cons.prototype.qua_isa = vm.defclass("cons", ["standard-object"], { "car": {}, "cdr": {} });
+    vm.Keyword.prototype.qua_isa = vm.defclass("keyword", ["standard-object"], { "name": {} });
+    // Instances of this class are thrown as JS exceptions to transfer a
+    // value from a RETURN-FROM expression to its enclosing BLOCK.
+    vm.Tag = vm.defclass("%%tag", ["standard-object"], { "id": {}, "val": {} });
+    // Conditions
+    vm.Condition = vm.defclass("condition", ["standard-object"], {});
+    vm.SeriousCondition = vm.defclass("serious-condition", ["condition"], {});
+    vm.Error = vm.defclass("error", ["serious-condition"], {});
+    vm.UnboundVariable = vm.defclass("unbound-variable", ["error"], { "name": {} });
+    vm.Restart = vm.defclass("restart", ["standard-object"], { "associated-condition": {} });
+    vm.UseValue = vm.defclass("use-value", ["restart"], { "value": {} });
+    // Types
+    vm.Type = vm.defclass("%type", ["standard-object"], {});
+    vm.TypeVar = vm.defclass("%type-variable", ["%type"], { "name": {} });
+    vm.TypeVar.prototype = Object.create(vm.Type.prototype);
+    vm.ClassType = vm.defclass("%class-type", ["%type"], { "name": {}, "generic-params": {} });
+    vm.ClassType.prototype = Object.create(vm.Type.prototype);
+    vm.GenericParam = vm.defclass("%generic-param", ["standard-object"], { "in-type": {}, "out-type": {} });
 };
 vm.eval = function(x, e) {
     return vm.evaluate(null, e, x); // change to x,e

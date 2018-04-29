@@ -1,11 +1,5 @@
 // Type system
-module.exports = function(vm) {
-    vm.Type = vm.defclass("%type", ["standard-object"], {});
-    vm.TypeVar = vm.defclass("%type-variable", ["%type"], { "name": {} });
-    vm.TypeVar.prototype = Object.create(vm.Type.prototype);
-    vm.ClassType = vm.defclass("%class-type", ["%type"], { "name": {}, "generic-params": {} });
-    vm.ClassType.prototype = Object.create(vm.Type.prototype);
-    vm.GenericParam = vm.defclass("%generic-param", ["standard-object"], { "in-type": {}, "out-type": {} });
+module.exports = function(vm, e) {
     vm.typep = function(obj, type_designator) {
         var gcls = vm.generic_class_of(obj);
         var class_type = vm.designate_type(type_designator);
