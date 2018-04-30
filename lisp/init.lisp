@@ -273,7 +273,7 @@
                 (call-method (car args) name args)))
         env))
 
-(deffexpr defmethod (name ((self class-spec) . args) . body) env
+(deffexpr %defmethod (name ((self class-spec) . args) . body) env
   (let ((class (find-generic-class class-spec))
         (fun (eval (list* #'lambda (list* self args) body) env)))
     (put-method class name fun)
@@ -436,19 +436,19 @@
 
 ;;;; JS stuff
 
-; Equal to syntax .prop-name
+; Implementation of .prop-name JS property reference syntax
 (defun js-getter (prop-name)
-  (let ((getter (lambda (obj)
-                  (js-get obj prop-name))))
-    (setf (setter getter)
-          (lambda (new-val obj)
-            (js-set obj prop-name new-val)))
-    getter))
+  (flet ((getter (obj)
+           (js-get obj prop-name)))
+    (defsetf #'getter
+        (lambda (new-val obj)
+          (js-set obj prop-name new-val)))
+    #'getter))
 
-; Equal to syntax @fun-name
-(defun js-invoker (fun-name)
+; Implementation of @method-name JS method call syntax
+(defun js-invoker (method-name)
   (lambda (this . args)
-    (let ((fun (js-get this fun-name)))
+    (let ((fun (js-get this method-name)))
       (js-apply fun this (list-to-js-array args)))))
 
 ; {}
@@ -643,7 +643,7 @@
 
 (defgeneric condition-applicable? (condition handler))
 
-(defmethod condition-applicable? ((condition condition) handler)
+(%defmethod condition-applicable? ((condition condition) handler)
   (type? condition (slot-value handler 'condition-type)))
 
 (defun slot-void? (obj slot-name)
@@ -651,7 +651,7 @@
        (void? (slot-value obj slot-name))
        #t))
 
-(defmethod condition-applicable? ((restart restart) handler)
+(%defmethod condition-applicable? ((restart restart) handler)
   (and (type? restart (slot-value handler 'condition-type))
        (or (slot-void? restart 'associated-condition)
            (slot-void? handler 'associated-condition)
@@ -660,12 +660,12 @@
 
 (defgeneric call-condition-handler (condition handler handler-frame))
 
-(defmethod call-condition-handler ((condition condition) handler handler-frame)
+(%defmethod call-condition-handler ((condition condition) handler handler-frame)
   ; Condition firewall
   (dynamic-let ((*condition-handler-frame* (slot-value handler-frame 'parent)))
     (handle-condition handler condition)))
 
-(defmethod call-condition-handler ((restart restart) handler handler-frame)
+(%defmethod call-condition-handler ((restart restart) handler handler-frame)
   (handle-condition handler restart))
 
 ;;;; Types
@@ -776,7 +776,7 @@
 
 (defgeneric invoke-restart-interactively (restart))
 
-(defmethod invoke-restart-interactively ((r restart))
+(%defmethod invoke-restart-interactively ((r restart))
   (invoke-restart r))
 
 ;;;; Userspace
@@ -792,3 +792,4 @@
 
 (defmacro in-userspace body
   (list #'call-in-userspace (list* #'lambda () body)))
+

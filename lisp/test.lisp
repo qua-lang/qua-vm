@@ -67,10 +67,10 @@
 
 ;;;; Objects
 (defgeneric describe-yourself (self))
-(defmethod describe-yourself ((self js-number)) "a number")
-(defmethod describe-yourself ((self boolean)) "a boolean")
-(defmethod describe-yourself ((self symbol)) "a symbol")
-(defmethod describe-yourself ((self object)) "any other object")
+(%defmethod describe-yourself ((self js-number)) "a number")
+(%defmethod describe-yourself ((self boolean)) "a boolean")
+(%defmethod describe-yourself ((self symbol)) "a symbol")
+(%defmethod describe-yourself ((self object)) "any other object")
 (%assert (%deep-equal "a number" (describe-yourself 33)))
 (%assert (%deep-equal "a boolean" (describe-yourself #t)))
 (%assert (%deep-equal "a symbol" (describe-yourself 'foo)))
@@ -87,7 +87,7 @@
 ;;;; Basic classes
 (defclass my-class ())
 (defgeneric my-generic (self))
-(defmethod my-generic ((self my-class))
+(%defmethod my-generic ((self my-class))
   "wow!")
 (def obj1 (make-instance 'my-class))
 
@@ -96,7 +96,7 @@
 
 (%assert (%deep-equal "wow!" (my-generic obj1)))
 (%assert (%deep-equal "wow!" (my-generic obj2)))
-(defmethod my-generic ((self my-subclass))
+(%defmethod my-generic ((self my-subclass))
   "wowzers!")
 (%assert (%deep-equal "wow!" (my-generic obj1)))
 (%assert (%deep-equal "wowzers!" (my-generic obj2)))
