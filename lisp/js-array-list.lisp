@@ -1,3 +1,4 @@
+; LIST backed by a JS-ARRAY.
 (defclass (js-array-list :e) ((list :e))
   (js-array))
 

@@ -130,7 +130,9 @@
   (apply fun args))
 
 ; Don't need FUNCALL as much as in Common Lisp though, since we can
-; always bind lexical vars in function namespace:
+; always bind lexical vars in function namespace (plus, if FOO returns
+; a function, then we can do ((FOO)) to call it, so using FUNCALL is
+; for readability only)
 (defun compose (#'f #'g)
   (lambda (arg) (f (g arg))))
 
@@ -442,11 +444,9 @@
 
 ; Implementation of .prop-name JS property reference syntax
 (defun js-getter (prop-name)
-  (flet ((getter (obj)
-           (js-get obj prop-name)))
-    (defsetf #'getter
-        (lambda (new-val obj)
-          (js-set obj prop-name new-val)))
+  (flet ((getter (obj)  (js-get obj prop-name)))
+    (defsetf #'getter (lambda (new-val obj)
+                        (js-set obj prop-name new-val)))
     #'getter))
 
 ; Implementation of @method-name JS method call syntax
@@ -455,7 +455,6 @@
     (let ((fun (js-get this method-name)))
       (js-apply fun this (list-to-js-array args)))))
 
-; {}
 (defun create-js-object opt-proto
   (@create $Object (optional opt-proto #null)))
 
