@@ -735,10 +735,10 @@
       #void)))
 
 (defun the (type-spec obj)
-  (if (type? obj type-spec)
-      obj
-      (error (%make-instance 'type-mismatch-error
-                             :type-spec type-spec :obj obj))))
+  (%if (type? obj type-spec)
+       obj
+       (error (%make-instance 'type-mismatch-error
+                              :type-spec type-spec :obj obj))))
 
 (defun %method-lambda-list-type-checks (method-ll)
   (map-list (lambda (param)
@@ -760,17 +760,16 @@
                             (#t (simple-error "Not a method parameter" :arg param))))
                         other-params))
              (simplified-ll (cons receiver-spec simplified-other-params))
-             (type-checks (%method-lambda-list-type-checks method-ll))
-             (result-type (list #'quote 'object)))
-        (list simplified-ll type-checks result-type))
+             (type-checks (%method-lambda-list-type-checks method-ll)))
+        (list simplified-ll type-checks))
       (simple-error "Not a method lambda list" :arg method-ll)))
 
 (defmacro defmethod (name method-lambda-list . body)
-  (let (((simplified-method-ll type-checks result-type)
+  (let (((simplified-method-ll type-checks)
          (%parse-method-lambda-list method-lambda-list)))
     (list* #'%defmethod name simplified-method-ll
            type-checks
-           (list #'the result-type (prognize body)))))
+           body)))
 
 (defun make-instance (type-spec . args)
   (apply #'%make-instance (cons (%parse-type-spec type-spec) args)))
@@ -798,7 +797,9 @@
                  (let* ((s (%%read-line))
                         (n ($Number s)))
                    (if ($isNaN n)
-                       (return-from continue)
+                       (progn
+                         (print "You didn't enter a number. Please try again.")
+                         (return-from continue))
                        (let ((class (slot-value (list-elt restarts (- n 1)) 'condition-type)))
                          (invoke-restart-interactively (%make-instance class)))))))
              (%%panic condition))))))

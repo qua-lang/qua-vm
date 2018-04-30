@@ -7,3 +7,11 @@
 
 (defmethod add ((self (js-array-list :e)) (element :e))
   (@push (slot-value self 'js-array) element))
+
+;; (put-method (find-generic-class 'js-array-list)
+;;             'add
+;;             (lambda (self element)
+;;               (check-type-variable :e element)
+;;               (the 'object
+;;                    (progn
+;;                      (@push (slot-value self 'js-array) element)))))
