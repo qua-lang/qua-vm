@@ -18,7 +18,6 @@ require("./cont")(vm, e);
 require("./alien")(vm, e);
 require("./print")(vm, e);
 require("./optim")(vm, e);
-require("./bytecode")(vm, e);
 if (!process.browser) {
     require("./termio")(vm, e, parser);
 }
