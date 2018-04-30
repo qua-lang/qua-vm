@@ -1,9 +1,9 @@
 ;; Test bindings
 (deffexpr %assert (expr) env
-  (unless (eval expr env)
-    (print "assertion failed")
-    (print expr)
-    (%%panic "assertion failed")))
+          (unless (eval expr env)
+            (print "assertion failed")
+            (print expr)
+            (%%panic "assertion failed")))
 (def #'%deep-equal #'%%deep-equal)
 (defun #'%expect (expected actual) (%assert (%deep-equal expected actual)))
 
@@ -88,16 +88,16 @@
 (defclass my-class ())
 (defgeneric my-generic (self))
 (%defmethod my-generic ((self my-class))
-  "wow!")
-(def obj1 (make-instance 'my-class))
+            "wow!")
+(def obj1 (%make-instance 'my-class))
 
 (defclass my-subclass (my-class))
-(def obj2 (make-instance 'my-subclass))
+(def obj2 (%make-instance 'my-subclass))
 
 (%assert (%deep-equal "wow!" (my-generic obj1)))
 (%assert (%deep-equal "wow!" (my-generic obj2)))
 (%defmethod my-generic ((self my-subclass))
-  "wowzers!")
+            "wowzers!")
 (%assert (%deep-equal "wow!" (my-generic obj1)))
 (%assert (%deep-equal "wowzers!" (my-generic obj2)))
 
@@ -105,7 +105,7 @@
 (defclass class-with-slots ()
   (x :type number
      y :type number))
-(def object-with-slots (make-instance 'class-with-slots :x 2 :y 4))
+(def object-with-slots (%make-instance 'class-with-slots :x 2 :y 4))
 (%assert (%deep-equal 2 (slot-value object-with-slots 'x)))
 (%assert (%deep-equal 4 (slot-value object-with-slots 'y)))
 (%assert (slot-bound? object-with-slots 'x))
@@ -237,15 +237,15 @@
 (progn
   (%expect 1 (dynamic *my-dynamic*))
   (dynamic-let ((*my-dynamic* 2))
-    (%expect 2 (dynamic *my-dynamic*)))
+               (%expect 2 (dynamic *my-dynamic*)))
   (%expect 1 (dynamic *my-dynamic*)))
 
 (progn
   (%expect 1 (dynamic *my-dynamic*))
   (block exc
     (dynamic-let ((*my-dynamic* 2))
-      (%expect 2 (dynamic *my-dynamic*))
-      (return-from exc)))
+                 (%expect 2 (dynamic *my-dynamic*))
+                 (return-from exc)))
   (%expect 1 (dynamic *my-dynamic*)))
 
 ;;;; JS object
@@ -315,29 +315,29 @@
 (%expect 1
          (block b
            (handler-bind ((condition (lambda (c) (return-from b 1))))
-             (signal (make-instance 'condition))
+             (signal (%make-instance 'condition))
              2)))
 
 (%expect 2
          (block b
            (handler-bind ((warning (lambda (c) (return-from b 1)))
                           (serious-condition (lambda (c) (return-from b 2))))
-             (signal (make-instance 'error))
+             (signal (%make-instance 'error))
              3)))
 
-(%expect #void (signal (make-instance 'condition)))
+(%expect #void (signal (%make-instance 'condition)))
 
 (%expect "foo"
          (block exit
-           (handler-bind ((condition (lambda #ign (invoke-restart (make-instance 'continue)))))
+           (handler-bind ((condition (lambda #ign (invoke-restart (%make-instance 'continue)))))
              (restart-bind ((continue (lambda #ign (return-from exit "foo"))))
-               (signal (make-instance 'condition))))))
+               (signal (%make-instance 'condition))))))
 
 ;;;; Subclassing
-(%assert (type? (make-instance 'serious-condition) 'object))
-(%assert (type? (make-instance 'error) 'serious-condition))
-(%assert (type? (make-instance 'error) 'object))
-(%assert (not (type? (make-instance 'object) 'error)))
+(%assert (type? (%make-instance 'serious-condition) 'object))
+(%assert (type? (%make-instance 'error) 'serious-condition))
+(%assert (type? (%make-instance 'error) 'object))
+(%assert (not (type? (%make-instance 'object) 'error)))
 
 (%assert (type? 12 'js-number))
 (%assert (type? 12 'number))
@@ -357,64 +357,67 @@
 (%expect 1 (typecase 'whatever (symbol 1) (#t "default")))
 (%expect "default" (typecase 'whatever (number 1) (#t "default")))
 
-(%expect (make-instance '%generic-param
-                        :in-type (%parse-type-spec 'number)
-                        :out-type (%parse-type-spec 'boolean))
+(%expect (%make-instance '%generic-param
+                         :in-type (%parse-type-spec 'number)
+                         :out-type (%parse-type-spec 'boolean))
          (%parse-generic-param-spec '(:io number boolean)))
-(%expect (make-instance '%generic-param
-                        :in-type (%parse-type-spec 'number)
-                        :out-type +top-type+)
+(%expect (%make-instance '%generic-param
+                         :in-type (%parse-type-spec 'number)
+                         :out-type +top-type+)
          (%parse-generic-param-spec '(:in number)))
-(%expect (make-instance '%generic-param
-                        :in-type +bottom-type+
-                        :out-type (%parse-type-spec 'number))
+(%expect (%make-instance '%generic-param
+                         :in-type +bottom-type+
+                         :out-type (%parse-type-spec 'number))
          (%parse-generic-param-spec '(:out number)))
-(%expect (make-instance '%generic-param
-                        :in-type (%parse-type-spec 'number)
-                        :out-type (%parse-type-spec 'number))
+(%expect (%make-instance '%generic-param
+                         :in-type (%parse-type-spec 'number)
+                         :out-type (%parse-type-spec 'number))
          (%parse-generic-param-spec 'number))
-(%expect (make-instance '%generic-param
-                        :in-type (%parse-type-spec '(hash-set number))
-                        :out-type (%parse-type-spec '(hash-set number)))
+(%expect (%make-instance '%generic-param
+                         :in-type (%parse-type-spec '(hash-set number))
+                         :out-type (%parse-type-spec '(hash-set number)))
          (%parse-generic-param-spec '(hash-set number)))
 
 
-(%expect (make-instance '%type-variable :name "foo")
+(%expect (%make-instance '%type-variable :name "foo")
          (%parse-type-spec :foo))
-(%expect (make-instance '%class-type :name "foo" :generic-params '())
+(%expect (%make-instance '%class-type :name "foo" :generic-params '())
          (%parse-type-spec 'foo))
-(%expect (make-instance '%class-type :name "foo" :generic-params '())
+(%expect (%make-instance '%class-type :name "foo" :generic-params '())
          (%parse-type-spec '(foo)))
-(%expect (make-instance '%class-type
-                        :name "hash-set"
-                        :generic-params
-                        (list 
-                         (make-instance '%generic-param
-                                        :in-type (%parse-type-spec 'number)
-                                        :out-type (%parse-type-spec 'number))))
+(%expect (%make-instance '%class-type
+                         :name "hash-set"
+                         :generic-params
+                         (list 
+                          (%make-instance '%generic-param
+                                          :in-type (%parse-type-spec 'number)
+                                          :out-type (%parse-type-spec 'number))))
          (%parse-type-spec '(hash-set number)))
-(%expect (make-instance '%class-type
-                        :name "hash-set"
-                        :generic-params
-                        (list 
-                         (make-instance '%generic-param
-                                        :in-type (%parse-type-spec :e)
-                                        :out-type (%parse-type-spec :e))))
+(%expect (%make-instance '%class-type
+                         :name "hash-set"
+                         :generic-params
+                         (list 
+                          (%make-instance '%generic-param
+                                          :in-type (%parse-type-spec :e)
+                                          :out-type (%parse-type-spec :e))))
          (%parse-type-spec '(hash-set :e)))
-(%expect (make-instance '%class-type
-                        :name "hash-set"
-                        :generic-params
-                        (list 
-                         (make-instance '%generic-param
-                                        :in-type (%parse-type-spec 'number)
-                                        :out-type +top-type+)))
+(%expect (%make-instance '%class-type
+                         :name "hash-set"
+                         :generic-params
+                         (list 
+                          (%make-instance '%generic-param
+                                          :in-type (%parse-type-spec 'number)
+                                          :out-type +top-type+)))
          (%parse-type-spec '(hash-set (:in number))))
 
 ;;;; Generic collections
 
-                                        ;(let ((list (make-array-list 'number)))
-                                        ;  (add list 1)
-                                        ;  (add list 2))
+(let ((list (make-js-array-list 'number)))
+  (add list 1)
+  (add list 2)
+  (%expect (make-instance '(js-array-list number)
+                          :js-array (js-array 1 2))
+           list))
 
 ;;;; Userland
 

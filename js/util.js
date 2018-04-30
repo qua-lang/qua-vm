@@ -1,11 +1,4 @@
 module.exports = function(vm, e) {
-    vm.Panic = function Panic(exc) {
-        vm.assert_type(exc, Error);
-        this.exc = exc;
-    };
-    vm.Panic.prototype.toString = function() {
-        return this.exc.stack;
-    };
     vm.assert_type = function(obj, type_spec) {
         if (vm.check_type(obj, type_spec)) return obj;
         else return vm.error("type error: " + obj + " should be " + type_spec + " but is " + obj, e);
@@ -24,6 +17,13 @@ module.exports = function(vm, e) {
         }
     };
     vm.assert = function(x) { if (!x) vm.panic("assertion failed"); };
+    vm.Panic = function Panic(exc) {
+        vm.assert_type(exc, Error);
+        this.exc = exc;
+    };
+    vm.Panic.prototype.toString = function() {
+        return this.exc.stack;
+    };
     vm.error = function(err, e) {
         if (vm.check_type(e, vm.Env)) {
             var error = vm.lookup(e, vm.fun_sym("error"), false);
@@ -37,9 +37,13 @@ module.exports = function(vm, e) {
         }
         vm.panic(err);
     };
+    // Unconditionally abort up to the next exception handler outside
+    // of the VM.  Does not run any intervening UNWIND-PROTECT and
+    // %%RESCUE blocks. (TODO)
     vm.panic = function(err) {
         console.log("vm.panic", err);
-        throw new vm.Panic(new Error(err));
+        err = (err instanceof Error) ? err : new Error(err);
+        throw new vm.Panic(err);
     };
     vm.time = function(name, fun) {
         var start = new Date().getTime();

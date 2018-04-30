@@ -71,10 +71,14 @@ module.exports = function(vm, e) {
         return name.replace(/-/g, "_").replace(/%/g, "P");
     }
     vm.find_concrete_class = function(name) {
-        return vm.CONCRETE_CLASSES[vm.concrete_class_key(name)];
+        var key = vm.concrete_class_key(name);
+        var c = vm.CONCRETE_CLASSES[key];
+        if (c !== undefined) { return c; } else { return vm.error("concrete class not found: " + key); }
     };
     vm.find_generic_class = function(name) {
-        return vm.GENERIC_CLASSES[vm.generic_class_key(name)];
+        var key = vm.generic_class_key(name);
+        var c = vm.GENERIC_CLASSES[key];
+        if (c !== undefined) { return c; } else { return vm.error("generic class not found: " + key); }
     };
     // Classes, methods, and slots have names which can be specified
     // as symbols, keywords, strings, or class types from Lisp.
@@ -113,6 +117,15 @@ module.exports = function(vm, e) {
             return vm.find_generic_class(class_des);
         }
     };
+    // Instanceof does not work for properly for the CONCRETE-CLASS
+    // and GENERIC-CLASS classes themselves, so we need these crutches
+    // to determine if an object is a class.
+    vm.is_concrete_class = function(obj) {
+        return obj && (obj.qua_isa === vm.ConcreteClass);
+    };
+    vm.is_generic_class = function(obj) {
+        return obj && (obj.qua_isa === vm.GenericClass);
+    };
     /* Objects */
     vm.make_instance = function(class_des, initargs) {
         var concrete_class = vm.designate_concrete_class(class_des);
@@ -146,17 +159,9 @@ module.exports = function(vm, e) {
         vm.assert(vm.is_concrete_class(ccls));
         return ccls["qs_generic-class"];
     };
-    // Instanceof does not work for properly for the CONCRETE-CLASS
-    // and GENERIC-CLASS classes themselves, so we need these crutches
-    // to determine if an object is a class.
-    vm.is_concrete_class = function(obj) {
-        return obj && (obj.qua_isa === vm.ConcreteClass);
-    };
-    vm.is_generic_class = function(obj) {
-        return obj && (obj.qua_isa === vm.GenericClass);
-    };
     /* Methods */
     vm.put_method = function(generic_class, name, combiner) {
+        generic_class = vm.designate_generic_class(generic_class);
         vm.assert(vm.is_generic_class(generic_class));
         vm.assert((combiner instanceof vm.Opv) || (combiner instanceof vm.Apv));
         generic_class.prototype[vm.method_key(name)] = combiner;
@@ -182,7 +187,7 @@ module.exports = function(vm, e) {
         } else {
             var methods = vm.find_superclass_methods(obj, gcls, name);
             switch (methods.length) {
-            case 0: return null;
+            case 0: return vm.error("method not found: " + key);
             case 1: return methods[0];
             default: return vm.ambiguous_method_hook(obj, name);
             }

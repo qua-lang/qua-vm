@@ -260,7 +260,9 @@
 
 ;;;; Objects and classes
 
-(defun make-instance (class-desig . initargs)
+(def #'%parse-type-spec #'identity) ; Overridden later
+
+(defun %make-instance (class-desig . initargs)
   (%%make-instance class-desig (plist-to-js-object initargs)))
 
 (defun call-method (obj name args)
@@ -274,12 +276,10 @@
         env))
 
 (deffexpr %defmethod (name ((self class-spec) . args) . body) env
-  (let ((class (find-generic-class class-spec))
+  (let ((class (find-generic-class (%parse-type-spec class-spec)))
         (fun (eval (list* #'lambda (list* self args) body) env)))
     (put-method class name fun)
     name))
-
-(def #'%parse-type-spec #'identity) ; Overridden later
 
 (deffexpr defclass (class-spec superclass-specs . #ign) #ign
   (ensure-class (%parse-type-spec class-spec)
@@ -323,7 +323,7 @@
 
 (defun %call-with-escape (#'fn)
   (labels ((escape opt-val
-             (%%raise (make-instance '%%tag :id #'escape :val (optional opt-val)))))
+             (%%raise (%make-instance '%%tag :id #'escape :val (optional opt-val)))))
     (%%rescue (lambda (exc)
                 (%if (and (type? exc '%%tag)
                           (eq (slot-value exc 'id) #'escape))
@@ -351,6 +351,7 @@
 
 (defun unwind-protect* (#'protected-thunk #'cleanup-thunk)
   (prog1 (%%rescue (lambda (exc)
+                     ; TODO: don't run if exc is a panic
                      (cleanup-thunk)
                      (%%raise exc))
                    #'protected-thunk)
@@ -376,7 +377,7 @@
   (val))
 
 (defun mut (val)
-  (make-instance 'mut :val val))
+  (%make-instance 'mut :val val))
 
 (defun ref (mut)
   (slot-value mut 'val))
@@ -567,11 +568,11 @@
    associated-condition))
 
 (defun make-handler (condition-type handler-function . opt-associated-condition)
-  (make-instance 'handler
-                 :name (symbol-name condition-type)
-                 :condition-type condition-type
-                 :handler-function handler-function
-                 :associated-condition (optional opt-associated-condition)))
+  (%make-instance 'handler
+                  :name (symbol-name condition-type)
+                  :condition-type condition-type
+                  :handler-function handler-function
+                  :associated-condition (optional opt-associated-condition)))
 
 (defun handle-condition (handler condition)
   (funcall (slot-value handler 'handler-function) condition))
@@ -581,7 +582,7 @@
    parent))
 
 (defun make-handler-frame (handlers . opt-parent)
-  (make-instance 'handler-frame :handlers handlers :parent (optional opt-parent)))
+  (%make-instance 'handler-frame :handlers handlers :parent (optional opt-parent)))
 
 (defun %make-handler-bind (#'handler-spec-parser handler-frame-dynamic)
   (vau (handler-specs . body) env
@@ -671,33 +672,34 @@
 ;;;; Types
 
 (defclass type-error (error) ())
+(defclass type-mismatch-error (type-error) (type-spec obj))
 
 (defconstant +top-type+
-  (make-instance '%class-type :name "top" :generic-params '()))
+  (%make-instance '%class-type :name "top" :generic-params '()))
 
 (defconstant +bottom-type+
-  (make-instance '%class-type :name "bottom" :generic-params '()))
+  (%make-instance '%class-type :name "bottom" :generic-params '()))
 
 (defun %parse-type-spec (type-spec)
   (if (keyword? type-spec)
-      (make-instance '%type-variable
-                     :name (symbol-name type-spec))
+      (%make-instance '%type-variable
+                      :name (symbol-name type-spec))
       (symbol? type-spec)
-      (make-instance '%class-type
-                     :name (symbol-name type-spec)
-                     :generic-params '())
+      (%make-instance '%class-type
+                      :name (symbol-name type-spec)
+                      :generic-params '())
       (cons? type-spec)
       (let (((class-name . generic-param-specs) type-spec))
-        (make-instance '%class-type
-                       :name (symbol-name class-name)
-                       :generic-params (map-list #'%parse-generic-param-spec
-                                                 generic-param-specs)))
-      (error (make-instance 'simple-error :message "Illegal type-spec"))))
+        (%make-instance '%class-type
+                        :name (symbol-name class-name)
+                        :generic-params (map-list #'%parse-generic-param-spec
+                                                  generic-param-specs)))
+      (error (%make-instance 'simple-error :message "Illegal type-spec"))))
   
 (defun %parse-generic-param-spec (gp-spec)
   (if (or (keyword? gp-spec) (symbol? gp-spec))
       (let ((type (%parse-type-spec gp-spec)))
-        (make-instance '%generic-param :in-type type :out-type type))
+        (%make-instance '%generic-param :in-type type :out-type type))
       (cons? gp-spec)
       (let (((op . rest) gp-spec))
         (%if (keyword? op)
@@ -705,15 +707,15 @@
                ("io"
                 (let* ((in-type (%parse-type-spec (car rest)))
                        (out-type (%parse-type-spec (optional (cdr rest) in-type))))
-                  (make-instance '%generic-param :in-type in-type :out-type out-type)))
+                  (%make-instance '%generic-param :in-type in-type :out-type out-type)))
                ("in"
                 (let ((in-type (%parse-type-spec (car rest))))
-                  (make-instance '%generic-param :in-type in-type :out-type +top-type+)))
+                  (%make-instance '%generic-param :in-type in-type :out-type +top-type+)))
                ("out"
                 (let ((out-type (%parse-type-spec (car rest))))
-                  (make-instance '%generic-param :in-type +bottom-type+ :out-type out-type))))
+                  (%make-instance '%generic-param :in-type +bottom-type+ :out-type out-type))))
              (let ((type (%parse-type-spec gp-spec)))
-               (make-instance '%generic-param :in-type type :out-type type))))
+               (%make-instance '%generic-param :in-type type :out-type type))))
       (error "Illegal generic param spec")))
 
 (defun type? (obj type-spec)
@@ -729,6 +731,38 @@
                          (return-from match (eval (prognize body) env)))))
                 clauses)
       #void)))
+
+(defun the (type-spec obj)
+  (if (type? obj type-spec)
+      obj
+      (error (%make-instance 'type-mismatch-error
+                             :type-spec type-spec :obj obj))))
+
+(defun %parse-method-lambda-list (method-ll)
+  (if (cons? method-ll)
+      (let* (((receiver-spec . other-args) method-ll)
+             (simplified-other-args
+              (map-list (lambda (other-arg)
+                          (typecase other-arg
+                            (cons (car other-arg))
+                            (symbol other-arg)
+                            (#t (simple-error "Not a method parameter" :arg other-arg))))
+                        other-args))
+             (simplified-ll (cons receiver-spec simplified-other-args))
+             (type-checks (list #'progn))
+             (result-type (list #'quote 'object)))
+        (list simplified-ll type-checks result-type))
+      (simple-error "Not a method lambda list" :arg method-ll)))
+
+(defmacro defmethod (name method-lambda-list . body)
+  (let (((simplified-method-ll type-checks result-type)
+         (%parse-method-lambda-list method-lambda-list)))
+    (list* #'%defmethod name simplified-method-ll
+           type-checks
+           (list #'the result-type (prognize body)))))
+
+(defun make-instance (type-spec . args)
+  (apply #'%make-instance (cons (%parse-type-spec type-spec) args)))
 
 ;;;; Debugging and interaction
 
@@ -755,7 +789,7 @@
                    (if ($isNaN n)
                        (return-from continue)
                        (let ((class (slot-value (list-elt restarts (- n 1)) 'condition-type)))
-                         (invoke-restart-interactively (make-instance class)))))))
+                         (invoke-restart-interactively (%make-instance class)))))))
              (%%panic condition))))))
 
 (defun compute-restarts (condition)
@@ -778,11 +812,6 @@
 
 (%defmethod invoke-restart-interactively ((r restart))
   (invoke-restart r))
-
-(defmacro defmethod (name method-lambda-list . body)
-  (list* #'%defmethod name simplified-lambda-list
-         type-checks
-         (list #'the result-type (prognize body))))
 
 ;;;; Userspace
 
