@@ -254,6 +254,7 @@ module.exports = function(vm, root_env) {
         vm.defun(e, vm.sym("%%eq"), vm.jswrap(function(a, b) { return a === b; }));
         vm.defun(e, vm.sym("%%print"), vm.jswrap(console.log));
         vm.defun(e, vm.sym("%%list-to-array"), vm.jswrap(vm.list_to_array));
+        vm.defun(e, vm.sym("%%reverse-list"), vm.jswrap(vm.reverse_list));
         /* Setup class hierarchy */
         vm.Object = vm.defclass("object", []);
         vm.StandardObject = vm.defclass("standard-object", ["object"]);

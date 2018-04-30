@@ -759,7 +759,7 @@
              (%%panic condition))))))
 
 (defun compute-restarts (condition)
-  (%compute-restarts condition '() (dynamic *restart-handler-frame*)))
+  (%%reverse-list (%compute-restarts condition '() (dynamic *restart-handler-frame*))))
 
 (defun %compute-restarts (condition restart-list handler-frame)
   (if (void? handler-frame)
