@@ -294,8 +294,11 @@
 
 ;;;; Simple control
 
+(defun thunkify (body)
+  (list* #'%lambda () body))
+
 (defmacro loop body
-  (list #'%%loop (list* #'lambda () body)))
+  (list #'%%loop (thunkify body)))
 
 (deffexpr while (test . body) env
   (let ((body (prognize body)))
@@ -360,7 +363,7 @@
 (defmacro unwind-protect (protected-form . cleanup-forms)
   (list #'unwind-protect*
         (list #'lambda () protected-form)
-        (list* #'lambda () cleanup-forms)))
+        (thunkify cleanup-forms)))
 
 (deffexpr case (expr . clauses) env
   (let ((val (eval expr env)))
@@ -388,16 +391,16 @@
 ;;;; Continuations
 
 (defmacro push-prompt (prompt . body)
-  (list #'%%push-prompt prompt (list* #'lambda () body)))
+  (list #'%%push-prompt prompt (thunkify body)))
 
 (defmacro take-subcont (prompt name . body)
   (list #'%%take-subcont prompt (list* #'lambda (list name) body)))
 
 (defmacro push-subcont (continuation . body)
-  (list #'%%push-subcont continuation (list* #'lambda () body)))
+  (list #'%%push-subcont continuation (thunkify body)))
 
 (defmacro push-prompt-subcont (prompt continuation . body)
-  (list #'%%push-prompt-subcont prompt continuation (list* #'lambda () body)))
+  (list #'%%push-prompt-subcont prompt continuation (thunkify body)))
 
 (defconstant +default-prompt+ :default-prompt)
 
@@ -738,18 +741,27 @@
       (error (%make-instance 'type-mismatch-error
                              :type-spec type-spec :obj obj))))
 
+(defun %method-lambda-list-type-checks (method-ll)
+  (map-list (lambda (param)
+              (typecase param
+                (cons (car param))
+                (symbol param)
+                (keyword param)
+                (#t (simple-error "Weird method parameter" :arg param))))
+            ()))
+
 (defun %parse-method-lambda-list (method-ll)
   (if (cons? method-ll)
-      (let* (((receiver-spec . other-args) method-ll)
-             (simplified-other-args
-              (map-list (lambda (other-arg)
-                          (typecase other-arg
-                            (cons (car other-arg))
-                            (symbol other-arg)
-                            (#t (simple-error "Not a method parameter" :arg other-arg))))
-                        other-args))
-             (simplified-ll (cons receiver-spec simplified-other-args))
-             (type-checks (list #'progn))
+      (let* (((receiver-spec . other-params) method-ll)
+             (simplified-other-params
+              (map-list (lambda (param)
+                          (typecase param
+                            (cons (car param))
+                            (symbol param)
+                            (#t (simple-error "Not a method parameter" :arg param))))
+                        other-params))
+             (simplified-ll (cons receiver-spec simplified-other-params))
+             (type-checks (%method-lambda-list-type-checks method-ll))
              (result-type (list #'quote 'object)))
         (list simplified-ll type-checks result-type))
       (simple-error "Not a method lambda list" :arg method-ll)))
@@ -820,10 +832,9 @@
 
 ;; Wrapped around all user code.  Provides useful handler bindings,
 ;; prompts, and other dynamic stuff.
-(defun call-in-userspace (#'thunk)
+(defun push-userspace* (#'thunk)
   (push-prompt +user-prompt+
     (thunk)))
 
-(defmacro in-userspace body
-  (list #'call-in-userspace (list* #'lambda () body)))
-
+(defmacro push-userspace body
+  (list #'push-userspace* (thunkify body)))

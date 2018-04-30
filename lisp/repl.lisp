@@ -13,6 +13,5 @@
                                    (print "Aborting")
                                    (return-from abort))))
              (print
-              (in-userspace
-               (eval (%%read) env)))))))))
-
+              (push-userspace
+                (eval (%%read) env)))))))))
