@@ -423,3 +423,5 @@
                               (lambda #ign
                                 (return-from ret 12))))
                 x)))
+
+(print "All tests OK")
