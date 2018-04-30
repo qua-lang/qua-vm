@@ -103,8 +103,8 @@
 
 ;;;; Slots
 (defclass class-with-slots ()
-  (x :type number
-     y :type number))
+  ((x :type number)
+   (y :type number)))
 (def object-with-slots (%make-instance 'class-with-slots :x 2 :y 4))
 (%assert (%deep-equal 2 (slot-value object-with-slots 'x)))
 (%assert (%deep-equal 4 (slot-value object-with-slots 'y)))
