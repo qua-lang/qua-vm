@@ -1,17 +1,18 @@
+(def #'read #'%%read)
+
 (print "Welcome to Qua Generic Lisp! Type ^C to exit.")
 
 (defclass quit (restart) ())
 
-(block quit
-  (restart-bind ((quit (lambda #ign
-                         (print "Goodbye!")
-                         (return-from quit))))
-    (let ((env (the-environment)))
+(let ((env (the-environment)))
+  (block quit
+    (restart-bind ((quit (lambda #ign
+                           (print "Goodbye!")
+                           (return-from quit))))
       (loop
-         (block abort
-           (restart-bind ((abort (lambda #ign
-                                   (print "Aborting")
-                                   (return-from abort))))
-             (print
-              (push-userspace
-                (eval (%%read) env)))))))))
+        (block abort
+          (restart-bind ((abort (lambda #ign
+                                  (print "Aborting")
+                                  (return-from abort))))
+            (push-userspace
+              (print (eval (read) env)))))))))

@@ -65,7 +65,8 @@
 ; Construct a fexpr.  Primitive %%VAU has only one body statement, so prognize.
 (def #'vau
   (%%vau (params env-param . body) env
-    (eval (list #'%%vau params env-param (prognize body))
+    (eval (list #'%%vau params env-param
+                (prognize body))
           env)))
 
 ; Define a named fexpr in the current environment.
@@ -523,12 +524,12 @@
        (car list)
        (list-elt (cdr list) (- i 1))))
 
-(defun filter-list (#'pred list)
+(defun filter-list (#'pred? list)
   (%if (nil? list)
        '()
-       (%if (pred (car list))
-            (cons (car list) (filter-list #'pred (cdr list)))
-            (filter-list #'pred (cdr list)))))
+       (%if (pred? (car list))
+            (cons (car list) (filter-list #'pred? (cdr list)))
+            (filter-list #'pred? (cdr list)))))
 
 (defun append-2-lists (list-1 list-2)
   (%if (nil? list-1)
@@ -563,7 +564,7 @@
 (defdynamic *condition-handler-frame*)
 (defdynamic *restart-handler-frame*)
 
-(defclass handler ()
+(defclass handler (standard-object)
   (name
    condition-type
    handler-function
@@ -579,7 +580,7 @@
 (defun handle-condition (handler condition)
   (funcall (slot-value handler 'handler-function) condition))
 
-(defclass handler-frame ()
+(defclass handler-frame (standard-object)
   (handlers
    parent))
 
