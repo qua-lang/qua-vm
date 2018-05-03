@@ -32,4 +32,5 @@
   (if (next? self)
       (prog1 (elt (slot-value self 'js-array-list)
                   (slot-value self 'current-index))
-        (incf (slot-value self 'current-index)))))
+        (incf (slot-value self 'current-index)))
+      (error (make-instance 'iteration-error))))

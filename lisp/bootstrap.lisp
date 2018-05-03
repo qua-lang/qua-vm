@@ -162,7 +162,7 @@
        #nil
        (cons (fun (car list)) (map-list #'fun (cdr list)))))
 
-(def #'for-each #'map-list)
+(def #'list-for-each #'map-list)
 
 (defun fold-list (#'fun init list)
   (%if (nil? list)
@@ -371,9 +371,9 @@
 (deffexpr case (expr . clauses) env
   (let ((val (eval expr env)))
     (block match
-      (for-each (lambda ((other-val . body))
-                  (when (= val (eval other-val env))
-                    (return-from match (eval (prognize body) env))))
+      (list-for-each (lambda ((other-val . body))
+                       (when (= val (eval other-val env))
+                         (return-from match (eval (prognize body) env))))
                 clauses)
       #void)))
 
@@ -639,10 +639,10 @@
   (%if (void? dynamic-frame)
        #void
        (block found
-         (for-each (lambda (handler)
-                     (when (condition-applicable? condition handler)
-                       (return-from found (list handler dynamic-frame))))
-                   (slot-value dynamic-frame 'handlers))
+         (list-for-each (lambda (handler)
+                          (when (condition-applicable? condition handler)
+                            (return-from found (list handler dynamic-frame))))
+                        (slot-value dynamic-frame 'handlers))
          (find-applicable-handler condition (slot-value dynamic-frame 'parent)))))
 
 (defgeneric condition-applicable? (condition handler))
@@ -727,12 +727,12 @@
 (deffexpr typecase (expr . clauses) env
   (let ((val (eval expr env)))
     (block match
-      (for-each (lambda ((type-spec . body))
-                  (%if (eq type-spec #t)
-                       (return-from match (eval (prognize body) env))
-                       (when (type? val type-spec)
+      (list-for-each (lambda ((type-spec . body))
+                       (%if (eq type-spec #t)
+                            (return-from match (eval (prognize body) env))
+                            (when (type? val type-spec)
                          (return-from match (eval (prognize body) env)))))
-                clauses)
+                     clauses)
       #void)))
 
 (defun the (type-spec obj)
@@ -790,10 +790,10 @@
              (progn
                (print "Restarts:")
                (let ((i 1))
-                 (for-each (lambda (restart)
-                             (print (+ i ": " (slot-value restart 'name)))
-                             (incf i))
-                           restarts)
+                 (list-for-each (lambda (restart)
+                                  (print (+ i ": " (slot-value restart 'name)))
+                                  (incf i))
+                                restarts)
                  (print "Enter a restart number:")
                  (let* ((s (%%read-line))
                         (n ($Number s)))

@@ -9,3 +9,10 @@
 (defclass (iterator :e) () ())
 (defgeneric next? (iterator))
 (defgeneric next (iterator))
+
+(defclass iteration-error (control-error) ())
+
+(defun for-each (fn coll)
+  (let ((iterator (iterator coll)))
+    (while (next? iterator)
+      (fn (next iterator)))))
