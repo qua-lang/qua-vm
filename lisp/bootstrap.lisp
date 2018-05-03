@@ -216,22 +216,22 @@
 (deffexpr cond clauses env
   (%if (nil? clauses)
        #void
-       (let ((((test . body) . clauses) clauses))
+       (let ((((test . body) . rest-clauses) clauses))
          (%if (eval test env)
-              (apply (wrap #'progn) body env)
-              (apply (wrap #'cond) clauses env)))))
+              (eval (cons #'progn body) env)
+              (eval (cons #'cond rest-clauses) env)))))
 
 (deffexpr and ops env
   (cond ((nil? ops)           #t)
         ((nil? (cdr ops))     (eval (car ops) env))
-        ((eval (car ops) env) (apply (wrap #'and) (cdr ops) env))
+        ((eval (car ops) env) (eval (cons #'and (cdr ops)) env))
         (#t                   #f)))
 
 (deffexpr or ops env
   (cond ((nil? ops)           #f)
         ((nil? (cdr ops))     (eval (car ops) env))
         ((eval (car ops) env) #t)
-        (#t                   (apply (wrap #'or) (cdr ops) env))))
+        (#t                   (eval (cons #'or (cdr ops)) env))))
 
 ;;;; Generalized reference
 
@@ -744,9 +744,9 @@
 (defun %method-lambda-list-type-checks (method-ll)
   (map-list (lambda (param)
               (typecase param
-                (cons (car param))
-                (symbol param)
-                (keyword param)
+                (cons #void)
+                (symbol #void)
+                (keyword )
                 (#t (simple-error "Weird method parameter" :arg param))))
             ()))
 

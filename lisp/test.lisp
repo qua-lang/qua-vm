@@ -417,7 +417,14 @@
   (add list 2)
   (%expect (make-instance '(js-array-list number)
                           :js-array (js-array 1 2))
-           list))
+           list)
+  (let ((iterator (iterator list)))
+    (%assert (type? iterator 'js-array-list-iterator))
+    (%assert (next? iterator))
+    (%expect 1 (next iterator))
+    (%assert (next? iterator))
+    (%expect 2 (next iterator))
+    (%assert (not (next? iterator)))))
 
 ;;;; Userland
 
@@ -426,5 +433,3 @@
                               (lambda #ign
                                 (return-from ret 12))))
                 x)))
-
-(print "All tests OK")

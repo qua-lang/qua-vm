@@ -169,7 +169,8 @@ module.exports = function(vm, root_env) {
     };
     vm.do_def = function(e, lhs, rhs) {
         vm.assert_type(lhs, vm.Sym);
-        return e.bindings[vm.sym_key(lhs)] = rhs;
+        e.bindings[vm.sym_key(lhs)] = rhs;
+        return rhs;
     };
     vm.do_setq = function(e, lhs, rhs) {
         vm.assert_type(lhs, vm.Sym);
