@@ -1,8 +1,8 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.qua = f()}})(function(){var define,module,exports;return (function(){function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s}return e})()({1:[function(require,module,exports){
-module.exports.main = [null,null,null,null,null,null,null,null,null,["%%def",["qua-function","def"],["qua-function","%%def"]],null,["def",["qua-function","car"],["qua-function","%%car"]],null,["def",["qua-function","cdr"],["qua-function","%%cdr"]],null,["def",["qua-function","cons"],["qua-function","%%cons"]],null,["def",["qua-function","eq"],["qua-function","%%eq"]],null,["def",["qua-function","eval"],["qua-function","%%eval"]],null,["def",["qua-function","%if"],["qua-function","%%if"]],null,["def",["qua-function","make-environment"],["qua-function","%%make-environment"]],null,["def",["qua-function","print"],["qua-function","%%print"]],null,["def",["qua-function","progn"],["qua-function","%%progn"]],null,["def",["qua-function","setq"],["qua-function","%%setq"]],null,["def",["qua-function","unwrap"],["qua-function","%%unwrap"]],null,["def",["qua-function","wrap"],["qua-function","%%wrap"]],null,null,["def",["qua-function","concrete-class-of"],["qua-function","%%concrete-class-of"]],["def",["qua-function","ensure-class"],["qua-function","%%ensure-class"]],["def",["qua-function","find-concrete-class"],["qua-function","%%find-concrete-class"]],["def",["qua-function","find-generic-class"],["qua-function","%%find-generic-class"]],["def",["qua-function","find-method"],["qua-function","%%find-method"]],["def",["qua-function","generic-class-of"],["qua-function","%%generic-class-of"]],["def",["qua-function","type?"],["qua-function","%%type?"]],["def",["qua-function","put-method"],["qua-function","%%put-method"]],["def",["qua-function","set-slot-value"],["qua-function","%%set-slot-value"]],["def",["qua-function","slot-bound?"],["qua-function","%%slot-bound?"]],["def",["qua-function","slot-value"],["qua-function","%%slot-value"]],null,["def",["qua-function","js-apply"],["qua-function","%%js-apply"]],["def",["qua-function","js-function"],["qua-function","%%js-function"]],["def",["qua-function","js-get"],["qua-function","%%js-get"]],["def",["qua-function","js-global"],["qua-function","%%js-global"]],["def",["qua-function","js-new"],["qua-function","%%js-new"]],["def",["qua-function","js-set"],["qua-function","%%js-set"]],["def",["qua-function","own-property?"],["qua-function","%%own-property?"]],null,null,["def",["qua-function","%to-fun-sym"],["qua-function","%%to-fun-sym"]],null,null,["def",["qua-function","list*"],["qua-function","%%list*"]],null,["def",["qua-function","list-to-js-array"],["qua-function","%%list-to-array"]],["def",["qua-function","plist-to-js-object"],["qua-function","%%plist-to-js-object"]],["def",["qua-function","="],["qua-function","eq"]],null,["def",["qua-function","defconstant"],["qua-function","def"]],null,null,["def",["qua-function","quote"],["%%vau",["op"],"#ign","op"]],null,["def",["qua-function","list"],["wrap",["%%vau","args","#ign","args"]]],null,["def",["qua-function","the-environment"],["%%vau","#ign","env","env"]],null,["def",["qua-function","prognize"],["wrap",["%%vau",["body"],"#ign",["list*",["qua-function","progn"],"body"]]]],null,null,null,["def",["qua-function","vau"],["%%vau",["params","env-param",".","body"],"env",["eval",["list",["qua-function","%%vau"],"params","env-param",["prognize","body"]],"env"]]],null,["def",["qua-function","deffexpr"],["vau",["name","params","env-param",".","body"],"env",["eval",["list",["qua-function","def"],["%to-fun-sym","name"],["list*",["qua-function","vau"],"params","env-param","body"]],"env"]]],null,null,["def",["qua-function","make-macro"],["wrap",["vau",["expander"],"#ign",["vau","form","env",["eval",["eval",["cons","expander","form"],["make-environment"]],"env"]]]]],null,["def",["qua-function","macro"],["make-macro",["vau",["params",".","body"],"#ign",["list",["qua-function","make-macro"],["list*",["qua-function","vau"],"params","#ign","body"]]]]],null,["def",["qua-function","defmacro"],["macro",["name","params",".","body"],["list",["qua-function","def"],["%to-fun-sym","name"],["list*",["qua-function","macro"],"params","body"]]]],null,null,["defmacro","%lambda",["params",".","body"],["list",["qua-function","wrap"],["list*",["qua-function","vau"],"params","#ign","body"]]],null,null,["defmacro","%defun",["name","params",".","body"],["list",["qua-function","def"],["%to-fun-sym","name"],["list*",["qua-function","%lambda"],"params","body"]]],null,null,["def",["qua-function","lambda"],["qua-function","%lambda"]],["def",["qua-function","defun"],["qua-function","%defun"]],null,["defun","optional",["opt-arg",".","opt-default"],["%if",["nil?","opt-arg"],["%if",["nil?","opt-default"],"#void",["car","opt-default"]],["car","opt-arg"]]],null,["defun","apply",["fun","args",".","opt-env"],["eval",["cons",["unwrap","fun"],"args"],["optional","opt-env",["make-environment"]]]],null,null,["defun","funcall",["fun",".","args"],["apply","fun","args"]],null,null,null,null,["defun","compose",[["qua-function","f"],["qua-function","g"]],["lambda",["arg"],["f",["g","arg"]]]],["defun","identity",["x"],"x"],null,null,["defun","nil?",["obj"],["eq","obj",[]]],["defun","void?",["obj"],["eq","obj","#void"]],["def",["qua-function","caar"],["compose",["qua-function","car"],["qua-function","car"]]],["def",["qua-function","cadr"],["compose",["qua-function","car"],["qua-function","cdr"]]],["def",["qua-function","cdar"],["compose",["qua-function","cdr"],["qua-function","car"]]],["def",["qua-function","cddr"],["compose",["qua-function","cdr"],["qua-function","cdr"]]],["defun","symbol?",["sym"],["%%type?","sym",["quote","symbol"]]],["defun","keyword?",["obj"],["%%type?","obj",["quote","keyword"]]],["defun","cons?",["cons"],["%%type?","cons",["quote","cons"]]],["defun","symbol-name",["sym"],["slot-value","sym",["quote","name"]]],null,["defun","map-list",[["qua-function","fun"],"list"],["%if",["nil?","list"],[],["cons",["fun",["car","list"]],["map-list",["qua-function","fun"],["cdr","list"]]]]],["def",["qua-function","list-for-each"],["qua-function","map-list"]],["defun","fold-list",[["qua-function","fun"],"init","list"],["%if",["nil?","list"],"init",["fold-list",["qua-function","fun"],["fun","init",["car","list"]],["cdr","list"]]]],null,null,null,["defmacro","let",["bindings",".","body"],["list*",["list*",["qua-function","lambda"],["map-list",["qua-function","car"],"bindings"],"body"],["map-list",["qua-function","cadr"],"bindings"]]],null,null,["defmacro","let*",["bindings",".","body"],["%if",["nil?","bindings"],["list*",["qua-function","let"],[],"body"],["list",["qua-function","let"],["list",["car","bindings"]],["list*",["qua-function","let*"],["cdr","bindings"],"body"]]]],null,null,["defmacro","%letrec",["bindings",".","body"],["list*",["qua-function","let"],[],["list",["qua-function","def"],["map-list",["qua-function","car"],"bindings"],["list*",["qua-function","list"],["map-list",["qua-function","cadr"],"bindings"]]],"body"]],null,["defun","%var-bindingize",[["fun-name","fun-params",".","fun-body"]],["list",["%to-fun-sym","fun-name"],["list*",["qua-function","lambda"],"fun-params","fun-body"]]],null,["defmacro","flet",["fun-bindings",".","body"],["list*",["qua-function","let"],["map-list",["qua-function","%var-bindingize"],"fun-bindings"],"body"]],null,["defmacro","labels",["fun-bindings",".","body"],["list*",["qua-function","%letrec"],["map-list",["qua-function","%var-bindingize"],"fun-bindings"],"body"]],null,["defun","not",["boolean"],["%if","boolean",false,true]],["deffexpr","cond","clauses","env",["%if",["nil?","clauses"],"#void",["let",[[[["test",".","body"],".","rest-clauses"],"clauses"]],["%if",["eval","test","env"],["eval",["cons",["qua-function","progn"],"body"],"env"],["eval",["cons",["qua-function","cond"],"rest-clauses"],"env"]]]]],["deffexpr","and","ops","env",["cond",[["nil?","ops"],true],[["nil?",["cdr","ops"]],["eval",["car","ops"],"env"]],[["eval",["car","ops"],"env"],["eval",["cons",["qua-function","and"],["cdr","ops"]],"env"]],[true,false]]],["deffexpr","or","ops","env",["cond",[["nil?","ops"],false],[["nil?",["cdr","ops"]],["eval",["car","ops"],"env"]],[["eval",["car","ops"],"env"],true],[true,["eval",["cons",["qua-function","or"],["cdr","ops"]],"env"]]]],null,["defconstant","+setter-prop+",["wat-string","qua_setter"]],["defun","setter",["obj"],["js-get","obj","+setter-prop+"]],["defun","defsetf",["access-fn","update-fn"],["js-set","access-fn","+setter-prop+","update-fn"]],["defsetf",["qua-function","setter"],["lambda",["new-setter","getter"],["js-set","getter","+setter-prop+","new-setter"]]],["defmacro","setf",["place","new-val"],["%if",["symbol?","place"],["list",["qua-function","setq"],"place","new-val"],["let*",[[["getter-form",".","args"],"place"],["getter",["%if",["symbol?","getter-form"],["%to-fun-sym","getter-form"],"getter-form"]]],["list*",["list",["qua-function","setter"],"getter"],"new-val","args"]]]],["defmacro","incf",["place",".","opt-increment"],["let",[["increment",["optional","opt-increment",1]]],["list",["qua-function","setf"],"place",["list",["qua-function","+"],"place","increment"]]]],["defmacro","decf",["place",".","opt-decrement"],["let",[["decrement",["optional","opt-decrement",1]]],["list",["qua-function","setf"],"place",["list",["qua-function","-"],"place","decrement"]]]],null,["def",["qua-function","%parse-type-spec"],["qua-function","identity"]],null,["defun","%make-instance",["class-desig",".","initargs"],["%%make-instance","class-desig",["plist-to-js-object","initargs"]]],["defun","call-method",["obj","name","args"],["let",[["method",["find-method","obj","name"]]],["apply","method","args"]]],["deffexpr","defgeneric",["name","#ign"],"env",["eval",["list",["qua-function","def"],["%to-fun-sym","name"],["lambda","args",["call-method",["car","args"],"name","args"]]],"env"]],["deffexpr","%defmethod",["name",[["self","class-spec"],".","args"],".","body"],"env",["let",[["class",["find-generic-class",["%parse-type-spec","class-spec"]]],["fun",["eval",["list*",["qua-function","lambda"],["list*","self","args"],"body"],"env"]]],["put-method","class","name","fun"],"name"]],["deffexpr","defclass",["class-spec","superclass-specs",".","#ign"],"#ign",["ensure-class",["%parse-type-spec","class-spec"],["list-to-js-array",["map-list",["qua-function","%parse-type-spec"],"superclass-specs"]]]],["defsetf",["qua-function","slot-value"],["lambda",["new-val","obj","slot-name"],["set-slot-value","obj","slot-name","new-val"]]],["defgeneric","hash-object",["self"]],["defgeneric","compare-object",["self"]],["defgeneric","print-object",["self","stream"]],null,["defun","thunkify",["body"],["list*",["qua-function","%lambda"],[],"body"]],["defmacro","loop","body",["list",["qua-function","%%loop"],["thunkify","body"]]],["deffexpr","while",["test",".","body"],"env",["let",[["body",["prognize","body"]]],["block","exit",["loop",["%if",["eval","test","env"],["eval","body","env"],["return-from","exit"]]]]]],null,["deffexpr","if",["test","then",".","rest"],"env",["%if",["eval","test","env"],["eval","then","env"],["%if",["nil?","rest"],"#void",["%if",["nil?",["cdr","rest"]],["eval",["car","rest"],"env"],["eval",["cons",["qua-function","if"],"rest"],"env"]]]]],["defmacro","when",["test",".","body"],["list",["qua-function","%if"],"test",["prognize","body"],"#void"]],["defmacro","unless",["test",".","body"],["list",["qua-function","%if"],"test","#void",["prognize","body"]]],["defun","%call-with-escape",[["qua-function","fn"]],["labels",[["escape","opt-val",["%%raise",["%make-instance",["quote","%%tag"],["qua-keyword","id"],["qua-function","escape"],["qua-keyword","val"],["optional","opt-val"]]]]],["%%rescue",["lambda",["exc"],["%if",["and",["type?","exc",["quote","%%tag"]],["eq",["slot-value","exc",["quote","id"]],["qua-function","escape"]]],["slot-value","exc",["quote","val"]],["%%raise","exc"]]],["lambda",[],["fn",["qua-function","escape"]]]]]],null,["defmacro","block",["name",".","body"],["list",["qua-function","%call-with-escape"],["list*",["qua-function","lambda"],["list","name"],"body"]]],["defun","return-from",["escape",".","opt-val"],["apply","escape","opt-val"]],["deffexpr","prog1","forms","env",["%if",["nil?","forms"],"#void",["let",[["result",["eval",["car","forms"],"env"]]],["eval",["prognize",["cdr","forms"]],"env"],"result"]]],["defmacro","prog2",["form",".","forms"],["list",["qua-function","progn"],"form",["list*",["qua-function","prog1"],"forms"]]],["defun","unwind-protect*",[["qua-function","protected-thunk"],["qua-function","cleanup-thunk"]],["prog1",["%%rescue",["lambda",["exc"],null,["cleanup-thunk"],["%%raise","exc"]],["qua-function","protected-thunk"]],["cleanup-thunk"]]],["defmacro","unwind-protect",["protected-form",".","cleanup-forms"],["list",["qua-function","unwind-protect*"],["list",["qua-function","lambda"],[],"protected-form"],["thunkify","cleanup-forms"]]],["deffexpr","case",["expr",".","clauses"],"env",["let",[["val",["eval","expr","env"]]],["block","match",["list-for-each",["lambda",[["other-val",".","body"]],["when",["=","val",["eval","other-val","env"]],["return-from","match",["eval",["prognize","body"],"env"]]]],"clauses"],"#void"]]],null,["defclass","mut",["standard-object"],["val"]],["defun","mut",["val"],["%make-instance",["quote","mut"],["qua-keyword","val"],"val"]],["defun","ref",["mut"],["slot-value","mut",["quote","val"]]],["defsetf",["qua-function","ref"],["lambda",["new-val","mut"],["setf",["slot-value","mut",["quote","val"]],"new-val"]]],null,["defmacro","push-prompt",["prompt",".","body"],["list",["qua-function","%%push-prompt"],"prompt",["thunkify","body"]]],["defmacro","take-subcont",["prompt","name",".","body"],["list",["qua-function","%%take-subcont"],"prompt",["list*",["qua-function","lambda"],["list","name"],"body"]]],["defmacro","push-subcont",["continuation",".","body"],["list",["qua-function","%%push-subcont"],"continuation",["thunkify","body"]]],["defmacro","push-prompt-subcont",["prompt","continuation",".","body"],["list",["qua-function","%%push-prompt-subcont"],"prompt","continuation",["thunkify","body"]]],["defconstant","+default-prompt+",["qua-keyword","default-prompt"]],["defmacro","push-default-prompt","body",["list*",["qua-function","push-prompt"],"+default-prompt+","body"]],["defmacro","take-default-subcont",["name",".","body"],["list*",["qua-function","take-subcont"],"+default-prompt+","name","body"]],["defmacro","push-default-subcont",["continuation",".","body"],["list*",["qua-function","push-prompt-subcont"],"+default-prompt+","continuation","body"]],null,["defmacro","defdynamic",["name",".","opt-val"],["list",["qua-function","def"],"name",["list",["qua-function","mut"],["optional","opt-val"]]]],["def",["qua-function","dynamic"],["qua-function","ref"]],null,["def",["qua-function","dynamic-bind"],["qua-function","%%dynamic-bind"]],null,null,["deffexpr","dynamic-let",["bindings",".","body"],"env",["let",[["pairs",["map-list",["lambda",[["dynamic-name","expr"]],["cons",["eval","dynamic-name","env"],["eval","expr","env"]]],"bindings"]]],["labels",[["process-pairs",["pairs"],["%if",["nil?","pairs"],["eval",["prognize","body"],"env"],["let*",[[[["dynamic",".","value"],".","rest-pairs"],"pairs"]],["dynamic-bind","dynamic","value",["lambda",[],["process-pairs","rest-pairs"]]]]]]],["process-pairs","pairs"]]]],null,null,["defun","js-getter",["prop-name"],["flet",[["getter",["obj"],["js-get","obj","prop-name"]]],["defsetf",["qua-function","getter"],["lambda",["new-val","obj"],["js-set","obj","prop-name","new-val"]]],["qua-function","getter"]]],null,["defun","js-invoker",["method-name"],["lambda",["this",".","args"],["let",[["fun",["js-get","this","method-name"]]],["js-apply","fun","this",["list-to-js-array","args"]]]]],["defun","create-js-object","opt-proto",[["js-invoker",["wat-string","create"]],["js-global",["wat-string","Object"]],["optional","opt-proto",null]]],["defun","js-object","plist",["plist-to-js-object","plist"]],["defun","js-array","elements",["list-to-js-array","elements"]],["defmacro","js-lambda",["lambda-list",".","body"],["list",["qua-function","js-function"],["list*",["qua-function","lambda"],"lambda-list","body"]]],["defun","%js-relational-op",["name"],["let",[[["qua-function","binop"],["%%js-binop","name"]]],["labels",[["op",["arg1","arg2",".","rest"],["%if",["binop","arg1","arg2"],["%if",["nil?","rest"],true,["apply",["qua-function","op"],["list*","arg2","rest"]]],false]]],["qua-function","op"]]]],["def",["qua-function","=="],["%js-relational-op",["wat-string","=="]]],["def",["qua-function","==="],["%js-relational-op",["wat-string","==="]]],["def",["qua-function","<"],["%js-relational-op",["wat-string","<"]]],["def",["qua-function",">"],["%js-relational-op",["wat-string",">"]]],["def",["qua-function","<="],["%js-relational-op",["wat-string","<="]]],["def",["qua-function",">="],["%js-relational-op",["wat-string",">="]]],["def",["qua-function","lt"],["qua-function","<"]],["def",["qua-function","lte"],["qua-function","<="]],["def",["qua-function","gt"],["qua-function",">"]],["def",["qua-function","gte"],["qua-function",">="]],["defun","!=","args",["not",["apply","==","args"]]],["defun","!==","args",["not",["apply","===","args"]]],["def",["qua-function","*"],["let",[[["qua-function","binop"],["%%js-binop",["wat-string","*"]]]],["lambda","args",["fold-list",["qua-function","binop"],1,"args"]]]],null,["def",["qua-function","+"],["let",[[["qua-function","binop"],["%%js-binop",["wat-string","+"]]]],["lambda","args",["%if",["nil?","args"],0,["fold-list",["qua-function","binop"],["car","args"],["cdr","args"]]]]]],["defun","%js-negative-op",["name","unit"],["let",[[["qua-function","binop"],["%%js-binop","name"]]],["lambda",["arg1",".","rest"],["%if",["nil?","rest"],["binop","unit","arg1"],["fold-list",["qua-function","binop"],"arg1","rest"]]]]],["def",["qua-function","-"],["%js-negative-op",["wat-string","-"],0]],["def",["qua-function","/"],["%js-negative-op",["wat-string","/"],1]],null,["defun","list-length",["list"],["%if",["nil?","list"],0,["+",1,["list-length",["cdr","list"]]]]],["defun","list-elt",["list","i"],["%if",["=","i",0],["car","list"],["list-elt",["cdr","list"],["-","i",1]]]],["defun","filter-list",[["qua-function","pred?"],"list"],["%if",["nil?","list"],["quote",[]],["%if",["pred?",["car","list"]],["cons",["car","list"],["filter-list",["qua-function","pred?"],["cdr","list"]]],["filter-list",["qua-function","pred?"],["cdr","list"]]]]],["defun","append-2-lists",["list-1","list-2"],["%if",["nil?","list-1"],"list-2",["cons",["car","list-1"],["append-2-lists",["cdr","list-1"],"list-2"]]]],null,["defclass","serious-condition",["condition"]],["defclass","error",["serious-condition"]],["defclass","warning",["condition"]],["defclass","simple-condition",["condition"],["message"]],["defclass","simple-warning",["warning"],["message"]],["defclass","simple-error",["error"],["message"]],["defclass","runtime-error",["error"]],["defclass","control-error",["runtime-error"]],["defclass","restart-control-error",["control-error"],["restart"]],["defclass","abort",["restart"]],["defclass","continue",["restart"]],["defclass","store-value",["restart"],["value"]],null,["defdynamic","*condition-handler-frame*"],["defdynamic","*restart-handler-frame*"],["defclass","handler",["standard-object"],["name","condition-type","handler-function","associated-condition"]],["defun","make-handler",["condition-type","handler-function",".","opt-associated-condition"],["%make-instance",["quote","handler"],["qua-keyword","name"],["symbol-name","condition-type"],["qua-keyword","condition-type"],"condition-type",["qua-keyword","handler-function"],"handler-function",["qua-keyword","associated-condition"],["optional","opt-associated-condition"]]],["defun","handle-condition",["handler","condition"],["funcall",["slot-value","handler",["quote","handler-function"]],"condition"]],["defclass","handler-frame",["standard-object"],["handlers","parent"]],["defun","make-handler-frame",["handlers",".","opt-parent"],["%make-instance",["quote","handler-frame"],["qua-keyword","handlers"],"handlers",["qua-keyword","parent"],["optional","opt-parent"]]],["defun","%make-handler-bind",[["qua-function","handler-spec-parser"],"handler-frame-dynamic"],["vau",["handler-specs",".","body"],"env",["let*",[["handlers",["map-list",["lambda",["spec"],["handler-spec-parser","spec","env"]],"handler-specs"]],["handler-frame",["make-handler-frame","handlers",["dynamic","handler-frame-dynamic"]]]],["dynamic-bind","handler-frame-dynamic","handler-frame",["lambda",[],["eval",["prognize","body"],"env"]]]]]],null,["def",["qua-function","handler-bind"],["%make-handler-bind",["lambda",[["class-name","function-form"],"env"],["make-handler","class-name",["eval","function-form","env"]]],"*condition-handler-frame*"]],null,["def",["qua-function","restart-bind"],["%make-handler-bind",["lambda",[["class-name","function-form",".","opt-associated-condition"],"env"],["make-handler","class-name",["eval","function-form","env"],["eval",["optional","opt-associated-condition"],"env"]]],"*restart-handler-frame*"]],null,["defun","signal",["condition"],["signal-condition","condition",["dynamic","*condition-handler-frame*"]]],["defun","warn",["condition"],["signal","condition"],["print",["wat-string","Warning:"],"condition"]],["defun","error",["condition"],["signal","condition"],["invoke-debugger","condition"]],["defun","invoke-restart",["restart"],["signal-condition","restart",["dynamic","*restart-handler-frame*"]]],["defun","signal-condition",["condition","dynamic-frame"],["let",[["handler-and-frame",["find-applicable-handler","condition","dynamic-frame"]]],["%if",["void?","handler-and-frame"],"#void",["let",[[["handler","frame"],"handler-and-frame"]],["call-condition-handler","condition","handler","frame"],null,["signal-condition","condition",["slot-value","frame",["quote","parent"]]]]]]],["defun","find-applicable-handler",["condition","dynamic-frame"],["%if",["void?","dynamic-frame"],"#void",["block","found",["list-for-each",["lambda",["handler"],["when",["condition-applicable?","condition","handler"],["return-from","found",["list","handler","dynamic-frame"]]]],["slot-value","dynamic-frame",["quote","handlers"]]],["find-applicable-handler","condition",["slot-value","dynamic-frame",["quote","parent"]]]]]],["defgeneric","condition-applicable?",["condition","handler"]],["%defmethod","condition-applicable?",[["condition","condition"],"handler"],["type?","condition",["slot-value","handler",["quote","condition-type"]]]],["defun","slot-void?",["obj","slot-name"],["%if",["slot-bound?","obj","slot-name"],["void?",["slot-value","obj","slot-name"]],true]],["%defmethod","condition-applicable?",[["restart","restart"],"handler"],["and",["type?","restart",["slot-value","handler",["quote","condition-type"]]],["or",["slot-void?","restart",["quote","associated-condition"]],["slot-void?","handler",["quote","associated-condition"]],["eq",["slot-value","restart",["quote","associated-condition"]],["slot-value","handler",["quote","associated-condition"]]]]]],["defgeneric","call-condition-handler",["condition","handler","handler-frame"]],["%defmethod","call-condition-handler",[["condition","condition"],"handler","handler-frame"],null,["dynamic-let",[["*condition-handler-frame*",["slot-value","handler-frame",["quote","parent"]]]],["handle-condition","handler","condition"]]],["%defmethod","call-condition-handler",[["restart","restart"],"handler","handler-frame"],["handle-condition","handler","restart"]],null,["defclass","type-error",["error"],[]],["defclass","type-mismatch-error",["type-error"],["type-spec","obj"]],["defconstant","+top-type+",["%make-instance",["quote","%class-type"],["qua-keyword","name"],["wat-string","top"],["qua-keyword","generic-params"],["quote",[]]]],["defconstant","+bottom-type+",["%make-instance",["quote","%class-type"],["qua-keyword","name"],["wat-string","bottom"],["qua-keyword","generic-params"],["quote",[]]]],["defun","%parse-type-spec",["type-spec"],["if",["keyword?","type-spec"],["%make-instance",["quote","%type-variable"],["qua-keyword","name"],["symbol-name","type-spec"]],["symbol?","type-spec"],["%make-instance",["quote","%class-type"],["qua-keyword","name"],["symbol-name","type-spec"],["qua-keyword","generic-params"],["quote",[]]],["cons?","type-spec"],["let",[[["class-name",".","generic-param-specs"],"type-spec"]],["%make-instance",["quote","%class-type"],["qua-keyword","name"],["symbol-name","class-name"],["qua-keyword","generic-params"],["map-list",["qua-function","%parse-generic-param-spec"],"generic-param-specs"]]],["error",["%make-instance",["quote","simple-error"],["qua-keyword","message"],["wat-string","Illegal type-spec"]]]]],["defun","%parse-generic-param-spec",["gp-spec"],["if",["or",["keyword?","gp-spec"],["symbol?","gp-spec"]],["let",[["type",["%parse-type-spec","gp-spec"]]],["%make-instance",["quote","%generic-param"],["qua-keyword","in-type"],"type",["qua-keyword","out-type"],"type"]],["cons?","gp-spec"],["let",[[["op",".","rest"],"gp-spec"]],["%if",["keyword?","op"],["case",["symbol-name","op"],[["wat-string","io"],["let*",[["in-type",["%parse-type-spec",["car","rest"]]],["out-type",["%parse-type-spec",["optional",["cdr","rest"],"in-type"]]]],["%make-instance",["quote","%generic-param"],["qua-keyword","in-type"],"in-type",["qua-keyword","out-type"],"out-type"]]],[["wat-string","in"],["let",[["in-type",["%parse-type-spec",["car","rest"]]]],["%make-instance",["quote","%generic-param"],["qua-keyword","in-type"],"in-type",["qua-keyword","out-type"],"+top-type+"]]],[["wat-string","out"],["let",[["out-type",["%parse-type-spec",["car","rest"]]]],["%make-instance",["quote","%generic-param"],["qua-keyword","in-type"],"+bottom-type+",["qua-keyword","out-type"],"out-type"]]]],["let",[["type",["%parse-type-spec","gp-spec"]]],["%make-instance",["quote","%generic-param"],["qua-keyword","in-type"],"type",["qua-keyword","out-type"],"type"]]]],["error",["wat-string","Illegal generic param spec"]]]],["defun","type?",["obj","type-spec"],["%%type?","obj",["%parse-type-spec","type-spec"]]],["deffexpr","typecase",["expr",".","clauses"],"env",["let",[["val",["eval","expr","env"]]],["block","match",["list-for-each",["lambda",[["type-spec",".","body"]],["%if",["eq","type-spec",true],["return-from","match",["eval",["prognize","body"],"env"]],["when",["type?","val","type-spec"],["return-from","match",["eval",["prognize","body"],"env"]]]]],"clauses"],"#void"]]],["defun","the",["type-spec","obj"],["%if",["type?","obj","type-spec"],"obj",["error",["%make-instance",["quote","type-mismatch-error"],["qua-keyword","type-spec"],"type-spec",["qua-keyword","obj"],"obj"]]]],["defun","%method-lambda-list-type-checks",["method-ll"],["map-list",["lambda",["param"],["typecase","param",["cons","#void"],["symbol","#void"],["keyword"],[true,["simple-error",["wat-string","Weird method parameter"],["qua-keyword","arg"],"param"]]]],[]]],["defun","%parse-method-lambda-list",["method-ll"],["if",["cons?","method-ll"],["let*",[[["receiver-spec",".","other-params"],"method-ll"],["simplified-other-params",["map-list",["lambda",["param"],["typecase","param",["cons",["car","param"]],["symbol","param"],[true,["simple-error",["wat-string","Not a method parameter"],["qua-keyword","arg"],"param"]]]],"other-params"]],["simplified-ll",["cons","receiver-spec","simplified-other-params"]],["type-checks",["%method-lambda-list-type-checks","method-ll"]]],["list","simplified-ll","type-checks"]],["simple-error",["wat-string","Not a method lambda list"],["qua-keyword","arg"],"method-ll"]]],["defmacro","defmethod",["name","method-lambda-list",".","body"],["let",[[["simplified-method-ll","type-checks"],["%parse-method-lambda-list","method-lambda-list"]]],["list*",["qua-function","%defmethod"],"name","simplified-method-ll","type-checks","body"]]],["defun","make-instance",["type-spec",".","args"],["apply",["qua-function","%make-instance"],["cons",["%parse-type-spec","type-spec"],"args"]]],null,null,null,["defun","invoke-debugger",["condition"],["print",["wat-string",""]],["print",["wat-string","Welcome to the debugger!"]],["loop",["block","continue",["print",["+",["wat-string","Condition: "],"condition"]],["let",[["restarts",["compute-restarts","condition"]]],["if",[">",["list-length","restarts"],0],["progn",["print",["wat-string","Restarts:"]],["let",[["i",1]],["list-for-each",["lambda",["restart"],["print",["+","i",["wat-string",": "],["slot-value","restart",["quote","name"]]]],["incf","i"]],"restarts"],["print",["wat-string","Enter a restart number:"]],["let*",[["s",["%%read-line"]],["n",[["js-global",["wat-string","Number"]],"s"]]],["if",[["js-global",["wat-string","isNaN"]],"n"],["progn",["print",["wat-string","You didn't enter a number. Please try again."]],["return-from","continue"]],["let",[["class",["slot-value",["list-elt","restarts",["-","n",1]],["quote","condition-type"]]]],["invoke-restart-interactively",["%make-instance","class"]]]]]]],["%%panic","condition"]]]]]],["defun","compute-restarts",["condition"],["%%reverse-list",["%compute-restarts","condition",["quote",[]],["dynamic","*restart-handler-frame*"]]]],["defun","%compute-restarts",["condition","restart-list","handler-frame"],["if",["void?","handler-frame"],"restart-list",["let",[["restarts",["filter-list",["lambda",["handler"],["or",["slot-void?","handler",["quote","associated-condition"]],["eq",["slot-value","handler",["quote","associated-condition"]],"condition"]]],["slot-value","handler-frame",["quote","handlers"]]]]],["%compute-restarts","condition",["append-2-lists","restarts","restart-list"],["slot-value","handler-frame",["quote","parent"]]]]]],["defgeneric","invoke-restart-interactively",["restart"]],["%defmethod","invoke-restart-interactively",[["r","restart"]],["invoke-restart","r"]],null,null,["defconstant","+user-prompt+",["qua-keyword","user-prompt"]],null,null,["defun","push-userspace*",[["qua-function","thunk"]],["push-prompt","+user-prompt+",["thunk"]]],["defmacro","push-userspace","body",["list",["qua-function","push-userspace*"],["thunkify","body"]]],["defclass",["collection",["qua-keyword","e"]],["standard-object"],[]],["defgeneric","add",["collection","element"]],["defgeneric","len",["collection"]],["defgeneric","iterator",["collection"]],["defclass",["list",["qua-keyword","e"]],[["collection",["qua-keyword","e"]]],[]],["defgeneric","elt",["collection","index"]],["defclass",["iterator",["qua-keyword","e"]],[],[]],["defgeneric","next?",["iterator"]],["defgeneric","next",["iterator"]],["defclass","iteration-error",["control-error"],[]],["defun","for-each",[["qua-function","fn"],"coll"],["let",[["iterator",["iterator","coll"]]],["while",["next?","iterator"],["fn",["next","iterator"]]]]],["defclass",["js-array-list",["qua-keyword","e"]],[["list",["qua-keyword","e"]]],["js-array"]],["defun","make-js-array-list",["element-type-spec"],["make-instance",["list",["quote","js-array-list"],"element-type-spec"],["qua-keyword","js-array"],["js-array"]]],["defmethod","add",[["self",["js-array-list",["qua-keyword","e"]]],["element",["qua-keyword","e"]]],[["js-invoker",["wat-string","push"]],["slot-value","self",["quote","js-array"]],"element"]],["defmethod","len",[["self",["js-array-list",["qua-keyword","e"]]]],[["js-getter",["wat-string","length"]],["slot-value","self",["quote","js-array"]]]],["defmethod","elt",[["self",["js-array-list",["qua-keyword","e"]]],["index","number"]],["js-get",["slot-value","self",["quote","js-array"]],"index"]],["defclass",["js-array-list-iterator",["qua-keyword","e"]],[["iterator",["qua-keyword","e"]]],["js-array-list","current-index"]],["defmethod","iterator",[["self",["js-array-list",["qua-keyword","e"]]]],null,["make-instance",["quote","js-array-list-iterator"],["qua-keyword","js-array-list"],"self",["qua-keyword","current-index"],0]],["defmethod","next?",[["self",["js-array-list-iterator",["qua-keyword","e"]]]],["<",["slot-value","self",["quote","current-index"]],["len",["slot-value","self",["quote","js-array-list"]]]]],["defmethod","next",[["self",["js-array-list-iterator",["qua-keyword","e"]]]],["if",["next?","self"],["prog1",["elt",["slot-value","self",["quote","js-array-list"]],["slot-value","self",["quote","current-index"]]],["incf",["slot-value","self",["quote","current-index"]]]],["error",["make-instance",["quote","iteration-error"]]]]],null]
+module.exports.main = [null,null,null,null,null,null,null,null,null,["%%def",["qua-function","def"],["qua-function","%%def"]],null,["def",["qua-function","car"],["qua-function","%%car"]],null,["def",["qua-function","cdr"],["qua-function","%%cdr"]],null,["def",["qua-function","cons"],["qua-function","%%cons"]],null,["def",["qua-function","eq"],["qua-function","%%eq"]],null,["def",["qua-function","eval"],["qua-function","%%eval"]],null,["def",["qua-function","%if"],["qua-function","%%if"]],null,["def",["qua-function","make-environment"],["qua-function","%%make-environment"]],null,["def",["qua-function","print"],["qua-function","%%print"]],null,["def",["qua-function","progn"],["qua-function","%%progn"]],null,["def",["qua-function","setq"],["qua-function","%%setq"]],null,["def",["qua-function","unwrap"],["qua-function","%%unwrap"]],null,["def",["qua-function","wrap"],["qua-function","%%wrap"]],null,null,["def",["qua-function","concrete-class-of"],["qua-function","%%concrete-class-of"]],["def",["qua-function","ensure-class"],["qua-function","%%ensure-class"]],["def",["qua-function","find-concrete-class"],["qua-function","%%find-concrete-class"]],["def",["qua-function","find-generic-class"],["qua-function","%%find-generic-class"]],["def",["qua-function","find-method"],["qua-function","%%find-method"]],["def",["qua-function","generic-class-of"],["qua-function","%%generic-class-of"]],["def",["qua-function","type?"],["qua-function","%%type?"]],["def",["qua-function","put-method"],["qua-function","%%put-method"]],["def",["qua-function","set-slot-value"],["qua-function","%%set-slot-value"]],["def",["qua-function","slot-bound?"],["qua-function","%%slot-bound?"]],["def",["qua-function","slot-value"],["qua-function","%%slot-value"]],null,["def",["qua-function","js-apply"],["qua-function","%%js-apply"]],["def",["qua-function","js-function"],["qua-function","%%js-function"]],["def",["qua-function","js-get"],["qua-function","%%js-get"]],["def",["qua-function","js-global"],["qua-function","%%js-global"]],["def",["qua-function","js-new"],["qua-function","%%js-new"]],["def",["qua-function","js-set"],["qua-function","%%js-set"]],["def",["qua-function","own-property?"],["qua-function","%%own-property?"]],null,null,["def",["qua-function","%to-fun-sym"],["qua-function","%%to-fun-sym"]],null,null,["def",["qua-function","list*"],["qua-function","%%list*"]],null,["def",["qua-function","list-to-js-array"],["qua-function","%%list-to-array"]],["def",["qua-function","plist-to-js-object"],["qua-function","%%plist-to-js-object"]],null,["def",["qua-function","require"],["qua-function","%%require"]],null,["def",["qua-function","="],["qua-function","eq"]],null,["def",["qua-function","defconstant"],["qua-function","def"]],null,null,["def",["qua-function","quote"],["%%vau",["op"],"#ign","op"]],null,["def",["qua-function","list"],["wrap",["%%vau","args","#ign","args"]]],null,["def",["qua-function","the-environment"],["%%vau","#ign","env","env"]],null,["def",["qua-function","prognize"],["wrap",["%%vau",["body"],"#ign",["list*",["qua-function","progn"],"body"]]]],null,null,null,["def",["qua-function","vau"],["%%vau",["params","env-param",".","body"],"env",["eval",["list",["qua-function","%%vau"],"params","env-param",["prognize","body"]],"env"]]],null,["def",["qua-function","deffexpr"],["vau",["name","params","env-param",".","body"],"env",["eval",["list",["qua-function","def"],["%to-fun-sym","name"],["list*",["qua-function","vau"],"params","env-param","body"]],"env"]]],null,null,["def",["qua-function","make-macro"],["wrap",["vau",["expander"],"#ign",["vau","form","env",["eval",["eval",["cons","expander","form"],["make-environment"]],"env"]]]]],null,["def",["qua-function","macro"],["make-macro",["vau",["params",".","body"],"#ign",["list",["qua-function","make-macro"],["list*",["qua-function","vau"],"params","#ign","body"]]]]],null,["def",["qua-function","defmacro"],["macro",["name","params",".","body"],["list",["qua-function","def"],["%to-fun-sym","name"],["list*",["qua-function","macro"],"params","body"]]]],null,null,["defmacro","%lambda",["params",".","body"],["list",["qua-function","wrap"],["list*",["qua-function","vau"],"params","#ign","body"]]],null,null,["defmacro","%defun",["name","params",".","body"],["list",["qua-function","def"],["%to-fun-sym","name"],["list*",["qua-function","%lambda"],"params","body"]]],null,null,["def",["qua-function","lambda"],["qua-function","%lambda"]],["def",["qua-function","defun"],["qua-function","%defun"]],null,["defun","optional",["opt-arg",".","opt-default"],["%if",["nil?","opt-arg"],["%if",["nil?","opt-default"],"#void",["car","opt-default"]],["car","opt-arg"]]],null,["defun","apply",["fun","args",".","opt-env"],["eval",["cons",["unwrap","fun"],"args"],["optional","opt-env",["make-environment"]]]],null,null,["defun","funcall",["fun",".","args"],["apply","fun","args"]],null,null,null,null,["defun","compose",[["qua-function","f"],["qua-function","g"]],["lambda",["arg"],["f",["g","arg"]]]],["defun","identity",["x"],"x"],null,null,["defun","nil?",["obj"],["eq","obj",[]]],["defun","void?",["obj"],["eq","obj","#void"]],["def",["qua-function","caar"],["compose",["qua-function","car"],["qua-function","car"]]],["def",["qua-function","cadr"],["compose",["qua-function","car"],["qua-function","cdr"]]],["def",["qua-function","cdar"],["compose",["qua-function","cdr"],["qua-function","car"]]],["def",["qua-function","cddr"],["compose",["qua-function","cdr"],["qua-function","cdr"]]],["defun","symbol?",["sym"],["%%type?","sym",["quote","symbol"]]],["defun","keyword?",["obj"],["%%type?","obj",["quote","keyword"]]],["defun","cons?",["cons"],["%%type?","cons",["quote","cons"]]],["defun","symbol-name",["sym"],["slot-value","sym",["quote","name"]]],null,["defun","map-list",[["qua-function","fun"],"list"],["%if",["nil?","list"],[],["cons",["fun",["car","list"]],["map-list",["qua-function","fun"],["cdr","list"]]]]],["def",["qua-function","list-for-each"],["qua-function","map-list"]],["defun","fold-list",[["qua-function","fun"],"init","list"],["%if",["nil?","list"],"init",["fold-list",["qua-function","fun"],["fun","init",["car","list"]],["cdr","list"]]]],null,null,null,["defmacro","let",["bindings",".","body"],["list*",["list*",["qua-function","lambda"],["map-list",["qua-function","car"],"bindings"],"body"],["map-list",["qua-function","cadr"],"bindings"]]],null,null,["defmacro","let*",["bindings",".","body"],["%if",["nil?","bindings"],["list*",["qua-function","let"],[],"body"],["list",["qua-function","let"],["list",["car","bindings"]],["list*",["qua-function","let*"],["cdr","bindings"],"body"]]]],null,null,["defmacro","%letrec",["bindings",".","body"],["list*",["qua-function","let"],[],["list",["qua-function","def"],["map-list",["qua-function","car"],"bindings"],["list*",["qua-function","list"],["map-list",["qua-function","cadr"],"bindings"]]],"body"]],null,["defun","%var-bindingize",[["fun-name","fun-params",".","fun-body"]],["list",["%to-fun-sym","fun-name"],["list*",["qua-function","lambda"],"fun-params","fun-body"]]],null,["defmacro","flet",["fun-bindings",".","body"],["list*",["qua-function","let"],["map-list",["qua-function","%var-bindingize"],"fun-bindings"],"body"]],null,["defmacro","labels",["fun-bindings",".","body"],["list*",["qua-function","%letrec"],["map-list",["qua-function","%var-bindingize"],"fun-bindings"],"body"]],null,["defun","not",["boolean"],["%if","boolean",false,true]],["deffexpr","cond","clauses","env",["%if",["nil?","clauses"],"#void",["let",[[[["test",".","body"],".","rest-clauses"],"clauses"]],["%if",["eval","test","env"],["eval",["cons",["qua-function","progn"],"body"],"env"],["eval",["cons",["qua-function","cond"],"rest-clauses"],"env"]]]]],["deffexpr","and","ops","env",["cond",[["nil?","ops"],true],[["nil?",["cdr","ops"]],["eval",["car","ops"],"env"]],[["eval",["car","ops"],"env"],["eval",["cons",["qua-function","and"],["cdr","ops"]],"env"]],[true,false]]],["deffexpr","or","ops","env",["cond",[["nil?","ops"],false],[["nil?",["cdr","ops"]],["eval",["car","ops"],"env"]],[["eval",["car","ops"],"env"],true],[true,["eval",["cons",["qua-function","or"],["cdr","ops"]],"env"]]]],null,["defconstant","+setter-prop+",["wat-string","qua_setter"]],["defun","setter",["obj"],["js-get","obj","+setter-prop+"]],["defun","defsetf",["access-fn","update-fn"],["js-set","access-fn","+setter-prop+","update-fn"]],["defsetf",["qua-function","setter"],["lambda",["new-setter","getter"],["js-set","getter","+setter-prop+","new-setter"]]],["defmacro","setf",["place","new-val"],["%if",["symbol?","place"],["list",["qua-function","setq"],"place","new-val"],["let*",[[["getter-form",".","args"],"place"],["getter",["%if",["symbol?","getter-form"],["%to-fun-sym","getter-form"],"getter-form"]]],["list*",["list",["qua-function","setter"],"getter"],"new-val","args"]]]],["defmacro","incf",["place",".","opt-increment"],["let",[["increment",["optional","opt-increment",1]]],["list",["qua-function","setf"],"place",["list",["qua-function","+"],"place","increment"]]]],["defmacro","decf",["place",".","opt-decrement"],["let",[["decrement",["optional","opt-decrement",1]]],["list",["qua-function","setf"],"place",["list",["qua-function","-"],"place","decrement"]]]],null,["def",["qua-function","%parse-type-spec"],["qua-function","identity"]],null,["defun","%make-instance",["class-desig",".","initargs"],["%%make-instance","class-desig",["plist-to-js-object","initargs"]]],["defun","call-method",["obj","name","args"],["let",[["method",["find-method","obj","name"]]],["apply","method","args"]]],["deffexpr","defgeneric",["name","#ign"],"env",["eval",["list",["qua-function","def"],["%to-fun-sym","name"],["lambda","args",["call-method",["car","args"],"name","args"]]],"env"]],["deffexpr","%defmethod",["name",[["self","class-spec"],".","args"],".","body"],"env",["let",[["class",["find-generic-class",["%parse-type-spec","class-spec"]]],["fun",["eval",["list*",["qua-function","lambda"],["list*","self","args"],"body"],"env"]]],["put-method","class","name","fun"],"name"]],["deffexpr","defclass",["class-spec","superclass-specs",".","#ign"],"#ign",["ensure-class",["%parse-type-spec","class-spec"],["list-to-js-array",["map-list",["qua-function","%parse-type-spec"],"superclass-specs"]]]],["defsetf",["qua-function","slot-value"],["lambda",["new-val","obj","slot-name"],["set-slot-value","obj","slot-name","new-val"]]],["defgeneric","hash-object",["self"]],["defgeneric","compare-object",["self"]],["defgeneric","print-object",["self","stream"]],null,["defun","thunkify",["body"],["list*",["qua-function","%lambda"],[],"body"]],["defmacro","loop","body",["list",["qua-function","%%loop"],["thunkify","body"]]],["deffexpr","while",["test",".","body"],"env",["let",[["body",["prognize","body"]]],["block","exit",["loop",["%if",["eval","test","env"],["eval","body","env"],["return-from","exit"]]]]]],null,["deffexpr","if",["test","then",".","rest"],"env",["%if",["eval","test","env"],["eval","then","env"],["%if",["nil?","rest"],"#void",["%if",["nil?",["cdr","rest"]],["eval",["car","rest"],"env"],["eval",["cons",["qua-function","if"],"rest"],"env"]]]]],["defmacro","when",["test",".","body"],["list",["qua-function","%if"],"test",["prognize","body"],"#void"]],["defmacro","unless",["test",".","body"],["list",["qua-function","%if"],"test","#void",["prognize","body"]]],["defun","%call-with-escape",[["qua-function","fn"]],["labels",[["escape","opt-val",["%%raise",["%make-instance",["quote","%%tag"],["qua-keyword","id"],["qua-function","escape"],["qua-keyword","val"],["optional","opt-val"]]]]],["%%rescue",["lambda",["exc"],["%if",["and",["type?","exc",["quote","%%tag"]],["eq",["slot-value","exc",["quote","id"]],["qua-function","escape"]]],["slot-value","exc",["quote","val"]],["%%raise","exc"]]],["lambda",[],["fn",["qua-function","escape"]]]]]],null,["defmacro","block",["name",".","body"],["list",["qua-function","%call-with-escape"],["list*",["qua-function","lambda"],["list","name"],"body"]]],["defun","return-from",["escape",".","opt-val"],["apply","escape","opt-val"]],["deffexpr","prog1","forms","env",["%if",["nil?","forms"],"#void",["let",[["result",["eval",["car","forms"],"env"]]],["eval",["prognize",["cdr","forms"]],"env"],"result"]]],["defmacro","prog2",["form",".","forms"],["list",["qua-function","progn"],"form",["list*",["qua-function","prog1"],"forms"]]],["defun","unwind-protect*",[["qua-function","protected-thunk"],["qua-function","cleanup-thunk"]],["prog1",["%%rescue",["lambda",["exc"],null,["cleanup-thunk"],["%%raise","exc"]],["qua-function","protected-thunk"]],["cleanup-thunk"]]],["defmacro","unwind-protect",["protected-form",".","cleanup-forms"],["list",["qua-function","unwind-protect*"],["list",["qua-function","lambda"],[],"protected-form"],["thunkify","cleanup-forms"]]],["deffexpr","case",["expr",".","clauses"],"env",["let",[["val",["eval","expr","env"]]],["block","match",["list-for-each",["lambda",[["other-val",".","body"]],["when",["=","val",["eval","other-val","env"]],["return-from","match",["eval",["prognize","body"],"env"]]]],"clauses"],"#void"]]],null,["defclass","mut",["standard-object"],["val"]],["defun","mut",["val"],["%make-instance",["quote","mut"],["qua-keyword","val"],"val"]],["defun","ref",["mut"],["slot-value","mut",["quote","val"]]],["defsetf",["qua-function","ref"],["lambda",["new-val","mut"],["setf",["slot-value","mut",["quote","val"]],"new-val"]]],null,["defmacro","push-prompt",["prompt",".","body"],["list",["qua-function","%%push-prompt"],"prompt",["thunkify","body"]]],["defmacro","take-subcont",["prompt","name",".","body"],["list",["qua-function","%%take-subcont"],"prompt",["list*",["qua-function","lambda"],["list","name"],"body"]]],["defmacro","push-subcont",["continuation",".","body"],["list",["qua-function","%%push-subcont"],"continuation",["thunkify","body"]]],["defmacro","push-prompt-subcont",["prompt","continuation",".","body"],["list",["qua-function","%%push-prompt-subcont"],"prompt","continuation",["thunkify","body"]]],["defconstant","+default-prompt+",["qua-keyword","default-prompt"]],["defmacro","push-default-prompt","body",["list*",["qua-function","push-prompt"],"+default-prompt+","body"]],["defmacro","take-default-subcont",["name",".","body"],["list*",["qua-function","take-subcont"],"+default-prompt+","name","body"]],["defmacro","push-default-subcont",["continuation",".","body"],["list*",["qua-function","push-prompt-subcont"],"+default-prompt+","continuation","body"]],null,["defmacro","defdynamic",["name",".","opt-val"],["list",["qua-function","def"],"name",["list",["qua-function","mut"],["optional","opt-val"]]]],["def",["qua-function","dynamic"],["qua-function","ref"]],null,["def",["qua-function","dynamic-bind"],["qua-function","%%dynamic-bind"]],null,null,["deffexpr","dynamic-let",["bindings",".","body"],"env",["let",[["pairs",["map-list",["lambda",[["dynamic-name","expr"]],["cons",["eval","dynamic-name","env"],["eval","expr","env"]]],"bindings"]]],["labels",[["process-pairs",["pairs"],["%if",["nil?","pairs"],["eval",["prognize","body"],"env"],["let*",[[[["dynamic",".","value"],".","rest-pairs"],"pairs"]],["dynamic-bind","dynamic","value",["lambda",[],["process-pairs","rest-pairs"]]]]]]],["process-pairs","pairs"]]]],null,null,["defun","js-getter",["prop-name"],["flet",[["getter",["obj"],["js-get","obj","prop-name"]]],["defsetf",["qua-function","getter"],["lambda",["new-val","obj"],["js-set","obj","prop-name","new-val"]]],["qua-function","getter"]]],null,["defun","js-invoker",["method-name"],["lambda",["this",".","args"],["let",[["fun",["js-get","this","method-name"]]],["js-apply","fun","this",["list-to-js-array","args"]]]]],["defun","create-js-object","opt-proto",[["js-invoker",["wat-string","create"]],["js-global",["wat-string","Object"]],["optional","opt-proto",null]]],["defun","js-object","plist",["plist-to-js-object","plist"]],["defun","js-array","elements",["list-to-js-array","elements"]],["defmacro","js-lambda",["lambda-list",".","body"],["list",["qua-function","js-function"],["list*",["qua-function","lambda"],"lambda-list","body"]]],["defun","%js-relational-op",["name"],["let",[[["qua-function","binop"],["%%js-binop","name"]]],["labels",[["op",["arg1","arg2",".","rest"],["%if",["binop","arg1","arg2"],["%if",["nil?","rest"],true,["apply",["qua-function","op"],["list*","arg2","rest"]]],false]]],["qua-function","op"]]]],["def",["qua-function","=="],["%js-relational-op",["wat-string","=="]]],["def",["qua-function","==="],["%js-relational-op",["wat-string","==="]]],["def",["qua-function","<"],["%js-relational-op",["wat-string","<"]]],["def",["qua-function",">"],["%js-relational-op",["wat-string",">"]]],["def",["qua-function","<="],["%js-relational-op",["wat-string","<="]]],["def",["qua-function",">="],["%js-relational-op",["wat-string",">="]]],["def",["qua-function","lt"],["qua-function","<"]],["def",["qua-function","lte"],["qua-function","<="]],["def",["qua-function","gt"],["qua-function",">"]],["def",["qua-function","gte"],["qua-function",">="]],["defun","!=","args",["not",["apply","==","args"]]],["defun","!==","args",["not",["apply","===","args"]]],["def",["qua-function","*"],["let",[[["qua-function","binop"],["%%js-binop",["wat-string","*"]]]],["lambda","args",["fold-list",["qua-function","binop"],1,"args"]]]],null,["def",["qua-function","+"],["let",[[["qua-function","binop"],["%%js-binop",["wat-string","+"]]]],["lambda","args",["%if",["nil?","args"],0,["fold-list",["qua-function","binop"],["car","args"],["cdr","args"]]]]]],["defun","%js-negative-op",["name","unit"],["let",[[["qua-function","binop"],["%%js-binop","name"]]],["lambda",["arg1",".","rest"],["%if",["nil?","rest"],["binop","unit","arg1"],["fold-list",["qua-function","binop"],"arg1","rest"]]]]],["def",["qua-function","-"],["%js-negative-op",["wat-string","-"],0]],["def",["qua-function","/"],["%js-negative-op",["wat-string","/"],1]],null,["defun","list-length",["list"],["%if",["nil?","list"],0,["+",1,["list-length",["cdr","list"]]]]],["defun","list-elt",["list","i"],["%if",["=","i",0],["car","list"],["list-elt",["cdr","list"],["-","i",1]]]],["defun","filter-list",[["qua-function","pred?"],"list"],["%if",["nil?","list"],["quote",[]],["%if",["pred?",["car","list"]],["cons",["car","list"],["filter-list",["qua-function","pred?"],["cdr","list"]]],["filter-list",["qua-function","pred?"],["cdr","list"]]]]],["defun","append-2-lists",["list-1","list-2"],["%if",["nil?","list-1"],"list-2",["cons",["car","list-1"],["append-2-lists",["cdr","list-1"],"list-2"]]]],null,["defclass","serious-condition",["condition"]],["defclass","error",["serious-condition"]],["defclass","warning",["condition"]],["defclass","simple-condition",["condition"],["message"]],["defclass","simple-warning",["warning"],["message"]],["defclass","simple-error",["error"],["message"]],["defclass","runtime-error",["error"]],["defclass","control-error",["runtime-error"]],["defclass","restart-control-error",["control-error"],["restart"]],["defclass","abort",["restart"]],["defclass","continue",["restart"]],["defclass","store-value",["restart"],["value"]],null,["defdynamic","*condition-handler-frame*"],["defdynamic","*restart-handler-frame*"],["defclass","handler",["standard-object"],["name","condition-type","handler-function","associated-condition"]],["defun","make-handler",["condition-type","handler-function",".","opt-associated-condition"],["%make-instance",["quote","handler"],["qua-keyword","name"],["symbol-name","condition-type"],["qua-keyword","condition-type"],"condition-type",["qua-keyword","handler-function"],"handler-function",["qua-keyword","associated-condition"],["optional","opt-associated-condition"]]],["defun","handle-condition",["handler","condition"],["funcall",["slot-value","handler",["quote","handler-function"]],"condition"]],["defclass","handler-frame",["standard-object"],["handlers","parent"]],["defun","make-handler-frame",["handlers",".","opt-parent"],["%make-instance",["quote","handler-frame"],["qua-keyword","handlers"],"handlers",["qua-keyword","parent"],["optional","opt-parent"]]],["defun","%make-handler-bind",[["qua-function","handler-spec-parser"],"handler-frame-dynamic"],["vau",["handler-specs",".","body"],"env",["let*",[["handlers",["map-list",["lambda",["spec"],["handler-spec-parser","spec","env"]],"handler-specs"]],["handler-frame",["make-handler-frame","handlers",["dynamic","handler-frame-dynamic"]]]],["dynamic-bind","handler-frame-dynamic","handler-frame",["lambda",[],["eval",["prognize","body"],"env"]]]]]],null,["def",["qua-function","handler-bind"],["%make-handler-bind",["lambda",[["class-name","function-form"],"env"],["make-handler","class-name",["eval","function-form","env"]]],"*condition-handler-frame*"]],null,["def",["qua-function","restart-bind"],["%make-handler-bind",["lambda",[["class-name","function-form",".","opt-associated-condition"],"env"],["make-handler","class-name",["eval","function-form","env"],["eval",["optional","opt-associated-condition"],"env"]]],"*restart-handler-frame*"]],null,["defun","signal",["condition"],["signal-condition","condition",["dynamic","*condition-handler-frame*"]]],["defun","warn",["condition"],["signal","condition"],["print",["wat-string","Warning:"],"condition"]],["defun","error",["condition"],["signal","condition"],["invoke-debugger","condition"]],["defun","invoke-restart",["restart"],["signal-condition","restart",["dynamic","*restart-handler-frame*"]]],["defun","signal-condition",["condition","dynamic-frame"],["let",[["handler-and-frame",["find-applicable-handler","condition","dynamic-frame"]]],["%if",["void?","handler-and-frame"],"#void",["let",[[["handler","frame"],"handler-and-frame"]],["call-condition-handler","condition","handler","frame"],null,["signal-condition","condition",["slot-value","frame",["quote","parent"]]]]]]],["defun","find-applicable-handler",["condition","dynamic-frame"],["%if",["void?","dynamic-frame"],"#void",["block","found",["list-for-each",["lambda",["handler"],["when",["condition-applicable?","condition","handler"],["return-from","found",["list","handler","dynamic-frame"]]]],["slot-value","dynamic-frame",["quote","handlers"]]],["find-applicable-handler","condition",["slot-value","dynamic-frame",["quote","parent"]]]]]],["defgeneric","condition-applicable?",["condition","handler"]],["%defmethod","condition-applicable?",[["condition","condition"],"handler"],["type?","condition",["slot-value","handler",["quote","condition-type"]]]],["defun","slot-void?",["obj","slot-name"],["%if",["slot-bound?","obj","slot-name"],["void?",["slot-value","obj","slot-name"]],true]],["%defmethod","condition-applicable?",[["restart","restart"],"handler"],["and",["type?","restart",["slot-value","handler",["quote","condition-type"]]],["or",["slot-void?","restart",["quote","associated-condition"]],["slot-void?","handler",["quote","associated-condition"]],["eq",["slot-value","restart",["quote","associated-condition"]],["slot-value","handler",["quote","associated-condition"]]]]]],["defgeneric","call-condition-handler",["condition","handler","handler-frame"]],["%defmethod","call-condition-handler",[["condition","condition"],"handler","handler-frame"],null,["dynamic-let",[["*condition-handler-frame*",["slot-value","handler-frame",["quote","parent"]]]],["handle-condition","handler","condition"]]],["%defmethod","call-condition-handler",[["restart","restart"],"handler","handler-frame"],["handle-condition","handler","restart"]],null,["defclass","type-error",["error"],[]],["defclass","type-mismatch-error",["type-error"],["type-spec","obj"]],["defconstant","+top-type+",["%make-instance",["quote","%class-type"],["qua-keyword","name"],["wat-string","top"],["qua-keyword","generic-params"],["quote",[]]]],["defconstant","+bottom-type+",["%make-instance",["quote","%class-type"],["qua-keyword","name"],["wat-string","bottom"],["qua-keyword","generic-params"],["quote",[]]]],["defun","%parse-type-spec",["type-spec"],["if",["keyword?","type-spec"],["%make-instance",["quote","%type-variable"],["qua-keyword","name"],["symbol-name","type-spec"]],["symbol?","type-spec"],["%make-instance",["quote","%class-type"],["qua-keyword","name"],["symbol-name","type-spec"],["qua-keyword","generic-params"],["quote",[]]],["cons?","type-spec"],["let",[[["class-name",".","generic-param-specs"],"type-spec"]],["%make-instance",["quote","%class-type"],["qua-keyword","name"],["symbol-name","class-name"],["qua-keyword","generic-params"],["map-list",["qua-function","%parse-generic-param-spec"],"generic-param-specs"]]],["error",["%make-instance",["quote","simple-error"],["qua-keyword","message"],["wat-string","Illegal type-spec"]]]]],["defun","%parse-generic-param-spec",["gp-spec"],["if",["or",["keyword?","gp-spec"],["symbol?","gp-spec"]],["let",[["type",["%parse-type-spec","gp-spec"]]],["%make-instance",["quote","%generic-param"],["qua-keyword","in-type"],"type",["qua-keyword","out-type"],"type"]],["cons?","gp-spec"],["let",[[["op",".","rest"],"gp-spec"]],["%if",["keyword?","op"],["case",["symbol-name","op"],[["wat-string","io"],["let*",[["in-type",["%parse-type-spec",["car","rest"]]],["out-type",["%parse-type-spec",["optional",["cdr","rest"],"in-type"]]]],["%make-instance",["quote","%generic-param"],["qua-keyword","in-type"],"in-type",["qua-keyword","out-type"],"out-type"]]],[["wat-string","in"],["let",[["in-type",["%parse-type-spec",["car","rest"]]]],["%make-instance",["quote","%generic-param"],["qua-keyword","in-type"],"in-type",["qua-keyword","out-type"],"+top-type+"]]],[["wat-string","out"],["let",[["out-type",["%parse-type-spec",["car","rest"]]]],["%make-instance",["quote","%generic-param"],["qua-keyword","in-type"],"+bottom-type+",["qua-keyword","out-type"],"out-type"]]]],["let",[["type",["%parse-type-spec","gp-spec"]]],["%make-instance",["quote","%generic-param"],["qua-keyword","in-type"],"type",["qua-keyword","out-type"],"type"]]]],["error",["wat-string","Illegal generic param spec"]]]],["defun","type?",["obj","type-spec"],["%%type?","obj",["%parse-type-spec","type-spec"]]],["deffexpr","typecase",["expr",".","clauses"],"env",["let",[["val",["eval","expr","env"]]],["block","match",["list-for-each",["lambda",[["type-spec",".","body"]],["%if",["eq","type-spec",true],["return-from","match",["eval",["prognize","body"],"env"]],["when",["type?","val","type-spec"],["return-from","match",["eval",["prognize","body"],"env"]]]]],"clauses"],"#void"]]],["defun","the",["type-spec","obj"],["%if",["type?","obj","type-spec"],"obj",["error",["%make-instance",["quote","type-mismatch-error"],["qua-keyword","type-spec"],"type-spec",["qua-keyword","obj"],"obj"]]]],["defun","%method-lambda-list-type-checks",["method-ll"],["map-list",["lambda",["param"],["typecase","param",["cons","#void"],["symbol","#void"],["keyword"],[true,["simple-error",["wat-string","Weird method parameter"],["qua-keyword","arg"],"param"]]]],[]]],["defun","%parse-method-lambda-list",["method-ll"],["if",["cons?","method-ll"],["let*",[[["receiver-spec",".","other-params"],"method-ll"],["simplified-other-params",["map-list",["lambda",["param"],["typecase","param",["cons",["car","param"]],["symbol","param"],[true,["simple-error",["wat-string","Not a method parameter"],["qua-keyword","arg"],"param"]]]],"other-params"]],["simplified-ll",["cons","receiver-spec","simplified-other-params"]],["type-checks",["%method-lambda-list-type-checks","method-ll"]]],["list","simplified-ll","type-checks"]],["simple-error",["wat-string","Not a method lambda list"],["qua-keyword","arg"],"method-ll"]]],["defmacro","defmethod",["name","method-lambda-list",".","body"],["let",[[["simplified-method-ll","type-checks"],["%parse-method-lambda-list","method-lambda-list"]]],["list*",["qua-function","%defmethod"],"name","simplified-method-ll","type-checks","body"]]],["defun","make-instance",["type-spec",".","args"],["apply",["qua-function","%make-instance"],["cons",["%parse-type-spec","type-spec"],"args"]]],null,null,null,["defun","invoke-debugger",["condition"],["print",["wat-string",""]],["print",["wat-string","Welcome to the debugger!"]],["loop",["block","continue",["print",["+",["wat-string","Condition: "],"condition"]],["let",[["restarts",["compute-restarts","condition"]]],["if",[">",["list-length","restarts"],0],["progn",["print",["wat-string","Restarts:"]],["let",[["i",1]],["list-for-each",["lambda",["restart"],["print",["+","i",["wat-string",": "],["slot-value","restart",["quote","name"]]]],["incf","i"]],"restarts"],["print",["wat-string","Enter a restart number:"]],["let*",[["s",["%%read-line"]],["n",[["js-global",["wat-string","Number"]],"s"]]],["if",[["js-global",["wat-string","isNaN"]],"n"],["progn",["print",["wat-string","You didn't enter a number. Please try again."]],["return-from","continue"]],["let",[["class",["slot-value",["list-elt","restarts",["-","n",1]],["quote","condition-type"]]]],["invoke-restart-interactively",["%make-instance","class"]]]]]]],["%%panic","condition"]]]]]],["defun","compute-restarts",["condition"],["%%reverse-list",["%compute-restarts","condition",["quote",[]],["dynamic","*restart-handler-frame*"]]]],["defun","%compute-restarts",["condition","restart-list","handler-frame"],["if",["void?","handler-frame"],"restart-list",["let",[["restarts",["filter-list",["lambda",["handler"],["or",["slot-void?","handler",["quote","associated-condition"]],["eq",["slot-value","handler",["quote","associated-condition"]],"condition"]]],["slot-value","handler-frame",["quote","handlers"]]]]],["%compute-restarts","condition",["append-2-lists","restarts","restart-list"],["slot-value","handler-frame",["quote","parent"]]]]]],["defgeneric","invoke-restart-interactively",["restart"]],["%defmethod","invoke-restart-interactively",[["r","restart"]],["invoke-restart","r"]],null,null,["defconstant","+user-prompt+",["qua-keyword","user-prompt"]],null,null,["defun","push-userspace*",[["qua-function","thunk"]],["push-prompt","+user-prompt+",["thunk"]]],["defmacro","push-userspace","body",["list",["qua-function","push-userspace*"],["thunkify","body"]]],["defclass",["collection",["qua-keyword","e"]],["standard-object"],[]],["defgeneric","add",["collection","element"]],["defgeneric","len",["collection"]],["defgeneric","iterator",["collection"]],["defclass",["list",["qua-keyword","e"]],[["collection",["qua-keyword","e"]]],[]],["defgeneric","elt",["collection","index"]],["defclass",["iterator",["qua-keyword","e"]],[],[]],["defgeneric","next?",["iterator"]],["defgeneric","next",["iterator"]],["defclass","iteration-error",["control-error"],[]],["defun","for-each",[["qua-function","fn"],"coll"],["let",[["iterator",["iterator","coll"]]],["while",["next?","iterator"],["fn",["next","iterator"]]]]],["defclass",["js-array-list",["qua-keyword","e"]],[["list",["qua-keyword","e"]]],["js-array"]],["defun","make-js-array-list",["element-type-spec"],["make-instance",["list",["quote","js-array-list"],"element-type-spec"],["qua-keyword","js-array"],["js-array"]]],["defmethod","add",[["self",["js-array-list",["qua-keyword","e"]]],["element",["qua-keyword","e"]]],[["js-invoker",["wat-string","push"]],["slot-value","self",["quote","js-array"]],"element"]],["defmethod","len",[["self",["js-array-list",["qua-keyword","e"]]]],[["js-getter",["wat-string","length"]],["slot-value","self",["quote","js-array"]]]],["defmethod","elt",[["self",["js-array-list",["qua-keyword","e"]]],["index","number"]],["js-get",["slot-value","self",["quote","js-array"]],"index"]],["defclass",["js-array-list-iterator",["qua-keyword","e"]],[["iterator",["qua-keyword","e"]]],["js-array-list","current-index"]],["defmethod","iterator",[["self",["js-array-list",["qua-keyword","e"]]]],null,["make-instance",["quote","js-array-list-iterator"],["qua-keyword","js-array-list"],"self",["qua-keyword","current-index"],0]],["defmethod","next?",[["self",["js-array-list-iterator",["qua-keyword","e"]]]],["<",["slot-value","self",["quote","current-index"]],["len",["slot-value","self",["quote","js-array-list"]]]]],["defmethod","next",[["self",["js-array-list-iterator",["qua-keyword","e"]]]],["if",["next?","self"],["prog1",["elt",["slot-value","self",["quote","js-array-list"]],["slot-value","self",["quote","current-index"]]],["incf",["slot-value","self",["quote","current-index"]]]],["error",["make-instance",["quote","iteration-error"]]]]],null]
 
 },{}],2:[function(require,module,exports){
-module.exports.main = [null,["deffexpr","%assert",["expr"],"env",["unless",["eval","expr","env"],["print",["wat-string","assertion failed"]],["print","expr"],["%%panic",["wat-string","assertion failed"]]]],["def",["qua-function","%deep-equal"],["qua-function","%%deep-equal"]],["defun",["qua-function","%expect"],["expected","actual"],["%assert",["%deep-equal","expected","actual"]]],null,["%assert",["%deep-equal",1,["car",["cons",1,2]]]],["%assert",["%deep-equal",2,["cdr",["cons",1,2]]]],["%assert",["%deep-equal",1,["car",["list",1,2,3]]]],["%assert",["%deep-equal",["list",2,3],["cdr",["list",1,2,3]]]],["%assert",["%deep-equal",1,["car",["list*",1,2,3]]]],["%assert",["%deep-equal",["cons",2,3],["cdr",["list*",1,2,3]]]],["%assert",["symbol?",["quote","foo"]]],["%assert",["keyword?",["qua-keyword","foo"]]],null,["def","e1",["make-environment"]],["eval",["list",["qua-function","def"],["quote","x"],1],"e1"],["%assert",["%deep-equal",1,["eval",["quote","x"],"e1"]]],["%assert",["%deep-equal","#void",["progn"]]],["%assert",["%deep-equal",1,["progn",1]]],["%assert",["%deep-equal",2,["progn",1,2]]],null,["def","e2",["make-environment"]],["def",["qua-function","fun2"],["wrap",["vau",["p"],"#ign","p"]]],["eval",["list",["qua-function","def"],["quote","x"],2],"e2"],["eval",["list",["qua-function","def"],["quote",["qua-function","fun2"]],["qua-function","fun2"]],"e2"],["%assert",["%deep-equal",2,["eval",["list",["qua-function","fun2"],["quote","x"]],"e2"]]],null,["%assert",["%deep-equal",["quote","foo"],["quote","foo"]]],["%assert",["%deep-equal",["quote",["foo","bar"]],["quote",["foo","bar"]]]],null,["def",["qua-function","lam1"],["lambda",[],10,11,12]],["def",["qua-function","lam2"],["lambda",[]]],["%assert",["%deep-equal",12,["lam1"]]],["%assert",["%deep-equal","#void",["lam2"]]],["defun","lam3",["x"],1,2,3,"x"],["%assert",["%deep-equal",4,["lam3",4]]],null,["%assert",["%deep-equal",["list",1,2,3],["apply",["qua-function","list"],["list",1,2,3]]]],null,["%assert",["%deep-equal",["list",1,1,1],["map-list",["lambda",["#ign"],1],["list",1,2,3]]]],null,["%expect","#void",["if",["=",true,false],1]],["%expect",1,["if",["=",true,true],1]],["%expect",2,["if",["=",true,false],1,["=",true,true],2]],["%expect",3,["if",["=",true,false],1,["=",true,false],2,3]],null,["defgeneric","describe-yourself",["self"]],["%defmethod","describe-yourself",[["self","js-number"]],["wat-string","a number"]],["%defmethod","describe-yourself",[["self","boolean"]],["wat-string","a boolean"]],["%defmethod","describe-yourself",[["self","symbol"]],["wat-string","a symbol"]],["%defmethod","describe-yourself",[["self","object"]],["wat-string","any other object"]],["%assert",["%deep-equal",["wat-string","a number"],["describe-yourself",33]]],["%assert",["%deep-equal",["wat-string","a boolean"],["describe-yourself",true]]],["%assert",["%deep-equal",["wat-string","a symbol"],["describe-yourself",["quote","foo"]]]],["%assert",["%deep-equal",["wat-string","any other object"],["describe-yourself",["qua-keyword","hello"]]]],["%assert",["%deep-equal",["wat-string","any other object"],["describe-yourself",["list",1,2]]]],null,["defun","fun-with-keywords",[["qua-keyword","x"],"x-param",["qua-keyword","y"],"y-param"],["list","x-param","y-param"]],["%assert",["%deep-equal",["list",2,4],["fun-with-keywords",["qua-keyword","x"],2,["qua-keyword","y"],4]]],null,["defclass","my-class",[]],["defgeneric","my-generic",["self"]],["%defmethod","my-generic",[["self","my-class"]],["wat-string","wow!"]],["def","obj1",["%make-instance",["quote","my-class"]]],["defclass","my-subclass",["my-class"]],["def","obj2",["%make-instance",["quote","my-subclass"]]],["%assert",["%deep-equal",["wat-string","wow!"],["my-generic","obj1"]]],["%assert",["%deep-equal",["wat-string","wow!"],["my-generic","obj2"]]],["%defmethod","my-generic",[["self","my-subclass"]],["wat-string","wowzers!"]],["%assert",["%deep-equal",["wat-string","wow!"],["my-generic","obj1"]]],["%assert",["%deep-equal",["wat-string","wowzers!"],["my-generic","obj2"]]],null,["defclass","class-with-slots",[],[["x",["qua-keyword","type"],"number"],["y",["qua-keyword","type"],"number"]]],["def","object-with-slots",["%make-instance",["quote","class-with-slots"],["qua-keyword","x"],2,["qua-keyword","y"],4]],["%assert",["%deep-equal",2,["slot-value","object-with-slots",["quote","x"]]]],["%assert",["%deep-equal",4,["slot-value","object-with-slots",["quote","y"]]]],["%assert",["slot-bound?","object-with-slots",["quote","x"]]],["%assert",["slot-bound?","object-with-slots",["quote","y"]]],["%assert",["not",["slot-bound?","object-with-slots",["quote","z"]]]],["setf",["slot-value","object-with-slots",["quote","x"]],6],["setf",["slot-value","object-with-slots",["quote","y"]],8],["%assert",["%deep-equal",6,["slot-value","object-with-slots",["quote","x"]]]],["%assert",["%deep-equal",8,["slot-value","object-with-slots",["quote","y"]]]],null,["let",[["x",1]],["let",[["x",3]],["setq","x",2],["%assert",["%deep-equal",2,"x"]]],["%assert",["%deep-equal",1,"x"]],["let",[],["setq","x",2],["%assert",["%deep-equal",2,"x"]]],["%assert",["%deep-equal",2,"x"]]],["let",[["x","#void"]],["let",[["y","#void"]],["let",[["z","#void"]],["setq",["x","y",".","z"],["list",1,2,3,4]],["%expect",1,"x"],["%expect",2,"y"],["%expect",["quote",[3,4]],"z"]]]],null,["let",[["foo",1]],["defun","foo",[],"foo"],["%assert",["%deep-equal",["foo"],1]],["def","env",["the-environment"]],["js-set",["qua-function","foo"],["wat-string","qua_setter"],["lambda",["new-val"],["setq","foo","new-val"]]],["setf",["foo"],2],["%assert",["%deep-equal",["foo"],2]]],["let",[["x",12]],["%expect",12,"x"],["setf","x",14],["%expect",14,"x"],["incf","x"],["%expect",15,"x"],["incf","x",2],["%expect",17,"x"],["decf","x"],["%expect",16,"x"],["decf","x",2],["%expect",14,"x"]],null,["let",[["cell",["mut",12]]],["%expect",12,["ref","cell"]],["setf",["ref","cell"],14],["%expect",14,["ref","cell"]],["incf",["ref","cell"]],["%expect",15,["ref","cell"]],["incf",["ref","cell"],2],["%expect",17,["ref","cell"]],["decf",["ref","cell"]],["%expect",16,["ref","cell"]],["decf",["ref","cell"],2],["%expect",14,["ref","cell"]]],null,["%expect",3,["block","#ign",1,2,3]],["%expect",2,["block","b",1,["return-from","b",2],3]],["%expect","#void",["cond"]],["%expect",1,["cond",[["%deep-equal",1,1],1]]],["%expect","#void",["cond",[false,1]]],["%expect",2,["cond",[false,1],[true,2],[true,3]]],["%expect",true,["and"]],["%expect",true,["and",true]],["%expect",false,["and",false]],["%expect",true,["and",true,true,true]],["%expect",false,["and",true,true,true,false]],["%expect",false,["or"]],["%expect",true,["or",true]],["%expect",false,["or",false]],["%expect",false,["or",false,false,false]],["%expect",true,["or",false,false,false,true]],["%expect","#void",["case",12]],["%expect",1,["case",1,[1,1],[2,2],[3,3]]],["%expect",3,["case",3,[1,1],[2,2],[3,3]]],["%expect","#void",["case",4,[1,1],[2,2],[3,3]]],["%expect",1,["%call-with-escape",["lambda",["#ign"],1]]],["%expect",2,["%call-with-escape",["lambda",["escape"],1,["return-from","escape",2],3]]],["%expect","#void",["%call-with-escape",["lambda",["escape"],1,["return-from","escape"],3]]],["%expect","#void",["block","x"]],["%expect",1,["block","x",1]],["%expect",2,["block","x",1,["return-from","x",2],3]],["%expect","#void",["block","x",1,["return-from","x"],3]],["%expect",1,["unwind-protect",1]],["%expect",1,["unwind-protect",1,2]],["%expect",1,["unwind-protect",1,2,3]],["let",[["cell",["mut",false]]],["%expect",1,["unwind-protect",1,["setf",["ref","cell"],true]]],["%expect",true,["ref","cell"]]],["let",[["cell",false]],["block","exit",["unwind-protect",["return-from","exit"],["setf","cell",true]],["%expect",true,"cell"]]],["%expect","#void",["prog1"]],["%expect",1,["prog1",1,2,3]],["%expect",2,["prog2",1,2,3]],["%expect","#void",["prog2",1]],["%expect",12,["flet",[["bar",[],3],["foo",[],4]],["*",["bar"],["foo"]]]],["%expect",12,["labels",[["bar",["x"],["*","x",["foo"]]],["foo",[],4]],["bar",3]]],null,["defdynamic","*my-dynamic*",1],["progn",["%expect",1,["dynamic","*my-dynamic*"]],["dynamic-let",[["*my-dynamic*",2]],["%expect",2,["dynamic","*my-dynamic*"]]],["%expect",1,["dynamic","*my-dynamic*"]]],["progn",["%expect",1,["dynamic","*my-dynamic*"]],["block","exc",["dynamic-let",[["*my-dynamic*",2]],["%expect",2,["dynamic","*my-dynamic*"]],["return-from","exc"]]],["%expect",1,["dynamic","*my-dynamic*"]]],null,["let",[["obj",["js-object",["qua-keyword","message"],["wat-string","hello"],["qua-keyword","sent"],["not",true]]]],["%assert",["%deep-equal",["wat-string","hello"],[["js-getter",["wat-string","message"]],"obj"]]],["%assert",["%deep-equal",false,[["js-getter",["wat-string","sent"]],"obj"]]],["%assert",["own-property?","obj",["wat-string","message"]]],["%assert",["own-property?","obj",["qua-keyword","message"]]],["%assert",["own-property?","obj",["quote","message"]]],["%assert",["own-property?","obj",["wat-string","sent"]]],["%assert",["own-property?","obj",["qua-keyword","sent"]]],["%assert",["own-property?","obj",["quote","sent"]]],["%assert",["not",["own-property?","obj",["quote","xyz"]]]]],null,["%assert",["%deep-equal",["wat-string","String"],["%%js-get",["%%js-get",["wat-string","foo"],["wat-string","constructor"]],["wat-string","name"]]]],["%assert",["%deep-equal",["wat-string","String"],[["js-getter",["wat-string","name"]],[["js-getter",["wat-string","constructor"]],["wat-string","foo"]]]]],null,["%assert",["%deep-equal",["wat-string","foo"],[["js-getter",["wat-string","qs_name"]],["quote","foo"]]]],["%assert",["%deep-equal",["wat-string","v"],[["js-getter",["wat-string","qs_ns"]],["quote","foo"]]]],["%assert",["%deep-equal",["wat-string","f"],[["js-getter",["wat-string","qs_ns"]],["quote",["qua-function","foo"]]]]],null,["let",[["obj",["create-js-object"]]],["setf",[["js-getter",["wat-string","message"]],"obj"],["wat-string","foo"]],["%assert",["%deep-equal",["wat-string","foo"],[["js-getter",["wat-string","message"]],"obj"]]]],null,["%assert",["%deep-equal",["wat-string","12"],[["js-invoker",["wat-string","toString"]],12]]],null,["%expect",2,["js-get",["js-array",1,2,3],1]],null,["%expect",["wat-string","foobar"],["+",["wat-string","foo"],["wat-string","ba"],["wat-string","r"]]],["%expect",1,["+",1]],["%expect",6,["+",2,2,2]],["%expect",3,["*",3]],["%expect",24,["*",4,3,2]],["%expect",-4,["-",4]],["%expect",4,["-",8,2,2]],["%expect",0.25,["/",4]],["%expect",1,["/",12,4,3]],["%assert",["<",1,2,3,4,5]],["%assert",["not",["<",1,2,3,4,5,-1]]],["%assert",[">",5,4,3,2,1]],["%assert",["not",[">",5,4,3,2,1,6]]],["%assert",["===",1,1,1]],["%assert",["not",["===",1,1,1,2]]],null,["%expect",0,["list-length",["list"]]],["%expect",4,["list-length",["list",1,2,3,4]]],["%expect",3,["list-elt",["list",1,2,3,4],2]],["%expect",["quote",["#void","#void"]],["filter-list",["qua-function","void?"],["quote",[1,"#void",2,"#void"]]]],["%expect",["quote",[1,2,3,4]],["append-2-lists",["quote",[1,2]],["quote",[3,4]]]],null,["%expect","#void",["handler-bind",[]]],["%expect",true,["handler-bind",[],1,2,["=",true,true]]],["%expect",1,["block","b",["handler-bind",[["condition",["lambda",["c"],["return-from","b",1]]]],["signal",["%make-instance",["quote","condition"]]],2]]],["%expect",2,["block","b",["handler-bind",[["warning",["lambda",["c"],["return-from","b",1]]],["serious-condition",["lambda",["c"],["return-from","b",2]]]],["signal",["%make-instance",["quote","error"]]],3]]],["%expect","#void",["signal",["%make-instance",["quote","condition"]]]],["%expect",["wat-string","foo"],["block","exit",["handler-bind",[["condition",["lambda","#ign",["invoke-restart",["%make-instance",["quote","continue"]]]]]],["restart-bind",[["continue",["lambda","#ign",["return-from","exit",["wat-string","foo"]]]]],["signal",["%make-instance",["quote","condition"]]]]]]],null,["%assert",["type?",["%make-instance",["quote","serious-condition"]],["quote","object"]]],["%assert",["type?",["%make-instance",["quote","error"]],["quote","serious-condition"]]],["%assert",["type?",["%make-instance",["quote","error"]],["quote","object"]]],["%assert",["not",["type?",["%make-instance",["quote","object"]],["quote","error"]]]],["%assert",["type?",12,["quote","js-number"]]],["%assert",["type?",12,["quote","number"]]],["%assert",["type?",12,["quote","object"]]],["%assert",["not",["type?",12,["quote","standard-object"]]]],["%assert",["type?",[["js-getter",["wat-string","qs_direct-superclasses"]],["find-generic-class",["quote","object"]]],["quote","js-array"]]],["%assert",["type?",[["js-getter",["wat-string","qs_slots"]],["find-generic-class",["quote","object"]]],["quote","js-object"]]],null,["%expect","#void",["typecase",true]],["%expect",2,["typecase",true,["number",1],["boolean",2]]],["%expect",1,["typecase",10,["number",1],["boolean",2]]],["%expect","#void",["typecase",["wat-string","foo"],["number",1],["boolean",2]]],["%expect",["wat-string","default"],["typecase",["quote","whatever"],[true,["wat-string","default"]]]],["%expect",1,["typecase",["quote","whatever"],["symbol",1],[true,["wat-string","default"]]]],["%expect",["wat-string","default"],["typecase",["quote","whatever"],["number",1],[true,["wat-string","default"]]]],["%expect",["%make-instance",["quote","%generic-param"],["qua-keyword","in-type"],["%parse-type-spec",["quote","number"]],["qua-keyword","out-type"],["%parse-type-spec",["quote","boolean"]]],["%parse-generic-param-spec",["quote",[["qua-keyword","io"],"number","boolean"]]]],["%expect",["%make-instance",["quote","%generic-param"],["qua-keyword","in-type"],["%parse-type-spec",["quote","number"]],["qua-keyword","out-type"],"+top-type+"],["%parse-generic-param-spec",["quote",[["qua-keyword","in"],"number"]]]],["%expect",["%make-instance",["quote","%generic-param"],["qua-keyword","in-type"],"+bottom-type+",["qua-keyword","out-type"],["%parse-type-spec",["quote","number"]]],["%parse-generic-param-spec",["quote",[["qua-keyword","out"],"number"]]]],["%expect",["%make-instance",["quote","%generic-param"],["qua-keyword","in-type"],["%parse-type-spec",["quote","number"]],["qua-keyword","out-type"],["%parse-type-spec",["quote","number"]]],["%parse-generic-param-spec",["quote","number"]]],["%expect",["%make-instance",["quote","%generic-param"],["qua-keyword","in-type"],["%parse-type-spec",["quote",["hash-set","number"]]],["qua-keyword","out-type"],["%parse-type-spec",["quote",["hash-set","number"]]]],["%parse-generic-param-spec",["quote",["hash-set","number"]]]],["%expect",["%make-instance",["quote","%type-variable"],["qua-keyword","name"],["wat-string","foo"]],["%parse-type-spec",["qua-keyword","foo"]]],["%expect",["%make-instance",["quote","%class-type"],["qua-keyword","name"],["wat-string","foo"],["qua-keyword","generic-params"],["quote",[]]],["%parse-type-spec",["quote","foo"]]],["%expect",["%make-instance",["quote","%class-type"],["qua-keyword","name"],["wat-string","foo"],["qua-keyword","generic-params"],["quote",[]]],["%parse-type-spec",["quote",["foo"]]]],["%expect",["%make-instance",["quote","%class-type"],["qua-keyword","name"],["wat-string","hash-set"],["qua-keyword","generic-params"],["list",["%make-instance",["quote","%generic-param"],["qua-keyword","in-type"],["%parse-type-spec",["quote","number"]],["qua-keyword","out-type"],["%parse-type-spec",["quote","number"]]]]],["%parse-type-spec",["quote",["hash-set","number"]]]],["%expect",["%make-instance",["quote","%class-type"],["qua-keyword","name"],["wat-string","hash-set"],["qua-keyword","generic-params"],["list",["%make-instance",["quote","%generic-param"],["qua-keyword","in-type"],["%parse-type-spec",["qua-keyword","e"]],["qua-keyword","out-type"],["%parse-type-spec",["qua-keyword","e"]]]]],["%parse-type-spec",["quote",["hash-set",["qua-keyword","e"]]]]],["%expect",["%make-instance",["quote","%class-type"],["qua-keyword","name"],["wat-string","hash-set"],["qua-keyword","generic-params"],["list",["%make-instance",["quote","%generic-param"],["qua-keyword","in-type"],["%parse-type-spec",["quote","number"]],["qua-keyword","out-type"],"+top-type+"]]],["%parse-type-spec",["quote",["hash-set",[["qua-keyword","in"],"number"]]]]],null,["let",[["list",["make-js-array-list",["quote","number"]]]],["add","list",1],["add","list",2],["%expect",["make-instance",["quote",["js-array-list","number"]],["qua-keyword","js-array"],["js-array",1,2]],"list"],["let",[["iterator",["iterator","list"]]],["%assert",["type?","iterator",["quote","js-array-list-iterator"]]],["%assert",["next?","iterator"]],["%expect",1,["next","iterator"]],["%assert",["next?","iterator"]],["%expect",2,["next","iterator"]],["%assert",["not",["next?","iterator"]]]]],null,["%expect",12,["block","ret",["handler-bind",[["unbound-variable",["lambda","#ign",["return-from","ret",12]]]],"x"]]],["defconstant","+book-type+",["wat-string","Book"]],["defconstant","+chapter-type+",["wat-string","Chapter"]],["defconstant","+section-type+",["wat-string","Section"]],["defconstant","+special-type+",["wat-string","Special"]],["defclass","doc-node",[],[["name",["qua-keyword","type"],"symbol"],["children",["qua-keyword","type"],["js-array-list","doc-node"]]]],["defun","make-doc-node",["name","attrs","env"],["prog1",["def","node",["make-instance",["quote","doc-node"],["qua-keyword","name"],"name",["qua-keyword","children"],["make-js-array-list",["quote","doc-node"]]]],["list-for-each",["lambda",[["attr-name",".","values"]],["when",["=",["symbol-name","attr-name"],["wat-string","parent"]],["let",[["parent",["eval",["car","values"],"env"]]],["add",["slot-value","parent",["quote","children"]],"node"]]],["setf",["slot-value","node","attr-name"],"values"]],"attrs"]]],["deffexpr","defdoc",["name",".","attrs"],"env",["eval",["list",["qua-function","def"],"name",["make-doc-node","name","attrs","env"]],"env"]],["defun","render-doc-node-attr",["node","attr-name","tag"],["let",[["result",["wat-string",""]]],["when",["slot-bound?","node","attr-name"],["incf","result",["+",["wat-string","<"],"tag",["wat-string",">"]]],["list-for-each",["lambda",["attr-value"],["incf","result","attr-value"]],["slot-value","node","attr-name"]],["incf","result",["+",["wat-string","</"],"tag",["wat-string",">\n"]]]],"result"]],["defdynamic","*doc-node-nesting-depth*",1],["defun","render-doc-node",["node"],["let",[["result",["wat-string",""]]],["incf","result",["render-doc-node-attr","node",["quote","title"],["+",["wat-string","h"],["dynamic","*doc-node-nesting-depth*"]]]],["incf","result",["render-doc-node-attr","node",["quote","syntax"],["wat-string","pre"]]],["incf","result",["render-doc-node-attr","node",["quote","description"],["wat-string","div"]]],["incf","result",["render-doc-node-attr","node",["quote","content"],["wat-string","div"]]],["dynamic-let",[["*doc-node-nesting-depth*",["+",1,["dynamic","*doc-node-nesting-depth*"]]]],["for-each",["lambda",["child"],["incf","result",["render-doc-node","child"]]],["slot-value","node",["quote","children"]]]],"result"]],["defdoc","index"],["defdoc","qua-overview",[["qua-keyword","title"],["wat-string","Overview for PLT wonks"]],[["qua-keyword","parent"],"index"],[["qua-keyword","content"],["wat-string","Qua is a Lisp I am developing with the purpose of\n   addressing what I see as some of the most critical shortcomings of\n   JavaScript."]]],["defdoc","async-problem",[["qua-keyword","parent"],"qua-overview"],[["qua-keyword","content"],["wat-string","The main problem with JavaScript environments is\n   asynchronous IO which prevents the use of the control stack in any\n   interesting fashion and makes writing anything but the most trivial\n   algorithms a nightmare.  Qua squarely addresses this problem with\n   delimited continuations, essentially Lua-style coroutines with a\n   more interesting API.  Qua programs can sleep, loop, throw\n   exceptions normally, and do all the things that programs should be\n   able to do.  Qua implements Oleg's multi-prompt delimcc API,\n   including delimited dynamic binding for per-continuation dynamic\n   variables."]]],["defdoc","type-problem",[["qua-keyword","parent"],"qua-overview"],[["qua-keyword","content"],["wat-string","Another problem plaguing JavaScript apps is lack of\n  object structure and function argument types enforcement.  Qua is\n  dynamically typechecked like most Lisps, but it does have a novel\n  runtime type system with reified generics, e.g. a (LIST NUMBER)\n  knows at runtime that it is a list containing numbers, and will\n  reject attempts to add other types of elements.  This prevents large\n  swathes of runtime errors.  The system is inspired by an idea by\n  Cardelli presented in Stephen Dolan's dissertation about algebraic\n  subtyping.  Essentially, every type parameter of a generic type\n  consists of a pair of an input type and an output type.  This leads\n  to a very simple and usable definition of variance."]]],["defdoc","meta-problem",[["qua-keyword","parent"],"qua-overview"],[["qua-keyword","content"],["wat-string","Last but not least, Qua addresses the lack of\n  JavaScript's metaprogramming facilities by adopting fexprs and\n  first-class lexical environments from John Shutt's Kernel language.\n  This brings hygienic metaprogramming on par with or surpassing\n  advanced Scheme macro systems to the language, and also a deep sense\n  of elegance, regularity, and fun."]]],["defdoc","performance-goals",[["qua-keyword","parent"],"qua-overview"],[["qua-keyword","content"],["wat-string","Qua is designed to be ultra-lightweight and integrate\n  tightly into JavaScript applications.  The goal is to fit Qua in\n  under 2000 lines of tractable code, under 100KB of final JavaScript\n  output, and under 100ms of startup time.  Applications are expected\n  to be written in a mix of JavaScript and Qua, with JavaScript used\n  for inner loops and data processing and Qua used for high-level\n  control and chaining together of components."]]],["print",["wat-string","<head>"]],["print",["wat-string","<meta name='generator' value='Qua'>"]],["print",["wat-string","<style type='text/css'>"]],["print",["wat-string","html { font-size: 16px; }"]],["print",["wat-string","h1,h2,h3,h4,h5,h6,h7 { }"]],["print",["wat-string","div, p { text-indent: 1em; }"]],["print",["wat-string",".logo { background-color: yellow; margin: 0; padding: 0.125em 0.33em; font-family: monospace; font-style: italic; }"]],["print",["wat-string","</style>"]],["print",["wat-string","</head>"]],["print",["wat-string","<body>"]],["print",["wat-string","<h1><span class='logo'>(qua)</span> Ultralight Lisp for the Web</h1>"]],["print",["render-doc-node","index"]],["print",["wat-string","</body>"]],null]
+module.exports.main = [null,["deffexpr","%assert",["expr"],"env",["unless",["eval","expr","env"],["print",["wat-string","assertion failed"]],["print","expr"],["%%panic",["wat-string","assertion failed"]]]],["def",["qua-function","%deep-equal"],["qua-function","%%deep-equal"]],["defun",["qua-function","%expect"],["expected","actual"],["%assert",["%deep-equal","expected","actual"]]],null,["%assert",["%deep-equal",1,["car",["cons",1,2]]]],["%assert",["%deep-equal",2,["cdr",["cons",1,2]]]],["%assert",["%deep-equal",1,["car",["list",1,2,3]]]],["%assert",["%deep-equal",["list",2,3],["cdr",["list",1,2,3]]]],["%assert",["%deep-equal",1,["car",["list*",1,2,3]]]],["%assert",["%deep-equal",["cons",2,3],["cdr",["list*",1,2,3]]]],["%assert",["symbol?",["quote","foo"]]],["%assert",["keyword?",["qua-keyword","foo"]]],null,["def","e1",["make-environment"]],["eval",["list",["qua-function","def"],["quote","x"],1],"e1"],["%assert",["%deep-equal",1,["eval",["quote","x"],"e1"]]],["%assert",["%deep-equal","#void",["progn"]]],["%assert",["%deep-equal",1,["progn",1]]],["%assert",["%deep-equal",2,["progn",1,2]]],null,["def","e2",["make-environment"]],["def",["qua-function","fun2"],["wrap",["vau",["p"],"#ign","p"]]],["eval",["list",["qua-function","def"],["quote","x"],2],"e2"],["eval",["list",["qua-function","def"],["quote",["qua-function","fun2"]],["qua-function","fun2"]],"e2"],["%assert",["%deep-equal",2,["eval",["list",["qua-function","fun2"],["quote","x"]],"e2"]]],null,["%assert",["%deep-equal",["quote","foo"],["quote","foo"]]],["%assert",["%deep-equal",["quote",["foo","bar"]],["quote",["foo","bar"]]]],null,["def",["qua-function","lam1"],["lambda",[],10,11,12]],["def",["qua-function","lam2"],["lambda",[]]],["%assert",["%deep-equal",12,["lam1"]]],["%assert",["%deep-equal","#void",["lam2"]]],["defun","lam3",["x"],1,2,3,"x"],["%assert",["%deep-equal",4,["lam3",4]]],null,["%assert",["%deep-equal",["list",1,2,3],["apply",["qua-function","list"],["list",1,2,3]]]],null,["%assert",["%deep-equal",["list",1,1,1],["map-list",["lambda",["#ign"],1],["list",1,2,3]]]],null,["%expect","#void",["if",["=",true,false],1]],["%expect",1,["if",["=",true,true],1]],["%expect",2,["if",["=",true,false],1,["=",true,true],2]],["%expect",3,["if",["=",true,false],1,["=",true,false],2,3]],null,["defgeneric","describe-yourself",["self"]],["%defmethod","describe-yourself",[["self","js-number"]],["wat-string","a number"]],["%defmethod","describe-yourself",[["self","boolean"]],["wat-string","a boolean"]],["%defmethod","describe-yourself",[["self","symbol"]],["wat-string","a symbol"]],["%defmethod","describe-yourself",[["self","object"]],["wat-string","any other object"]],["%assert",["%deep-equal",["wat-string","a number"],["describe-yourself",33]]],["%assert",["%deep-equal",["wat-string","a boolean"],["describe-yourself",true]]],["%assert",["%deep-equal",["wat-string","a symbol"],["describe-yourself",["quote","foo"]]]],["%assert",["%deep-equal",["wat-string","any other object"],["describe-yourself",["qua-keyword","hello"]]]],["%assert",["%deep-equal",["wat-string","any other object"],["describe-yourself",["list",1,2]]]],null,["defun","fun-with-keywords",[["qua-keyword","x"],"x-param",["qua-keyword","y"],"y-param"],["list","x-param","y-param"]],["%assert",["%deep-equal",["list",2,4],["fun-with-keywords",["qua-keyword","x"],2,["qua-keyword","y"],4]]],null,["defclass","my-class",[]],["defgeneric","my-generic",["self"]],["%defmethod","my-generic",[["self","my-class"]],["wat-string","wow!"]],["def","obj1",["%make-instance",["quote","my-class"]]],["defclass","my-subclass",["my-class"]],["def","obj2",["%make-instance",["quote","my-subclass"]]],["%assert",["%deep-equal",["wat-string","wow!"],["my-generic","obj1"]]],["%assert",["%deep-equal",["wat-string","wow!"],["my-generic","obj2"]]],["%defmethod","my-generic",[["self","my-subclass"]],["wat-string","wowzers!"]],["%assert",["%deep-equal",["wat-string","wow!"],["my-generic","obj1"]]],["%assert",["%deep-equal",["wat-string","wowzers!"],["my-generic","obj2"]]],null,["defclass","class-with-slots",[],[["x",["qua-keyword","type"],"number"],["y",["qua-keyword","type"],"number"]]],["def","object-with-slots",["%make-instance",["quote","class-with-slots"],["qua-keyword","x"],2,["qua-keyword","y"],4]],["%assert",["%deep-equal",2,["slot-value","object-with-slots",["quote","x"]]]],["%assert",["%deep-equal",4,["slot-value","object-with-slots",["quote","y"]]]],["%assert",["slot-bound?","object-with-slots",["quote","x"]]],["%assert",["slot-bound?","object-with-slots",["quote","y"]]],["%assert",["not",["slot-bound?","object-with-slots",["quote","z"]]]],["setf",["slot-value","object-with-slots",["quote","x"]],6],["setf",["slot-value","object-with-slots",["quote","y"]],8],["%assert",["%deep-equal",6,["slot-value","object-with-slots",["quote","x"]]]],["%assert",["%deep-equal",8,["slot-value","object-with-slots",["quote","y"]]]],null,["let",[["x",1]],["let",[["x",3]],["setq","x",2],["%assert",["%deep-equal",2,"x"]]],["%assert",["%deep-equal",1,"x"]],["let",[],["setq","x",2],["%assert",["%deep-equal",2,"x"]]],["%assert",["%deep-equal",2,"x"]]],["let",[["x","#void"]],["let",[["y","#void"]],["let",[["z","#void"]],["setq",["x","y",".","z"],["list",1,2,3,4]],["%expect",1,"x"],["%expect",2,"y"],["%expect",["quote",[3,4]],"z"]]]],null,["let",[["foo",1]],["defun","foo",[],"foo"],["%assert",["%deep-equal",["foo"],1]],["def","env",["the-environment"]],["js-set",["qua-function","foo"],["wat-string","qua_setter"],["lambda",["new-val"],["setq","foo","new-val"]]],["setf",["foo"],2],["%assert",["%deep-equal",["foo"],2]]],["let",[["x",12]],["%expect",12,"x"],["setf","x",14],["%expect",14,"x"],["incf","x"],["%expect",15,"x"],["incf","x",2],["%expect",17,"x"],["decf","x"],["%expect",16,"x"],["decf","x",2],["%expect",14,"x"]],null,["let",[["cell",["mut",12]]],["%expect",12,["ref","cell"]],["setf",["ref","cell"],14],["%expect",14,["ref","cell"]],["incf",["ref","cell"]],["%expect",15,["ref","cell"]],["incf",["ref","cell"],2],["%expect",17,["ref","cell"]],["decf",["ref","cell"]],["%expect",16,["ref","cell"]],["decf",["ref","cell"],2],["%expect",14,["ref","cell"]]],null,["%expect",3,["block","#ign",1,2,3]],["%expect",2,["block","b",1,["return-from","b",2],3]],["%expect","#void",["cond"]],["%expect",1,["cond",[["%deep-equal",1,1],1]]],["%expect","#void",["cond",[false,1]]],["%expect",2,["cond",[false,1],[true,2],[true,3]]],["%expect",true,["and"]],["%expect",true,["and",true]],["%expect",false,["and",false]],["%expect",true,["and",true,true,true]],["%expect",false,["and",true,true,true,false]],["%expect",false,["or"]],["%expect",true,["or",true]],["%expect",false,["or",false]],["%expect",false,["or",false,false,false]],["%expect",true,["or",false,false,false,true]],["%expect","#void",["case",12]],["%expect",1,["case",1,[1,1],[2,2],[3,3]]],["%expect",3,["case",3,[1,1],[2,2],[3,3]]],["%expect","#void",["case",4,[1,1],[2,2],[3,3]]],["%expect",1,["%call-with-escape",["lambda",["#ign"],1]]],["%expect",2,["%call-with-escape",["lambda",["escape"],1,["return-from","escape",2],3]]],["%expect","#void",["%call-with-escape",["lambda",["escape"],1,["return-from","escape"],3]]],["%expect","#void",["block","x"]],["%expect",1,["block","x",1]],["%expect",2,["block","x",1,["return-from","x",2],3]],["%expect","#void",["block","x",1,["return-from","x"],3]],["%expect",1,["unwind-protect",1]],["%expect",1,["unwind-protect",1,2]],["%expect",1,["unwind-protect",1,2,3]],["let",[["cell",["mut",false]]],["%expect",1,["unwind-protect",1,["setf",["ref","cell"],true]]],["%expect",true,["ref","cell"]]],["let",[["cell",false]],["block","exit",["unwind-protect",["return-from","exit"],["setf","cell",true]],["%expect",true,"cell"]]],["%expect","#void",["prog1"]],["%expect",1,["prog1",1,2,3]],["%expect",2,["prog2",1,2,3]],["%expect","#void",["prog2",1]],["%expect",12,["flet",[["bar",[],3],["foo",[],4]],["*",["bar"],["foo"]]]],["%expect",12,["labels",[["bar",["x"],["*","x",["foo"]]],["foo",[],4]],["bar",3]]],null,["defdynamic","*my-dynamic*",1],["progn",["%expect",1,["dynamic","*my-dynamic*"]],["dynamic-let",[["*my-dynamic*",2]],["%expect",2,["dynamic","*my-dynamic*"]]],["%expect",1,["dynamic","*my-dynamic*"]]],["progn",["%expect",1,["dynamic","*my-dynamic*"]],["block","exc",["dynamic-let",[["*my-dynamic*",2]],["%expect",2,["dynamic","*my-dynamic*"]],["return-from","exc"]]],["%expect",1,["dynamic","*my-dynamic*"]]],null,["let",[["obj",["js-object",["qua-keyword","message"],["wat-string","hello"],["qua-keyword","sent"],["not",true]]]],["%assert",["%deep-equal",["wat-string","hello"],[["js-getter",["wat-string","message"]],"obj"]]],["%assert",["%deep-equal",false,[["js-getter",["wat-string","sent"]],"obj"]]],["%assert",["own-property?","obj",["wat-string","message"]]],["%assert",["own-property?","obj",["qua-keyword","message"]]],["%assert",["own-property?","obj",["quote","message"]]],["%assert",["own-property?","obj",["wat-string","sent"]]],["%assert",["own-property?","obj",["qua-keyword","sent"]]],["%assert",["own-property?","obj",["quote","sent"]]],["%assert",["not",["own-property?","obj",["quote","xyz"]]]]],null,["%assert",["%deep-equal",["wat-string","String"],["%%js-get",["%%js-get",["wat-string","foo"],["wat-string","constructor"]],["wat-string","name"]]]],["%assert",["%deep-equal",["wat-string","String"],[["js-getter",["wat-string","name"]],[["js-getter",["wat-string","constructor"]],["wat-string","foo"]]]]],null,["%assert",["%deep-equal",["wat-string","foo"],[["js-getter",["wat-string","qs_name"]],["quote","foo"]]]],["%assert",["%deep-equal",["wat-string","v"],[["js-getter",["wat-string","qs_ns"]],["quote","foo"]]]],["%assert",["%deep-equal",["wat-string","f"],[["js-getter",["wat-string","qs_ns"]],["quote",["qua-function","foo"]]]]],null,["let",[["obj",["create-js-object"]]],["setf",[["js-getter",["wat-string","message"]],"obj"],["wat-string","foo"]],["%assert",["%deep-equal",["wat-string","foo"],[["js-getter",["wat-string","message"]],"obj"]]]],null,["%assert",["%deep-equal",["wat-string","12"],[["js-invoker",["wat-string","toString"]],12]]],null,["%expect",2,["js-get",["js-array",1,2,3],1]],null,["%expect",["wat-string","foobar"],["+",["wat-string","foo"],["wat-string","ba"],["wat-string","r"]]],["%expect",1,["+",1]],["%expect",6,["+",2,2,2]],["%expect",3,["*",3]],["%expect",24,["*",4,3,2]],["%expect",-4,["-",4]],["%expect",4,["-",8,2,2]],["%expect",0.25,["/",4]],["%expect",1,["/",12,4,3]],["%assert",["<",1,2,3,4,5]],["%assert",["not",["<",1,2,3,4,5,-1]]],["%assert",[">",5,4,3,2,1]],["%assert",["not",[">",5,4,3,2,1,6]]],["%assert",["===",1,1,1]],["%assert",["not",["===",1,1,1,2]]],null,["%expect",0,["list-length",["list"]]],["%expect",4,["list-length",["list",1,2,3,4]]],["%expect",3,["list-elt",["list",1,2,3,4],2]],["%expect",["quote",["#void","#void"]],["filter-list",["qua-function","void?"],["quote",[1,"#void",2,"#void"]]]],["%expect",["quote",[1,2,3,4]],["append-2-lists",["quote",[1,2]],["quote",[3,4]]]],null,["%expect","#void",["handler-bind",[]]],["%expect",true,["handler-bind",[],1,2,["=",true,true]]],["%expect",1,["block","b",["handler-bind",[["condition",["lambda",["c"],["return-from","b",1]]]],["signal",["%make-instance",["quote","condition"]]],2]]],["%expect",2,["block","b",["handler-bind",[["warning",["lambda",["c"],["return-from","b",1]]],["serious-condition",["lambda",["c"],["return-from","b",2]]]],["signal",["%make-instance",["quote","error"]]],3]]],["%expect","#void",["signal",["%make-instance",["quote","condition"]]]],["%expect",["wat-string","foo"],["block","exit",["handler-bind",[["condition",["lambda","#ign",["invoke-restart",["%make-instance",["quote","continue"]]]]]],["restart-bind",[["continue",["lambda","#ign",["return-from","exit",["wat-string","foo"]]]]],["signal",["%make-instance",["quote","condition"]]]]]]],null,["%assert",["type?",["%make-instance",["quote","serious-condition"]],["quote","object"]]],["%assert",["type?",["%make-instance",["quote","error"]],["quote","serious-condition"]]],["%assert",["type?",["%make-instance",["quote","error"]],["quote","object"]]],["%assert",["not",["type?",["%make-instance",["quote","object"]],["quote","error"]]]],["%assert",["type?",12,["quote","js-number"]]],["%assert",["type?",12,["quote","number"]]],["%assert",["type?",12,["quote","object"]]],["%assert",["not",["type?",12,["quote","standard-object"]]]],["%assert",["type?",[["js-getter",["wat-string","qs_direct-superclasses"]],["find-generic-class",["quote","object"]]],["quote","js-array"]]],["%assert",["type?",[["js-getter",["wat-string","qs_slots"]],["find-generic-class",["quote","object"]]],["quote","js-object"]]],null,["%expect","#void",["typecase",true]],["%expect",2,["typecase",true,["number",1],["boolean",2]]],["%expect",1,["typecase",10,["number",1],["boolean",2]]],["%expect","#void",["typecase",["wat-string","foo"],["number",1],["boolean",2]]],["%expect",["wat-string","default"],["typecase",["quote","whatever"],[true,["wat-string","default"]]]],["%expect",1,["typecase",["quote","whatever"],["symbol",1],[true,["wat-string","default"]]]],["%expect",["wat-string","default"],["typecase",["quote","whatever"],["number",1],[true,["wat-string","default"]]]],["%expect",["%make-instance",["quote","%generic-param"],["qua-keyword","in-type"],["%parse-type-spec",["quote","number"]],["qua-keyword","out-type"],["%parse-type-spec",["quote","boolean"]]],["%parse-generic-param-spec",["quote",[["qua-keyword","io"],"number","boolean"]]]],["%expect",["%make-instance",["quote","%generic-param"],["qua-keyword","in-type"],["%parse-type-spec",["quote","number"]],["qua-keyword","out-type"],"+top-type+"],["%parse-generic-param-spec",["quote",[["qua-keyword","in"],"number"]]]],["%expect",["%make-instance",["quote","%generic-param"],["qua-keyword","in-type"],"+bottom-type+",["qua-keyword","out-type"],["%parse-type-spec",["quote","number"]]],["%parse-generic-param-spec",["quote",[["qua-keyword","out"],"number"]]]],["%expect",["%make-instance",["quote","%generic-param"],["qua-keyword","in-type"],["%parse-type-spec",["quote","number"]],["qua-keyword","out-type"],["%parse-type-spec",["quote","number"]]],["%parse-generic-param-spec",["quote","number"]]],["%expect",["%make-instance",["quote","%generic-param"],["qua-keyword","in-type"],["%parse-type-spec",["quote",["hash-set","number"]]],["qua-keyword","out-type"],["%parse-type-spec",["quote",["hash-set","number"]]]],["%parse-generic-param-spec",["quote",["hash-set","number"]]]],["%expect",["%make-instance",["quote","%type-variable"],["qua-keyword","name"],["wat-string","foo"]],["%parse-type-spec",["qua-keyword","foo"]]],["%expect",["%make-instance",["quote","%class-type"],["qua-keyword","name"],["wat-string","foo"],["qua-keyword","generic-params"],["quote",[]]],["%parse-type-spec",["quote","foo"]]],["%expect",["%make-instance",["quote","%class-type"],["qua-keyword","name"],["wat-string","foo"],["qua-keyword","generic-params"],["quote",[]]],["%parse-type-spec",["quote",["foo"]]]],["%expect",["%make-instance",["quote","%class-type"],["qua-keyword","name"],["wat-string","hash-set"],["qua-keyword","generic-params"],["list",["%make-instance",["quote","%generic-param"],["qua-keyword","in-type"],["%parse-type-spec",["quote","number"]],["qua-keyword","out-type"],["%parse-type-spec",["quote","number"]]]]],["%parse-type-spec",["quote",["hash-set","number"]]]],["%expect",["%make-instance",["quote","%class-type"],["qua-keyword","name"],["wat-string","hash-set"],["qua-keyword","generic-params"],["list",["%make-instance",["quote","%generic-param"],["qua-keyword","in-type"],["%parse-type-spec",["qua-keyword","e"]],["qua-keyword","out-type"],["%parse-type-spec",["qua-keyword","e"]]]]],["%parse-type-spec",["quote",["hash-set",["qua-keyword","e"]]]]],["%expect",["%make-instance",["quote","%class-type"],["qua-keyword","name"],["wat-string","hash-set"],["qua-keyword","generic-params"],["list",["%make-instance",["quote","%generic-param"],["qua-keyword","in-type"],["%parse-type-spec",["quote","number"]],["qua-keyword","out-type"],"+top-type+"]]],["%parse-type-spec",["quote",["hash-set",[["qua-keyword","in"],"number"]]]]],null,["let",[["list",["make-js-array-list",["quote","number"]]]],["add","list",1],["add","list",2],["%expect",["make-instance",["quote",["js-array-list","number"]],["qua-keyword","js-array"],["js-array",1,2]],"list"],["let",[["iterator",["iterator","list"]]],["%assert",["type?","iterator",["quote","js-array-list-iterator"]]],["%assert",["next?","iterator"]],["%expect",1,["next","iterator"]],["%assert",["next?","iterator"]],["%expect",2,["next","iterator"]],["%assert",["not",["next?","iterator"]]]]],null,["%expect",12,["block","ret",["handler-bind",[["unbound-variable",["lambda","#ign",["return-from","ret",12]]]],"x"]]],["def",["qua-function","read"],["qua-function","%%read"]],["print",["wat-string","Welcome to Qua Generic Lisp! Type ^C to exit."]],["defclass","quit",["restart"],[]],["let",[["env",["the-environment"]]],["block","quit",["restart-bind",[["quit",["lambda","#ign",["print",["wat-string","Goodbye!"]],["return-from","quit"]]]],["loop",["block","abort",["restart-bind",[["abort",["lambda","#ign",["print",["wat-string","Aborting"]],["return-from","abort"]]]],["push-userspace",["print",["eval",["read"],"env"]]]]]]]]],null]
 
 },{}],3:[function(require,module,exports){
 (function (global){
@@ -298,6 +298,7 @@ require("./cont")(vm, e);
 require("./alien")(vm, e);
 require("./print")(vm, e);
 require("./optim")(vm, e);
+require("./node")(vm, e);
 if (!process.browser) {
     require("./termio")(vm, e, parser);
 }
@@ -319,7 +320,12 @@ module.exports.vm = function() {
 };
 
 }).call(this,require('_process'))
-},{"../build/out/init.js":1,"../build/out/test.js":2,"./alien":3,"./cont":4,"./lisp-2":5,"./obj":7,"./optim":8,"./print":9,"./read":10,"./termio":11,"./test":12,"./type":13,"./util":14,"./vm":15,"_process":143}],7:[function(require,module,exports){
+},{"../build/out/init.js":1,"../build/out/test.js":2,"./alien":3,"./cont":4,"./lisp-2":5,"./node":7,"./obj":8,"./optim":9,"./print":10,"./read":11,"./termio":12,"./test":13,"./type":14,"./util":15,"./vm":16,"_process":144}],7:[function(require,module,exports){
+module.exports = function(vm, e) {
+    vm.defun(e, vm.sym("%%require"), vm.jswrap(require));
+};
+
+},{}],8:[function(require,module,exports){
 // Object system
 module.exports = function(vm, e) {
     /* Bootstrap CONCRETE-CLASS */
@@ -556,7 +562,7 @@ module.exports = function(vm, e) {
     };
 };
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 module.exports = function(vm, e) {
     vm.list_star = function() {
         var len = arguments.length; var c = len >= 1 ? arguments[len-1] : vm.NIL;
@@ -577,7 +583,7 @@ module.exports = function(vm, e) {
     vm.defun(e, vm.sym("%%plist-to-js-object"), vm.jswrap(vm.plist_to_js_object));
 }
 
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 module.exports = function(vm, e) {
     vm.to_sexp = function(obj) {
         return obj.qua_to_sexp(obj);
@@ -592,7 +598,7 @@ module.exports = function(vm, e) {
     };
 }
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 var jsparse = require("jsparse");
 module.exports.parse_sexp = parse_sexp;
 
@@ -661,7 +667,7 @@ var x_stx = whitespace(choice(ign_stx, void_stx, nil_stx, nil_stx_2, t_stx, f_st
                               quote_stx, compound_stx, keyword_stx, id_stx, string_stx, cmt_stx));
 var program_stx = whitespace(repeat0(choice(x_stx, whitespace_stx))); // HACK!
 
-},{"jsparse":19}],11:[function(require,module,exports){
+},{"jsparse":20}],12:[function(require,module,exports){
 // Terminal IO
 var readline = require("readline-sync");
 module.exports = function(vm, e, parser) {
@@ -675,7 +681,7 @@ module.exports = function(vm, e, parser) {
     vm.defun(e, vm.sym("%%read"), vm.jswrap(vm.read));
 };
 
-},{"readline-sync":20}],12:[function(require,module,exports){
+},{"readline-sync":21}],13:[function(require,module,exports){
 // Adds utility functions for testing the built-ins to a VM
 var deep_equal = require("deep-equal");
 module.exports = function(vm, e) {
@@ -683,7 +689,7 @@ module.exports = function(vm, e) {
     vm.defun(e, vm.sym("%%deep-equal"), vm.jswrap(deep_equal));
 };
 
-},{"deep-equal":16}],13:[function(require,module,exports){
+},{"deep-equal":17}],14:[function(require,module,exports){
 // Type system
 module.exports = function(vm, e) {
     vm.Type = vm.defclass("%type", ["standard-object"], {});
@@ -736,7 +742,7 @@ module.exports = function(vm, e) {
     };
 };
 
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 module.exports = function(vm, e) {
     vm.assert_type = function(obj, type_spec) {
         if (vm.check_type(obj, type_spec)) return obj;
@@ -814,7 +820,7 @@ module.exports = function(vm, e) {
     };
 };
 
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 module.exports = function(vm, root_env) {
     vm.Sym = vm.defclass("symbol", ["standard-object"], { "name": {}, "ns": {} });
     vm.Keyword = vm.defclass("keyword", ["standard-object"], { "name": {} });
@@ -1099,7 +1105,7 @@ module.exports = function(vm, root_env) {
     };
 };
 
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 var pSlice = Array.prototype.slice;
 var objectKeys = require('./lib/keys.js');
 var isArguments = require('./lib/is_arguments.js');
@@ -1195,7 +1201,7 @@ function objEquiv(a, b, opts) {
   return typeof a === typeof b;
 }
 
-},{"./lib/is_arguments.js":17,"./lib/keys.js":18}],17:[function(require,module,exports){
+},{"./lib/is_arguments.js":18,"./lib/keys.js":19}],18:[function(require,module,exports){
 var supportsArgumentsClass = (function(){
   return Object.prototype.toString.call(arguments)
 })() == '[object Arguments]';
@@ -1217,7 +1223,7 @@ function unsupported(object){
     false;
 };
 
-},{}],18:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 exports = module.exports = typeof Object.keys === 'function'
   ? Object.keys : shim;
 
@@ -1228,7 +1234,7 @@ function shim (obj) {
   return keys;
 }
 
-},{}],19:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 // Copyright (C) 2007 Chris Double.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -1918,7 +1924,7 @@ jsparse.inject_into = function inject_into(into) {
 }
 
 
-},{}],20:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 (function (process,Buffer,__dirname){
 /*
  * readlineSync
@@ -3224,9 +3230,9 @@ exports.setMask = function() { return _setOption('mask', arguments); };
 exports.setBufferSize = function() { return _setOption('bufferSize', arguments); };
 
 }).call(this,require('_process'),require("buffer").Buffer,"/node_modules/readline-sync/lib")
-},{"_process":143,"buffer":68,"child_process":21,"crypto":77,"fs":21,"os":130,"path":136}],21:[function(require,module,exports){
+},{"_process":144,"buffer":69,"child_process":22,"crypto":78,"fs":22,"os":131,"path":137}],22:[function(require,module,exports){
 
-},{}],22:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 var asn1 = exports;
 
 asn1.bignum = require('bn.js');
@@ -3237,7 +3243,7 @@ asn1.constants = require('./asn1/constants');
 asn1.decoders = require('./asn1/decoders');
 asn1.encoders = require('./asn1/encoders');
 
-},{"./asn1/api":23,"./asn1/base":25,"./asn1/constants":29,"./asn1/decoders":31,"./asn1/encoders":34,"bn.js":37}],23:[function(require,module,exports){
+},{"./asn1/api":24,"./asn1/base":26,"./asn1/constants":30,"./asn1/decoders":32,"./asn1/encoders":35,"bn.js":38}],24:[function(require,module,exports){
 var asn1 = require('../asn1');
 var inherits = require('inherits');
 
@@ -3300,7 +3306,7 @@ Entity.prototype.encode = function encode(data, enc, /* internal */ reporter) {
   return this._getEncoder(enc).encode(data, reporter);
 };
 
-},{"../asn1":22,"inherits":122,"vm":178}],24:[function(require,module,exports){
+},{"../asn1":23,"inherits":123,"vm":179}],25:[function(require,module,exports){
 var inherits = require('inherits');
 var Reporter = require('../base').Reporter;
 var Buffer = require('buffer').Buffer;
@@ -3418,7 +3424,7 @@ EncoderBuffer.prototype.join = function join(out, offset) {
   return out;
 };
 
-},{"../base":25,"buffer":68,"inherits":122}],25:[function(require,module,exports){
+},{"../base":26,"buffer":69,"inherits":123}],26:[function(require,module,exports){
 var base = exports;
 
 base.Reporter = require('./reporter').Reporter;
@@ -3426,7 +3432,7 @@ base.DecoderBuffer = require('./buffer').DecoderBuffer;
 base.EncoderBuffer = require('./buffer').EncoderBuffer;
 base.Node = require('./node');
 
-},{"./buffer":24,"./node":26,"./reporter":27}],26:[function(require,module,exports){
+},{"./buffer":25,"./node":27,"./reporter":28}],27:[function(require,module,exports){
 var Reporter = require('../base').Reporter;
 var EncoderBuffer = require('../base').EncoderBuffer;
 var DecoderBuffer = require('../base').DecoderBuffer;
@@ -4062,7 +4068,7 @@ Node.prototype._isPrintstr = function isPrintstr(str) {
   return /^[A-Za-z0-9 '\(\)\+,\-\.\/:=\?]*$/.test(str);
 };
 
-},{"../base":25,"minimalistic-assert":128}],27:[function(require,module,exports){
+},{"../base":26,"minimalistic-assert":129}],28:[function(require,module,exports){
 var inherits = require('inherits');
 
 function Reporter(options) {
@@ -4185,7 +4191,7 @@ ReporterError.prototype.rethrow = function rethrow(msg) {
   return this;
 };
 
-},{"inherits":122}],28:[function(require,module,exports){
+},{"inherits":123}],29:[function(require,module,exports){
 var constants = require('../constants');
 
 exports.tagClass = {
@@ -4229,7 +4235,7 @@ exports.tag = {
 };
 exports.tagByName = constants._reverse(exports.tag);
 
-},{"../constants":29}],29:[function(require,module,exports){
+},{"../constants":30}],30:[function(require,module,exports){
 var constants = exports;
 
 // Helper
@@ -4250,7 +4256,7 @@ constants._reverse = function reverse(map) {
 
 constants.der = require('./der');
 
-},{"./der":28}],30:[function(require,module,exports){
+},{"./der":29}],31:[function(require,module,exports){
 var inherits = require('inherits');
 
 var asn1 = require('../../asn1');
@@ -4576,13 +4582,13 @@ function derDecodeLen(buf, primitive, fail) {
   return len;
 }
 
-},{"../../asn1":22,"inherits":122}],31:[function(require,module,exports){
+},{"../../asn1":23,"inherits":123}],32:[function(require,module,exports){
 var decoders = exports;
 
 decoders.der = require('./der');
 decoders.pem = require('./pem');
 
-},{"./der":30,"./pem":32}],32:[function(require,module,exports){
+},{"./der":31,"./pem":33}],33:[function(require,module,exports){
 var inherits = require('inherits');
 var Buffer = require('buffer').Buffer;
 
@@ -4633,7 +4639,7 @@ PEMDecoder.prototype.decode = function decode(data, options) {
   return DERDecoder.prototype.decode.call(this, input, options);
 };
 
-},{"./der":30,"buffer":68,"inherits":122}],33:[function(require,module,exports){
+},{"./der":31,"buffer":69,"inherits":123}],34:[function(require,module,exports){
 var inherits = require('inherits');
 var Buffer = require('buffer').Buffer;
 
@@ -4930,13 +4936,13 @@ function encodeTag(tag, primitive, cls, reporter) {
   return res;
 }
 
-},{"../../asn1":22,"buffer":68,"inherits":122}],34:[function(require,module,exports){
+},{"../../asn1":23,"buffer":69,"inherits":123}],35:[function(require,module,exports){
 var encoders = exports;
 
 encoders.der = require('./der');
 encoders.pem = require('./pem');
 
-},{"./der":33,"./pem":35}],35:[function(require,module,exports){
+},{"./der":34,"./pem":36}],36:[function(require,module,exports){
 var inherits = require('inherits');
 
 var DEREncoder = require('./der');
@@ -4959,7 +4965,7 @@ PEMEncoder.prototype.encode = function encode(data, options) {
   return out.join('\n');
 };
 
-},{"./der":33,"inherits":122}],36:[function(require,module,exports){
+},{"./der":34,"inherits":123}],37:[function(require,module,exports){
 'use strict'
 
 exports.byteLength = byteLength
@@ -5077,7 +5083,7 @@ function fromByteArray (uint8) {
   return parts.join('')
 }
 
-},{}],37:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 (function (module, exports) {
   'use strict';
 
@@ -8506,7 +8512,7 @@ function fromByteArray (uint8) {
   };
 })(typeof module === 'undefined' || module, this);
 
-},{"buffer":39}],38:[function(require,module,exports){
+},{"buffer":40}],39:[function(require,module,exports){
 var r;
 
 module.exports = function rand(len) {
@@ -8573,9 +8579,9 @@ if (typeof self === 'object') {
   }
 }
 
-},{"crypto":39}],39:[function(require,module,exports){
-arguments[4][21][0].apply(exports,arguments)
-},{"dup":21}],40:[function(require,module,exports){
+},{"crypto":40}],40:[function(require,module,exports){
+arguments[4][22][0].apply(exports,arguments)
+},{"dup":22}],41:[function(require,module,exports){
 // based on the aes implimentation in triple sec
 // https://github.com/keybase/triplesec
 // which is in turn based on the one from crypto-js
@@ -8805,7 +8811,7 @@ AES.prototype.scrub = function () {
 
 module.exports.AES = AES
 
-},{"safe-buffer":166}],41:[function(require,module,exports){
+},{"safe-buffer":167}],42:[function(require,module,exports){
 var aes = require('./aes')
 var Buffer = require('safe-buffer').Buffer
 var Transform = require('cipher-base')
@@ -8924,7 +8930,7 @@ StreamCipher.prototype.setAAD = function setAAD (buf) {
 
 module.exports = StreamCipher
 
-},{"./aes":40,"./ghash":45,"./incr32":46,"buffer-xor":67,"cipher-base":69,"inherits":122,"safe-buffer":166}],42:[function(require,module,exports){
+},{"./aes":41,"./ghash":46,"./incr32":47,"buffer-xor":68,"cipher-base":70,"inherits":123,"safe-buffer":167}],43:[function(require,module,exports){
 var ciphers = require('./encrypter')
 var deciphers = require('./decrypter')
 var modes = require('./modes/list.json')
@@ -8939,7 +8945,7 @@ exports.createDecipher = exports.Decipher = deciphers.createDecipher
 exports.createDecipheriv = exports.Decipheriv = deciphers.createDecipheriv
 exports.listCiphers = exports.getCiphers = getCiphers
 
-},{"./decrypter":43,"./encrypter":44,"./modes/list.json":54}],43:[function(require,module,exports){
+},{"./decrypter":44,"./encrypter":45,"./modes/list.json":55}],44:[function(require,module,exports){
 var AuthCipher = require('./authCipher')
 var Buffer = require('safe-buffer').Buffer
 var MODES = require('./modes')
@@ -9062,7 +9068,7 @@ function createDecipher (suite, password) {
 exports.createDecipher = createDecipher
 exports.createDecipheriv = createDecipheriv
 
-},{"./aes":40,"./authCipher":41,"./modes":53,"./streamCipher":56,"cipher-base":69,"evp_bytestokey":105,"inherits":122,"safe-buffer":166}],44:[function(require,module,exports){
+},{"./aes":41,"./authCipher":42,"./modes":54,"./streamCipher":57,"cipher-base":70,"evp_bytestokey":106,"inherits":123,"safe-buffer":167}],45:[function(require,module,exports){
 var MODES = require('./modes')
 var AuthCipher = require('./authCipher')
 var Buffer = require('safe-buffer').Buffer
@@ -9178,7 +9184,7 @@ function createCipher (suite, password) {
 exports.createCipheriv = createCipheriv
 exports.createCipher = createCipher
 
-},{"./aes":40,"./authCipher":41,"./modes":53,"./streamCipher":56,"cipher-base":69,"evp_bytestokey":105,"inherits":122,"safe-buffer":166}],45:[function(require,module,exports){
+},{"./aes":41,"./authCipher":42,"./modes":54,"./streamCipher":57,"cipher-base":70,"evp_bytestokey":106,"inherits":123,"safe-buffer":167}],46:[function(require,module,exports){
 var Buffer = require('safe-buffer').Buffer
 var ZEROES = Buffer.alloc(16, 0)
 
@@ -9269,7 +9275,7 @@ GHASH.prototype.final = function (abl, bl) {
 
 module.exports = GHASH
 
-},{"safe-buffer":166}],46:[function(require,module,exports){
+},{"safe-buffer":167}],47:[function(require,module,exports){
 function incr32 (iv) {
   var len = iv.length
   var item
@@ -9286,7 +9292,7 @@ function incr32 (iv) {
 }
 module.exports = incr32
 
-},{}],47:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 var xor = require('buffer-xor')
 
 exports.encrypt = function (self, block) {
@@ -9305,7 +9311,7 @@ exports.decrypt = function (self, block) {
   return xor(out, pad)
 }
 
-},{"buffer-xor":67}],48:[function(require,module,exports){
+},{"buffer-xor":68}],49:[function(require,module,exports){
 var Buffer = require('safe-buffer').Buffer
 var xor = require('buffer-xor')
 
@@ -9340,7 +9346,7 @@ exports.encrypt = function (self, data, decrypt) {
   return out
 }
 
-},{"buffer-xor":67,"safe-buffer":166}],49:[function(require,module,exports){
+},{"buffer-xor":68,"safe-buffer":167}],50:[function(require,module,exports){
 var Buffer = require('safe-buffer').Buffer
 
 function encryptByte (self, byteParam, decrypt) {
@@ -9384,7 +9390,7 @@ exports.encrypt = function (self, chunk, decrypt) {
   return out
 }
 
-},{"safe-buffer":166}],50:[function(require,module,exports){
+},{"safe-buffer":167}],51:[function(require,module,exports){
 var Buffer = require('safe-buffer').Buffer
 
 function encryptByte (self, byteParam, decrypt) {
@@ -9411,7 +9417,7 @@ exports.encrypt = function (self, chunk, decrypt) {
   return out
 }
 
-},{"safe-buffer":166}],51:[function(require,module,exports){
+},{"safe-buffer":167}],52:[function(require,module,exports){
 var xor = require('buffer-xor')
 var Buffer = require('safe-buffer').Buffer
 var incr32 = require('../incr32')
@@ -9443,7 +9449,7 @@ exports.encrypt = function (self, chunk) {
   return xor(chunk, pad)
 }
 
-},{"../incr32":46,"buffer-xor":67,"safe-buffer":166}],52:[function(require,module,exports){
+},{"../incr32":47,"buffer-xor":68,"safe-buffer":167}],53:[function(require,module,exports){
 exports.encrypt = function (self, block) {
   return self._cipher.encryptBlock(block)
 }
@@ -9452,7 +9458,7 @@ exports.decrypt = function (self, block) {
   return self._cipher.decryptBlock(block)
 }
 
-},{}],53:[function(require,module,exports){
+},{}],54:[function(require,module,exports){
 var modeModules = {
   ECB: require('./ecb'),
   CBC: require('./cbc'),
@@ -9472,7 +9478,7 @@ for (var key in modes) {
 
 module.exports = modes
 
-},{"./cbc":47,"./cfb":48,"./cfb1":49,"./cfb8":50,"./ctr":51,"./ecb":52,"./list.json":54,"./ofb":55}],54:[function(require,module,exports){
+},{"./cbc":48,"./cfb":49,"./cfb1":50,"./cfb8":51,"./ctr":52,"./ecb":53,"./list.json":55,"./ofb":56}],55:[function(require,module,exports){
 module.exports={
   "aes-128-ecb": {
     "cipher": "AES",
@@ -9665,7 +9671,7 @@ module.exports={
   }
 }
 
-},{}],55:[function(require,module,exports){
+},{}],56:[function(require,module,exports){
 (function (Buffer){
 var xor = require('buffer-xor')
 
@@ -9685,7 +9691,7 @@ exports.encrypt = function (self, chunk) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":68,"buffer-xor":67}],56:[function(require,module,exports){
+},{"buffer":69,"buffer-xor":68}],57:[function(require,module,exports){
 var aes = require('./aes')
 var Buffer = require('safe-buffer').Buffer
 var Transform = require('cipher-base')
@@ -9714,7 +9720,7 @@ StreamCipher.prototype._final = function () {
 
 module.exports = StreamCipher
 
-},{"./aes":40,"cipher-base":69,"inherits":122,"safe-buffer":166}],57:[function(require,module,exports){
+},{"./aes":41,"cipher-base":70,"inherits":123,"safe-buffer":167}],58:[function(require,module,exports){
 var ebtk = require('evp_bytestokey')
 var aes = require('browserify-aes/browser')
 var DES = require('browserify-des')
@@ -9789,7 +9795,7 @@ function getCiphers () {
 }
 exports.listCiphers = exports.getCiphers = getCiphers
 
-},{"browserify-aes/browser":42,"browserify-aes/modes":53,"browserify-des":58,"browserify-des/modes":59,"evp_bytestokey":105}],58:[function(require,module,exports){
+},{"browserify-aes/browser":43,"browserify-aes/modes":54,"browserify-des":59,"browserify-des/modes":60,"evp_bytestokey":106}],59:[function(require,module,exports){
 (function (Buffer){
 var CipherBase = require('cipher-base')
 var des = require('des.js')
@@ -9836,7 +9842,7 @@ DES.prototype._final = function () {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":68,"cipher-base":69,"des.js":78,"inherits":122}],59:[function(require,module,exports){
+},{"buffer":69,"cipher-base":70,"des.js":79,"inherits":123}],60:[function(require,module,exports){
 exports['des-ecb'] = {
   key: 8,
   iv: 0
@@ -9862,7 +9868,7 @@ exports['des-ede'] = {
   iv: 0
 }
 
-},{}],60:[function(require,module,exports){
+},{}],61:[function(require,module,exports){
 (function (Buffer){
 var bn = require('bn.js');
 var randomBytes = require('randombytes');
@@ -9906,10 +9912,10 @@ function getr(priv) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"bn.js":37,"buffer":68,"randombytes":150}],61:[function(require,module,exports){
+},{"bn.js":38,"buffer":69,"randombytes":151}],62:[function(require,module,exports){
 module.exports = require('./browser/algorithms.json')
 
-},{"./browser/algorithms.json":62}],62:[function(require,module,exports){
+},{"./browser/algorithms.json":63}],63:[function(require,module,exports){
 module.exports={
   "sha224WithRSAEncryption": {
     "sign": "rsa",
@@ -10063,7 +10069,7 @@ module.exports={
   }
 }
 
-},{}],63:[function(require,module,exports){
+},{}],64:[function(require,module,exports){
 module.exports={
   "1.3.132.0.10": "secp256k1",
   "1.3.132.0.33": "p224",
@@ -10073,7 +10079,7 @@ module.exports={
   "1.3.132.0.35": "p521"
 }
 
-},{}],64:[function(require,module,exports){
+},{}],65:[function(require,module,exports){
 (function (Buffer){
 var createHash = require('create-hash')
 var stream = require('stream')
@@ -10168,7 +10174,7 @@ module.exports = {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"./algorithms.json":62,"./sign":65,"./verify":66,"buffer":68,"create-hash":72,"inherits":122,"stream":175}],65:[function(require,module,exports){
+},{"./algorithms.json":63,"./sign":66,"./verify":67,"buffer":69,"create-hash":73,"inherits":123,"stream":176}],66:[function(require,module,exports){
 (function (Buffer){
 // much of this based on https://github.com/indutny/self-signed/blob/gh-pages/lib/rsa.js
 var createHmac = require('create-hmac')
@@ -10317,7 +10323,7 @@ module.exports.getKey = getKey
 module.exports.makeKey = makeKey
 
 }).call(this,require("buffer").Buffer)
-},{"./curves.json":63,"bn.js":37,"browserify-rsa":60,"buffer":68,"create-hmac":75,"elliptic":88,"parse-asn1":135}],66:[function(require,module,exports){
+},{"./curves.json":64,"bn.js":38,"browserify-rsa":61,"buffer":69,"create-hmac":76,"elliptic":89,"parse-asn1":136}],67:[function(require,module,exports){
 (function (Buffer){
 // much of this based on https://github.com/indutny/self-signed/blob/gh-pages/lib/rsa.js
 var BN = require('bn.js')
@@ -10404,7 +10410,7 @@ function checkValue (b, q) {
 module.exports = verify
 
 }).call(this,require("buffer").Buffer)
-},{"./curves.json":63,"bn.js":37,"buffer":68,"elliptic":88,"parse-asn1":135}],67:[function(require,module,exports){
+},{"./curves.json":64,"bn.js":38,"buffer":69,"elliptic":89,"parse-asn1":136}],68:[function(require,module,exports){
 (function (Buffer){
 module.exports = function xor (a, b) {
   var length = Math.min(a.length, b.length)
@@ -10418,7 +10424,7 @@ module.exports = function xor (a, b) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":68}],68:[function(require,module,exports){
+},{"buffer":69}],69:[function(require,module,exports){
 /*!
  * The buffer module from node.js, for the browser.
  *
@@ -12156,7 +12162,7 @@ function numberIsNaN (obj) {
   return obj !== obj // eslint-disable-line no-self-compare
 }
 
-},{"base64-js":36,"ieee754":120}],69:[function(require,module,exports){
+},{"base64-js":37,"ieee754":121}],70:[function(require,module,exports){
 var Buffer = require('safe-buffer').Buffer
 var Transform = require('stream').Transform
 var StringDecoder = require('string_decoder').StringDecoder
@@ -12257,7 +12263,7 @@ CipherBase.prototype._toString = function (value, enc, fin) {
 
 module.exports = CipherBase
 
-},{"inherits":122,"safe-buffer":166,"stream":175,"string_decoder":176}],70:[function(require,module,exports){
+},{"inherits":123,"safe-buffer":167,"stream":176,"string_decoder":177}],71:[function(require,module,exports){
 (function (Buffer){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -12368,7 +12374,7 @@ function objectToString(o) {
 }
 
 }).call(this,{"isBuffer":require("../../is-buffer/index.js")})
-},{"../../is-buffer/index.js":123}],71:[function(require,module,exports){
+},{"../../is-buffer/index.js":124}],72:[function(require,module,exports){
 (function (Buffer){
 var elliptic = require('elliptic');
 var BN = require('bn.js');
@@ -12494,7 +12500,7 @@ function formatReturnValue(bn, enc, len) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"bn.js":37,"buffer":68,"elliptic":88}],72:[function(require,module,exports){
+},{"bn.js":38,"buffer":69,"elliptic":89}],73:[function(require,module,exports){
 (function (Buffer){
 'use strict'
 var inherits = require('inherits')
@@ -12550,7 +12556,7 @@ module.exports = function createHash (alg) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"./md5":74,"buffer":68,"cipher-base":69,"inherits":122,"ripemd160":165,"sha.js":168}],73:[function(require,module,exports){
+},{"./md5":75,"buffer":69,"cipher-base":70,"inherits":123,"ripemd160":166,"sha.js":169}],74:[function(require,module,exports){
 (function (Buffer){
 'use strict'
 var intSize = 4
@@ -12584,7 +12590,7 @@ module.exports = function hash (buf, fn) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":68}],74:[function(require,module,exports){
+},{"buffer":69}],75:[function(require,module,exports){
 'use strict'
 /*
  * A JavaScript implementation of the RSA Data Security, Inc. MD5 Message
@@ -12737,7 +12743,7 @@ module.exports = function md5 (buf) {
   return makeHash(buf, core_md5)
 }
 
-},{"./make-hash":73}],75:[function(require,module,exports){
+},{"./make-hash":74}],76:[function(require,module,exports){
 'use strict'
 var inherits = require('inherits')
 var Legacy = require('./legacy')
@@ -12801,7 +12807,7 @@ module.exports = function createHmac (alg, key) {
   return new Hmac(alg, key)
 }
 
-},{"./legacy":76,"cipher-base":69,"create-hash/md5":74,"inherits":122,"ripemd160":165,"safe-buffer":166,"sha.js":168}],76:[function(require,module,exports){
+},{"./legacy":77,"cipher-base":70,"create-hash/md5":75,"inherits":123,"ripemd160":166,"safe-buffer":167,"sha.js":169}],77:[function(require,module,exports){
 'use strict'
 var inherits = require('inherits')
 var Buffer = require('safe-buffer').Buffer
@@ -12849,7 +12855,7 @@ Hmac.prototype._final = function () {
 }
 module.exports = Hmac
 
-},{"cipher-base":69,"inherits":122,"safe-buffer":166}],77:[function(require,module,exports){
+},{"cipher-base":70,"inherits":123,"safe-buffer":167}],78:[function(require,module,exports){
 'use strict'
 
 exports.randomBytes = exports.rng = exports.pseudoRandomBytes = exports.prng = require('randombytes')
@@ -12948,7 +12954,7 @@ exports.constants = {
   'POINT_CONVERSION_HYBRID': 6
 }
 
-},{"browserify-cipher":57,"browserify-sign":64,"browserify-sign/algos":61,"create-ecdh":71,"create-hash":72,"create-hmac":75,"diffie-hellman":84,"pbkdf2":137,"public-encrypt":144,"randombytes":150,"randomfill":151}],78:[function(require,module,exports){
+},{"browserify-cipher":58,"browserify-sign":65,"browserify-sign/algos":62,"create-ecdh":72,"create-hash":73,"create-hmac":76,"diffie-hellman":85,"pbkdf2":138,"public-encrypt":145,"randombytes":151,"randomfill":152}],79:[function(require,module,exports){
 'use strict';
 
 exports.utils = require('./des/utils');
@@ -12957,7 +12963,7 @@ exports.DES = require('./des/des');
 exports.CBC = require('./des/cbc');
 exports.EDE = require('./des/ede');
 
-},{"./des/cbc":79,"./des/cipher":80,"./des/des":81,"./des/ede":82,"./des/utils":83}],79:[function(require,module,exports){
+},{"./des/cbc":80,"./des/cipher":81,"./des/des":82,"./des/ede":83,"./des/utils":84}],80:[function(require,module,exports){
 'use strict';
 
 var assert = require('minimalistic-assert');
@@ -13024,7 +13030,7 @@ proto._update = function _update(inp, inOff, out, outOff) {
   }
 };
 
-},{"inherits":122,"minimalistic-assert":128}],80:[function(require,module,exports){
+},{"inherits":123,"minimalistic-assert":129}],81:[function(require,module,exports){
 'use strict';
 
 var assert = require('minimalistic-assert');
@@ -13167,7 +13173,7 @@ Cipher.prototype._finalDecrypt = function _finalDecrypt() {
   return this._unpad(out);
 };
 
-},{"minimalistic-assert":128}],81:[function(require,module,exports){
+},{"minimalistic-assert":129}],82:[function(require,module,exports){
 'use strict';
 
 var assert = require('minimalistic-assert');
@@ -13312,7 +13318,7 @@ DES.prototype._decrypt = function _decrypt(state, lStart, rStart, out, off) {
   utils.rip(l, r, out, off);
 };
 
-},{"../des":78,"inherits":122,"minimalistic-assert":128}],82:[function(require,module,exports){
+},{"../des":79,"inherits":123,"minimalistic-assert":129}],83:[function(require,module,exports){
 'use strict';
 
 var assert = require('minimalistic-assert');
@@ -13369,7 +13375,7 @@ EDE.prototype._update = function _update(inp, inOff, out, outOff) {
 EDE.prototype._pad = DES.prototype._pad;
 EDE.prototype._unpad = DES.prototype._unpad;
 
-},{"../des":78,"inherits":122,"minimalistic-assert":128}],83:[function(require,module,exports){
+},{"../des":79,"inherits":123,"minimalistic-assert":129}],84:[function(require,module,exports){
 'use strict';
 
 exports.readUInt32BE = function readUInt32BE(bytes, off) {
@@ -13627,7 +13633,7 @@ exports.padSplit = function padSplit(num, size, group) {
   return out.join(' ');
 };
 
-},{}],84:[function(require,module,exports){
+},{}],85:[function(require,module,exports){
 (function (Buffer){
 var generatePrime = require('./lib/generatePrime')
 var primes = require('./lib/primes.json')
@@ -13673,7 +13679,7 @@ exports.DiffieHellmanGroup = exports.createDiffieHellmanGroup = exports.getDiffi
 exports.createDiffieHellman = exports.DiffieHellman = createDiffieHellman
 
 }).call(this,require("buffer").Buffer)
-},{"./lib/dh":85,"./lib/generatePrime":86,"./lib/primes.json":87,"buffer":68}],85:[function(require,module,exports){
+},{"./lib/dh":86,"./lib/generatePrime":87,"./lib/primes.json":88,"buffer":69}],86:[function(require,module,exports){
 (function (Buffer){
 var BN = require('bn.js');
 var MillerRabin = require('miller-rabin');
@@ -13841,7 +13847,7 @@ function formatReturnValue(bn, enc) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"./generatePrime":86,"bn.js":37,"buffer":68,"miller-rabin":127,"randombytes":150}],86:[function(require,module,exports){
+},{"./generatePrime":87,"bn.js":38,"buffer":69,"miller-rabin":128,"randombytes":151}],87:[function(require,module,exports){
 var randomBytes = require('randombytes');
 module.exports = findPrime;
 findPrime.simpleSieve = simpleSieve;
@@ -13948,7 +13954,7 @@ function findPrime(bits, gen) {
 
 }
 
-},{"bn.js":37,"miller-rabin":127,"randombytes":150}],87:[function(require,module,exports){
+},{"bn.js":38,"miller-rabin":128,"randombytes":151}],88:[function(require,module,exports){
 module.exports={
     "modp1": {
         "gen": "02",
@@ -13983,7 +13989,7 @@ module.exports={
         "prime": "ffffffffffffffffc90fdaa22168c234c4c6628b80dc1cd129024e088a67cc74020bbea63b139b22514a08798e3404ddef9519b3cd3a431b302b0a6df25f14374fe1356d6d51c245e485b576625e7ec6f44c42e9a637ed6b0bff5cb6f406b7edee386bfb5a899fa5ae9f24117c4b1fe649286651ece45b3dc2007cb8a163bf0598da48361c55d39a69163fa8fd24cf5f83655d23dca3ad961c62f356208552bb9ed529077096966d670c354e4abc9804f1746c08ca18217c32905e462e36ce3be39e772c180e86039b2783a2ec07a28fb5c55df06f4c52c9de2bcbf6955817183995497cea956ae515d2261898fa051015728e5a8aaac42dad33170d04507a33a85521abdf1cba64ecfb850458dbef0a8aea71575d060c7db3970f85a6e1e4c7abf5ae8cdb0933d71e8c94e04a25619dcee3d2261ad2ee6bf12ffa06d98a0864d87602733ec86a64521f2b18177b200cbbe117577a615d6c770988c0bad946e208e24fa074e5ab3143db5bfce0fd108e4b82d120a92108011a723c12a787e6d788719a10bdba5b2699c327186af4e23c1a946834b6150bda2583e9ca2ad44ce8dbbbc2db04de8ef92e8efc141fbecaa6287c59474e6bc05d99b2964fa090c3a2233ba186515be7ed1f612970cee2d7afb81bdd762170481cd0069127d5b05aa993b4ea988d8fddc186ffb7dc90a6c08f4df435c93402849236c3fab4d27c7026c1d4dcb2602646dec9751e763dba37bdf8ff9406ad9e530ee5db382f413001aeb06a53ed9027d831179727b0865a8918da3edbebcf9b14ed44ce6cbaced4bb1bdb7f1447e6cc254b332051512bd7af426fb8f401378cd2bf5983ca01c64b92ecf032ea15d1721d03f482d7ce6e74fef6d55e702f46980c82b5a84031900b1c9e59e7c97fbec7e8f323a97a7e36cc88be0f1d45b7ff585ac54bd407b22b4154aacc8f6d7ebf48e1d814cc5ed20f8037e0a79715eef29be32806a1d58bb7c5da76f550aa3d8a1fbff0eb19ccb1a313d55cda56c9ec2ef29632387fe8d76e3c0468043e8f663f4860ee12bf2d5b0b7474d6e694f91e6dbe115974a3926f12fee5e438777cb6a932df8cd8bec4d073b931ba3bc832b68d9dd300741fa7bf8afc47ed2576f6936ba424663aab639c5ae4f5683423b4742bf1c978238f16cbe39d652de3fdb8befc848ad922222e04a4037c0713eb57a81a23f0c73473fc646cea306b4bcbc8862f8385ddfa9d4b7fa2c087e879683303ed5bdd3a062b3cf5b3a278a66d2a13f83f44f82ddf310ee074ab6a364597e899a0255dc164f31cc50846851df9ab48195ded7ea1b1d510bd7ee74d73faf36bc31ecfa268359046f4eb879f924009438b481c6cd7889a002ed5ee382bc9190da6fc026e479558e4475677e9aa9e3050e2765694dfc81f56e880b96e7160c980dd98edd3dfffffffffffffffff"
     }
 }
-},{}],88:[function(require,module,exports){
+},{}],89:[function(require,module,exports){
 'use strict';
 
 var elliptic = exports;
@@ -13998,7 +14004,7 @@ elliptic.curves = require('./elliptic/curves');
 elliptic.ec = require('./elliptic/ec');
 elliptic.eddsa = require('./elliptic/eddsa');
 
-},{"../package.json":103,"./elliptic/curve":91,"./elliptic/curves":94,"./elliptic/ec":95,"./elliptic/eddsa":98,"./elliptic/utils":102,"brorand":38}],89:[function(require,module,exports){
+},{"../package.json":104,"./elliptic/curve":92,"./elliptic/curves":95,"./elliptic/ec":96,"./elliptic/eddsa":99,"./elliptic/utils":103,"brorand":39}],90:[function(require,module,exports){
 'use strict';
 
 var BN = require('bn.js');
@@ -14375,7 +14381,7 @@ BasePoint.prototype.dblp = function dblp(k) {
   return r;
 };
 
-},{"../../elliptic":88,"bn.js":37}],90:[function(require,module,exports){
+},{"../../elliptic":89,"bn.js":38}],91:[function(require,module,exports){
 'use strict';
 
 var curve = require('../curve');
@@ -14810,7 +14816,7 @@ Point.prototype.eqXToP = function eqXToP(x) {
 Point.prototype.toP = Point.prototype.normalize;
 Point.prototype.mixedAdd = Point.prototype.add;
 
-},{"../../elliptic":88,"../curve":91,"bn.js":37,"inherits":122}],91:[function(require,module,exports){
+},{"../../elliptic":89,"../curve":92,"bn.js":38,"inherits":123}],92:[function(require,module,exports){
 'use strict';
 
 var curve = exports;
@@ -14820,7 +14826,7 @@ curve.short = require('./short');
 curve.mont = require('./mont');
 curve.edwards = require('./edwards');
 
-},{"./base":89,"./edwards":90,"./mont":92,"./short":93}],92:[function(require,module,exports){
+},{"./base":90,"./edwards":91,"./mont":93,"./short":94}],93:[function(require,module,exports){
 'use strict';
 
 var curve = require('../curve');
@@ -15002,7 +15008,7 @@ Point.prototype.getX = function getX() {
   return this.x.fromRed();
 };
 
-},{"../../elliptic":88,"../curve":91,"bn.js":37,"inherits":122}],93:[function(require,module,exports){
+},{"../../elliptic":89,"../curve":92,"bn.js":38,"inherits":123}],94:[function(require,module,exports){
 'use strict';
 
 var curve = require('../curve');
@@ -15942,7 +15948,7 @@ JPoint.prototype.isInfinity = function isInfinity() {
   return this.z.cmpn(0) === 0;
 };
 
-},{"../../elliptic":88,"../curve":91,"bn.js":37,"inherits":122}],94:[function(require,module,exports){
+},{"../../elliptic":89,"../curve":92,"bn.js":38,"inherits":123}],95:[function(require,module,exports){
 'use strict';
 
 var curves = exports;
@@ -16149,7 +16155,7 @@ defineCurve('secp256k1', {
   ]
 });
 
-},{"../elliptic":88,"./precomputed/secp256k1":101,"hash.js":107}],95:[function(require,module,exports){
+},{"../elliptic":89,"./precomputed/secp256k1":102,"hash.js":108}],96:[function(require,module,exports){
 'use strict';
 
 var BN = require('bn.js');
@@ -16391,7 +16397,7 @@ EC.prototype.getKeyRecoveryParam = function(e, signature, Q, enc) {
   throw new Error('Unable to find valid recovery factor');
 };
 
-},{"../../elliptic":88,"./key":96,"./signature":97,"bn.js":37,"hmac-drbg":119}],96:[function(require,module,exports){
+},{"../../elliptic":89,"./key":97,"./signature":98,"bn.js":38,"hmac-drbg":120}],97:[function(require,module,exports){
 'use strict';
 
 var BN = require('bn.js');
@@ -16512,7 +16518,7 @@ KeyPair.prototype.inspect = function inspect() {
          ' pub: ' + (this.pub && this.pub.inspect()) + ' >';
 };
 
-},{"../../elliptic":88,"bn.js":37}],97:[function(require,module,exports){
+},{"../../elliptic":89,"bn.js":38}],98:[function(require,module,exports){
 'use strict';
 
 var BN = require('bn.js');
@@ -16649,7 +16655,7 @@ Signature.prototype.toDER = function toDER(enc) {
   return utils.encode(res, enc);
 };
 
-},{"../../elliptic":88,"bn.js":37}],98:[function(require,module,exports){
+},{"../../elliptic":89,"bn.js":38}],99:[function(require,module,exports){
 'use strict';
 
 var hash = require('hash.js');
@@ -16769,7 +16775,7 @@ EDDSA.prototype.isPoint = function isPoint(val) {
   return val instanceof this.pointClass;
 };
 
-},{"../../elliptic":88,"./key":99,"./signature":100,"hash.js":107}],99:[function(require,module,exports){
+},{"../../elliptic":89,"./key":100,"./signature":101,"hash.js":108}],100:[function(require,module,exports){
 'use strict';
 
 var elliptic = require('../../elliptic');
@@ -16867,7 +16873,7 @@ KeyPair.prototype.getPublic = function getPublic(enc) {
 
 module.exports = KeyPair;
 
-},{"../../elliptic":88}],100:[function(require,module,exports){
+},{"../../elliptic":89}],101:[function(require,module,exports){
 'use strict';
 
 var BN = require('bn.js');
@@ -16935,7 +16941,7 @@ Signature.prototype.toHex = function toHex() {
 
 module.exports = Signature;
 
-},{"../../elliptic":88,"bn.js":37}],101:[function(require,module,exports){
+},{"../../elliptic":89,"bn.js":38}],102:[function(require,module,exports){
 module.exports = {
   doubles: {
     step: 4,
@@ -17717,7 +17723,7 @@ module.exports = {
   }
 };
 
-},{}],102:[function(require,module,exports){
+},{}],103:[function(require,module,exports){
 'use strict';
 
 var utils = exports;
@@ -17839,7 +17845,7 @@ function intFromLE(bytes) {
 utils.intFromLE = intFromLE;
 
 
-},{"bn.js":37,"minimalistic-assert":128,"minimalistic-crypto-utils":129}],103:[function(require,module,exports){
+},{"bn.js":38,"minimalistic-assert":129,"minimalistic-crypto-utils":130}],104:[function(require,module,exports){
 module.exports={
   "_from": "elliptic@^6.0.0",
   "_id": "elliptic@6.4.0",
@@ -17928,7 +17934,7 @@ module.exports={
   "version": "6.4.0"
 }
 
-},{}],104:[function(require,module,exports){
+},{}],105:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -18449,7 +18455,7 @@ function functionBindPolyfill(context) {
   };
 }
 
-},{}],105:[function(require,module,exports){
+},{}],106:[function(require,module,exports){
 var Buffer = require('safe-buffer').Buffer
 var MD5 = require('md5.js')
 
@@ -18496,7 +18502,7 @@ function EVP_BytesToKey (password, salt, keyBits, ivLen) {
 
 module.exports = EVP_BytesToKey
 
-},{"md5.js":125,"safe-buffer":166}],106:[function(require,module,exports){
+},{"md5.js":126,"safe-buffer":167}],107:[function(require,module,exports){
 (function (Buffer){
 'use strict'
 var Transform = require('stream').Transform
@@ -18583,7 +18589,7 @@ HashBase.prototype._digest = function () {
 module.exports = HashBase
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":68,"inherits":122,"stream":175}],107:[function(require,module,exports){
+},{"buffer":69,"inherits":123,"stream":176}],108:[function(require,module,exports){
 var hash = exports;
 
 hash.utils = require('./hash/utils');
@@ -18600,7 +18606,7 @@ hash.sha384 = hash.sha.sha384;
 hash.sha512 = hash.sha.sha512;
 hash.ripemd160 = hash.ripemd.ripemd160;
 
-},{"./hash/common":108,"./hash/hmac":109,"./hash/ripemd":110,"./hash/sha":111,"./hash/utils":118}],108:[function(require,module,exports){
+},{"./hash/common":109,"./hash/hmac":110,"./hash/ripemd":111,"./hash/sha":112,"./hash/utils":119}],109:[function(require,module,exports){
 'use strict';
 
 var utils = require('./utils');
@@ -18694,7 +18700,7 @@ BlockHash.prototype._pad = function pad() {
   return res;
 };
 
-},{"./utils":118,"minimalistic-assert":128}],109:[function(require,module,exports){
+},{"./utils":119,"minimalistic-assert":129}],110:[function(require,module,exports){
 'use strict';
 
 var utils = require('./utils');
@@ -18743,7 +18749,7 @@ Hmac.prototype.digest = function digest(enc) {
   return this.outer.digest(enc);
 };
 
-},{"./utils":118,"minimalistic-assert":128}],110:[function(require,module,exports){
+},{"./utils":119,"minimalistic-assert":129}],111:[function(require,module,exports){
 'use strict';
 
 var utils = require('./utils');
@@ -18891,7 +18897,7 @@ var sh = [
   8, 5, 12, 9, 12, 5, 14, 6, 8, 13, 6, 5, 15, 13, 11, 11
 ];
 
-},{"./common":108,"./utils":118}],111:[function(require,module,exports){
+},{"./common":109,"./utils":119}],112:[function(require,module,exports){
 'use strict';
 
 exports.sha1 = require('./sha/1');
@@ -18900,7 +18906,7 @@ exports.sha256 = require('./sha/256');
 exports.sha384 = require('./sha/384');
 exports.sha512 = require('./sha/512');
 
-},{"./sha/1":112,"./sha/224":113,"./sha/256":114,"./sha/384":115,"./sha/512":116}],112:[function(require,module,exports){
+},{"./sha/1":113,"./sha/224":114,"./sha/256":115,"./sha/384":116,"./sha/512":117}],113:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -18976,7 +18982,7 @@ SHA1.prototype._digest = function digest(enc) {
     return utils.split32(this.h, 'big');
 };
 
-},{"../common":108,"../utils":118,"./common":117}],113:[function(require,module,exports){
+},{"../common":109,"../utils":119,"./common":118}],114:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -19008,7 +19014,7 @@ SHA224.prototype._digest = function digest(enc) {
 };
 
 
-},{"../utils":118,"./256":114}],114:[function(require,module,exports){
+},{"../utils":119,"./256":115}],115:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -19115,7 +19121,7 @@ SHA256.prototype._digest = function digest(enc) {
     return utils.split32(this.h, 'big');
 };
 
-},{"../common":108,"../utils":118,"./common":117,"minimalistic-assert":128}],115:[function(require,module,exports){
+},{"../common":109,"../utils":119,"./common":118,"minimalistic-assert":129}],116:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -19152,7 +19158,7 @@ SHA384.prototype._digest = function digest(enc) {
     return utils.split32(this.h.slice(0, 12), 'big');
 };
 
-},{"../utils":118,"./512":116}],116:[function(require,module,exports){
+},{"../utils":119,"./512":117}],117:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -19484,7 +19490,7 @@ function g1_512_lo(xh, xl) {
   return r;
 }
 
-},{"../common":108,"../utils":118,"minimalistic-assert":128}],117:[function(require,module,exports){
+},{"../common":109,"../utils":119,"minimalistic-assert":129}],118:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -19535,7 +19541,7 @@ function g1_256(x) {
 }
 exports.g1_256 = g1_256;
 
-},{"../utils":118}],118:[function(require,module,exports){
+},{"../utils":119}],119:[function(require,module,exports){
 'use strict';
 
 var assert = require('minimalistic-assert');
@@ -19790,7 +19796,7 @@ function shr64_lo(ah, al, num) {
 }
 exports.shr64_lo = shr64_lo;
 
-},{"inherits":122,"minimalistic-assert":128}],119:[function(require,module,exports){
+},{"inherits":123,"minimalistic-assert":129}],120:[function(require,module,exports){
 'use strict';
 
 var hash = require('hash.js');
@@ -19905,7 +19911,7 @@ HmacDRBG.prototype.generate = function generate(len, enc, add, addEnc) {
   return utils.encode(res, enc);
 };
 
-},{"hash.js":107,"minimalistic-assert":128,"minimalistic-crypto-utils":129}],120:[function(require,module,exports){
+},{"hash.js":108,"minimalistic-assert":129,"minimalistic-crypto-utils":130}],121:[function(require,module,exports){
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
   var e, m
   var eLen = (nBytes * 8) - mLen - 1
@@ -19991,7 +19997,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   buffer[offset + i - d] |= s * 128
 }
 
-},{}],121:[function(require,module,exports){
+},{}],122:[function(require,module,exports){
 
 var indexOf = [].indexOf;
 
@@ -20002,7 +20008,7 @@ module.exports = function(arr, obj){
   }
   return -1;
 };
-},{}],122:[function(require,module,exports){
+},{}],123:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -20027,7 +20033,7 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],123:[function(require,module,exports){
+},{}],124:[function(require,module,exports){
 /*!
  * Determine if an object is a Buffer
  *
@@ -20050,14 +20056,14 @@ function isSlowBuffer (obj) {
   return typeof obj.readFloatLE === 'function' && typeof obj.slice === 'function' && isBuffer(obj.slice(0, 0))
 }
 
-},{}],124:[function(require,module,exports){
+},{}],125:[function(require,module,exports){
 var toString = {}.toString;
 
 module.exports = Array.isArray || function (arr) {
   return toString.call(arr) == '[object Array]';
 };
 
-},{}],125:[function(require,module,exports){
+},{}],126:[function(require,module,exports){
 (function (Buffer){
 'use strict'
 var inherits = require('inherits')
@@ -20206,7 +20212,7 @@ function fnI (a, b, c, d, m, k, s) {
 module.exports = MD5
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":68,"hash-base":126,"inherits":122}],126:[function(require,module,exports){
+},{"buffer":69,"hash-base":127,"inherits":123}],127:[function(require,module,exports){
 'use strict'
 var Buffer = require('safe-buffer').Buffer
 var Transform = require('stream').Transform
@@ -20303,7 +20309,7 @@ HashBase.prototype._digest = function () {
 
 module.exports = HashBase
 
-},{"inherits":122,"safe-buffer":166,"stream":175}],127:[function(require,module,exports){
+},{"inherits":123,"safe-buffer":167,"stream":176}],128:[function(require,module,exports){
 var bn = require('bn.js');
 var brorand = require('brorand');
 
@@ -20420,7 +20426,7 @@ MillerRabin.prototype.getDivisor = function getDivisor(n, k) {
   return false;
 };
 
-},{"bn.js":37,"brorand":38}],128:[function(require,module,exports){
+},{"bn.js":38,"brorand":39}],129:[function(require,module,exports){
 module.exports = assert;
 
 function assert(val, msg) {
@@ -20433,7 +20439,7 @@ assert.equal = function assertEqual(l, r, msg) {
     throw new Error(msg || ('Assertion failed: ' + l + ' != ' + r));
 };
 
-},{}],129:[function(require,module,exports){
+},{}],130:[function(require,module,exports){
 'use strict';
 
 var utils = exports;
@@ -20493,7 +20499,7 @@ utils.encode = function encode(arr, enc) {
     return arr;
 };
 
-},{}],130:[function(require,module,exports){
+},{}],131:[function(require,module,exports){
 exports.endianness = function () { return 'LE' };
 
 exports.hostname = function () {
@@ -20544,7 +20550,7 @@ exports.homedir = function () {
 	return '/'
 };
 
-},{}],131:[function(require,module,exports){
+},{}],132:[function(require,module,exports){
 module.exports={"2.16.840.1.101.3.4.1.1": "aes-128-ecb",
 "2.16.840.1.101.3.4.1.2": "aes-128-cbc",
 "2.16.840.1.101.3.4.1.3": "aes-128-ofb",
@@ -20558,7 +20564,7 @@ module.exports={"2.16.840.1.101.3.4.1.1": "aes-128-ecb",
 "2.16.840.1.101.3.4.1.43": "aes-256-ofb",
 "2.16.840.1.101.3.4.1.44": "aes-256-cfb"
 }
-},{}],132:[function(require,module,exports){
+},{}],133:[function(require,module,exports){
 // from https://github.com/indutny/self-signed/blob/gh-pages/lib/asn1.js
 // Fedor, you are amazing.
 'use strict'
@@ -20682,7 +20688,7 @@ exports.signature = asn1.define('signature', function () {
   )
 })
 
-},{"./certificate":133,"asn1.js":22}],133:[function(require,module,exports){
+},{"./certificate":134,"asn1.js":23}],134:[function(require,module,exports){
 // from https://github.com/Rantanen/node-dtls/blob/25a7dc861bda38cfeac93a723500eea4f0ac2e86/Certificate.js
 // thanks to @Rantanen
 
@@ -20772,7 +20778,7 @@ var X509Certificate = asn.define('X509Certificate', function () {
 
 module.exports = X509Certificate
 
-},{"asn1.js":22}],134:[function(require,module,exports){
+},{"asn1.js":23}],135:[function(require,module,exports){
 (function (Buffer){
 // adapted from https://github.com/apatil/pemstrip
 var findProc = /Proc-Type: 4,ENCRYPTED\n\r?DEK-Info: AES-((?:128)|(?:192)|(?:256))-CBC,([0-9A-H]+)\n\r?\n\r?([0-9A-z\n\r\+\/\=]+)\n\r?/m
@@ -20806,7 +20812,7 @@ module.exports = function (okey, password) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"browserify-aes":42,"buffer":68,"evp_bytestokey":105}],135:[function(require,module,exports){
+},{"browserify-aes":43,"buffer":69,"evp_bytestokey":106}],136:[function(require,module,exports){
 (function (Buffer){
 var asn1 = require('./asn1')
 var aesid = require('./aesid.json')
@@ -20916,7 +20922,7 @@ function decrypt (data, password) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"./aesid.json":131,"./asn1":132,"./fixProc":134,"browserify-aes":42,"buffer":68,"pbkdf2":137}],136:[function(require,module,exports){
+},{"./aesid.json":132,"./asn1":133,"./fixProc":135,"browserify-aes":43,"buffer":69,"pbkdf2":138}],137:[function(require,module,exports){
 (function (process){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -21144,13 +21150,13 @@ var substr = 'ab'.substr(-1) === 'b'
 ;
 
 }).call(this,require('_process'))
-},{"_process":143}],137:[function(require,module,exports){
+},{"_process":144}],138:[function(require,module,exports){
 
 exports.pbkdf2 = require('./lib/async')
 
 exports.pbkdf2Sync = require('./lib/sync')
 
-},{"./lib/async":138,"./lib/sync":141}],138:[function(require,module,exports){
+},{"./lib/async":139,"./lib/sync":142}],139:[function(require,module,exports){
 (function (process,global){
 var checkParameters = require('./precondition')
 var defaultEncoding = require('./default-encoding')
@@ -21252,7 +21258,7 @@ module.exports = function (password, salt, iterations, keylen, digest, callback)
 }
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./default-encoding":139,"./precondition":140,"./sync":141,"_process":143,"safe-buffer":166}],139:[function(require,module,exports){
+},{"./default-encoding":140,"./precondition":141,"./sync":142,"_process":144,"safe-buffer":167}],140:[function(require,module,exports){
 (function (process){
 var defaultEncoding
 /* istanbul ignore next */
@@ -21266,7 +21272,7 @@ if (process.browser) {
 module.exports = defaultEncoding
 
 }).call(this,require('_process'))
-},{"_process":143}],140:[function(require,module,exports){
+},{"_process":144}],141:[function(require,module,exports){
 var MAX_ALLOC = Math.pow(2, 30) - 1 // default in iojs
 module.exports = function (iterations, keylen) {
   if (typeof iterations !== 'number') {
@@ -21286,7 +21292,7 @@ module.exports = function (iterations, keylen) {
   }
 }
 
-},{}],141:[function(require,module,exports){
+},{}],142:[function(require,module,exports){
 var md5 = require('create-hash/md5')
 var rmd160 = require('ripemd160')
 var sha = require('sha.js')
@@ -21389,7 +21395,7 @@ function pbkdf2 (password, salt, iterations, keylen, digest) {
 
 module.exports = pbkdf2
 
-},{"./default-encoding":139,"./precondition":140,"create-hash/md5":74,"ripemd160":165,"safe-buffer":166,"sha.js":168}],142:[function(require,module,exports){
+},{"./default-encoding":140,"./precondition":141,"create-hash/md5":75,"ripemd160":166,"safe-buffer":167,"sha.js":169}],143:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -21437,7 +21443,7 @@ function nextTick(fn, arg1, arg2, arg3) {
 
 
 }).call(this,require('_process'))
-},{"_process":143}],143:[function(require,module,exports){
+},{"_process":144}],144:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -21623,7 +21629,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],144:[function(require,module,exports){
+},{}],145:[function(require,module,exports){
 exports.publicEncrypt = require('./publicEncrypt');
 exports.privateDecrypt = require('./privateDecrypt');
 
@@ -21634,7 +21640,7 @@ exports.privateEncrypt = function privateEncrypt(key, buf) {
 exports.publicDecrypt = function publicDecrypt(key, buf) {
   return exports.privateDecrypt(key, buf, true);
 };
-},{"./privateDecrypt":146,"./publicEncrypt":147}],145:[function(require,module,exports){
+},{"./privateDecrypt":147,"./publicEncrypt":148}],146:[function(require,module,exports){
 (function (Buffer){
 var createHash = require('create-hash');
 module.exports = function (seed, len) {
@@ -21653,7 +21659,7 @@ function i2ops(c) {
   return out;
 }
 }).call(this,require("buffer").Buffer)
-},{"buffer":68,"create-hash":72}],146:[function(require,module,exports){
+},{"buffer":69,"create-hash":73}],147:[function(require,module,exports){
 (function (Buffer){
 var parseKeys = require('parse-asn1');
 var mgf = require('./mgf');
@@ -21764,7 +21770,7 @@ function compare(a, b){
   return dif;
 }
 }).call(this,require("buffer").Buffer)
-},{"./mgf":145,"./withPublic":148,"./xor":149,"bn.js":37,"browserify-rsa":60,"buffer":68,"create-hash":72,"parse-asn1":135}],147:[function(require,module,exports){
+},{"./mgf":146,"./withPublic":149,"./xor":150,"bn.js":38,"browserify-rsa":61,"buffer":69,"create-hash":73,"parse-asn1":136}],148:[function(require,module,exports){
 (function (Buffer){
 var parseKeys = require('parse-asn1');
 var randomBytes = require('randombytes');
@@ -21862,7 +21868,7 @@ function nonZero(len, crypto) {
   return out;
 }
 }).call(this,require("buffer").Buffer)
-},{"./mgf":145,"./withPublic":148,"./xor":149,"bn.js":37,"browserify-rsa":60,"buffer":68,"create-hash":72,"parse-asn1":135,"randombytes":150}],148:[function(require,module,exports){
+},{"./mgf":146,"./withPublic":149,"./xor":150,"bn.js":38,"browserify-rsa":61,"buffer":69,"create-hash":73,"parse-asn1":136,"randombytes":151}],149:[function(require,module,exports){
 (function (Buffer){
 var bn = require('bn.js');
 function withPublic(paddedMsg, key) {
@@ -21875,7 +21881,7 @@ function withPublic(paddedMsg, key) {
 
 module.exports = withPublic;
 }).call(this,require("buffer").Buffer)
-},{"bn.js":37,"buffer":68}],149:[function(require,module,exports){
+},{"bn.js":38,"buffer":69}],150:[function(require,module,exports){
 module.exports = function xor(a, b) {
   var len = a.length;
   var i = -1;
@@ -21884,7 +21890,7 @@ module.exports = function xor(a, b) {
   }
   return a
 };
-},{}],150:[function(require,module,exports){
+},{}],151:[function(require,module,exports){
 (function (process,global){
 'use strict'
 
@@ -21926,7 +21932,7 @@ function randomBytes (size, cb) {
 }
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":143,"safe-buffer":166}],151:[function(require,module,exports){
+},{"_process":144,"safe-buffer":167}],152:[function(require,module,exports){
 (function (process,global){
 'use strict'
 
@@ -22038,10 +22044,10 @@ function randomFillSync (buf, offset, size) {
 }
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":143,"randombytes":150,"safe-buffer":166}],152:[function(require,module,exports){
+},{"_process":144,"randombytes":151,"safe-buffer":167}],153:[function(require,module,exports){
 module.exports = require('./lib/_stream_duplex.js');
 
-},{"./lib/_stream_duplex.js":153}],153:[function(require,module,exports){
+},{"./lib/_stream_duplex.js":154}],154:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -22166,7 +22172,7 @@ function forEach(xs, f) {
     f(xs[i], i);
   }
 }
-},{"./_stream_readable":155,"./_stream_writable":157,"core-util-is":70,"inherits":122,"process-nextick-args":142}],154:[function(require,module,exports){
+},{"./_stream_readable":156,"./_stream_writable":158,"core-util-is":71,"inherits":123,"process-nextick-args":143}],155:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -22214,7 +22220,7 @@ function PassThrough(options) {
 PassThrough.prototype._transform = function (chunk, encoding, cb) {
   cb(null, chunk);
 };
-},{"./_stream_transform":156,"core-util-is":70,"inherits":122}],155:[function(require,module,exports){
+},{"./_stream_transform":157,"core-util-is":71,"inherits":123}],156:[function(require,module,exports){
 (function (process,global){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -23232,7 +23238,7 @@ function indexOf(xs, x) {
   return -1;
 }
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./_stream_duplex":153,"./internal/streams/BufferList":158,"./internal/streams/destroy":159,"./internal/streams/stream":160,"_process":143,"core-util-is":70,"events":104,"inherits":122,"isarray":124,"process-nextick-args":142,"safe-buffer":166,"string_decoder/":176,"util":39}],156:[function(require,module,exports){
+},{"./_stream_duplex":154,"./internal/streams/BufferList":159,"./internal/streams/destroy":160,"./internal/streams/stream":161,"_process":144,"core-util-is":71,"events":105,"inherits":123,"isarray":125,"process-nextick-args":143,"safe-buffer":167,"string_decoder/":177,"util":40}],157:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -23447,7 +23453,7 @@ function done(stream, er, data) {
 
   return stream.push(null);
 }
-},{"./_stream_duplex":153,"core-util-is":70,"inherits":122}],157:[function(require,module,exports){
+},{"./_stream_duplex":154,"core-util-is":71,"inherits":123}],158:[function(require,module,exports){
 (function (process,global){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -24127,7 +24133,7 @@ Writable.prototype._destroy = function (err, cb) {
   cb(err);
 };
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./_stream_duplex":153,"./internal/streams/destroy":159,"./internal/streams/stream":160,"_process":143,"core-util-is":70,"inherits":122,"process-nextick-args":142,"safe-buffer":166,"util-deprecate":177}],158:[function(require,module,exports){
+},{"./_stream_duplex":154,"./internal/streams/destroy":160,"./internal/streams/stream":161,"_process":144,"core-util-is":71,"inherits":123,"process-nextick-args":143,"safe-buffer":167,"util-deprecate":178}],159:[function(require,module,exports){
 'use strict';
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -24207,7 +24213,7 @@ if (util && util.inspect && util.inspect.custom) {
     return this.constructor.name + ' ' + obj;
   };
 }
-},{"safe-buffer":166,"util":39}],159:[function(require,module,exports){
+},{"safe-buffer":167,"util":40}],160:[function(require,module,exports){
 'use strict';
 
 /*<replacement>*/
@@ -24282,13 +24288,13 @@ module.exports = {
   destroy: destroy,
   undestroy: undestroy
 };
-},{"process-nextick-args":142}],160:[function(require,module,exports){
+},{"process-nextick-args":143}],161:[function(require,module,exports){
 module.exports = require('events').EventEmitter;
 
-},{"events":104}],161:[function(require,module,exports){
+},{"events":105}],162:[function(require,module,exports){
 module.exports = require('./readable').PassThrough
 
-},{"./readable":162}],162:[function(require,module,exports){
+},{"./readable":163}],163:[function(require,module,exports){
 exports = module.exports = require('./lib/_stream_readable.js');
 exports.Stream = exports;
 exports.Readable = exports;
@@ -24297,13 +24303,13 @@ exports.Duplex = require('./lib/_stream_duplex.js');
 exports.Transform = require('./lib/_stream_transform.js');
 exports.PassThrough = require('./lib/_stream_passthrough.js');
 
-},{"./lib/_stream_duplex.js":153,"./lib/_stream_passthrough.js":154,"./lib/_stream_readable.js":155,"./lib/_stream_transform.js":156,"./lib/_stream_writable.js":157}],163:[function(require,module,exports){
+},{"./lib/_stream_duplex.js":154,"./lib/_stream_passthrough.js":155,"./lib/_stream_readable.js":156,"./lib/_stream_transform.js":157,"./lib/_stream_writable.js":158}],164:[function(require,module,exports){
 module.exports = require('./readable').Transform
 
-},{"./readable":162}],164:[function(require,module,exports){
+},{"./readable":163}],165:[function(require,module,exports){
 module.exports = require('./lib/_stream_writable.js');
 
-},{"./lib/_stream_writable.js":157}],165:[function(require,module,exports){
+},{"./lib/_stream_writable.js":158}],166:[function(require,module,exports){
 (function (Buffer){
 'use strict'
 var inherits = require('inherits')
@@ -24598,7 +24604,7 @@ function fn5 (a, b, c, d, e, m, k, s) {
 module.exports = RIPEMD160
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":68,"hash-base":106,"inherits":122}],166:[function(require,module,exports){
+},{"buffer":69,"hash-base":107,"inherits":123}],167:[function(require,module,exports){
 /* eslint-disable node/no-deprecated-api */
 var buffer = require('buffer')
 var Buffer = buffer.Buffer
@@ -24662,7 +24668,7 @@ SafeBuffer.allocUnsafeSlow = function (size) {
   return buffer.SlowBuffer(size)
 }
 
-},{"buffer":68}],167:[function(require,module,exports){
+},{"buffer":69}],168:[function(require,module,exports){
 var Buffer = require('safe-buffer').Buffer
 
 // prototype class for hash functions
@@ -24745,7 +24751,7 @@ Hash.prototype._update = function () {
 
 module.exports = Hash
 
-},{"safe-buffer":166}],168:[function(require,module,exports){
+},{"safe-buffer":167}],169:[function(require,module,exports){
 var exports = module.exports = function SHA (algorithm) {
   algorithm = algorithm.toLowerCase()
 
@@ -24762,7 +24768,7 @@ exports.sha256 = require('./sha256')
 exports.sha384 = require('./sha384')
 exports.sha512 = require('./sha512')
 
-},{"./sha":169,"./sha1":170,"./sha224":171,"./sha256":172,"./sha384":173,"./sha512":174}],169:[function(require,module,exports){
+},{"./sha":170,"./sha1":171,"./sha224":172,"./sha256":173,"./sha384":174,"./sha512":175}],170:[function(require,module,exports){
 /*
  * A JavaScript implementation of the Secure Hash Algorithm, SHA-0, as defined
  * in FIPS PUB 180-1
@@ -24858,7 +24864,7 @@ Sha.prototype._hash = function () {
 
 module.exports = Sha
 
-},{"./hash":167,"inherits":122,"safe-buffer":166}],170:[function(require,module,exports){
+},{"./hash":168,"inherits":123,"safe-buffer":167}],171:[function(require,module,exports){
 /*
  * A JavaScript implementation of the Secure Hash Algorithm, SHA-1, as defined
  * in FIPS PUB 180-1
@@ -24959,7 +24965,7 @@ Sha1.prototype._hash = function () {
 
 module.exports = Sha1
 
-},{"./hash":167,"inherits":122,"safe-buffer":166}],171:[function(require,module,exports){
+},{"./hash":168,"inherits":123,"safe-buffer":167}],172:[function(require,module,exports){
 /**
  * A JavaScript implementation of the Secure Hash Algorithm, SHA-256, as defined
  * in FIPS 180-2
@@ -25014,7 +25020,7 @@ Sha224.prototype._hash = function () {
 
 module.exports = Sha224
 
-},{"./hash":167,"./sha256":172,"inherits":122,"safe-buffer":166}],172:[function(require,module,exports){
+},{"./hash":168,"./sha256":173,"inherits":123,"safe-buffer":167}],173:[function(require,module,exports){
 /**
  * A JavaScript implementation of the Secure Hash Algorithm, SHA-256, as defined
  * in FIPS 180-2
@@ -25151,7 +25157,7 @@ Sha256.prototype._hash = function () {
 
 module.exports = Sha256
 
-},{"./hash":167,"inherits":122,"safe-buffer":166}],173:[function(require,module,exports){
+},{"./hash":168,"inherits":123,"safe-buffer":167}],174:[function(require,module,exports){
 var inherits = require('inherits')
 var SHA512 = require('./sha512')
 var Hash = require('./hash')
@@ -25210,7 +25216,7 @@ Sha384.prototype._hash = function () {
 
 module.exports = Sha384
 
-},{"./hash":167,"./sha512":174,"inherits":122,"safe-buffer":166}],174:[function(require,module,exports){
+},{"./hash":168,"./sha512":175,"inherits":123,"safe-buffer":167}],175:[function(require,module,exports){
 var inherits = require('inherits')
 var Hash = require('./hash')
 var Buffer = require('safe-buffer').Buffer
@@ -25472,7 +25478,7 @@ Sha512.prototype._hash = function () {
 
 module.exports = Sha512
 
-},{"./hash":167,"inherits":122,"safe-buffer":166}],175:[function(require,module,exports){
+},{"./hash":168,"inherits":123,"safe-buffer":167}],176:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -25601,7 +25607,7 @@ Stream.prototype.pipe = function(dest, options) {
   return dest;
 };
 
-},{"events":104,"inherits":122,"readable-stream/duplex.js":152,"readable-stream/passthrough.js":161,"readable-stream/readable.js":162,"readable-stream/transform.js":163,"readable-stream/writable.js":164}],176:[function(require,module,exports){
+},{"events":105,"inherits":123,"readable-stream/duplex.js":153,"readable-stream/passthrough.js":162,"readable-stream/readable.js":163,"readable-stream/transform.js":164,"readable-stream/writable.js":165}],177:[function(require,module,exports){
 'use strict';
 
 var Buffer = require('safe-buffer').Buffer;
@@ -25874,7 +25880,7 @@ function simpleWrite(buf) {
 function simpleEnd(buf) {
   return buf && buf.length ? this.write(buf) : '';
 }
-},{"safe-buffer":166}],177:[function(require,module,exports){
+},{"safe-buffer":167}],178:[function(require,module,exports){
 (function (global){
 
 /**
@@ -25945,7 +25951,7 @@ function config (name) {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],178:[function(require,module,exports){
+},{}],179:[function(require,module,exports){
 var indexOf = require('indexof');
 
 var Object_keys = function (obj) {
@@ -26085,5 +26091,5 @@ exports.createContext = Script.createContext = function (context) {
     return copy;
 };
 
-},{"indexof":121}]},{},[6])(6)
+},{"indexof":122}]},{},[6])(6)
 });
