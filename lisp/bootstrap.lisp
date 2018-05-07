@@ -49,6 +49,7 @@
 (def #'list* #'%%list*) ; Construct list of arguments, with the final argument as tail.
 (def #'list-to-js-array #'%%list-to-array)
 (def #'plist-to-js-object #'%%plist-to-js-object)
+(def #'reverse-list #'%%reverse-list)
 ;; Other
 (def #'= #'eq) ; Use EQ for now as generic equality (since it works for JS values)
 (def #'defconstant #'def) ; One man's constant ...
@@ -809,7 +810,7 @@
              (%%panic condition))))))
 
 (defun compute-restarts (condition)
-  (%%reverse-list (%compute-restarts condition '() (dynamic *restart-handler-frame*))))
+  (reverse-list (%compute-restarts condition '() (dynamic *restart-handler-frame*))))
 
 (defun %compute-restarts (condition restart-list handler-frame)
   (if (void? handler-frame)

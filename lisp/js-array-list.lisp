@@ -8,7 +8,8 @@
     list))
 
 (defmethod add ((self (js-array-list :e)) (element :e))
-  (@push (slot-value self 'js-array) element))
+  (@push (slot-value self 'js-array) element)
+  self)
 
 (defmethod len ((self (js-array-list :e)))
   (.length (slot-value self 'js-array)))
@@ -27,3 +28,7 @@
 
 (defmethod advance ((self js-array-list) state)
   (+ state 1))
+
+(defmethod empty-clone ((self js-array-list))
+  ; TODO: use proper type
+  (make-js-array-list 'object))

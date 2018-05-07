@@ -419,6 +419,13 @@
   (test-for-each (list 1 2 3))
   (test-for-each (make-js-array-list 'number 1 2 3)))
 
+(%expect (list 2 4 6)
+         (map (lambda (x) (* x 2)) (list 1 2 3)))
+(%expect ()
+         (map (lambda (x) (* x 2)) ()))
+(%expect (make-js-array-list 'object 2 4 6)
+         (map (lambda (x) (* x 2)) (make-js-array-list 'object 1 2 3)))
+
 ;;;; Userland
 
 (%expect 12 (block ret

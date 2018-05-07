@@ -1,6 +1,6 @@
 (def #'read #'%%read)
 
-(print "Welcome to Qua Generic Lisp! Type ^C to exit.")
+(print "Welcome to Qua! Type ^C to exit.")
 
 (defclass quit (restart) ())
 
