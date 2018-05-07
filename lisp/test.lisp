@@ -433,3 +433,7 @@
                               (lambda #ign
                                 (return-from ret 12))))
                 x)))
+
+(let ()
+  (load-system "lisp/test-sample.system.lisp")
+  (%expect 33 (test:sample-fn)))

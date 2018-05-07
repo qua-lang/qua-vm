@@ -16,10 +16,11 @@ require("./lisp-2")(vm, e);
 require("./type")(vm, e);
 require("./cont")(vm, e);
 require("./alien")(vm, e);
+require("./read")(vm, e);
 require("./print")(vm, e);
 require("./optim")(vm, e);
-require("./node")(vm, e);
 if (!process.browser) {
+    require("./node")(vm, e);
     require("./termio")(vm, e, parser);
 }
 require("./test")(vm, e);

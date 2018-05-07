@@ -1,4 +1,7 @@
 var jsparse = require("jsparse");
+module.exports = function(vm, e) {
+    vm.defun(e, vm.sym("%%parse-sexp"), vm.jswrap(parse_sexp));
+};
 module.exports.parse_sexp = parse_sexp;
 
 var ps = jsparse.ps; var choice = jsparse.choice; var range = jsparse.range; var action = jsparse.action; var sequence = jsparse.sequence; var join = jsparse.join; var join_action = jsparse.join_action; var negate = jsparse.negate; var repeat0 = jsparse.repeat0; var optional = jsparse.optional; var repeat1 = jsparse.repeat1; var wsequence = jsparse.wsequence; var whitespace = jsparse.whitespace; var ch = jsparse.ch; var butnot = jsparse.butnot;

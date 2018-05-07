@@ -49,8 +49,6 @@
 (def #'list* #'%%list*) ; Construct list of arguments, with the final argument as tail.
 (def #'list-to-js-array #'%%list-to-array)
 (def #'plist-to-js-object #'%%plist-to-js-object)
-;; Node
-(def #'require #'%%require)
 ;; Other
 (def #'= #'eq) ; Use EQ for now as generic equality (since it works for JS values)
 (def #'defconstant #'def) ; One man's constant ...
