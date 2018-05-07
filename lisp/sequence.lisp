@@ -33,11 +33,6 @@
 (defmethod current ((self nil) state) (simple-error "At end"))
 (defmethod advance ((self nil) state) (simple-error "Can't advance past end"))
 
-(defmethod empty-clone ((self cons)) #nil)
-(defmethod empty-clone ((self nil)) #nil)
+(defmethod empty-clone ((self list)) #nil)
 (defmethod finish-clone ((self cons)) (reverse-list self))
-
-(defmethod add ((self cons) elt)
-  (cons elt self))
-(defmethod add ((self nil) elt)
-  (cons elt #nil))
+(defmethod add ((self list) elt) (cons elt self))

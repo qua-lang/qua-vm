@@ -1,7 +1,11 @@
 module.exports = function(vm, root_env) {
-    vm.Sym = vm.defclass("symbol", ["standard-object"], { "name": {}, "ns": {} });
-    vm.Keyword = vm.defclass("keyword", ["standard-object"], { "name": {} });
-    vm.Cons = vm.defclass("cons", ["standard-object"], { "car": {}, "cdr": {} });
+    vm.Sym = vm.defclass("symbol", ["object"], { "name": {}, "ns": {} });
+    vm.Keyword = vm.defclass("keyword", ["object"], { "name": {} });
+    vm.List = vm.defclass("list", ["object"], {});
+    vm.Cons = vm.defclass("cons", ["list"], { "car": {}, "cdr": {} });
+    vm.Nil = vm.defclass("nil", ["list"], {}); vm.NIL = new vm.Nil();
+    vm.Ign = vm.defclass("ign", ["object"], {}); vm.IGN = new vm.Ign();
+    vm.Void = vm.defclass("void", ["object"], {}); vm.VOID = new vm.Void();
     /* Evaluation */
     vm.evaluate = function(m, e, x) {
         if (x && x.qua_evaluate) {
@@ -149,10 +153,7 @@ module.exports = function(vm, root_env) {
     vm.cdr = function(cons) { return vm.assert_type(cons, vm.Cons).qs_cdr; };
     vm.elt = function(cons, i) { return (i === 0) ? vm.car(cons) : vm.elt(vm.cdr(cons), i - 1); };
     vm.keyword = function(name) { var k = new vm.Keyword(name); return k; };
-    vm.Nil = vm.defclass("nil", ["object"], {}); vm.NIL = new vm.Nil();
     vm.is_nil = function(obj) { return obj === vm.NIL; };
-    vm.Ign = vm.defclass("ign", ["object"], {}); vm.IGN = new vm.Ign();
-    vm.Void = vm.defclass("void", ["object"], {}); vm.VOID = new vm.Void();
     /* Environments */
     vm.lookup = function(e, sym, default_val) {
         vm.assert_type(e, vm.Env);
