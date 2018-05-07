@@ -1,5 +1,6 @@
 (defclass (sequence :e) (standard-object) ())
 
+;; PLOT's sequence iteration protocol
 (defgeneric start-iteration (sequence) => iteration-state)
 (defgeneric end? (sequence iteration-state) => boolean)
 (defgeneric current (sequence iteration-state) => element)

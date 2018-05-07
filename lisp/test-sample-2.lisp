@@ -1,2 +1,3 @@
 (defun test:sample-fn ()
-  test:+sample-value+)
+  (+ test:+sample-value+
+     test-sub:+sample-value+))

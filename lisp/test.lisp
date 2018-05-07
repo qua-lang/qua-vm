@@ -436,4 +436,4 @@
 
 (let ()
   (load-system "lisp/test-sample.system.lisp")
-  (%expect 33 (test:sample-fn)))
+  (%expect 77 (test:sample-fn)))
