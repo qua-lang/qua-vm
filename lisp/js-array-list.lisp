@@ -1,7 +1,7 @@
 (defclass (js-array-list :e) ((array-list :e))
   (js-array))
 
-(defun make-js-array-list (element-type-spec . elements)
+(defun js-array-list (element-type-spec . elements)
   (let ((list (make-instance (list 'js-array-list element-type-spec)
                              :js-array (js-array))))
     (for-each (lambda (e) (add list e)) elements)
@@ -31,4 +31,4 @@
 
 (defmethod empty-clone ((self js-array-list))
   ; TODO: use proper type
-  (make-js-array-list 'object))
+  (js-array-list 'object))
