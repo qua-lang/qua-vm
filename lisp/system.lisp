@@ -10,10 +10,12 @@
           (let* ((env (optional opt-env denv))
                  (#'defsystem
                   (vau (name :depends-on deps :components components) #ign
-                    (for-each (lambda (dep)
-                                (load-system (node:join-paths (node:dirname path) dep) env))
-                              deps)
-                    (for-each (lambda (component)
-                                (load (node:join-paths (node:dirname path) component) env))
-                              components))))
+                    (list-for-each (lambda (dep)
+                                     (load-system (node:join-paths (node:dirname path) dep) env))
+                                   deps)
+                    (list-for-each (lambda (component)
+                                     (load (node:join-paths (node:dirname path) component) env))
+                                   components))))
             (load path)))))
+
+(load-system "lisp/qua-full-node.system.lisp")
