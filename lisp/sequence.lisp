@@ -1,3 +1,5 @@
+(defclass (sequence :e) (standard-object) ())
+
 (defgeneric start-iteration (sequence) => iteration-state)
 (defgeneric end? (sequence iteration-state) => boolean)
 (defgeneric current (sequence iteration-state) => element)
@@ -13,7 +15,7 @@
 (defmethod end? ((c cons) state) (nil? state))
 (defmethod current ((c cons) state) (car state))
 (defmethod advance ((c cons) state) (cdr state))
-(defmethod start-iteration ((#nil nil)) #nil)
-(defmethod end? ((#nil nil)) #t)
-(defmethod current ((#nil nil)) (simple-error "At end"))
-(defmethod advance ((#nil nil)) (simple-error "Can't advance past end"))
+(defmethod start-iteration ((nil nil)) #nil)
+(defmethod end? ((nil nil) state) #t)
+(defmethod current ((nil nil) state) (simple-error "At end"))
+(defmethod advance ((nil nil) state) (simple-error "Can't advance past end"))

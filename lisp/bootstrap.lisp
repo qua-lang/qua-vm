@@ -549,6 +549,9 @@
 (defclass simple-error (error)
   (message))
 
+(defun simple-error (message . #ign)
+  (error (make-instance 'simple-error :message message)))
+
 (defclass runtime-error (error))
 (defclass control-error (runtime-error))
 (defclass restart-control-error (control-error)
@@ -697,7 +700,7 @@
                         :name (symbol-name class-name)
                         :generic-params (map-list #'%parse-generic-param-spec
                                                   generic-param-specs)))
-      (error (%make-instance 'simple-error :message "Illegal type-spec"))))
+      (simple-error "Illegal type-spec")))
   
 (defun %parse-generic-param-spec (gp-spec)
   (if (or (keyword? gp-spec) (symbol? gp-spec))

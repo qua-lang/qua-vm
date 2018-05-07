@@ -1,6 +1,8 @@
-(defclass (collection :e) (standard-object) ())
+(defclass (collection :e) ((sequence :e)) ())
 (defgeneric add (collection element))
 (defgeneric len (collection))
 
-(defclass (list :e) ((collection :e)) ())
+(defclass (indexed-collection :e) ((collection :e)) ())
 (defgeneric elt (collection index))
+
+(defclass (array-list :e) ((indexed-collection :e)) ())

@@ -1,12 +1,9 @@
-(defclass (js-array-list :e) ((list :e))
+(defclass (js-array-list :e) ((array-list :e))
   (js-array))
 
-(defun make-js-array-list (element-type-spec)
-  (make-instance (list 'js-array-list element-type-spec)
-                 :js-array (js-array)))
-
-(defun js-array-list (element-type-spec . elements)
-  (let ((list (make-js-array-list element-type-spec)))
+(defun make-js-array-list (element-type-spec . elements)
+  (let ((list (make-instance (list 'js-array-list element-type-spec)
+                             :js-array (js-array))))
     (for-each (lambda (e) (add list e)) elements)
     list))
 

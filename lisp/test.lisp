@@ -411,12 +411,13 @@
          (%parse-type-spec '(hash-set (:in number))))
 
 ;;;; Sequence protocol
+
 (flet ((test-for-each (coll)
          (let ((sum 0))
            (for-each (lambda (elt) (incf sum elt)) coll)
            (%expect 6 sum))))
   (test-for-each (list 1 2 3))
-  (test-for-each (js-array-list 'number 1 2 3)))
+  (test-for-each (make-js-array-list 'number 1 2 3)))
 
 ;;;; Userland
 
