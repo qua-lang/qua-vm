@@ -5,6 +5,11 @@
   (make-instance (list 'js-array-list element-type-spec)
                  :js-array (js-array)))
 
+(defun js-array-list (element-type-spec . elements)
+  (let ((list (make-js-array-list element-type-spec)))
+    (for-each (lambda (e) (add list e)) elements)
+    list))
+
 (defmethod add ((self (js-array-list :e)) (element :e))
   (@push (slot-value self 'js-array) element))
 
@@ -14,23 +19,14 @@
 (defmethod elt ((self (js-array-list :e)) (index number))
   (js-get (slot-value self 'js-array) index))
 
-(defclass (js-array-list-iterator :e) ((iterator :e))
-  (js-array-list
-   current-index))
+(defmethod start-iteration ((self js-array-list))
+  0)
 
-(defmethod iterator ((self (js-array-list :e)))
-  ; TODO: use type parameter :E from list
-  (make-instance 'js-array-list-iterator
-                 :js-array-list self
-                 :current-index 0))
+(defmethod end? ((self js-array-list) state)
+  (not (< state (len self))))
 
-(defmethod next? ((self (js-array-list-iterator :e)))
-  (< (slot-value self 'current-index)
-     (len (slot-value self 'js-array-list))))
+(defmethod current ((self js-array-list) state)
+  (elt self state))
 
-(defmethod next ((self (js-array-list-iterator :e)))
-  (if (next? self)
-      (prog1 (elt (slot-value self 'js-array-list)
-                  (slot-value self 'current-index))
-        (incf (slot-value self 'current-index)))
-      (error (make-instance 'iteration-error))))
+(defmethod advance ((self js-array-list) state)
+  (+ state 1))

@@ -272,7 +272,7 @@
   (let ((method (find-method obj name)))
     (apply method args)))
 
-(deffexpr defgeneric (name #ign) env
+(deffexpr defgeneric (name . #ign) env
   (eval (list #'def (%to-fun-sym name)
               (lambda args
                 (call-method (car args) name args)))

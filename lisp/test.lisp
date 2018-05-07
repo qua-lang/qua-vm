@@ -410,21 +410,13 @@
                                           :out-type +top-type+)))
          (%parse-type-spec '(hash-set (:in number))))
 
-;;;; Generic collections
-
-(let ((list (make-js-array-list 'number)))
-  (add list 1)
-  (add list 2)
-  (%expect (make-instance '(js-array-list number)
-                          :js-array (js-array 1 2))
-           list)
-  (let ((iterator (iterator list)))
-    (%assert (type? iterator 'js-array-list-iterator))
-    (%assert (next? iterator))
-    (%expect 1 (next iterator))
-    (%assert (next? iterator))
-    (%expect 2 (next iterator))
-    (%assert (not (next? iterator)))))
+;;;; Sequence protocol
+(flet ((test-for-each (coll)
+         (let ((sum 0))
+           (for-each (lambda (elt) (incf sum elt)) coll)
+           (%expect 6 sum))))
+  (test-for-each (list 1 2 3))
+  (test-for-each (js-array-list 'number 1 2 3)))
 
 ;;;; Userland
 

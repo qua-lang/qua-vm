@@ -149,10 +149,10 @@ module.exports = function(vm, root_env) {
     vm.cdr = function(cons) { return vm.assert_type(cons, vm.Cons).qs_cdr; };
     vm.elt = function(cons, i) { return (i === 0) ? vm.car(cons) : vm.elt(vm.cdr(cons), i - 1); };
     vm.keyword = function(name) { var k = new vm.Keyword(name); return k; };
-    vm.Nil = function Nil() {}; vm.NIL = new vm.Nil();
+    vm.Nil = vm.defclass("nil", ["object"], {}); vm.NIL = new vm.Nil();
     vm.is_nil = function(obj) { return obj === vm.NIL; };
-    vm.Ign = function Ign() {}; vm.IGN = new vm.Ign();
-    vm.Void = function Void() {}; vm.VOID = new vm.Void();
+    vm.Ign = vm.defclass("ign", ["object"], {}); vm.IGN = new vm.Ign();
+    vm.Void = vm.defclass("void", ["object"], {}); vm.VOID = new vm.Void();
     /* Environments */
     vm.lookup = function(e, sym, default_val) {
         vm.assert_type(e, vm.Env);
