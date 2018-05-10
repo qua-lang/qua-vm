@@ -18,4 +18,6 @@
                                    components))))
             (load path)))))
 
-(load-system "lisp/qua-full-node.system.lisp")
+(load-system "lisp/qua-node-repl.system.lisp")
+;(load-system "lisp/qua-full-node.system.lisp")
+;(load-system "lisp/doc/doc.system.lisp")
