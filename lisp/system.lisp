@@ -1,7 +1,7 @@
 ;; Loads a file into the current or specified environment.
 (def #'load
-  (wrap (vau (path . opt-env) env
-          (eval (read-file path) (optional opt-env env)))))
+  (wrap (vau (path . opt-env) denv
+          (user-eval (read-file path) (optional opt-env denv)))))
 
 ;; Loads all components of a system into the current or specified
 ;; environment.
@@ -18,6 +18,6 @@
                                    components))))
             (load path)))))
 
-(load-system "lisp/qua-node-repl.system.lisp")
-;(load-system "lisp/qua-full-node.system.lisp")
-;(load-system "lisp/doc/doc.system.lisp")
+;(load-system "lisp/qua-node-repl.system.lisp")
+(load-system "lisp/qua-full-node.system.lisp")
+(load-system "lisp/doc/doc.system.lisp")

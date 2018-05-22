@@ -26,6 +26,7 @@ module.exports = function(vm, e) {
     };
     vm.error = function(err, e) {
         if (vm.check_type(e, vm.Env)) {
+            // call into userspace ERROR function if we have an environment
             var error = vm.lookup(e, vm.fun_sym("error"), false);
             if (error) {
                 return vm.combine(null, e, error, vm.list(err));
@@ -35,6 +36,7 @@ module.exports = function(vm, e) {
         } else {
             console.log("No environment passed to vm.error()");
         }
+        // if nothing else worked, panic
         vm.panic(err);
     };
     // Unconditionally abort up to the next exception handler outside

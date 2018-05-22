@@ -843,3 +843,6 @@
 
 (defmacro push-userspace body
   (list #'push-userspace* (thunkify body)))
+
+(defun user-eval (expr env)
+  (push-userspace (eval expr env)))

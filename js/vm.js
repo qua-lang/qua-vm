@@ -1,4 +1,14 @@
 module.exports = function(vm, root_env) {
+    /* Setup class hierarchy */
+    vm.Object = vm.defclass("object", []);
+    vm.StandardObject = vm.defclass("standard-object", ["object"]);
+    vm.Class = vm.defclass("class", ["standard-object"]);
+    vm.Combiner = vm.defclass("combiner", ["standard-object"]);
+    vm.Fexpr = vm.defclass("fexpr", ["combiner"]);
+    vm.Function = vm.defclass("function", ["combiner"]);
+    vm.Number = vm.defclass("number", ["object"]);
+    vm.String = vm.defclass("string", ["object"]);
+    vm.Boolean = vm.defclass("boolean", ["object"]);
     vm.Sym = vm.defclass("symbol", ["object"], { "name": {}, "ns": {} });
     vm.Keyword = vm.defclass("keyword", ["object"], { "name": {} });
     vm.List = vm.defclass("list", ["object"], {});
@@ -6,6 +16,16 @@ module.exports = function(vm, root_env) {
     vm.Nil = vm.defclass("nil", ["list"], {}); vm.NIL = new vm.Nil();
     vm.Ign = vm.defclass("ign", ["object"], {}); vm.IGN = new vm.Ign();
     vm.Void = vm.defclass("void", ["object"], {}); vm.VOID = new vm.Void();
+    // Instances of this class are thrown as JS exceptions to transfer a
+    // value from a RETURN-FROM expression to its enclosing BLOCK.
+    vm.Tag = vm.defclass("%%tag", ["standard-object"], { "id": {}, "val": {} });
+    // Conditions
+    vm.Condition = vm.defclass("condition", ["standard-object"], {});
+    vm.SeriousCondition = vm.defclass("serious-condition", ["condition"], {});
+    vm.Error = vm.defclass("error", ["serious-condition"], {});
+    vm.UnboundVariable = vm.defclass("unbound-variable", ["error"], { "name": {} });
+    vm.Restart = vm.defclass("restart", ["standard-object"], { "associated-condition": {} });
+    vm.UseValue = vm.defclass("use-value", ["restart"], { "value": {} });
     /* Evaluation */
     vm.evaluate = function(m, e, x) {
         if (x && x.qua_evaluate) {
@@ -13,8 +33,10 @@ module.exports = function(vm, root_env) {
                 return x.qua_evaluate(x, m, e);
             } catch(exc) {
                 if ((exc instanceof vm.Tag) || (exc instanceof vm.Panic)) {
+                    // let nonlocal exits and panics through
                     throw exc;
                 } else {
+                    // pipe all other evaluation exceptions into condition system
                     return vm.error(exc, e);
                 }
             }
@@ -259,26 +281,6 @@ module.exports = function(vm, root_env) {
         vm.defun(e, vm.sym("%%reverse-list"), vm.jswrap(vm.reverse_list));
         // Temporary
         vm.defun(e, vm.sym("%%parse-bytecode"), vm.jswrap(vm.parse_bytecode));
-        /* Setup class hierarchy */
-        vm.Object = vm.defclass("object", []);
-        vm.StandardObject = vm.defclass("standard-object", ["object"]);
-        vm.Class = vm.defclass("class", ["standard-object"]);
-        vm.Combiner = vm.defclass("combiner", ["standard-object"]);
-        vm.Fexpr = vm.defclass("fexpr", ["combiner"]);
-        vm.Function = vm.defclass("function", ["combiner"]);
-        vm.Number = vm.defclass("number", ["object"]);
-        vm.String = vm.defclass("string", ["object"]);
-        vm.Boolean = vm.defclass("boolean", ["object"]);
-        // Instances of this class are thrown as JS exceptions to transfer a
-        // value from a RETURN-FROM expression to its enclosing BLOCK.
-        vm.Tag = vm.defclass("%%tag", ["standard-object"], { "id": {}, "val": {} });
-        // Conditions
-        vm.Condition = vm.defclass("condition", ["standard-object"], {});
-        vm.SeriousCondition = vm.defclass("serious-condition", ["condition"], {});
-        vm.Error = vm.defclass("error", ["serious-condition"], {});
-        vm.UnboundVariable = vm.defclass("unbound-variable", ["error"], { "name": {} });
-        vm.Restart = vm.defclass("restart", ["standard-object"], { "associated-condition": {} });
-        vm.UseValue = vm.defclass("use-value", ["restart"], { "value": {} });
     };
     vm.eval = function(x, e) {
         return vm.evaluate(null, e, x); // change to x,e
