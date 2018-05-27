@@ -2,15 +2,16 @@
 module.exports = function(vm, e) {
     // Make all JS functions callable as Lisp combiners
     vm.original_combine = vm.combine;
-    vm.combine = function(m, e, cmb, o) {
-        if (cmb instanceof Function) return vm.combine(m, e, vm.jswrap(cmb), o);
-        else return vm.original_combine(m, e, cmb, o);
+    vm.combine = function(e, cmb, o) {
+        if (cmb instanceof Function) return vm.combine(e, vm.jswrap(cmb), o);
+        else return vm.original_combine(e, cmb, o);
     };
     // Makes a Lisp function callable from JS
     vm.js_function = function(cmb) {
         return function() {
             var args = vm.array_to_list(Array.prototype.slice.call(arguments));
-            return vm.combine(null, null, cmb, args);
+            // TODO: probably not a good idea that env is null here?
+            return vm.combine(null, cmb, args);
         }
     };
     vm.JSObject = vm.defclass("js-object", ["object"], {});

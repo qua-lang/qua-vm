@@ -3,6 +3,7 @@ var init_bytecode = require("../build/out/init.js").main;
 var test_bytecode = require("../build/out/test.js").main;
 
 var vm = {};
+// Where should this go? Whole init process = borked
 vm.Env = function(parent) {
     this.bindings = Object.create(parent ? parent.bindings : null);
     this.parent = parent;
@@ -11,7 +12,7 @@ vm.make_env = function(parent) { return new vm.Env(parent); };
 var e = vm.make_env();
 require("./util")(vm, e);
 require("./obj")(vm, e);
-require("./vm")(vm, e);
+require("./vm")(vm); // kludgy mckludge
 require("./lisp-2")(vm, e);
 require("./type")(vm, e);
 require("./cont")(vm, e);

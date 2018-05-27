@@ -1,5 +1,5 @@
-module.exports = function(vm, root_env) {
-    /* Setup class hierarchy */
+module.exports = function(vm) {
+    /* Setup class hierarchy - still in flux */
     vm.Object = vm.defclass("object", []);
     vm.StandardObject = vm.defclass("standard-object", ["object"]);
     vm.Class = vm.defclass("class", ["standard-object"]);
@@ -24,13 +24,14 @@ module.exports = function(vm, root_env) {
     vm.SeriousCondition = vm.defclass("serious-condition", ["condition"], {});
     vm.Error = vm.defclass("error", ["serious-condition"], {});
     vm.UnboundVariable = vm.defclass("unbound-variable", ["error"], { "name": {} });
+    // TODO: move to Lisp
     vm.Restart = vm.defclass("restart", ["standard-object"], { "associated-condition": {} });
     vm.UseValue = vm.defclass("use-value", ["restart"], { "value": {} });
     /* Evaluation */
-    vm.evaluate = function(m, e, x) {
+    vm.evaluate = function(e, x) {
         if (x && x.qua_evaluate) {
             try {
-                return x.qua_evaluate(x, m, e);
+                return x.qua_evaluate(x, e);
             } catch(exc) {
                 if ((exc instanceof vm.Tag) || (exc instanceof vm.Panic)) {
                     // let nonlocal exits and panics through
@@ -44,22 +45,21 @@ module.exports = function(vm, root_env) {
             return x;
         }
     };
-    vm.Sym.prototype.qua_evaluate = function(self, m, e) {
+    vm.Sym.prototype.qua_evaluate = function(self, e) {
         return vm.lookup(e, self);
     };
-    vm.Cons.prototype.qua_evaluate = function(self, m, e) {
-        return vm.monadic(m,
-                          function() { return vm.eval_operator(e, vm.car(self)); },
-                          function(cmb) { return vm.combine(null, e, cmb, vm.cdr(self)); });
+    vm.Cons.prototype.qua_evaluate = function(self, e) {
+        return vm.monadic(function() { return vm.eval_operator(e, vm.car(self)); },
+                          function(cmb) { return vm.combine(e, cmb, vm.cdr(self)); });
     };
     vm.eval_operator = function(e, op) {
-        return vm.evaluate(null, e, op);
+        return vm.evaluate(e, op);
     };
     /* Combiners */
-    vm.combine = function(m, e, cmb, o) {
+    vm.combine = function(e, cmb, o) {
         if (cmb && cmb.qua_combine) {
             try {
-                return cmb.qua_combine(cmb, m, e, o);
+                return cmb.qua_combine(cmb, e, o);
             } catch(exc) {
                 if ((exc instanceof vm.Tag) || (exc instanceof vm.Panic)) {
                     throw exc;
@@ -75,29 +75,25 @@ module.exports = function(vm, root_env) {
     vm.Apv = function(cmb) { this.cmb = cmb; };
     vm.wrap = function(cmb) { return new vm.Apv(cmb); };
     vm.unwrap = function(apv) { return apv.cmb; };
-    vm.Opv.prototype.qua_combine = function(self, m, e, o) {
+    vm.Opv.prototype.qua_combine = function(self, e, o) {
         var xe = vm.make_env(self.qs_e);
-        return vm.monadic(m,
-                          function() { return vm.bind(xe, self.qs_p, o); },
+        return vm.monadic(function() { return vm.bind(xe, self.qs_p, o); },
                           function() {
-                              return vm.monadic(m,
-                                                function() { return vm.bind(xe, self.qs_ep, e); },
-                                                function() { return vm.evaluate(null, xe, self.qs_x); }); });
+                              return vm.monadic(function() { return vm.bind(xe, self.qs_ep, e); },
+                                                function() { return vm.evaluate(xe, self.qs_x); }); });
     };
-    vm.Apv.prototype.qua_combine = function(self, m, e, o) {
-        return vm.monadic(m,
-                          function() { return vm.eval_args(null, e, o, vm.NIL); },
-                          function(args) { return vm.combine(null, e, self.cmb, args); });
+    vm.Apv.prototype.qua_combine = function(self, e, o) {
+        return vm.monadic(function() { return vm.eval_args(e, o, vm.NIL); },
+                          function(args) { return vm.combine(e, self.cmb, args); });
     };
-    vm.eval_args = function(m, e, todo, done) {
+    vm.eval_args = function(e, todo, done) {
         if (vm.is_nil(todo)) { return vm.reverse_list(done); }
-        return vm.monadic(m, 
-                          function() { return vm.evaluate(null, e, vm.car(todo)); },
-                          function(arg) { return vm.eval_args(null, e, vm.cdr(todo), vm.cons(arg, done)); });
+        return vm.monadic(function() { return vm.evaluate(e, vm.car(todo)); },
+                          function(arg) { return vm.eval_args(e, vm.cdr(todo), vm.cons(arg, done)); });
     };
     /* Built-in combiners */
     vm.Vau = {
-        qua_combine: function(self, m, e, o) {
+        qua_combine: function(self, e, o) {
             var p = vm.elt(o, 0);
             var ep = vm.elt(o, 1);
             var x = vm.elt(o, 2);
@@ -105,55 +101,51 @@ module.exports = function(vm, root_env) {
         }
     };
     vm.Def = {
-        qua_combine: function (self, m, e, o) {
+        qua_combine: function (self, e, o) {
             var lhs = vm.elt(o, 0);
             var rhs = vm.elt(o, 1);
-            return vm.monadic(m,
-                              function() { return vm.evaluate(null, e, rhs); },
+            return vm.monadic(function() { return vm.evaluate(e, rhs); },
                               function(val) { return vm.bind(e, lhs, val, vm.do_def); });
         }
     };
     vm.Setq = {
-        qua_combine: function (self, m, e, o) {
+        qua_combine: function (self, e, o) {
             var lhs = vm.elt(o, 0);
             var rhs = vm.elt(o, 1);
-            return vm.monadic(m,
-                              function() { return vm.evaluate(null, e, rhs); },
+            return vm.monadic(function() { return vm.evaluate(e, rhs); },
                               function(val) { return vm.bind(e, lhs, val, vm.do_setq); });
         }
     };
     vm.Eval = vm.wrap({
-        qua_combine: function(self, m, e, o) {
+        qua_combine: function(self, e, o) {
             var x = vm.elt(o, 0);
             var e = vm.elt(o, 1);
-            return vm.evaluate(m, e, x);
+            return vm.evaluate(e, x);
         }
     });
     vm.If = {
-        qua_combine: function(self, m, e, o) {
-            return vm.monadic(m,  
-                              function() { return vm.evaluate(null, e, vm.elt(o, 0)); },
-                              function(test) {
-                                  return vm.evaluate(null, e, test ? vm.elt(o, 1) : vm.elt(o, 2));
+        qua_combine: function(self, e, o) {
+            return vm.monadic(function() { return vm.evaluate(e, vm.elt(o, 0)); },
+                              function(test_result) {
+                                  return vm.evaluate(e, test_result ? vm.elt(o, 1) : vm.elt(o, 2));
                               });
         }
     };
     vm.Progn = {
-        qua_combine: function(self, m, e, o) {
-            if (vm.is_nil(o)) return vm.VOID; else return vm.progn(m, e, o);
+        qua_combine: function(self, e, o) {
+            if (vm.is_nil(o)) return vm.VOID; else return vm.progn(e, o);
         }
     };
-    vm.progn = function(m, e, xs) {
-        return vm.monadic(m,
-                          function() { return vm.evaluate(null, e, vm.car(xs)); },
+    vm.progn = function(e, xs) {
+        return vm.monadic(function() { return vm.evaluate(e, vm.car(xs)); },
                           function(res) {
                               var cdr = vm.cdr(xs);
-                              if (vm.is_nil(cdr)) return res; else return vm.progn(null, e, cdr);
+                              if (vm.is_nil(cdr)) return res; else return vm.progn(e, cdr);
                           });
     };
     /* Operator that calls JS function to do work */
     vm.JSOperator = function(js_fn) { this.js_fn = vm.assert_type(js_fn, "function"); };
-    vm.JSOperator.prototype.qua_combine = function(self, m, e, o) {
+    vm.JSOperator.prototype.qua_combine = function(self, e, o) {
         try {
             return self.js_fn.apply(null, vm.list_to_array(o));
         } catch(exc) {
@@ -208,8 +200,7 @@ module.exports = function(vm, root_env) {
         return doit(e, self, rhs);
     };
     vm.Cons.prototype.qua_bind = function(self, e, rhs, doit) {
-        return vm.monadic(null,
-                          function() { return vm.bind(e, vm.car(self), vm.car(rhs), doit); },
+        return vm.monadic(function() { return vm.bind(e, vm.car(self), vm.car(rhs), doit); },
                           function() { return vm.bind(e, vm.cdr(self), vm.cdr(rhs), doit); });
     };
     vm.Nil.prototype.qua_bind = function(self, e, rhs, doit) {
@@ -283,6 +274,6 @@ module.exports = function(vm, root_env) {
         vm.defun(e, vm.sym("%%parse-bytecode"), vm.jswrap(vm.parse_bytecode));
     };
     vm.eval = function(x, e) {
-        return vm.evaluate(null, e, x); // change to x,e
+        return vm.evaluate(e, x); // change to x,e
     };
 };

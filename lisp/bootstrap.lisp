@@ -358,7 +358,6 @@
 
 (defun unwind-protect* (#'protected-thunk #'cleanup-thunk)
   (prog1 (%%rescue (lambda (exc)
-                     ; TODO: don't run if exc is a panic
                      (cleanup-thunk)
                      (%%raise exc))
                    #'protected-thunk)
@@ -623,6 +622,11 @@
   (signal condition)
   (print "Warning:" condition))
 
+;; Additionally to explicit use from Lisp, ERROR gets called by the VM
+;; if a JS exception (that's not a block tag for a nonlocal control
+;; transfer) occurs during evaluation.  By virtue of calling
+;; INVOKE-DEBUGGER, it is guaranteed to never normally return back
+;; into JS, only to a formally established restart.
 (defun error (condition)
   (signal condition)
   (invoke-debugger condition))
@@ -781,8 +785,6 @@
 
 ;;;; Debugging and interaction
 
-;; Gets called by the VM if an exception occurs in called JS code and
-;; also if a VM internal routine causes an exception (which is a bug).
 (defun invoke-debugger (condition)
   (print "")
   (print "Welcome to the debugger!")

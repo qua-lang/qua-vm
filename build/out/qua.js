@@ -1,5 +1,5 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.qua = f()}})(function(){var define,module,exports;return (function(){function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s}return e})()({1:[function(require,module,exports){
-module.exports.main = [null,null,null,null,null,null,null,null,null,["%%def",["qua-function","def"],["qua-function","%%def"]],null,["def",["qua-function","car"],["qua-function","%%car"]],null,["def",["qua-function","cdr"],["qua-function","%%cdr"]],null,["def",["qua-function","cons"],["qua-function","%%cons"]],null,["def",["qua-function","eq"],["qua-function","%%eq"]],null,["def",["qua-function","eval"],["qua-function","%%eval"]],null,["def",["qua-function","%if"],["qua-function","%%if"]],null,["def",["qua-function","make-environment"],["qua-function","%%make-environment"]],null,["def",["qua-function","print"],["qua-function","%%print"]],null,["def",["qua-function","progn"],["qua-function","%%progn"]],null,["def",["qua-function","setq"],["qua-function","%%setq"]],null,["def",["qua-function","unwrap"],["qua-function","%%unwrap"]],null,["def",["qua-function","wrap"],["qua-function","%%wrap"]],null,null,["def",["qua-function","concrete-class-of"],["qua-function","%%concrete-class-of"]],["def",["qua-function","ensure-class"],["qua-function","%%ensure-class"]],["def",["qua-function","find-concrete-class"],["qua-function","%%find-concrete-class"]],["def",["qua-function","find-generic-class"],["qua-function","%%find-generic-class"]],["def",["qua-function","find-method"],["qua-function","%%find-method"]],["def",["qua-function","generic-class-of"],["qua-function","%%generic-class-of"]],["def",["qua-function","type?"],["qua-function","%%type?"]],["def",["qua-function","put-method"],["qua-function","%%put-method"]],["def",["qua-function","set-slot-value"],["qua-function","%%set-slot-value"]],["def",["qua-function","slot-bound?"],["qua-function","%%slot-bound?"]],["def",["qua-function","slot-value"],["qua-function","%%slot-value"]],null,["def",["qua-function","js-apply"],["qua-function","%%js-apply"]],["def",["qua-function","js-function"],["qua-function","%%js-function"]],["def",["qua-function","js-get"],["qua-function","%%js-get"]],["def",["qua-function","js-global"],["qua-function","%%js-global"]],["def",["qua-function","js-new"],["qua-function","%%js-new"]],["def",["qua-function","js-set"],["qua-function","%%js-set"]],["def",["qua-function","own-property?"],["qua-function","%%own-property?"]],null,null,["def",["qua-function","%to-fun-sym"],["qua-function","%%to-fun-sym"]],null,null,["def",["qua-function","list*"],["qua-function","%%list*"]],null,["def",["qua-function","list-to-js-array"],["qua-function","%%list-to-array"]],["def",["qua-function","plist-to-js-object"],["qua-function","%%plist-to-js-object"]],["def",["qua-function","reverse-list"],["qua-function","%%reverse-list"]],null,["def",["qua-function","="],["qua-function","eq"]],null,["def",["qua-function","defconstant"],["qua-function","def"]],null,null,["def",["qua-function","quote"],["%%vau",["op"],"#ign","op"]],null,["def",["qua-function","list"],["wrap",["%%vau","args","#ign","args"]]],null,["def",["qua-function","the-environment"],["%%vau","#ign","env","env"]],null,["def",["qua-function","prognize"],["wrap",["%%vau",["body"],"#ign",["list*",["qua-function","progn"],"body"]]]],null,null,null,["def",["qua-function","vau"],["%%vau",["params","env-param",".","body"],"env",["eval",["list",["qua-function","%%vau"],"params","env-param",["prognize","body"]],"env"]]],null,["def",["qua-function","deffexpr"],["vau",["name","params","env-param",".","body"],"env",["eval",["list",["qua-function","def"],["%to-fun-sym","name"],["list*",["qua-function","vau"],"params","env-param","body"]],"env"]]],null,null,["def",["qua-function","make-macro"],["wrap",["vau",["expander"],"#ign",["vau","form","env",["eval",["eval",["cons","expander","form"],["make-environment"]],"env"]]]]],null,["def",["qua-function","macro"],["make-macro",["vau",["params",".","body"],"#ign",["list",["qua-function","make-macro"],["list*",["qua-function","vau"],"params","#ign","body"]]]]],null,["def",["qua-function","defmacro"],["macro",["name","params",".","body"],["list",["qua-function","def"],["%to-fun-sym","name"],["list*",["qua-function","macro"],"params","body"]]]],null,null,["defmacro","%lambda",["params",".","body"],["list",["qua-function","wrap"],["list*",["qua-function","vau"],"params","#ign","body"]]],null,null,["defmacro","%defun",["name","params",".","body"],["list",["qua-function","def"],["%to-fun-sym","name"],["list*",["qua-function","%lambda"],"params","body"]]],null,null,["def",["qua-function","lambda"],["qua-function","%lambda"]],["def",["qua-function","defun"],["qua-function","%defun"]],null,["defun","optional",["opt-arg",".","opt-default"],["%if",["nil?","opt-arg"],["%if",["nil?","opt-default"],"#void",["car","opt-default"]],["car","opt-arg"]]],null,["defun","apply",["fun","args",".","opt-env"],["eval",["cons",["unwrap","fun"],"args"],["optional","opt-env",["make-environment"]]]],null,null,["defun","funcall",["fun",".","args"],["apply","fun","args"]],null,null,null,null,["defun","compose",[["qua-function","f"],["qua-function","g"]],["lambda",["arg"],["f",["g","arg"]]]],["defun","identity",["x"],"x"],null,null,["defun","nil?",["obj"],["eq","obj",[]]],["defun","void?",["obj"],["eq","obj","#void"]],["def",["qua-function","caar"],["compose",["qua-function","car"],["qua-function","car"]]],["def",["qua-function","cadr"],["compose",["qua-function","car"],["qua-function","cdr"]]],["def",["qua-function","cdar"],["compose",["qua-function","cdr"],["qua-function","car"]]],["def",["qua-function","cddr"],["compose",["qua-function","cdr"],["qua-function","cdr"]]],["defun","symbol?",["sym"],["%%type?","sym",["quote","symbol"]]],["defun","keyword?",["obj"],["%%type?","obj",["quote","keyword"]]],["defun","cons?",["cons"],["%%type?","cons",["quote","cons"]]],["defun","symbol-name",["sym"],["slot-value","sym",["quote","name"]]],null,["defun","map-list",[["qua-function","fun"],"list"],["%if",["nil?","list"],[],["cons",["fun",["car","list"]],["map-list",["qua-function","fun"],["cdr","list"]]]]],["def",["qua-function","list-for-each"],["qua-function","map-list"]],["defun","fold-list",[["qua-function","fun"],"init","list"],["%if",["nil?","list"],"init",["fold-list",["qua-function","fun"],["fun","init",["car","list"]],["cdr","list"]]]],null,null,null,["defmacro","let",["bindings",".","body"],["list*",["list*",["qua-function","lambda"],["map-list",["qua-function","car"],"bindings"],"body"],["map-list",["qua-function","cadr"],"bindings"]]],null,null,["defmacro","let*",["bindings",".","body"],["%if",["nil?","bindings"],["list*",["qua-function","let"],[],"body"],["list",["qua-function","let"],["list",["car","bindings"]],["list*",["qua-function","let*"],["cdr","bindings"],"body"]]]],null,null,["defmacro","%letrec",["bindings",".","body"],["list*",["qua-function","let"],[],["list",["qua-function","def"],["map-list",["qua-function","car"],"bindings"],["list*",["qua-function","list"],["map-list",["qua-function","cadr"],"bindings"]]],"body"]],null,["defun","%var-bindingize",[["fun-name","fun-params",".","fun-body"]],["list",["%to-fun-sym","fun-name"],["list*",["qua-function","lambda"],"fun-params","fun-body"]]],null,["defmacro","flet",["fun-bindings",".","body"],["list*",["qua-function","let"],["map-list",["qua-function","%var-bindingize"],"fun-bindings"],"body"]],null,["defmacro","labels",["fun-bindings",".","body"],["list*",["qua-function","%letrec"],["map-list",["qua-function","%var-bindingize"],"fun-bindings"],"body"]],null,["defun","not",["boolean"],["%if","boolean",false,true]],["deffexpr","cond","clauses","env",["%if",["nil?","clauses"],"#void",["let",[[[["test",".","body"],".","rest-clauses"],"clauses"]],["%if",["eval","test","env"],["eval",["cons",["qua-function","progn"],"body"],"env"],["eval",["cons",["qua-function","cond"],"rest-clauses"],"env"]]]]],["deffexpr","and","ops","env",["cond",[["nil?","ops"],true],[["nil?",["cdr","ops"]],["eval",["car","ops"],"env"]],[["eval",["car","ops"],"env"],["eval",["cons",["qua-function","and"],["cdr","ops"]],"env"]],[true,false]]],["deffexpr","or","ops","env",["cond",[["nil?","ops"],false],[["nil?",["cdr","ops"]],["eval",["car","ops"],"env"]],[["eval",["car","ops"],"env"],true],[true,["eval",["cons",["qua-function","or"],["cdr","ops"]],"env"]]]],null,["defconstant","+setter-prop+",["wat-string","qua_setter"]],["defun","setter",["obj"],["js-get","obj","+setter-prop+"]],["defun","defsetf",["access-fn","update-fn"],["js-set","access-fn","+setter-prop+","update-fn"]],["defsetf",["qua-function","setter"],["lambda",["new-setter","getter"],["js-set","getter","+setter-prop+","new-setter"]]],["defmacro","setf",["place","new-val"],["%if",["symbol?","place"],["list",["qua-function","setq"],"place","new-val"],["let*",[[["getter-form",".","args"],"place"],["getter",["%if",["symbol?","getter-form"],["%to-fun-sym","getter-form"],"getter-form"]]],["list*",["list",["qua-function","setter"],"getter"],"new-val","args"]]]],["defmacro","incf",["place",".","opt-increment"],["let",[["increment",["optional","opt-increment",1]]],["list",["qua-function","setf"],"place",["list",["qua-function","+"],"place","increment"]]]],["defmacro","decf",["place",".","opt-decrement"],["let",[["decrement",["optional","opt-decrement",1]]],["list",["qua-function","setf"],"place",["list",["qua-function","-"],"place","decrement"]]]],null,["def",["qua-function","%parse-type-spec"],["qua-function","identity"]],null,["defun","%make-instance",["class-desig",".","initargs"],["%%make-instance","class-desig",["plist-to-js-object","initargs"]]],["defun","call-method",["obj","name","args"],["let",[["method",["find-method","obj","name"]]],["apply","method","args"]]],["deffexpr","defgeneric",["name",".","#ign"],"env",["eval",["list",["qua-function","def"],["%to-fun-sym","name"],["lambda","args",["call-method",["car","args"],"name","args"]]],"env"]],["deffexpr","%defmethod",["name",[["self","class-spec"],".","args"],".","body"],"env",["let",[["class",["find-generic-class",["%parse-type-spec","class-spec"]]],["fun",["eval",["list*",["qua-function","lambda"],["list*","self","args"],"body"],"env"]]],["put-method","class","name","fun"],"name"]],["deffexpr","defclass",["class-spec","superclass-specs",".","#ign"],"#ign",["ensure-class",["%parse-type-spec","class-spec"],["list-to-js-array",["map-list",["qua-function","%parse-type-spec"],"superclass-specs"]]]],["defsetf",["qua-function","slot-value"],["lambda",["new-val","obj","slot-name"],["set-slot-value","obj","slot-name","new-val"]]],["defgeneric","hash-object",["self"]],["defgeneric","compare-object",["self"]],["defgeneric","print-object",["self","stream"]],null,["defun","thunkify",["body"],["list*",["qua-function","%lambda"],[],"body"]],["defmacro","loop","body",["list",["qua-function","%%loop"],["thunkify","body"]]],["deffexpr","while",["test",".","body"],"env",["let",[["body",["prognize","body"]]],["block","exit",["loop",["%if",["eval","test","env"],["eval","body","env"],["return-from","exit"]]]]]],null,["deffexpr","if",["test","then",".","rest"],"env",["%if",["eval","test","env"],["eval","then","env"],["%if",["nil?","rest"],"#void",["%if",["nil?",["cdr","rest"]],["eval",["car","rest"],"env"],["eval",["cons",["qua-function","if"],"rest"],"env"]]]]],["defmacro","when",["test",".","body"],["list",["qua-function","%if"],"test",["prognize","body"],"#void"]],["defmacro","unless",["test",".","body"],["list",["qua-function","%if"],"test","#void",["prognize","body"]]],["defun","%call-with-escape",[["qua-function","fn"]],["labels",[["escape","opt-val",["%%raise",["%make-instance",["quote","%%tag"],["qua-keyword","id"],["qua-function","escape"],["qua-keyword","val"],["optional","opt-val"]]]]],["%%rescue",["lambda",["exc"],["%if",["and",["type?","exc",["quote","%%tag"]],["eq",["slot-value","exc",["quote","id"]],["qua-function","escape"]]],["slot-value","exc",["quote","val"]],["%%raise","exc"]]],["lambda",[],["fn",["qua-function","escape"]]]]]],null,["defmacro","block",["name",".","body"],["list",["qua-function","%call-with-escape"],["list*",["qua-function","lambda"],["list","name"],"body"]]],["defun","return-from",["escape",".","opt-val"],["apply","escape","opt-val"]],["deffexpr","prog1","forms","env",["%if",["nil?","forms"],"#void",["let",[["result",["eval",["car","forms"],"env"]]],["eval",["prognize",["cdr","forms"]],"env"],"result"]]],["defmacro","prog2",["form",".","forms"],["list",["qua-function","progn"],"form",["list*",["qua-function","prog1"],"forms"]]],["defun","unwind-protect*",[["qua-function","protected-thunk"],["qua-function","cleanup-thunk"]],["prog1",["%%rescue",["lambda",["exc"],null,["cleanup-thunk"],["%%raise","exc"]],["qua-function","protected-thunk"]],["cleanup-thunk"]]],["defmacro","unwind-protect",["protected-form",".","cleanup-forms"],["list",["qua-function","unwind-protect*"],["list",["qua-function","lambda"],[],"protected-form"],["thunkify","cleanup-forms"]]],["deffexpr","case",["expr",".","clauses"],"env",["let",[["val",["eval","expr","env"]]],["block","match",["list-for-each",["lambda",[["other-val",".","body"]],["when",["=","val",["eval","other-val","env"]],["return-from","match",["eval",["prognize","body"],"env"]]]],"clauses"],"#void"]]],null,["defclass","mut",["standard-object"],["val"]],["defun","mut",["val"],["%make-instance",["quote","mut"],["qua-keyword","val"],"val"]],["defun","ref",["mut"],["slot-value","mut",["quote","val"]]],["defsetf",["qua-function","ref"],["lambda",["new-val","mut"],["setf",["slot-value","mut",["quote","val"]],"new-val"]]],null,["defmacro","push-prompt",["prompt",".","body"],["list",["qua-function","%%push-prompt"],"prompt",["thunkify","body"]]],["defmacro","take-subcont",["prompt","name",".","body"],["list",["qua-function","%%take-subcont"],"prompt",["list*",["qua-function","lambda"],["list","name"],"body"]]],["defmacro","push-subcont",["continuation",".","body"],["list",["qua-function","%%push-subcont"],"continuation",["thunkify","body"]]],["defmacro","push-prompt-subcont",["prompt","continuation",".","body"],["list",["qua-function","%%push-prompt-subcont"],"prompt","continuation",["thunkify","body"]]],["defconstant","+default-prompt+",["qua-keyword","default-prompt"]],["defmacro","push-default-prompt","body",["list*",["qua-function","push-prompt"],"+default-prompt+","body"]],["defmacro","take-default-subcont",["name",".","body"],["list*",["qua-function","take-subcont"],"+default-prompt+","name","body"]],["defmacro","push-default-subcont",["continuation",".","body"],["list*",["qua-function","push-prompt-subcont"],"+default-prompt+","continuation","body"]],null,["defmacro","defdynamic",["name",".","opt-val"],["list",["qua-function","def"],"name",["list",["qua-function","mut"],["optional","opt-val"]]]],["def",["qua-function","dynamic"],["qua-function","ref"]],null,["def",["qua-function","dynamic-bind"],["qua-function","%%dynamic-bind"]],null,null,["deffexpr","dynamic-let",["bindings",".","body"],"env",["let",[["pairs",["map-list",["lambda",[["dynamic-name","expr"]],["cons",["eval","dynamic-name","env"],["eval","expr","env"]]],"bindings"]]],["labels",[["process-pairs",["pairs"],["%if",["nil?","pairs"],["eval",["prognize","body"],"env"],["let*",[[[["dynamic",".","value"],".","rest-pairs"],"pairs"]],["dynamic-bind","dynamic","value",["lambda",[],["process-pairs","rest-pairs"]]]]]]],["process-pairs","pairs"]]]],null,null,["defun","js-getter",["prop-name"],["flet",[["getter",["obj"],["js-get","obj","prop-name"]]],["defsetf",["qua-function","getter"],["lambda",["new-val","obj"],["js-set","obj","prop-name","new-val"]]],["qua-function","getter"]]],null,["defun","js-invoker",["method-name"],["lambda",["this",".","args"],["let",[["fun",["js-get","this","method-name"]]],["js-apply","fun","this",["list-to-js-array","args"]]]]],["defun","create-js-object","opt-proto",[["js-invoker",["wat-string","create"]],["js-global",["wat-string","Object"]],["optional","opt-proto",null]]],["defun","js-object","plist",["plist-to-js-object","plist"]],["defun","js-array","elements",["list-to-js-array","elements"]],["defmacro","js-lambda",["lambda-list",".","body"],["list",["qua-function","js-function"],["list*",["qua-function","lambda"],"lambda-list","body"]]],["defun","%js-relational-op",["name"],["let",[[["qua-function","binop"],["%%js-binop","name"]]],["labels",[["op",["arg1","arg2",".","rest"],["%if",["binop","arg1","arg2"],["%if",["nil?","rest"],true,["apply",["qua-function","op"],["list*","arg2","rest"]]],false]]],["qua-function","op"]]]],["def",["qua-function","=="],["%js-relational-op",["wat-string","=="]]],["def",["qua-function","==="],["%js-relational-op",["wat-string","==="]]],["def",["qua-function","<"],["%js-relational-op",["wat-string","<"]]],["def",["qua-function",">"],["%js-relational-op",["wat-string",">"]]],["def",["qua-function","<="],["%js-relational-op",["wat-string","<="]]],["def",["qua-function",">="],["%js-relational-op",["wat-string",">="]]],["def",["qua-function","lt"],["qua-function","<"]],["def",["qua-function","lte"],["qua-function","<="]],["def",["qua-function","gt"],["qua-function",">"]],["def",["qua-function","gte"],["qua-function",">="]],["defun","!=","args",["not",["apply","==","args"]]],["defun","!==","args",["not",["apply","===","args"]]],["def",["qua-function","*"],["let",[[["qua-function","binop"],["%%js-binop",["wat-string","*"]]]],["lambda","args",["fold-list",["qua-function","binop"],1,"args"]]]],null,["def",["qua-function","+"],["let",[[["qua-function","binop"],["%%js-binop",["wat-string","+"]]]],["lambda","args",["%if",["nil?","args"],0,["fold-list",["qua-function","binop"],["car","args"],["cdr","args"]]]]]],["defun","%js-negative-op",["name","unit"],["let",[[["qua-function","binop"],["%%js-binop","name"]]],["lambda",["arg1",".","rest"],["%if",["nil?","rest"],["binop","unit","arg1"],["fold-list",["qua-function","binop"],"arg1","rest"]]]]],["def",["qua-function","-"],["%js-negative-op",["wat-string","-"],0]],["def",["qua-function","/"],["%js-negative-op",["wat-string","/"],1]],null,["defun","list-length",["list"],["%if",["nil?","list"],0,["+",1,["list-length",["cdr","list"]]]]],["defun","list-elt",["list","i"],["%if",["=","i",0],["car","list"],["list-elt",["cdr","list"],["-","i",1]]]],["defun","filter-list",[["qua-function","pred?"],"list"],["%if",["nil?","list"],["quote",[]],["%if",["pred?",["car","list"]],["cons",["car","list"],["filter-list",["qua-function","pred?"],["cdr","list"]]],["filter-list",["qua-function","pred?"],["cdr","list"]]]]],["defun","append-2-lists",["list-1","list-2"],["%if",["nil?","list-1"],"list-2",["cons",["car","list-1"],["append-2-lists",["cdr","list-1"],"list-2"]]]],null,["defclass","serious-condition",["condition"]],["defclass","error",["serious-condition"]],["defclass","warning",["condition"]],["defclass","simple-condition",["condition"],["message"]],["defclass","simple-warning",["warning"],["message"]],["defclass","simple-error",["error"],["message"]],["defun","simple-error",["message",".","#ign"],["error",["make-instance",["quote","simple-error"],["qua-keyword","message"],"message"]]],["defclass","runtime-error",["error"]],["defclass","control-error",["runtime-error"]],["defclass","restart-control-error",["control-error"],["restart"]],["defclass","abort",["restart"]],["defclass","continue",["restart"]],["defclass","store-value",["restart"],["value"]],null,["defdynamic","*condition-handler-frame*"],["defdynamic","*restart-handler-frame*"],["defclass","handler",["standard-object"],["name","condition-type","handler-function","associated-condition"]],["defun","make-handler",["condition-type","handler-function",".","opt-associated-condition"],["%make-instance",["quote","handler"],["qua-keyword","name"],["symbol-name","condition-type"],["qua-keyword","condition-type"],"condition-type",["qua-keyword","handler-function"],"handler-function",["qua-keyword","associated-condition"],["optional","opt-associated-condition"]]],["defun","handle-condition",["handler","condition"],["funcall",["slot-value","handler",["quote","handler-function"]],"condition"]],["defclass","handler-frame",["standard-object"],["handlers","parent"]],["defun","make-handler-frame",["handlers",".","opt-parent"],["%make-instance",["quote","handler-frame"],["qua-keyword","handlers"],"handlers",["qua-keyword","parent"],["optional","opt-parent"]]],["defun","%make-handler-bind",[["qua-function","handler-spec-parser"],"handler-frame-dynamic"],["vau",["handler-specs",".","body"],"env",["let*",[["handlers",["map-list",["lambda",["spec"],["handler-spec-parser","spec","env"]],"handler-specs"]],["handler-frame",["make-handler-frame","handlers",["dynamic","handler-frame-dynamic"]]]],["dynamic-bind","handler-frame-dynamic","handler-frame",["lambda",[],["eval",["prognize","body"],"env"]]]]]],null,["def",["qua-function","handler-bind"],["%make-handler-bind",["lambda",[["class-name","function-form"],"env"],["make-handler","class-name",["eval","function-form","env"]]],"*condition-handler-frame*"]],null,["def",["qua-function","restart-bind"],["%make-handler-bind",["lambda",[["class-name","function-form",".","opt-associated-condition"],"env"],["make-handler","class-name",["eval","function-form","env"],["eval",["optional","opt-associated-condition"],"env"]]],"*restart-handler-frame*"]],null,["defun","signal",["condition"],["signal-condition","condition",["dynamic","*condition-handler-frame*"]]],["defun","warn",["condition"],["signal","condition"],["print",["wat-string","Warning:"],"condition"]],["defun","error",["condition"],["signal","condition"],["invoke-debugger","condition"]],["defun","invoke-restart",["restart"],["signal-condition","restart",["dynamic","*restart-handler-frame*"]]],["defun","signal-condition",["condition","dynamic-frame"],["let",[["handler-and-frame",["find-applicable-handler","condition","dynamic-frame"]]],["%if",["void?","handler-and-frame"],"#void",["let",[[["handler","frame"],"handler-and-frame"]],["call-condition-handler","condition","handler","frame"],null,["signal-condition","condition",["slot-value","frame",["quote","parent"]]]]]]],["defun","find-applicable-handler",["condition","dynamic-frame"],["%if",["void?","dynamic-frame"],"#void",["block","found",["list-for-each",["lambda",["handler"],["when",["condition-applicable?","condition","handler"],["return-from","found",["list","handler","dynamic-frame"]]]],["slot-value","dynamic-frame",["quote","handlers"]]],["find-applicable-handler","condition",["slot-value","dynamic-frame",["quote","parent"]]]]]],["defgeneric","condition-applicable?",["condition","handler"]],["%defmethod","condition-applicable?",[["condition","condition"],"handler"],["type?","condition",["slot-value","handler",["quote","condition-type"]]]],["defun","slot-void?",["obj","slot-name"],["%if",["slot-bound?","obj","slot-name"],["void?",["slot-value","obj","slot-name"]],true]],["%defmethod","condition-applicable?",[["restart","restart"],"handler"],["and",["type?","restart",["slot-value","handler",["quote","condition-type"]]],["or",["slot-void?","restart",["quote","associated-condition"]],["slot-void?","handler",["quote","associated-condition"]],["eq",["slot-value","restart",["quote","associated-condition"]],["slot-value","handler",["quote","associated-condition"]]]]]],["defgeneric","call-condition-handler",["condition","handler","handler-frame"]],["%defmethod","call-condition-handler",[["condition","condition"],"handler","handler-frame"],null,["dynamic-let",[["*condition-handler-frame*",["slot-value","handler-frame",["quote","parent"]]]],["handle-condition","handler","condition"]]],["%defmethod","call-condition-handler",[["restart","restart"],"handler","handler-frame"],["handle-condition","handler","restart"]],null,["defclass","type-error",["error"],[]],["defclass","type-mismatch-error",["type-error"],["type-spec","obj"]],["defconstant","+top-type+",["%make-instance",["quote","%class-type"],["qua-keyword","name"],["wat-string","top"],["qua-keyword","generic-params"],["quote",[]]]],["defconstant","+bottom-type+",["%make-instance",["quote","%class-type"],["qua-keyword","name"],["wat-string","bottom"],["qua-keyword","generic-params"],["quote",[]]]],["defun","%parse-type-spec",["type-spec"],["if",["keyword?","type-spec"],["%make-instance",["quote","%type-variable"],["qua-keyword","name"],["symbol-name","type-spec"]],["symbol?","type-spec"],["%make-instance",["quote","%class-type"],["qua-keyword","name"],["symbol-name","type-spec"],["qua-keyword","generic-params"],["quote",[]]],["cons?","type-spec"],["let",[[["class-name",".","generic-param-specs"],"type-spec"]],["%make-instance",["quote","%class-type"],["qua-keyword","name"],["symbol-name","class-name"],["qua-keyword","generic-params"],["map-list",["qua-function","%parse-generic-param-spec"],"generic-param-specs"]]],["simple-error",["wat-string","Illegal type-spec"]]]],["defun","%parse-generic-param-spec",["gp-spec"],["if",["or",["keyword?","gp-spec"],["symbol?","gp-spec"]],["let",[["type",["%parse-type-spec","gp-spec"]]],["%make-instance",["quote","%generic-param"],["qua-keyword","in-type"],"type",["qua-keyword","out-type"],"type"]],["cons?","gp-spec"],["let",[[["op",".","rest"],"gp-spec"]],["%if",["keyword?","op"],["case",["symbol-name","op"],[["wat-string","io"],["let*",[["in-type",["%parse-type-spec",["car","rest"]]],["out-type",["%parse-type-spec",["optional",["cdr","rest"],"in-type"]]]],["%make-instance",["quote","%generic-param"],["qua-keyword","in-type"],"in-type",["qua-keyword","out-type"],"out-type"]]],[["wat-string","in"],["let",[["in-type",["%parse-type-spec",["car","rest"]]]],["%make-instance",["quote","%generic-param"],["qua-keyword","in-type"],"in-type",["qua-keyword","out-type"],"+top-type+"]]],[["wat-string","out"],["let",[["out-type",["%parse-type-spec",["car","rest"]]]],["%make-instance",["quote","%generic-param"],["qua-keyword","in-type"],"+bottom-type+",["qua-keyword","out-type"],"out-type"]]]],["let",[["type",["%parse-type-spec","gp-spec"]]],["%make-instance",["quote","%generic-param"],["qua-keyword","in-type"],"type",["qua-keyword","out-type"],"type"]]]],["error",["wat-string","Illegal generic param spec"]]]],["defun","type?",["obj","type-spec"],["%%type?","obj",["%parse-type-spec","type-spec"]]],["deffexpr","typecase",["expr",".","clauses"],"env",["let",[["val",["eval","expr","env"]]],["block","match",["list-for-each",["lambda",[["type-spec",".","body"]],["%if",["eq","type-spec",true],["return-from","match",["eval",["prognize","body"],"env"]],["when",["type?","val","type-spec"],["return-from","match",["eval",["prognize","body"],"env"]]]]],"clauses"],"#void"]]],["defun","the",["type-spec","obj"],["%if",["type?","obj","type-spec"],"obj",["error",["%make-instance",["quote","type-mismatch-error"],["qua-keyword","type-spec"],"type-spec",["qua-keyword","obj"],"obj"]]]],["defun","%method-lambda-list-type-checks",["method-ll"],["map-list",["lambda",["param"],["typecase","param",["cons","#void"],["symbol","#void"],["keyword"],[true,["simple-error",["wat-string","Weird method parameter"],["qua-keyword","arg"],"param"]]]],[]]],["defun","%parse-method-lambda-list",["method-ll"],["if",["cons?","method-ll"],["let*",[[["receiver-spec",".","other-params"],"method-ll"],["simplified-other-params",["map-list",["lambda",["param"],["typecase","param",["cons",["car","param"]],["symbol","param"],[true,["simple-error",["wat-string","Not a method parameter"],["qua-keyword","arg"],"param"]]]],"other-params"]],["simplified-ll",["cons","receiver-spec","simplified-other-params"]],["type-checks",["%method-lambda-list-type-checks","method-ll"]]],["list","simplified-ll","type-checks"]],["simple-error",["wat-string","Not a method lambda list"],["qua-keyword","arg"],"method-ll"]]],["defmacro","defmethod",["name","method-lambda-list",".","body"],["let",[[["simplified-method-ll","type-checks"],["%parse-method-lambda-list","method-lambda-list"]]],["list*",["qua-function","%defmethod"],"name","simplified-method-ll","type-checks","body"]]],["defun","make-instance",["type-spec",".","args"],["apply",["qua-function","%make-instance"],["cons",["%parse-type-spec","type-spec"],"args"]]],null,null,null,["defun","invoke-debugger",["condition"],["print",["wat-string",""]],["print",["wat-string","Welcome to the debugger!"]],["loop",["block","continue",["print",["+",["wat-string","Condition: "],"condition"]],["let",[["restarts",["compute-restarts","condition"]]],["if",[">",["list-length","restarts"],0],["progn",["print",["wat-string","Restarts:"]],["let",[["i",1]],["list-for-each",["lambda",["restart"],["print",["+","i",["wat-string",": "],["slot-value","restart",["quote","name"]]]],["incf","i"]],"restarts"],["print",["wat-string","Enter a restart number:"]],["let*",[["s",["%%read-line"]],["n",[["js-global",["wat-string","Number"]],"s"]]],["if",[["js-global",["wat-string","isNaN"]],"n"],["progn",["print",["wat-string","You didn't enter a number. Please try again."]],["return-from","continue"]],["let",[["class",["slot-value",["list-elt","restarts",["-","n",1]],["quote","condition-type"]]]],["invoke-restart-interactively",["%make-instance","class"]]]]]]],["%%panic","condition"]]]]]],["defun","compute-restarts",["condition"],["reverse-list",["%compute-restarts","condition",["quote",[]],["dynamic","*restart-handler-frame*"]]]],["defun","%compute-restarts",["condition","restart-list","handler-frame"],["if",["void?","handler-frame"],"restart-list",["let",[["restarts",["filter-list",["lambda",["handler"],["or",["slot-void?","handler",["quote","associated-condition"]],["eq",["slot-value","handler",["quote","associated-condition"]],"condition"]]],["slot-value","handler-frame",["quote","handlers"]]]]],["%compute-restarts","condition",["append-2-lists","restarts","restart-list"],["slot-value","handler-frame",["quote","parent"]]]]]],["defgeneric","invoke-restart-interactively",["restart"]],["%defmethod","invoke-restart-interactively",[["r","restart"]],["invoke-restart","r"]],null,null,["defconstant","+user-prompt+",["qua-keyword","user-prompt"]],null,null,["defun","push-userspace*",[["qua-function","thunk"]],["push-prompt","+user-prompt+",["thunk"]]],["defmacro","push-userspace","body",["list",["qua-function","push-userspace*"],["thunkify","body"]]],["defun","user-eval",["expr","env"],["push-userspace",["eval","expr","env"]]],null,["def",["qua-function","node:require"],["qua-function","%%require"]],["defconstant","node:path",["node:require",["wat-string","path"]]],["def",["qua-function","node:dirname"],[["js-getter",["wat-string","dirname"]],"node:path"]],["def",["qua-function","node:join-paths"],[["js-getter",["wat-string","join"]],"node:path"]],["defconstant","node:fs",["node:require",["wat-string","fs"]]],["def",["qua-function","node:read-file-sync"],[["js-getter",["wat-string","readFileSync"]],"node:fs"]],["defun","read-file-as-string",["path"],["node:read-file-sync","path",["wat-string","utf8"]]],["defun","read-file",["path"],["list*",["qua-function","progn"],["%%parse-bytecode",["%%parse-sexp",["read-file-as-string","path"]]]]],null,["def",["qua-function","load"],["wrap",["vau",["path",".","opt-env"],"denv",["user-eval",["read-file","path"],["optional","opt-env","denv"]]]]],null,null,["def",["qua-function","load-system"],["wrap",["vau",["path",".","opt-env"],"denv",["let*",[["env",["optional","opt-env","denv"]],[["qua-function","defsystem"],["vau",["name",["qua-keyword","depends-on"],"deps",["qua-keyword","components"],"components"],"#ign",["list-for-each",["lambda",["dep"],["load-system",["node:join-paths",["node:dirname","path"],"dep"],"env"]],"deps"],["list-for-each",["lambda",["component"],["load",["node:join-paths",["node:dirname","path"],"component"],"env"]],"components"]]]],["load","path"]]]]],null,["load-system",["wat-string","lisp/qua-full-node.system.lisp"]],["load-system",["wat-string","lisp/doc/doc.system.lisp"]],null]
+module.exports.main = [null,null,null,null,null,null,null,null,null,["%%def",["qua-function","def"],["qua-function","%%def"]],null,["def",["qua-function","car"],["qua-function","%%car"]],null,["def",["qua-function","cdr"],["qua-function","%%cdr"]],null,["def",["qua-function","cons"],["qua-function","%%cons"]],null,["def",["qua-function","eq"],["qua-function","%%eq"]],null,["def",["qua-function","eval"],["qua-function","%%eval"]],null,["def",["qua-function","%if"],["qua-function","%%if"]],null,["def",["qua-function","make-environment"],["qua-function","%%make-environment"]],null,["def",["qua-function","print"],["qua-function","%%print"]],null,["def",["qua-function","progn"],["qua-function","%%progn"]],null,["def",["qua-function","setq"],["qua-function","%%setq"]],null,["def",["qua-function","unwrap"],["qua-function","%%unwrap"]],null,["def",["qua-function","wrap"],["qua-function","%%wrap"]],null,null,["def",["qua-function","concrete-class-of"],["qua-function","%%concrete-class-of"]],["def",["qua-function","ensure-class"],["qua-function","%%ensure-class"]],["def",["qua-function","find-concrete-class"],["qua-function","%%find-concrete-class"]],["def",["qua-function","find-generic-class"],["qua-function","%%find-generic-class"]],["def",["qua-function","find-method"],["qua-function","%%find-method"]],["def",["qua-function","generic-class-of"],["qua-function","%%generic-class-of"]],["def",["qua-function","type?"],["qua-function","%%type?"]],["def",["qua-function","put-method"],["qua-function","%%put-method"]],["def",["qua-function","set-slot-value"],["qua-function","%%set-slot-value"]],["def",["qua-function","slot-bound?"],["qua-function","%%slot-bound?"]],["def",["qua-function","slot-value"],["qua-function","%%slot-value"]],null,["def",["qua-function","js-apply"],["qua-function","%%js-apply"]],["def",["qua-function","js-function"],["qua-function","%%js-function"]],["def",["qua-function","js-get"],["qua-function","%%js-get"]],["def",["qua-function","js-global"],["qua-function","%%js-global"]],["def",["qua-function","js-new"],["qua-function","%%js-new"]],["def",["qua-function","js-set"],["qua-function","%%js-set"]],["def",["qua-function","own-property?"],["qua-function","%%own-property?"]],null,null,["def",["qua-function","%to-fun-sym"],["qua-function","%%to-fun-sym"]],null,null,["def",["qua-function","list*"],["qua-function","%%list*"]],null,["def",["qua-function","list-to-js-array"],["qua-function","%%list-to-array"]],["def",["qua-function","plist-to-js-object"],["qua-function","%%plist-to-js-object"]],["def",["qua-function","reverse-list"],["qua-function","%%reverse-list"]],null,["def",["qua-function","="],["qua-function","eq"]],null,["def",["qua-function","defconstant"],["qua-function","def"]],null,null,["def",["qua-function","quote"],["%%vau",["op"],"#ign","op"]],null,["def",["qua-function","list"],["wrap",["%%vau","args","#ign","args"]]],null,["def",["qua-function","the-environment"],["%%vau","#ign","env","env"]],null,["def",["qua-function","prognize"],["wrap",["%%vau",["body"],"#ign",["list*",["qua-function","progn"],"body"]]]],null,null,null,["def",["qua-function","vau"],["%%vau",["params","env-param",".","body"],"env",["eval",["list",["qua-function","%%vau"],"params","env-param",["prognize","body"]],"env"]]],null,["def",["qua-function","deffexpr"],["vau",["name","params","env-param",".","body"],"env",["eval",["list",["qua-function","def"],["%to-fun-sym","name"],["list*",["qua-function","vau"],"params","env-param","body"]],"env"]]],null,null,["def",["qua-function","make-macro"],["wrap",["vau",["expander"],"#ign",["vau","form","env",["eval",["eval",["cons","expander","form"],["make-environment"]],"env"]]]]],null,["def",["qua-function","macro"],["make-macro",["vau",["params",".","body"],"#ign",["list",["qua-function","make-macro"],["list*",["qua-function","vau"],"params","#ign","body"]]]]],null,["def",["qua-function","defmacro"],["macro",["name","params",".","body"],["list",["qua-function","def"],["%to-fun-sym","name"],["list*",["qua-function","macro"],"params","body"]]]],null,null,["defmacro","%lambda",["params",".","body"],["list",["qua-function","wrap"],["list*",["qua-function","vau"],"params","#ign","body"]]],null,null,["defmacro","%defun",["name","params",".","body"],["list",["qua-function","def"],["%to-fun-sym","name"],["list*",["qua-function","%lambda"],"params","body"]]],null,null,["def",["qua-function","lambda"],["qua-function","%lambda"]],["def",["qua-function","defun"],["qua-function","%defun"]],null,["defun","optional",["opt-arg",".","opt-default"],["%if",["nil?","opt-arg"],["%if",["nil?","opt-default"],"#void",["car","opt-default"]],["car","opt-arg"]]],null,["defun","apply",["fun","args",".","opt-env"],["eval",["cons",["unwrap","fun"],"args"],["optional","opt-env",["make-environment"]]]],null,null,["defun","funcall",["fun",".","args"],["apply","fun","args"]],null,null,null,null,["defun","compose",[["qua-function","f"],["qua-function","g"]],["lambda",["arg"],["f",["g","arg"]]]],["defun","identity",["x"],"x"],null,null,["defun","nil?",["obj"],["eq","obj",[]]],["defun","void?",["obj"],["eq","obj","#void"]],["def",["qua-function","caar"],["compose",["qua-function","car"],["qua-function","car"]]],["def",["qua-function","cadr"],["compose",["qua-function","car"],["qua-function","cdr"]]],["def",["qua-function","cdar"],["compose",["qua-function","cdr"],["qua-function","car"]]],["def",["qua-function","cddr"],["compose",["qua-function","cdr"],["qua-function","cdr"]]],["defun","symbol?",["sym"],["%%type?","sym",["quote","symbol"]]],["defun","keyword?",["obj"],["%%type?","obj",["quote","keyword"]]],["defun","cons?",["cons"],["%%type?","cons",["quote","cons"]]],["defun","symbol-name",["sym"],["slot-value","sym",["quote","name"]]],null,["defun","map-list",[["qua-function","fun"],"list"],["%if",["nil?","list"],[],["cons",["fun",["car","list"]],["map-list",["qua-function","fun"],["cdr","list"]]]]],["def",["qua-function","list-for-each"],["qua-function","map-list"]],["defun","fold-list",[["qua-function","fun"],"init","list"],["%if",["nil?","list"],"init",["fold-list",["qua-function","fun"],["fun","init",["car","list"]],["cdr","list"]]]],null,null,null,["defmacro","let",["bindings",".","body"],["list*",["list*",["qua-function","lambda"],["map-list",["qua-function","car"],"bindings"],"body"],["map-list",["qua-function","cadr"],"bindings"]]],null,null,["defmacro","let*",["bindings",".","body"],["%if",["nil?","bindings"],["list*",["qua-function","let"],[],"body"],["list",["qua-function","let"],["list",["car","bindings"]],["list*",["qua-function","let*"],["cdr","bindings"],"body"]]]],null,null,["defmacro","%letrec",["bindings",".","body"],["list*",["qua-function","let"],[],["list",["qua-function","def"],["map-list",["qua-function","car"],"bindings"],["list*",["qua-function","list"],["map-list",["qua-function","cadr"],"bindings"]]],"body"]],null,["defun","%var-bindingize",[["fun-name","fun-params",".","fun-body"]],["list",["%to-fun-sym","fun-name"],["list*",["qua-function","lambda"],"fun-params","fun-body"]]],null,["defmacro","flet",["fun-bindings",".","body"],["list*",["qua-function","let"],["map-list",["qua-function","%var-bindingize"],"fun-bindings"],"body"]],null,["defmacro","labels",["fun-bindings",".","body"],["list*",["qua-function","%letrec"],["map-list",["qua-function","%var-bindingize"],"fun-bindings"],"body"]],null,["defun","not",["boolean"],["%if","boolean",false,true]],["deffexpr","cond","clauses","env",["%if",["nil?","clauses"],"#void",["let",[[[["test",".","body"],".","rest-clauses"],"clauses"]],["%if",["eval","test","env"],["eval",["cons",["qua-function","progn"],"body"],"env"],["eval",["cons",["qua-function","cond"],"rest-clauses"],"env"]]]]],["deffexpr","and","ops","env",["cond",[["nil?","ops"],true],[["nil?",["cdr","ops"]],["eval",["car","ops"],"env"]],[["eval",["car","ops"],"env"],["eval",["cons",["qua-function","and"],["cdr","ops"]],"env"]],[true,false]]],["deffexpr","or","ops","env",["cond",[["nil?","ops"],false],[["nil?",["cdr","ops"]],["eval",["car","ops"],"env"]],[["eval",["car","ops"],"env"],true],[true,["eval",["cons",["qua-function","or"],["cdr","ops"]],"env"]]]],null,["defconstant","+setter-prop+",["wat-string","qua_setter"]],["defun","setter",["obj"],["js-get","obj","+setter-prop+"]],["defun","defsetf",["access-fn","update-fn"],["js-set","access-fn","+setter-prop+","update-fn"]],["defsetf",["qua-function","setter"],["lambda",["new-setter","getter"],["js-set","getter","+setter-prop+","new-setter"]]],["defmacro","setf",["place","new-val"],["%if",["symbol?","place"],["list",["qua-function","setq"],"place","new-val"],["let*",[[["getter-form",".","args"],"place"],["getter",["%if",["symbol?","getter-form"],["%to-fun-sym","getter-form"],"getter-form"]]],["list*",["list",["qua-function","setter"],"getter"],"new-val","args"]]]],["defmacro","incf",["place",".","opt-increment"],["let",[["increment",["optional","opt-increment",1]]],["list",["qua-function","setf"],"place",["list",["qua-function","+"],"place","increment"]]]],["defmacro","decf",["place",".","opt-decrement"],["let",[["decrement",["optional","opt-decrement",1]]],["list",["qua-function","setf"],"place",["list",["qua-function","-"],"place","decrement"]]]],null,["def",["qua-function","%parse-type-spec"],["qua-function","identity"]],null,["defun","%make-instance",["class-desig",".","initargs"],["%%make-instance","class-desig",["plist-to-js-object","initargs"]]],["defun","call-method",["obj","name","args"],["let",[["method",["find-method","obj","name"]]],["apply","method","args"]]],["deffexpr","defgeneric",["name",".","#ign"],"env",["eval",["list",["qua-function","def"],["%to-fun-sym","name"],["lambda","args",["call-method",["car","args"],"name","args"]]],"env"]],["deffexpr","%defmethod",["name",[["self","class-spec"],".","args"],".","body"],"env",["let",[["class",["find-generic-class",["%parse-type-spec","class-spec"]]],["fun",["eval",["list*",["qua-function","lambda"],["list*","self","args"],"body"],"env"]]],["put-method","class","name","fun"],"name"]],["deffexpr","defclass",["class-spec","superclass-specs",".","#ign"],"#ign",["ensure-class",["%parse-type-spec","class-spec"],["list-to-js-array",["map-list",["qua-function","%parse-type-spec"],"superclass-specs"]]]],["defsetf",["qua-function","slot-value"],["lambda",["new-val","obj","slot-name"],["set-slot-value","obj","slot-name","new-val"]]],["defgeneric","hash-object",["self"]],["defgeneric","compare-object",["self"]],["defgeneric","print-object",["self","stream"]],null,["defun","thunkify",["body"],["list*",["qua-function","%lambda"],[],"body"]],["defmacro","loop","body",["list",["qua-function","%%loop"],["thunkify","body"]]],["deffexpr","while",["test",".","body"],"env",["let",[["body",["prognize","body"]]],["block","exit",["loop",["%if",["eval","test","env"],["eval","body","env"],["return-from","exit"]]]]]],null,["deffexpr","if",["test","then",".","rest"],"env",["%if",["eval","test","env"],["eval","then","env"],["%if",["nil?","rest"],"#void",["%if",["nil?",["cdr","rest"]],["eval",["car","rest"],"env"],["eval",["cons",["qua-function","if"],"rest"],"env"]]]]],["defmacro","when",["test",".","body"],["list",["qua-function","%if"],"test",["prognize","body"],"#void"]],["defmacro","unless",["test",".","body"],["list",["qua-function","%if"],"test","#void",["prognize","body"]]],["defun","%call-with-escape",[["qua-function","fn"]],["labels",[["escape","opt-val",["%%raise",["%make-instance",["quote","%%tag"],["qua-keyword","id"],["qua-function","escape"],["qua-keyword","val"],["optional","opt-val"]]]]],["%%rescue",["lambda",["exc"],["%if",["and",["type?","exc",["quote","%%tag"]],["eq",["slot-value","exc",["quote","id"]],["qua-function","escape"]]],["slot-value","exc",["quote","val"]],["%%raise","exc"]]],["lambda",[],["fn",["qua-function","escape"]]]]]],null,["defmacro","block",["name",".","body"],["list",["qua-function","%call-with-escape"],["list*",["qua-function","lambda"],["list","name"],"body"]]],["defun","return-from",["escape",".","opt-val"],["apply","escape","opt-val"]],["deffexpr","prog1","forms","env",["%if",["nil?","forms"],"#void",["let",[["result",["eval",["car","forms"],"env"]]],["eval",["prognize",["cdr","forms"]],"env"],"result"]]],["defmacro","prog2",["form",".","forms"],["list",["qua-function","progn"],"form",["list*",["qua-function","prog1"],"forms"]]],["defun","unwind-protect*",[["qua-function","protected-thunk"],["qua-function","cleanup-thunk"]],["prog1",["%%rescue",["lambda",["exc"],["cleanup-thunk"],["%%raise","exc"]],["qua-function","protected-thunk"]],["cleanup-thunk"]]],["defmacro","unwind-protect",["protected-form",".","cleanup-forms"],["list",["qua-function","unwind-protect*"],["list",["qua-function","lambda"],[],"protected-form"],["thunkify","cleanup-forms"]]],["deffexpr","case",["expr",".","clauses"],"env",["let",[["val",["eval","expr","env"]]],["block","match",["list-for-each",["lambda",[["other-val",".","body"]],["when",["=","val",["eval","other-val","env"]],["return-from","match",["eval",["prognize","body"],"env"]]]],"clauses"],"#void"]]],null,["defclass","mut",["standard-object"],["val"]],["defun","mut",["val"],["%make-instance",["quote","mut"],["qua-keyword","val"],"val"]],["defun","ref",["mut"],["slot-value","mut",["quote","val"]]],["defsetf",["qua-function","ref"],["lambda",["new-val","mut"],["setf",["slot-value","mut",["quote","val"]],"new-val"]]],null,["defmacro","push-prompt",["prompt",".","body"],["list",["qua-function","%%push-prompt"],"prompt",["thunkify","body"]]],["defmacro","take-subcont",["prompt","name",".","body"],["list",["qua-function","%%take-subcont"],"prompt",["list*",["qua-function","lambda"],["list","name"],"body"]]],["defmacro","push-subcont",["continuation",".","body"],["list",["qua-function","%%push-subcont"],"continuation",["thunkify","body"]]],["defmacro","push-prompt-subcont",["prompt","continuation",".","body"],["list",["qua-function","%%push-prompt-subcont"],"prompt","continuation",["thunkify","body"]]],["defconstant","+default-prompt+",["qua-keyword","default-prompt"]],["defmacro","push-default-prompt","body",["list*",["qua-function","push-prompt"],"+default-prompt+","body"]],["defmacro","take-default-subcont",["name",".","body"],["list*",["qua-function","take-subcont"],"+default-prompt+","name","body"]],["defmacro","push-default-subcont",["continuation",".","body"],["list*",["qua-function","push-prompt-subcont"],"+default-prompt+","continuation","body"]],null,["defmacro","defdynamic",["name",".","opt-val"],["list",["qua-function","def"],"name",["list",["qua-function","mut"],["optional","opt-val"]]]],["def",["qua-function","dynamic"],["qua-function","ref"]],null,["def",["qua-function","dynamic-bind"],["qua-function","%%dynamic-bind"]],null,null,["deffexpr","dynamic-let",["bindings",".","body"],"env",["let",[["pairs",["map-list",["lambda",[["dynamic-name","expr"]],["cons",["eval","dynamic-name","env"],["eval","expr","env"]]],"bindings"]]],["labels",[["process-pairs",["pairs"],["%if",["nil?","pairs"],["eval",["prognize","body"],"env"],["let*",[[[["dynamic",".","value"],".","rest-pairs"],"pairs"]],["dynamic-bind","dynamic","value",["lambda",[],["process-pairs","rest-pairs"]]]]]]],["process-pairs","pairs"]]]],null,null,["defun","js-getter",["prop-name"],["flet",[["getter",["obj"],["js-get","obj","prop-name"]]],["defsetf",["qua-function","getter"],["lambda",["new-val","obj"],["js-set","obj","prop-name","new-val"]]],["qua-function","getter"]]],null,["defun","js-invoker",["method-name"],["lambda",["this",".","args"],["let",[["fun",["js-get","this","method-name"]]],["js-apply","fun","this",["list-to-js-array","args"]]]]],["defun","create-js-object","opt-proto",[["js-invoker",["wat-string","create"]],["js-global",["wat-string","Object"]],["optional","opt-proto",null]]],["defun","js-object","plist",["plist-to-js-object","plist"]],["defun","js-array","elements",["list-to-js-array","elements"]],["defmacro","js-lambda",["lambda-list",".","body"],["list",["qua-function","js-function"],["list*",["qua-function","lambda"],"lambda-list","body"]]],["defun","%js-relational-op",["name"],["let",[[["qua-function","binop"],["%%js-binop","name"]]],["labels",[["op",["arg1","arg2",".","rest"],["%if",["binop","arg1","arg2"],["%if",["nil?","rest"],true,["apply",["qua-function","op"],["list*","arg2","rest"]]],false]]],["qua-function","op"]]]],["def",["qua-function","=="],["%js-relational-op",["wat-string","=="]]],["def",["qua-function","==="],["%js-relational-op",["wat-string","==="]]],["def",["qua-function","<"],["%js-relational-op",["wat-string","<"]]],["def",["qua-function",">"],["%js-relational-op",["wat-string",">"]]],["def",["qua-function","<="],["%js-relational-op",["wat-string","<="]]],["def",["qua-function",">="],["%js-relational-op",["wat-string",">="]]],["def",["qua-function","lt"],["qua-function","<"]],["def",["qua-function","lte"],["qua-function","<="]],["def",["qua-function","gt"],["qua-function",">"]],["def",["qua-function","gte"],["qua-function",">="]],["defun","!=","args",["not",["apply","==","args"]]],["defun","!==","args",["not",["apply","===","args"]]],["def",["qua-function","*"],["let",[[["qua-function","binop"],["%%js-binop",["wat-string","*"]]]],["lambda","args",["fold-list",["qua-function","binop"],1,"args"]]]],null,["def",["qua-function","+"],["let",[[["qua-function","binop"],["%%js-binop",["wat-string","+"]]]],["lambda","args",["%if",["nil?","args"],0,["fold-list",["qua-function","binop"],["car","args"],["cdr","args"]]]]]],["defun","%js-negative-op",["name","unit"],["let",[[["qua-function","binop"],["%%js-binop","name"]]],["lambda",["arg1",".","rest"],["%if",["nil?","rest"],["binop","unit","arg1"],["fold-list",["qua-function","binop"],"arg1","rest"]]]]],["def",["qua-function","-"],["%js-negative-op",["wat-string","-"],0]],["def",["qua-function","/"],["%js-negative-op",["wat-string","/"],1]],null,["defun","list-length",["list"],["%if",["nil?","list"],0,["+",1,["list-length",["cdr","list"]]]]],["defun","list-elt",["list","i"],["%if",["=","i",0],["car","list"],["list-elt",["cdr","list"],["-","i",1]]]],["defun","filter-list",[["qua-function","pred?"],"list"],["%if",["nil?","list"],["quote",[]],["%if",["pred?",["car","list"]],["cons",["car","list"],["filter-list",["qua-function","pred?"],["cdr","list"]]],["filter-list",["qua-function","pred?"],["cdr","list"]]]]],["defun","append-2-lists",["list-1","list-2"],["%if",["nil?","list-1"],"list-2",["cons",["car","list-1"],["append-2-lists",["cdr","list-1"],"list-2"]]]],null,["defclass","serious-condition",["condition"]],["defclass","error",["serious-condition"]],["defclass","warning",["condition"]],["defclass","simple-condition",["condition"],["message"]],["defclass","simple-warning",["warning"],["message"]],["defclass","simple-error",["error"],["message"]],["defun","simple-error",["message",".","#ign"],["error",["make-instance",["quote","simple-error"],["qua-keyword","message"],"message"]]],["defclass","runtime-error",["error"]],["defclass","control-error",["runtime-error"]],["defclass","restart-control-error",["control-error"],["restart"]],["defclass","abort",["restart"]],["defclass","continue",["restart"]],["defclass","store-value",["restart"],["value"]],null,["defdynamic","*condition-handler-frame*"],["defdynamic","*restart-handler-frame*"],["defclass","handler",["standard-object"],["name","condition-type","handler-function","associated-condition"]],["defun","make-handler",["condition-type","handler-function",".","opt-associated-condition"],["%make-instance",["quote","handler"],["qua-keyword","name"],["symbol-name","condition-type"],["qua-keyword","condition-type"],"condition-type",["qua-keyword","handler-function"],"handler-function",["qua-keyword","associated-condition"],["optional","opt-associated-condition"]]],["defun","handle-condition",["handler","condition"],["funcall",["slot-value","handler",["quote","handler-function"]],"condition"]],["defclass","handler-frame",["standard-object"],["handlers","parent"]],["defun","make-handler-frame",["handlers",".","opt-parent"],["%make-instance",["quote","handler-frame"],["qua-keyword","handlers"],"handlers",["qua-keyword","parent"],["optional","opt-parent"]]],["defun","%make-handler-bind",[["qua-function","handler-spec-parser"],"handler-frame-dynamic"],["vau",["handler-specs",".","body"],"env",["let*",[["handlers",["map-list",["lambda",["spec"],["handler-spec-parser","spec","env"]],"handler-specs"]],["handler-frame",["make-handler-frame","handlers",["dynamic","handler-frame-dynamic"]]]],["dynamic-bind","handler-frame-dynamic","handler-frame",["lambda",[],["eval",["prognize","body"],"env"]]]]]],null,["def",["qua-function","handler-bind"],["%make-handler-bind",["lambda",[["class-name","function-form"],"env"],["make-handler","class-name",["eval","function-form","env"]]],"*condition-handler-frame*"]],null,["def",["qua-function","restart-bind"],["%make-handler-bind",["lambda",[["class-name","function-form",".","opt-associated-condition"],"env"],["make-handler","class-name",["eval","function-form","env"],["eval",["optional","opt-associated-condition"],"env"]]],"*restart-handler-frame*"]],null,["defun","signal",["condition"],["signal-condition","condition",["dynamic","*condition-handler-frame*"]]],["defun","warn",["condition"],["signal","condition"],["print",["wat-string","Warning:"],"condition"]],null,null,null,null,null,["defun","error",["condition"],["signal","condition"],["invoke-debugger","condition"]],["defun","invoke-restart",["restart"],["signal-condition","restart",["dynamic","*restart-handler-frame*"]]],["defun","signal-condition",["condition","dynamic-frame"],["let",[["handler-and-frame",["find-applicable-handler","condition","dynamic-frame"]]],["%if",["void?","handler-and-frame"],"#void",["let",[[["handler","frame"],"handler-and-frame"]],["call-condition-handler","condition","handler","frame"],null,["signal-condition","condition",["slot-value","frame",["quote","parent"]]]]]]],["defun","find-applicable-handler",["condition","dynamic-frame"],["%if",["void?","dynamic-frame"],"#void",["block","found",["list-for-each",["lambda",["handler"],["when",["condition-applicable?","condition","handler"],["return-from","found",["list","handler","dynamic-frame"]]]],["slot-value","dynamic-frame",["quote","handlers"]]],["find-applicable-handler","condition",["slot-value","dynamic-frame",["quote","parent"]]]]]],["defgeneric","condition-applicable?",["condition","handler"]],["%defmethod","condition-applicable?",[["condition","condition"],"handler"],["type?","condition",["slot-value","handler",["quote","condition-type"]]]],["defun","slot-void?",["obj","slot-name"],["%if",["slot-bound?","obj","slot-name"],["void?",["slot-value","obj","slot-name"]],true]],["%defmethod","condition-applicable?",[["restart","restart"],"handler"],["and",["type?","restart",["slot-value","handler",["quote","condition-type"]]],["or",["slot-void?","restart",["quote","associated-condition"]],["slot-void?","handler",["quote","associated-condition"]],["eq",["slot-value","restart",["quote","associated-condition"]],["slot-value","handler",["quote","associated-condition"]]]]]],["defgeneric","call-condition-handler",["condition","handler","handler-frame"]],["%defmethod","call-condition-handler",[["condition","condition"],"handler","handler-frame"],null,["dynamic-let",[["*condition-handler-frame*",["slot-value","handler-frame",["quote","parent"]]]],["handle-condition","handler","condition"]]],["%defmethod","call-condition-handler",[["restart","restart"],"handler","handler-frame"],["handle-condition","handler","restart"]],null,["defclass","type-error",["error"],[]],["defclass","type-mismatch-error",["type-error"],["type-spec","obj"]],["defconstant","+top-type+",["%make-instance",["quote","%class-type"],["qua-keyword","name"],["wat-string","top"],["qua-keyword","generic-params"],["quote",[]]]],["defconstant","+bottom-type+",["%make-instance",["quote","%class-type"],["qua-keyword","name"],["wat-string","bottom"],["qua-keyword","generic-params"],["quote",[]]]],["defun","%parse-type-spec",["type-spec"],["if",["keyword?","type-spec"],["%make-instance",["quote","%type-variable"],["qua-keyword","name"],["symbol-name","type-spec"]],["symbol?","type-spec"],["%make-instance",["quote","%class-type"],["qua-keyword","name"],["symbol-name","type-spec"],["qua-keyword","generic-params"],["quote",[]]],["cons?","type-spec"],["let",[[["class-name",".","generic-param-specs"],"type-spec"]],["%make-instance",["quote","%class-type"],["qua-keyword","name"],["symbol-name","class-name"],["qua-keyword","generic-params"],["map-list",["qua-function","%parse-generic-param-spec"],"generic-param-specs"]]],["simple-error",["wat-string","Illegal type-spec"]]]],["defun","%parse-generic-param-spec",["gp-spec"],["if",["or",["keyword?","gp-spec"],["symbol?","gp-spec"]],["let",[["type",["%parse-type-spec","gp-spec"]]],["%make-instance",["quote","%generic-param"],["qua-keyword","in-type"],"type",["qua-keyword","out-type"],"type"]],["cons?","gp-spec"],["let",[[["op",".","rest"],"gp-spec"]],["%if",["keyword?","op"],["case",["symbol-name","op"],[["wat-string","io"],["let*",[["in-type",["%parse-type-spec",["car","rest"]]],["out-type",["%parse-type-spec",["optional",["cdr","rest"],"in-type"]]]],["%make-instance",["quote","%generic-param"],["qua-keyword","in-type"],"in-type",["qua-keyword","out-type"],"out-type"]]],[["wat-string","in"],["let",[["in-type",["%parse-type-spec",["car","rest"]]]],["%make-instance",["quote","%generic-param"],["qua-keyword","in-type"],"in-type",["qua-keyword","out-type"],"+top-type+"]]],[["wat-string","out"],["let",[["out-type",["%parse-type-spec",["car","rest"]]]],["%make-instance",["quote","%generic-param"],["qua-keyword","in-type"],"+bottom-type+",["qua-keyword","out-type"],"out-type"]]]],["let",[["type",["%parse-type-spec","gp-spec"]]],["%make-instance",["quote","%generic-param"],["qua-keyword","in-type"],"type",["qua-keyword","out-type"],"type"]]]],["error",["wat-string","Illegal generic param spec"]]]],["defun","type?",["obj","type-spec"],["%%type?","obj",["%parse-type-spec","type-spec"]]],["deffexpr","typecase",["expr",".","clauses"],"env",["let",[["val",["eval","expr","env"]]],["block","match",["list-for-each",["lambda",[["type-spec",".","body"]],["%if",["eq","type-spec",true],["return-from","match",["eval",["prognize","body"],"env"]],["when",["type?","val","type-spec"],["return-from","match",["eval",["prognize","body"],"env"]]]]],"clauses"],"#void"]]],["defun","the",["type-spec","obj"],["%if",["type?","obj","type-spec"],"obj",["error",["%make-instance",["quote","type-mismatch-error"],["qua-keyword","type-spec"],"type-spec",["qua-keyword","obj"],"obj"]]]],["defun","%method-lambda-list-type-checks",["method-ll"],["map-list",["lambda",["param"],["typecase","param",["cons","#void"],["symbol","#void"],["keyword"],[true,["simple-error",["wat-string","Weird method parameter"],["qua-keyword","arg"],"param"]]]],[]]],["defun","%parse-method-lambda-list",["method-ll"],["if",["cons?","method-ll"],["let*",[[["receiver-spec",".","other-params"],"method-ll"],["simplified-other-params",["map-list",["lambda",["param"],["typecase","param",["cons",["car","param"]],["symbol","param"],[true,["simple-error",["wat-string","Not a method parameter"],["qua-keyword","arg"],"param"]]]],"other-params"]],["simplified-ll",["cons","receiver-spec","simplified-other-params"]],["type-checks",["%method-lambda-list-type-checks","method-ll"]]],["list","simplified-ll","type-checks"]],["simple-error",["wat-string","Not a method lambda list"],["qua-keyword","arg"],"method-ll"]]],["defmacro","defmethod",["name","method-lambda-list",".","body"],["let",[[["simplified-method-ll","type-checks"],["%parse-method-lambda-list","method-lambda-list"]]],["list*",["qua-function","%defmethod"],"name","simplified-method-ll","type-checks","body"]]],["defun","make-instance",["type-spec",".","args"],["apply",["qua-function","%make-instance"],["cons",["%parse-type-spec","type-spec"],"args"]]],null,["defun","invoke-debugger",["condition"],["print",["wat-string",""]],["print",["wat-string","Welcome to the debugger!"]],["loop",["block","continue",["print",["+",["wat-string","Condition: "],"condition"]],["let",[["restarts",["compute-restarts","condition"]]],["if",[">",["list-length","restarts"],0],["progn",["print",["wat-string","Restarts:"]],["let",[["i",1]],["list-for-each",["lambda",["restart"],["print",["+","i",["wat-string",": "],["slot-value","restart",["quote","name"]]]],["incf","i"]],"restarts"],["print",["wat-string","Enter a restart number:"]],["let*",[["s",["%%read-line"]],["n",[["js-global",["wat-string","Number"]],"s"]]],["if",[["js-global",["wat-string","isNaN"]],"n"],["progn",["print",["wat-string","You didn't enter a number. Please try again."]],["return-from","continue"]],["let",[["class",["slot-value",["list-elt","restarts",["-","n",1]],["quote","condition-type"]]]],["invoke-restart-interactively",["%make-instance","class"]]]]]]],["%%panic","condition"]]]]]],["defun","compute-restarts",["condition"],["reverse-list",["%compute-restarts","condition",["quote",[]],["dynamic","*restart-handler-frame*"]]]],["defun","%compute-restarts",["condition","restart-list","handler-frame"],["if",["void?","handler-frame"],"restart-list",["let",[["restarts",["filter-list",["lambda",["handler"],["or",["slot-void?","handler",["quote","associated-condition"]],["eq",["slot-value","handler",["quote","associated-condition"]],"condition"]]],["slot-value","handler-frame",["quote","handlers"]]]]],["%compute-restarts","condition",["append-2-lists","restarts","restart-list"],["slot-value","handler-frame",["quote","parent"]]]]]],["defgeneric","invoke-restart-interactively",["restart"]],["%defmethod","invoke-restart-interactively",[["r","restart"]],["invoke-restart","r"]],null,null,["defconstant","+user-prompt+",["qua-keyword","user-prompt"]],null,null,["defun","push-userspace*",[["qua-function","thunk"]],["push-prompt","+user-prompt+",["thunk"]]],["defmacro","push-userspace","body",["list",["qua-function","push-userspace*"],["thunkify","body"]]],["defun","user-eval",["expr","env"],["push-userspace",["eval","expr","env"]]],null,["def",["qua-function","node:require"],["qua-function","%%require"]],["defconstant","node:path",["node:require",["wat-string","path"]]],["def",["qua-function","node:dirname"],[["js-getter",["wat-string","dirname"]],"node:path"]],["def",["qua-function","node:join-paths"],[["js-getter",["wat-string","join"]],"node:path"]],["defconstant","node:fs",["node:require",["wat-string","fs"]]],["def",["qua-function","node:read-file-sync"],[["js-getter",["wat-string","readFileSync"]],"node:fs"]],["defun","read-file-as-string",["path"],["node:read-file-sync","path",["wat-string","utf8"]]],["defun","read-file",["path"],["list*",["qua-function","progn"],["%%parse-bytecode",["%%parse-sexp",["read-file-as-string","path"]]]]],null,["def",["qua-function","load"],["wrap",["vau",["path",".","opt-env"],"denv",["user-eval",["read-file","path"],["optional","opt-env","denv"]]]]],null,null,["def",["qua-function","load-system"],["wrap",["vau",["path",".","opt-env"],"denv",["let*",[["env",["optional","opt-env","denv"]],[["qua-function","defsystem"],["vau",["name",["qua-keyword","depends-on"],"deps",["qua-keyword","components"],"components"],"#ign",["list-for-each",["lambda",["dep"],["load-system",["node:join-paths",["node:dirname","path"],"dep"],"env"]],"deps"],["list-for-each",["lambda",["component"],["load",["node:join-paths",["node:dirname","path"],"component"],"env"]],"components"]]]],["load","path"]]]]],null,["load-system",["wat-string","lisp/qua-full-node.system.lisp"]],["load-system",["wat-string","lisp/doc/doc.system.lisp"]],null]
 
 },{}],2:[function(require,module,exports){
 module.exports.main = [null,["deffexpr","%assert",["expr"],"env",["unless",["eval","expr","env"],["print",["wat-string","assertion failed"]],["print","expr"],["%%panic",["wat-string","assertion failed"]]]],["def",["qua-function","%deep-equal"],["qua-function","%%deep-equal"]],["defun",["qua-function","%expect"],["expected","actual"],["%assert",["%deep-equal","expected","actual"]]],null,["%assert",["%deep-equal",1,["car",["cons",1,2]]]],["%assert",["%deep-equal",2,["cdr",["cons",1,2]]]],["%assert",["%deep-equal",1,["car",["list",1,2,3]]]],["%assert",["%deep-equal",["list",2,3],["cdr",["list",1,2,3]]]],["%assert",["%deep-equal",1,["car",["list*",1,2,3]]]],["%assert",["%deep-equal",["cons",2,3],["cdr",["list*",1,2,3]]]],["%assert",["symbol?",["quote","foo"]]],["%assert",["keyword?",["qua-keyword","foo"]]],null,["def","e1",["make-environment"]],["eval",["list",["qua-function","def"],["quote","x"],1],"e1"],["%assert",["%deep-equal",1,["eval",["quote","x"],"e1"]]],["%assert",["%deep-equal","#void",["progn"]]],["%assert",["%deep-equal",1,["progn",1]]],["%assert",["%deep-equal",2,["progn",1,2]]],null,["def","e2",["make-environment"]],["def",["qua-function","fun2"],["wrap",["vau",["p"],"#ign","p"]]],["eval",["list",["qua-function","def"],["quote","x"],2],"e2"],["eval",["list",["qua-function","def"],["quote",["qua-function","fun2"]],["qua-function","fun2"]],"e2"],["%assert",["%deep-equal",2,["eval",["list",["qua-function","fun2"],["quote","x"]],"e2"]]],null,["%assert",["%deep-equal",["quote","foo"],["quote","foo"]]],["%assert",["%deep-equal",["quote",["foo","bar"]],["quote",["foo","bar"]]]],null,["def",["qua-function","lam1"],["lambda",[],10,11,12]],["def",["qua-function","lam2"],["lambda",[]]],["%assert",["%deep-equal",12,["lam1"]]],["%assert",["%deep-equal","#void",["lam2"]]],["defun","lam3",["x"],1,2,3,"x"],["%assert",["%deep-equal",4,["lam3",4]]],null,["%assert",["%deep-equal",["list",1,2,3],["apply",["qua-function","list"],["list",1,2,3]]]],null,["%assert",["%deep-equal",["list",1,1,1],["map-list",["lambda",["#ign"],1],["list",1,2,3]]]],null,["%expect","#void",["if",["=",true,false],1]],["%expect",1,["if",["=",true,true],1]],["%expect",2,["if",["=",true,false],1,["=",true,true],2]],["%expect",3,["if",["=",true,false],1,["=",true,false],2,3]],null,["defgeneric","describe-yourself",["self"]],["%defmethod","describe-yourself",[["self","js-number"]],["wat-string","a number"]],["%defmethod","describe-yourself",[["self","boolean"]],["wat-string","a boolean"]],["%defmethod","describe-yourself",[["self","symbol"]],["wat-string","a symbol"]],["%defmethod","describe-yourself",[["self","object"]],["wat-string","any other object"]],["%assert",["%deep-equal",["wat-string","a number"],["describe-yourself",33]]],["%assert",["%deep-equal",["wat-string","a boolean"],["describe-yourself",true]]],["%assert",["%deep-equal",["wat-string","a symbol"],["describe-yourself",["quote","foo"]]]],["%assert",["%deep-equal",["wat-string","any other object"],["describe-yourself",["qua-keyword","hello"]]]],["%assert",["%deep-equal",["wat-string","any other object"],["describe-yourself",["list",1,2]]]],null,["defun","fun-with-keywords",[["qua-keyword","x"],"x-param",["qua-keyword","y"],"y-param"],["list","x-param","y-param"]],["%assert",["%deep-equal",["list",2,4],["fun-with-keywords",["qua-keyword","x"],2,["qua-keyword","y"],4]]],null,["defclass","my-class",[]],["defgeneric","my-generic",["self"]],["%defmethod","my-generic",[["self","my-class"]],["wat-string","wow!"]],["def","obj1",["%make-instance",["quote","my-class"]]],["defclass","my-subclass",["my-class"]],["def","obj2",["%make-instance",["quote","my-subclass"]]],["%assert",["%deep-equal",["wat-string","wow!"],["my-generic","obj1"]]],["%assert",["%deep-equal",["wat-string","wow!"],["my-generic","obj2"]]],["%defmethod","my-generic",[["self","my-subclass"]],["wat-string","wowzers!"]],["%assert",["%deep-equal",["wat-string","wow!"],["my-generic","obj1"]]],["%assert",["%deep-equal",["wat-string","wowzers!"],["my-generic","obj2"]]],null,["defclass","class-with-slots",[],[["x",["qua-keyword","type"],"number"],["y",["qua-keyword","type"],"number"]]],["def","object-with-slots",["%make-instance",["quote","class-with-slots"],["qua-keyword","x"],2,["qua-keyword","y"],4]],["%assert",["%deep-equal",2,["slot-value","object-with-slots",["quote","x"]]]],["%assert",["%deep-equal",4,["slot-value","object-with-slots",["quote","y"]]]],["%assert",["slot-bound?","object-with-slots",["quote","x"]]],["%assert",["slot-bound?","object-with-slots",["quote","y"]]],["%assert",["not",["slot-bound?","object-with-slots",["quote","z"]]]],["setf",["slot-value","object-with-slots",["quote","x"]],6],["setf",["slot-value","object-with-slots",["quote","y"]],8],["%assert",["%deep-equal",6,["slot-value","object-with-slots",["quote","x"]]]],["%assert",["%deep-equal",8,["slot-value","object-with-slots",["quote","y"]]]],null,["let",[["x",1]],["let",[["x",3]],["setq","x",2],["%assert",["%deep-equal",2,"x"]]],["%assert",["%deep-equal",1,"x"]],["let",[],["setq","x",2],["%assert",["%deep-equal",2,"x"]]],["%assert",["%deep-equal",2,"x"]]],["let",[["x","#void"]],["let",[["y","#void"]],["let",[["z","#void"]],["setq",["x","y",".","z"],["list",1,2,3,4]],["%expect",1,"x"],["%expect",2,"y"],["%expect",["quote",[3,4]],"z"]]]],null,["let",[["foo",1]],["defun","foo",[],"foo"],["%assert",["%deep-equal",["foo"],1]],["def","env",["the-environment"]],["js-set",["qua-function","foo"],["wat-string","qua_setter"],["lambda",["new-val"],["setq","foo","new-val"]]],["setf",["foo"],2],["%assert",["%deep-equal",["foo"],2]]],["let",[["x",12]],["%expect",12,"x"],["setf","x",14],["%expect",14,"x"],["incf","x"],["%expect",15,"x"],["incf","x",2],["%expect",17,"x"],["decf","x"],["%expect",16,"x"],["decf","x",2],["%expect",14,"x"]],null,["let",[["cell",["mut",12]]],["%expect",12,["ref","cell"]],["setf",["ref","cell"],14],["%expect",14,["ref","cell"]],["incf",["ref","cell"]],["%expect",15,["ref","cell"]],["incf",["ref","cell"],2],["%expect",17,["ref","cell"]],["decf",["ref","cell"]],["%expect",16,["ref","cell"]],["decf",["ref","cell"],2],["%expect",14,["ref","cell"]]],null,["%expect",3,["block","#ign",1,2,3]],["%expect",2,["block","b",1,["return-from","b",2],3]],["%expect","#void",["cond"]],["%expect",1,["cond",[["%deep-equal",1,1],1]]],["%expect","#void",["cond",[false,1]]],["%expect",2,["cond",[false,1],[true,2],[true,3]]],["%expect",true,["and"]],["%expect",true,["and",true]],["%expect",false,["and",false]],["%expect",true,["and",true,true,true]],["%expect",false,["and",true,true,true,false]],["%expect",false,["or"]],["%expect",true,["or",true]],["%expect",false,["or",false]],["%expect",false,["or",false,false,false]],["%expect",true,["or",false,false,false,true]],["%expect","#void",["case",12]],["%expect",1,["case",1,[1,1],[2,2],[3,3]]],["%expect",3,["case",3,[1,1],[2,2],[3,3]]],["%expect","#void",["case",4,[1,1],[2,2],[3,3]]],["%expect",1,["%call-with-escape",["lambda",["#ign"],1]]],["%expect",2,["%call-with-escape",["lambda",["escape"],1,["return-from","escape",2],3]]],["%expect","#void",["%call-with-escape",["lambda",["escape"],1,["return-from","escape"],3]]],["%expect","#void",["block","x"]],["%expect",1,["block","x",1]],["%expect",2,["block","x",1,["return-from","x",2],3]],["%expect","#void",["block","x",1,["return-from","x"],3]],["%expect",1,["unwind-protect",1]],["%expect",1,["unwind-protect",1,2]],["%expect",1,["unwind-protect",1,2,3]],["let",[["cell",["mut",false]]],["%expect",1,["unwind-protect",1,["setf",["ref","cell"],true]]],["%expect",true,["ref","cell"]]],["let",[["cell",false]],["block","exit",["unwind-protect",["return-from","exit"],["setf","cell",true]],["%expect",true,"cell"]]],["%expect","#void",["prog1"]],["%expect",1,["prog1",1,2,3]],["%expect",2,["prog2",1,2,3]],["%expect","#void",["prog2",1]],["%expect",12,["flet",[["bar",[],3],["foo",[],4]],["*",["bar"],["foo"]]]],["%expect",12,["labels",[["bar",["x"],["*","x",["foo"]]],["foo",[],4]],["bar",3]]],null,["defdynamic","*my-dynamic*",1],["progn",["%expect",1,["dynamic","*my-dynamic*"]],["dynamic-let",[["*my-dynamic*",2]],["%expect",2,["dynamic","*my-dynamic*"]]],["%expect",1,["dynamic","*my-dynamic*"]]],["progn",["%expect",1,["dynamic","*my-dynamic*"]],["block","exc",["dynamic-let",[["*my-dynamic*",2]],["%expect",2,["dynamic","*my-dynamic*"]],["return-from","exc"]]],["%expect",1,["dynamic","*my-dynamic*"]]],null,["let",[["obj",["js-object",["qua-keyword","message"],["wat-string","hello"],["qua-keyword","sent"],["not",true]]]],["%assert",["%deep-equal",["wat-string","hello"],[["js-getter",["wat-string","message"]],"obj"]]],["%assert",["%deep-equal",false,[["js-getter",["wat-string","sent"]],"obj"]]],["%assert",["own-property?","obj",["wat-string","message"]]],["%assert",["own-property?","obj",["qua-keyword","message"]]],["%assert",["own-property?","obj",["quote","message"]]],["%assert",["own-property?","obj",["wat-string","sent"]]],["%assert",["own-property?","obj",["qua-keyword","sent"]]],["%assert",["own-property?","obj",["quote","sent"]]],["%assert",["not",["own-property?","obj",["quote","xyz"]]]]],null,["%assert",["%deep-equal",["wat-string","String"],["%%js-get",["%%js-get",["wat-string","foo"],["wat-string","constructor"]],["wat-string","name"]]]],["%assert",["%deep-equal",["wat-string","String"],[["js-getter",["wat-string","name"]],[["js-getter",["wat-string","constructor"]],["wat-string","foo"]]]]],null,["%assert",["%deep-equal",["wat-string","foo"],[["js-getter",["wat-string","qs_name"]],["quote","foo"]]]],["%assert",["%deep-equal",["wat-string","v"],[["js-getter",["wat-string","qs_ns"]],["quote","foo"]]]],["%assert",["%deep-equal",["wat-string","f"],[["js-getter",["wat-string","qs_ns"]],["quote",["qua-function","foo"]]]]],null,["let",[["obj",["create-js-object"]]],["setf",[["js-getter",["wat-string","message"]],"obj"],["wat-string","foo"]],["%assert",["%deep-equal",["wat-string","foo"],[["js-getter",["wat-string","message"]],"obj"]]]],null,["%assert",["%deep-equal",["wat-string","12"],[["js-invoker",["wat-string","toString"]],12]]],null,["%expect",2,["js-get",["js-array",1,2,3],1]],null,["%expect",["wat-string","foobar"],["+",["wat-string","foo"],["wat-string","ba"],["wat-string","r"]]],["%expect",1,["+",1]],["%expect",6,["+",2,2,2]],["%expect",3,["*",3]],["%expect",24,["*",4,3,2]],["%expect",-4,["-",4]],["%expect",4,["-",8,2,2]],["%expect",0.25,["/",4]],["%expect",1,["/",12,4,3]],["%assert",["<",1,2,3,4,5]],["%assert",["not",["<",1,2,3,4,5,-1]]],["%assert",[">",5,4,3,2,1]],["%assert",["not",[">",5,4,3,2,1,6]]],["%assert",["===",1,1,1]],["%assert",["not",["===",1,1,1,2]]],null,["%expect",0,["list-length",["list"]]],["%expect",4,["list-length",["list",1,2,3,4]]],["%expect",3,["list-elt",["list",1,2,3,4],2]],["%expect",["quote",["#void","#void"]],["filter-list",["qua-function","void?"],["quote",[1,"#void",2,"#void"]]]],["%expect",["quote",[1,2,3,4]],["append-2-lists",["quote",[1,2]],["quote",[3,4]]]],null,["%expect","#void",["handler-bind",[]]],["%expect",true,["handler-bind",[],1,2,["=",true,true]]],["%expect",1,["block","b",["handler-bind",[["condition",["lambda",["c"],["return-from","b",1]]]],["signal",["%make-instance",["quote","condition"]]],2]]],["%expect",2,["block","b",["handler-bind",[["warning",["lambda",["c"],["return-from","b",1]]],["serious-condition",["lambda",["c"],["return-from","b",2]]]],["signal",["%make-instance",["quote","error"]]],3]]],["%expect","#void",["signal",["%make-instance",["quote","condition"]]]],["%expect",["wat-string","foo"],["block","exit",["handler-bind",[["condition",["lambda","#ign",["invoke-restart",["%make-instance",["quote","continue"]]]]]],["restart-bind",[["continue",["lambda","#ign",["return-from","exit",["wat-string","foo"]]]]],["signal",["%make-instance",["quote","condition"]]]]]]],null,["%assert",["type?",["%make-instance",["quote","serious-condition"]],["quote","object"]]],["%assert",["type?",["%make-instance",["quote","error"]],["quote","serious-condition"]]],["%assert",["type?",["%make-instance",["quote","error"]],["quote","object"]]],["%assert",["not",["type?",["%make-instance",["quote","object"]],["quote","error"]]]],["%assert",["type?",12,["quote","js-number"]]],["%assert",["type?",12,["quote","number"]]],["%assert",["type?",12,["quote","object"]]],["%assert",["not",["type?",12,["quote","standard-object"]]]],["%assert",["type?",[["js-getter",["wat-string","qs_direct-superclasses"]],["find-generic-class",["quote","object"]]],["quote","js-array"]]],["%assert",["type?",[["js-getter",["wat-string","qs_slots"]],["find-generic-class",["quote","object"]]],["quote","js-object"]]],null,["%expect","#void",["typecase",true]],["%expect",2,["typecase",true,["number",1],["boolean",2]]],["%expect",1,["typecase",10,["number",1],["boolean",2]]],["%expect","#void",["typecase",["wat-string","foo"],["number",1],["boolean",2]]],["%expect",["wat-string","default"],["typecase",["quote","whatever"],[true,["wat-string","default"]]]],["%expect",1,["typecase",["quote","whatever"],["symbol",1],[true,["wat-string","default"]]]],["%expect",["wat-string","default"],["typecase",["quote","whatever"],["number",1],[true,["wat-string","default"]]]],["%expect",["%make-instance",["quote","%generic-param"],["qua-keyword","in-type"],["%parse-type-spec",["quote","number"]],["qua-keyword","out-type"],["%parse-type-spec",["quote","boolean"]]],["%parse-generic-param-spec",["quote",[["qua-keyword","io"],"number","boolean"]]]],["%expect",["%make-instance",["quote","%generic-param"],["qua-keyword","in-type"],["%parse-type-spec",["quote","number"]],["qua-keyword","out-type"],"+top-type+"],["%parse-generic-param-spec",["quote",[["qua-keyword","in"],"number"]]]],["%expect",["%make-instance",["quote","%generic-param"],["qua-keyword","in-type"],"+bottom-type+",["qua-keyword","out-type"],["%parse-type-spec",["quote","number"]]],["%parse-generic-param-spec",["quote",[["qua-keyword","out"],"number"]]]],["%expect",["%make-instance",["quote","%generic-param"],["qua-keyword","in-type"],["%parse-type-spec",["quote","number"]],["qua-keyword","out-type"],["%parse-type-spec",["quote","number"]]],["%parse-generic-param-spec",["quote","number"]]],["%expect",["%make-instance",["quote","%generic-param"],["qua-keyword","in-type"],["%parse-type-spec",["quote",["hash-set","number"]]],["qua-keyword","out-type"],["%parse-type-spec",["quote",["hash-set","number"]]]],["%parse-generic-param-spec",["quote",["hash-set","number"]]]],["%expect",["%make-instance",["quote","%type-variable"],["qua-keyword","name"],["wat-string","foo"]],["%parse-type-spec",["qua-keyword","foo"]]],["%expect",["%make-instance",["quote","%class-type"],["qua-keyword","name"],["wat-string","foo"],["qua-keyword","generic-params"],["quote",[]]],["%parse-type-spec",["quote","foo"]]],["%expect",["%make-instance",["quote","%class-type"],["qua-keyword","name"],["wat-string","foo"],["qua-keyword","generic-params"],["quote",[]]],["%parse-type-spec",["quote",["foo"]]]],["%expect",["%make-instance",["quote","%class-type"],["qua-keyword","name"],["wat-string","hash-set"],["qua-keyword","generic-params"],["list",["%make-instance",["quote","%generic-param"],["qua-keyword","in-type"],["%parse-type-spec",["quote","number"]],["qua-keyword","out-type"],["%parse-type-spec",["quote","number"]]]]],["%parse-type-spec",["quote",["hash-set","number"]]]],["%expect",["%make-instance",["quote","%class-type"],["qua-keyword","name"],["wat-string","hash-set"],["qua-keyword","generic-params"],["list",["%make-instance",["quote","%generic-param"],["qua-keyword","in-type"],["%parse-type-spec",["qua-keyword","e"]],["qua-keyword","out-type"],["%parse-type-spec",["qua-keyword","e"]]]]],["%parse-type-spec",["quote",["hash-set",["qua-keyword","e"]]]]],["%expect",["%make-instance",["quote","%class-type"],["qua-keyword","name"],["wat-string","hash-set"],["qua-keyword","generic-params"],["list",["%make-instance",["quote","%generic-param"],["qua-keyword","in-type"],["%parse-type-spec",["quote","number"]],["qua-keyword","out-type"],"+top-type+"]]],["%parse-type-spec",["quote",["hash-set",[["qua-keyword","in"],"number"]]]]],null,["flet",[["test-for-each",["coll"],["let",[["sum",0]],["for-each",["lambda",["elt"],["incf","sum","elt"]],"coll"],["%expect",6,"sum"]]]],["test-for-each",["list",1,2,3]],["test-for-each",["js-array-list",["quote","number"],1,2,3]]],["%expect",["list",2,4,6],["map",["lambda",["x"],["*","x",2]],["list",1,2,3]]],["%expect",[],["map",["lambda",["x"],["*","x",2]],[]]],["%expect",["js-array-list",["quote","object"],2,4,6],["map",["lambda",["x"],["*","x",2]],["js-array-list",["quote","object"],1,2,3]]],null,["%expect",12,["block","ret",["handler-bind",[["unbound-variable",["lambda","#ign",["return-from","ret",12]]]],"x"]]],["let",[],["load-system",["wat-string","lisp/test-sample.system.lisp"]],["%expect",77,["test:sample-fn"]]],null]
@@ -10,15 +10,16 @@ module.exports.main = [null,["deffexpr","%assert",["expr"],"env",["unless",["eva
 module.exports = function(vm, e) {
     // Make all JS functions callable as Lisp combiners
     vm.original_combine = vm.combine;
-    vm.combine = function(m, e, cmb, o) {
-        if (cmb instanceof Function) return vm.combine(m, e, vm.jswrap(cmb), o);
-        else return vm.original_combine(m, e, cmb, o);
+    vm.combine = function(e, cmb, o) {
+        if (cmb instanceof Function) return vm.combine(e, vm.jswrap(cmb), o);
+        else return vm.original_combine(e, cmb, o);
     };
     // Makes a Lisp function callable from JS
     vm.js_function = function(cmb) {
         return function() {
             var args = vm.array_to_list(Array.prototype.slice.call(arguments));
-            return vm.combine(null, null, cmb, args);
+            // TODO: probably not a good idea that env is null here?
+            return vm.combine(null, cmb, args);
         }
     };
     vm.JSObject = vm.defclass("js-object", ["object"], {});
@@ -75,90 +76,206 @@ module.exports = function(vm, e) {
 // and dynamically-scoped variables.
 module.exports = function(vm, e) {
     /* Continuations */
-    function StackFrame(fun, next) { this.fun = fun; this.next = next; };
-    function Resumption(k, f) { this.k = k; this.f = f; };
-    function Suspension(prompt, handler) { this.prompt = prompt; this.handler = handler; this.k = null; };
-    function isResumption(m) { return m instanceof Resumption; };
-    function isSuspension(x) { return x instanceof Suspension; };
-    function suspendFrame(sus, fun) { sus.k = new StackFrame(fun, sus.k); };
-    function resumeFrame(k, f) { return k.fun(new Resumption(k.next, f)); };
-    vm.monadic = function(m, a, b) { // override vm.js
-        if (isResumption(m)) {
-            var val = resumeFrame(m.k, m.f);
+    // A continuation or stack frame is created in order to freeze
+    // (suspend, capture) a computation so that we can treat it as a
+    // data structure, and later resume it again and turn it back into
+    // control flow.  A stack frame consists of a work function that
+    // "does something" which is specially created by each distinct
+    // language primitive, and an inner suspended stack frame.  The
+    // innermost stack frame is always the one created by the
+    // %%TAKE-SUBCONT expression that effected the continuation
+    // capture.  (For this innermost stack frame, .inner is null.)
+    function StackFrame(work_fun, inner) {
+        this.work_fun = work_fun;
+        this.inner = inner;
+    };
+    // A suspension is a helper object created for the capture of a
+    // continuation and passed from the inside out.  A %%TAKE-SUBCONT
+    // call will return a fresh suspension, and the outer caller will
+    // react specially to receiving such a suspension from the callee
+    // instead of an ordinary return value -- usually by pushing a
+    // specially constructed stack frame for later resumption, and
+    // itself returning the suspension to its caller.  In other words,
+    // every language primitive knows how to reify itself as a (later
+    // resumable) stack frame in case an inner expression is
+    // suspended.
+    function Suspension(prompt, handler) {
+        // capture up to this prompt (EQ)
+        this.prompt = prompt;
+        // call this handler with captured continuation once we reach prompt
+        this.handler = handler;
+        // continuation / outermost stack frame accumulated during unwind/capture
+        this.k = null;
+    };
+    // During continuation capture, destructively push a new outer
+    // stack frame with a primitive-specific work function onto a
+    // suspension's continuation.
+    function suspendFrame(sus, work_fun) {
+        sus.k = new StackFrame(work_fun, sus.k);
+    };
+    // During continuation resumption, call the primitive-specific
+    // work function of the outermost stack frame with the next inner
+    // frame, and the user-supplied "stimulus" function (F).  The next
+    // inner frame will do the same, until we reach the innermost
+    // stack frame, created by a %%TAKE-SUBCONT expression.  This
+    // innermost frame will call the stimulus function within the
+    // newly composed context and return its value, giving the user
+    // full control over what happens once a continuation has been
+    // composed onto the current stack.
+    function resumeFrame(k, f) {
+        return k.work_fun(k.inner, f);
+    };
+    // vm.monadic() is a basic building block for many language
+    // primitives that need to do two operations that may capture a
+    // continuation in sequence.  Examples are PROGN that needs to
+    // evaluate the first and then the rest of its body expressions,
+    // and IF that needs to evaluate the test expression before
+    // evaluating either the then or the else expression depending on
+    // the result of the test.  It is instructive because it shows the
+    // general protocol that language primitives have to follow in
+    // order to the able to suspend and resume themselves in a pure
+    // form.  (Primitives like %%RESCUE with more complex control flow
+    // requirements cannot use vm.monadic() but follow this same
+    // protocol.)
+    //
+    // So, we have two thunks, A and B, that we want to call so that B
+    // receives the result of A(), i.e. B(A()).  We also have the two
+    // protocol parameters K (continuation, outermost stack frame) and
+    // F (stimulus function) which are only relevant and passed in if
+    // we are resuming a continuation.  (If we are not resuming they
+    // are undefined.)
+    vm.monadic = function(a, b, k, f) {
+        // Caller passed in continuation?  This means we are resuming.
+        // In other words, a previous call to A() led to a suspension
+        // which we returned, and now the caller is passing in the
+        // then-captured continuation again for resumption via
+        // resumeFrame(k, f).
+        if (k instanceof StackFrame) {
+            // Resume into inner stack frames until exhausted, calling
+            // stimulus function F in innermost context.  Here we are
+            // reconstructing the control state of our previously
+            // suspended inner expression A, ultimately giving control
+            // to the caller as to what happens once the continuation
+            // has been fully composed again onto the current stack.
+            var val = resumeFrame(k, f);
         } else {
+            // Otherwise, we are just normally executing,
+            // so execute first expression/thunk.
             var val = a();
         }
-        if (isSuspension(val)) {
-            suspendFrame(val, function(m) { return vm.monadic(m, a, b); });
+        // Did the first expression suspend (lead to a %%TAKE-SUBCONT)?
+        if (val instanceof Suspension) {
+            // If it did, we suspend ourselves -- i.e. push an outer
+            // stack frame onto to the already accumulated
+            // continuation whose work function remembers what we were
+            // doing prior to suspension and will restore us back to
+            // this point when resumed.
+            suspendFrame(val, function(k, f) { return vm.monadic(a, b, k, f); });
+            // Pass suspension back to caller.
             return val;
+        } else {
+            // First expression didn't suspend, we can just pass its
+            // result to second expression.
+            return b(val);
         }
-        return b(val);
     };
     /* Delimited control */
+    // %%PUSH-PROMPT prompt body-thunk
+    //
+    // Push a prompt and call the body thunk within this delimited
+    // context.
+    // 
+    // Analyze the result of the body thunk and if it's a suspension,
+    // check if it matches our, the pushed, prompt.  If it matches,
+    // call the suspension's user-supplied handler function with the
+    // continuation accumulated during the unwind from the originating
+    // inner %%TAKE-SUBCONT.
     vm.PushPrompt = vm.wrap({
-        qua_combine: function do_push_prompt(self, m, e, o) {
+        qua_combine: function do_push_prompt(self, e, o, k, f) {
             var prompt = vm.elt(o, 0);
             var body_thunk = vm.elt(o, 1);
-            if (isResumption(m)) {
-                var val = resumeFrame(m.k, m.f);
+            if (k instanceof StackFrame) {
+                var val = resumeFrame(k, f);
             } else {
-                var val = vm.combine(null, e, body_thunk, vm.NIL);
+                var val = vm.combine(e, body_thunk, vm.NIL);
             }
-            if (isSuspension(val)) {
+            if (val instanceof Suspension) {
                 if (val.prompt === prompt) {
                     var continuation = val.k;
                     var handler = val.handler;
-                    return vm.combine(null, e, handler, vm.cons(continuation, vm.NIL));
+                    return vm.combine(e, handler, vm.cons(continuation, vm.NIL));
                 } else {
-                    suspendFrame(val, function(m) { return do_push_prompt(self, m, e, o); });
+                    suspendFrame(val, function(k, f) { return do_push_prompt(self, e, o, k, f); });
                     return val;
                 }
             }
             return val;
         }
     });
+    // %%TAKE-SUBCONT prompt handler
+    //
+    // Abort up to prompt and call handler with captured continuation.
+    //
+    // Inject a suspension that will lead to the call of the
+    // user-supplied handler at the outer %%PUSH-PROMPT with matching
+    // prompt.  The innermost stack frame's work function will call
+    // the protocol parameter F, the user-supplied stimulus function,
+    // thereby completing resumption and entering back into normal
+    // evaluation.
     vm.TakeSubcont = vm.wrap({
-        qua_combine: function(self, m, e, o) {
+        qua_combine: function(self, e, o, k, f) {
             var prompt = vm.elt(o, 0);
             var handler = vm.elt(o, 1);
             var sus = new Suspension(prompt, handler);
-            suspendFrame(sus, function(m) { return vm.combine(null, e, m.f, vm.NIL); });
+            suspendFrame(sus, function(k, f) { return vm.combine(e, f, vm.NIL); });
             return sus;
         }
     });
+    // %%PUSH-SUBCONT k f
+    //
+    // Resume into a user-supplied continuation, calling the
+    // "stimulus" thunk F within the newly established stack context
+    // (this is accomplished by the stack frame pushed by
+    // %%TAKE-SUBCONT, which ultimately calls the passed-in F, see
+    // lines above).
     vm.PushSubcont = vm.wrap({
-        qua_combine: function do_push_subcont(self, m, e, o) {
+        qua_combine: function do_push_subcont(self, e, o, k, f) {
             var thek = vm.elt(o, 0);
             var thef = vm.elt(o, 1);
-            if (isResumption(m)) {
-                var val = resumeFrame(m.k, m.f);
+            if (k instanceof StackFrame) {
+                var val = resumeFrame(k, f);
             } else {
                 var val = resumeFrame(thek, thef);
             }
-            if (isSuspension(val)) {
-                suspendFrame(val, function(m) { return do_push_subcont(self, m, e, o); });
+            if (val instanceof Suspension) {
+                suspendFrame(val, function(k, f) { return do_push_subcont(self, e, o, k, f); });
                 return val;
             }
             return val;
         }
     });
+    // %%PUSH-PROMPT-SUBCONT prompt k f
+    //
+    // Manually fused version of pushing a prompt and continuation in
+    // one fell swoop, to work around stack overflow issue for
+    // server-type apps, see Oleg's paper.
     vm.PushPromptSubcont = vm.wrap({
-        qua_combine: function do_push_prompt_subcont(self, m, e, o) {
+        qua_combine: function do_push_prompt_subcont(self, e, o, k, f) {
             var prompt = vm.elt(o, 0);
             var thek = vm.elt(o, 1);
             var thef = vm.elt(o, 2);
-            if (isResumption(m)) {
-                var val = resumeFrame(m.k, m.f);
+            if (k instanceof StackFrame) {
+                var val = resumeFrame(k, f);
             } else {
                 var val = resumeFrame(thek, thef);
             }
-            if (isSuspension(val)) {
+            if (val instanceof Suspension) {
                 if (val.prompt === prompt) {
                     var continuation = val.k;
                     var handler = val.handler;
-                    return vm.combine(null, e, handler, vm.cons(continuation, vm.NIL));
+                    return vm.combine(e, handler, vm.cons(continuation, vm.NIL));
                 } else {
-                    suspendFrame(val, function(m) { return do_push_prompt_subcont(self, m, e, o); });
+                    suspendFrame(val, function(k, f) { return do_push_prompt_subcont(self, e, o, k, f); });
                     return val;
                 }
             }
@@ -166,62 +283,85 @@ module.exports = function(vm, e) {
         }
     });
     /* Simple control */
+    // %%LOOP thunk
+    //
+    // Call thunk repeatedly.
     vm.Loop = vm.wrap({
-        qua_combine: function do_loop(self, m, e, o) {
+        qua_combine: function do_loop(self, e, o, k, f) {
             var body = vm.elt(o, 0);
             var first = true; // only resume once
             while (true) {
-                if (first && isResumption(m)) {
-                    var val = resumeFrame(m.k, m.f);
+                if (first && (k instanceof StackFrame)) {
+                    var val = resumeFrame(k, f);
                 } else {
-                    var val = vm.combine(null, e, body, vm.NIL);
+                    var val = vm.combine(e, body, vm.NIL);
                 }
                 first = false;
-                if (isSuspension(val)) {
-                    suspendFrame(val, function(m) { return do_loop(self, m, e, o); });
+                if (val instanceof Suspension) {
+                    suspendFrame(val, function(k, f) { return do_loop(self, e, o, k, f); });
                     return val;
                 }
             }
         }
     });
-    vm.raise = function(err, args) { throw err; };
+    // %%RAISE obj
+    //
+    // Throw something as a JS exception.
+    vm.Raise = vm.jswrap(function(err) { throw err; });
+    // %%RESCUE handler-fun body-thunk
+    //
+    // Call HANDLER-FUN if a JS exception is thrown during BODY-THUNK
+    // (except VM panics, let those through so that user can't
+    // interfere with panicking).
     vm.Rescue = vm.wrap({
-        qua_combine: function do_rescue(self, m, e, o) {
+        qua_combine: function do_rescue(self, e, o, k, f) {
             var handler = vm.elt(o, 0);
             var body = vm.elt(o, 1);
             try {
-                if (isResumption(m)) {
-                    var val = resumeFrame(m.k, m.f);
+                if (k instanceof StackFrame) {
+                    var val = resumeFrame(k, f);
                 } else {
-                    var val = vm.combine(null, e, body, vm.NIL);
+                    var val = vm.combine(e, body, vm.NIL);
                 }
             } catch(exc) {
-                // unwrap handler to prevent double eval of exception
-                var val = vm.combine(null, e, vm.unwrap(handler), vm.list(exc));
+                if (exc instanceof vm.Panic) {
+                    // let panics through, do not pass them to user handler
+                    throw exc;
+                } else {
+                    // unwrap handler to prevent double eval of exception
+                    // TODO: murky
+                    var val = vm.combine(e, vm.unwrap(handler), vm.list(exc));
+                }
             }
-            if (isSuspension(val)) {
-                suspendFrame(val, function(m) { return do_rescue(self, m, e, o); });
+            if (val instanceof Suspension) {
+                suspendFrame(val, function(k, f) { return do_rescue(self, e, o, k, f); });
                 return val;
             }
             return val;
         }
     });
     /* Dynamic Variables */
+    // %%DYNAMIC-BIND dynvar new-val body-thunk
+    //
+    // Bind a single dynamic variable to a new value during the
+    // execution of a body thunk.  For now, any standard object with a
+    // VAL slot can be used as a dynamic variable, this will probably
+    // change.
     vm.DynamicBind = vm.wrap({
-        qua_combine: function dynamic_bind(self, m, e, o) {
+        qua_combine: function dynamic_bind(self, e, o, k, f) {
             var dynvar = vm.elt(o, 0);
             var val = vm.elt(o, 1);
             var thunk = vm.elt(o, 2);
             var oldVal = dynvar.qs_val;
             dynvar.qs_val = val;
             try {
-                if (isResumption(m)) {
-                    var res = resumeFrame(m.k, m.f);
+                if (k instanceof StackFrame) {
+                    var res = resumeFrame(k, f);
                 } else {
-                    var res = vm.combine(null, e, thunk, vm.NIL);
+                    var res = vm.combine(e, thunk, vm.NIL);
                 }
-                if (isSuspension(res)) {
-                    suspendFrame(res, function(m) { return dynamic_bind(m, e, o); }, x, e);
+                if (res instanceof Suspension) {
+                    suspendFrame(res, function(k, f) { return dynamic_bind(self, e, o, k, f); });
                     return res;
                 } else {
                     return res;
@@ -231,12 +371,13 @@ module.exports = function(vm, e) {
             }
         }
     });
+    // Export to Lisp
     vm.defun(e, vm.sym("%%push-prompt"), vm.PushPrompt);
     vm.defun(e, vm.sym("%%take-subcont"), vm.TakeSubcont);
     vm.defun(e, vm.sym("%%push-subcont"), vm.PushSubcont);
     vm.defun(e, vm.sym("%%push-prompt-subcont"), vm.PushPromptSubcont);
     vm.defun(e, vm.sym("%%loop"), vm.Loop);
-    vm.defun(e, vm.sym("%%raise"), vm.jswrap(vm.raise));
+    vm.defun(e, vm.sym("%%raise"), vm.Raise);
     vm.defun(e, vm.sym("%%rescue"), vm.Rescue);
     vm.defun(e, vm.sym("%%dynamic-bind"), vm.DynamicBind);
 }
@@ -283,6 +424,7 @@ var init_bytecode = require("../build/out/init.js").main;
 var test_bytecode = require("../build/out/test.js").main;
 
 var vm = {};
+// Where should this go? Whole init process = borked
 vm.Env = function(parent) {
     this.bindings = Object.create(parent ? parent.bindings : null);
     this.parent = parent;
@@ -291,7 +433,7 @@ vm.make_env = function(parent) { return new vm.Env(parent); };
 var e = vm.make_env();
 require("./util")(vm, e);
 require("./obj")(vm, e);
-require("./vm")(vm, e);
+require("./vm")(vm); // kludgy mckludge
 require("./lisp-2")(vm, e);
 require("./type")(vm, e);
 require("./cont")(vm, e);
@@ -781,19 +923,21 @@ module.exports = function(vm, e) {
             // call into userspace ERROR function if we have an environment
             var error = vm.lookup(e, vm.fun_sym("error"), false);
             if (error) {
-                return vm.combine(null, e, error, vm.list(err));
+                return vm.combine(e, error, vm.list(err));
             } else {
                 console.log("ERROR not bound");
+                // fall through
             }
         } else {
             console.log("No environment passed to vm.error()");
+            // fall through
         }
         // if nothing else worked, panic
         vm.panic(err);
     };
     // Unconditionally abort up to the next exception handler outside
-    // of the VM.  Does not run any intervening UNWIND-PROTECT and
-    // %%RESCUE blocks. (TODO)
+    // of the VM.  Bypasses any intervening %%RESCUE handlers to
+    // prevent user code from interfering with the unwinding.
     vm.panic = function(err) {
         console.log("vm.panic", err);
         err = (err instanceof Error) ? err : new Error(err);
@@ -830,8 +974,8 @@ module.exports = function(vm, e) {
 };
 
 },{}],16:[function(require,module,exports){
-module.exports = function(vm, root_env) {
-    /* Setup class hierarchy */
+module.exports = function(vm) {
+    /* Setup class hierarchy - still in flux */
     vm.Object = vm.defclass("object", []);
     vm.StandardObject = vm.defclass("standard-object", ["object"]);
     vm.Class = vm.defclass("class", ["standard-object"]);
@@ -856,13 +1000,14 @@ module.exports = function(vm, root_env) {
     vm.SeriousCondition = vm.defclass("serious-condition", ["condition"], {});
     vm.Error = vm.defclass("error", ["serious-condition"], {});
     vm.UnboundVariable = vm.defclass("unbound-variable", ["error"], { "name": {} });
+    // TODO: move to Lisp
     vm.Restart = vm.defclass("restart", ["standard-object"], { "associated-condition": {} });
     vm.UseValue = vm.defclass("use-value", ["restart"], { "value": {} });
     /* Evaluation */
-    vm.evaluate = function(m, e, x) {
+    vm.evaluate = function(e, x) {
         if (x && x.qua_evaluate) {
             try {
-                return x.qua_evaluate(x, m, e);
+                return x.qua_evaluate(x, e);
             } catch(exc) {
                 if ((exc instanceof vm.Tag) || (exc instanceof vm.Panic)) {
                     // let nonlocal exits and panics through
@@ -876,22 +1021,21 @@ module.exports = function(vm, root_env) {
             return x;
         }
     };
-    vm.Sym.prototype.qua_evaluate = function(self, m, e) {
+    vm.Sym.prototype.qua_evaluate = function(self, e) {
         return vm.lookup(e, self);
     };
-    vm.Cons.prototype.qua_evaluate = function(self, m, e) {
-        return vm.monadic(m,
-                          function() { return vm.eval_operator(e, vm.car(self)); },
-                          function(cmb) { return vm.combine(null, e, cmb, vm.cdr(self)); });
+    vm.Cons.prototype.qua_evaluate = function(self, e) {
+        return vm.monadic(function() { return vm.eval_operator(e, vm.car(self)); },
+                          function(cmb) { return vm.combine(e, cmb, vm.cdr(self)); });
     };
     vm.eval_operator = function(e, op) {
-        return vm.evaluate(null, e, op);
+        return vm.evaluate(e, op);
     };
     /* Combiners */
-    vm.combine = function(m, e, cmb, o) {
+    vm.combine = function(e, cmb, o) {
         if (cmb && cmb.qua_combine) {
             try {
-                return cmb.qua_combine(cmb, m, e, o);
+                return cmb.qua_combine(cmb, e, o);
             } catch(exc) {
                 if ((exc instanceof vm.Tag) || (exc instanceof vm.Panic)) {
                     throw exc;
@@ -907,29 +1051,25 @@ module.exports = function(vm, root_env) {
     vm.Apv = function(cmb) { this.cmb = cmb; };
     vm.wrap = function(cmb) { return new vm.Apv(cmb); };
     vm.unwrap = function(apv) { return apv.cmb; };
-    vm.Opv.prototype.qua_combine = function(self, m, e, o) {
+    vm.Opv.prototype.qua_combine = function(self, e, o) {
         var xe = vm.make_env(self.qs_e);
-        return vm.monadic(m,
-                          function() { return vm.bind(xe, self.qs_p, o); },
+        return vm.monadic(function() { return vm.bind(xe, self.qs_p, o); },
                           function() {
-                              return vm.monadic(m,
-                                                function() { return vm.bind(xe, self.qs_ep, e); },
-                                                function() { return vm.evaluate(null, xe, self.qs_x); }); });
+                              return vm.monadic(function() { return vm.bind(xe, self.qs_ep, e); },
+                                                function() { return vm.evaluate(xe, self.qs_x); }); });
     };
-    vm.Apv.prototype.qua_combine = function(self, m, e, o) {
-        return vm.monadic(m,
-                          function() { return vm.eval_args(null, e, o, vm.NIL); },
-                          function(args) { return vm.combine(null, e, self.cmb, args); });
+    vm.Apv.prototype.qua_combine = function(self, e, o) {
+        return vm.monadic(function() { return vm.eval_args(e, o, vm.NIL); },
+                          function(args) { return vm.combine(e, self.cmb, args); });
     };
-    vm.eval_args = function(m, e, todo, done) {
+    vm.eval_args = function(e, todo, done) {
         if (vm.is_nil(todo)) { return vm.reverse_list(done); }
-        return vm.monadic(m, 
-                          function() { return vm.evaluate(null, e, vm.car(todo)); },
-                          function(arg) { return vm.eval_args(null, e, vm.cdr(todo), vm.cons(arg, done)); });
+        return vm.monadic(function() { return vm.evaluate(e, vm.car(todo)); },
+                          function(arg) { return vm.eval_args(e, vm.cdr(todo), vm.cons(arg, done)); });
     };
     /* Built-in combiners */
     vm.Vau = {
-        qua_combine: function(self, m, e, o) {
+        qua_combine: function(self, e, o) {
             var p = vm.elt(o, 0);
             var ep = vm.elt(o, 1);
             var x = vm.elt(o, 2);
@@ -937,55 +1077,51 @@ module.exports = function(vm, root_env) {
         }
     };
     vm.Def = {
-        qua_combine: function (self, m, e, o) {
+        qua_combine: function (self, e, o) {
             var lhs = vm.elt(o, 0);
             var rhs = vm.elt(o, 1);
-            return vm.monadic(m,
-                              function() { return vm.evaluate(null, e, rhs); },
+            return vm.monadic(function() { return vm.evaluate(e, rhs); },
                               function(val) { return vm.bind(e, lhs, val, vm.do_def); });
         }
     };
     vm.Setq = {
-        qua_combine: function (self, m, e, o) {
+        qua_combine: function (self, e, o) {
             var lhs = vm.elt(o, 0);
             var rhs = vm.elt(o, 1);
-            return vm.monadic(m,
-                              function() { return vm.evaluate(null, e, rhs); },
+            return vm.monadic(function() { return vm.evaluate(e, rhs); },
                               function(val) { return vm.bind(e, lhs, val, vm.do_setq); });
         }
     };
     vm.Eval = vm.wrap({
-        qua_combine: function(self, m, e, o) {
+        qua_combine: function(self, e, o) {
             var x = vm.elt(o, 0);
             var e = vm.elt(o, 1);
-            return vm.evaluate(m, e, x);
+            return vm.evaluate(e, x);
         }
     });
     vm.If = {
-        qua_combine: function(self, m, e, o) {
-            return vm.monadic(m,  
-                              function() { return vm.evaluate(null, e, vm.elt(o, 0)); },
-                              function(test) {
-                                  return vm.evaluate(null, e, test ? vm.elt(o, 1) : vm.elt(o, 2));
+        qua_combine: function(self, e, o) {
+            return vm.monadic(function() { return vm.evaluate(e, vm.elt(o, 0)); },
+                              function(test_result) {
+                                  return vm.evaluate(e, test_result ? vm.elt(o, 1) : vm.elt(o, 2));
                               });
         }
     };
     vm.Progn = {
-        qua_combine: function(self, m, e, o) {
-            if (vm.is_nil(o)) return vm.VOID; else return vm.progn(m, e, o);
+        qua_combine: function(self, e, o) {
+            if (vm.is_nil(o)) return vm.VOID; else return vm.progn(e, o);
         }
     };
-    vm.progn = function(m, e, xs) {
-        return vm.monadic(m,
-                          function() { return vm.evaluate(null, e, vm.car(xs)); },
+    vm.progn = function(e, xs) {
+        return vm.monadic(function() { return vm.evaluate(e, vm.car(xs)); },
                           function(res) {
                               var cdr = vm.cdr(xs);
-                              if (vm.is_nil(cdr)) return res; else return vm.progn(null, e, cdr);
+                              if (vm.is_nil(cdr)) return res; else return vm.progn(e, cdr);
                           });
     };
     /* Operator that calls JS function to do work */
     vm.JSOperator = function(js_fn) { this.js_fn = vm.assert_type(js_fn, "function"); };
-    vm.JSOperator.prototype.qua_combine = function(self, m, e, o) {
+    vm.JSOperator.prototype.qua_combine = function(self, e, o) {
         try {
             return self.js_fn.apply(null, vm.list_to_array(o));
         } catch(exc) {
@@ -1040,8 +1176,7 @@ module.exports = function(vm, root_env) {
         return doit(e, self, rhs);
     };
     vm.Cons.prototype.qua_bind = function(self, e, rhs, doit) {
-        return vm.monadic(null,
-                          function() { return vm.bind(e, vm.car(self), vm.car(rhs), doit); },
+        return vm.monadic(function() { return vm.bind(e, vm.car(self), vm.car(rhs), doit); },
                           function() { return vm.bind(e, vm.cdr(self), vm.cdr(rhs), doit); });
     };
     vm.Nil.prototype.qua_bind = function(self, e, rhs, doit) {
@@ -1115,7 +1250,7 @@ module.exports = function(vm, root_env) {
         vm.defun(e, vm.sym("%%parse-bytecode"), vm.jswrap(vm.parse_bytecode));
     };
     vm.eval = function(x, e) {
-        return vm.evaluate(null, e, x); // change to x,e
+        return vm.evaluate(e, x); // change to x,e
     };
 };
 

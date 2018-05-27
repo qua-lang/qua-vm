@@ -29,19 +29,21 @@ module.exports = function(vm, e) {
             // call into userspace ERROR function if we have an environment
             var error = vm.lookup(e, vm.fun_sym("error"), false);
             if (error) {
-                return vm.combine(null, e, error, vm.list(err));
+                return vm.combine(e, error, vm.list(err));
             } else {
                 console.log("ERROR not bound");
+                // fall through
             }
         } else {
             console.log("No environment passed to vm.error()");
+            // fall through
         }
         // if nothing else worked, panic
         vm.panic(err);
     };
     // Unconditionally abort up to the next exception handler outside
-    // of the VM.  Does not run any intervening UNWIND-PROTECT and
-    // %%RESCUE blocks. (TODO)
+    // of the VM.  Bypasses any intervening %%RESCUE handlers to
+    // prevent user code from interfering with the unwinding.
     vm.panic = function(err) {
         console.log("vm.panic", err);
         err = (err instanceof Error) ? err : new Error(err);
