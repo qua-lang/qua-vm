@@ -54,7 +54,7 @@ module.exports = function(vm, e) {
         fun();
         var end = new Date().getTime();
         var time = end - start;
-        //console.log(name + ": "  + time + "ms");
+        console.log(name + ": "  + time + "ms");
     };
     vm.parse_bytecode = function(obj) {
         switch(Object.prototype.toString.call(obj)) {
