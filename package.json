@@ -1,6 +1,10 @@
 {
     "dependencies": {
         "deep-equal": "1.0.1",
-        "jsparse": "0.1.0"
+        "jsparse": "0.1.0",
+        "readline-sync": "^1.4.9"
+    },
+    "browser": {
+        "./build/out/init.js": "./build/out/init-browser.js"
     }
 }
