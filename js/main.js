@@ -37,6 +37,7 @@ if (!process.browser) {
 
 module.exports.vm = function() {
     return {
+        // TODO: should this call USER-EVAL?
         "eval": function(str) { return vm.eval(vm.parse_bytecode([vm.sym("%%progn")].concat(parser.parse_sexp(str))), e); }
     };
 };
