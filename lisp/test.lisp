@@ -59,12 +59,6 @@
                       (map-list (lambda (#ign) 1)
                                 (list 1 2 3))))
 
-;;; PG IF
-(%expect #void (if (= #t #f) 1))
-(%expect 1 (if (= #t #t) 1))
-(%expect 2 (if (= #t #f) 1 (= #t #t) 2))
-(%expect 3 (if (= #t #f) 1 (= #t #f) 2 3))
-
 ;;;; Objects
 (defgeneric describe-yourself (self))
 (%defmethod describe-yourself ((self js-number)) "a number")
@@ -434,6 +428,3 @@
                                 (return-from ret 12))))
                 x)))
 
-(let ()
-  (load-system "lisp/test-sample.system.lisp")
-  (%expect 77 (test:sample-fn)))

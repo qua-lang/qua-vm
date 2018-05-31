@@ -15,7 +15,7 @@
 (def #'cons #'%%cons) ; Construct a new pair.
 (def #'eq #'%%eq) ; Compare two values for pointer equality.
 (def #'eval #'%%eval) ; Evaluate an expression in an environment.
-(def #'%if #'%%if) ; Evaluate either of two expressions depending on a test.
+(def #'if #'%%if) ; Evaluate either of two expressions depending on a test.
 (def #'make-environment #'%%make-environment) ; Create new lexical environment.
 (def #'print #'%%print) ; Print line.
 (def #'progn #'%%progn) ; Evaluate expressions in order.
@@ -117,9 +117,9 @@
 
 ; Treat the rest arg as an optional value with optional default.
 (defun optional (opt-arg . opt-default)
-  (%if (nil? opt-arg)
-       (%if (nil? opt-default) #void (car opt-default))
-       (car opt-arg)))
+  (if (nil? opt-arg)
+      (if (nil? opt-default) #void (car opt-default))
+      (car opt-arg)))
 
 ; Apply a function to a list of arguments.
 (defun apply (fun args . opt-env)
@@ -159,16 +159,16 @@
 
 ; Produce a new list by applying a function to each element of a list.
 (defun map-list (#'fun list)
-  (%if (nil? list)
-       #nil
-       (cons (fun (car list)) (map-list #'fun (cdr list)))))
+  (if (nil? list)
+      #nil
+      (cons (fun (car list)) (map-list #'fun (cdr list)))))
 
 (def #'list-for-each #'map-list)
 
 (defun fold-list (#'fun init list)
-  (%if (nil? list)
-       init
-       (fold-list #'fun (fun init (car list)) (cdr list))))
+  (if (nil? list)
+      init
+      (fold-list #'fun (fun init (car list)) (cdr list))))
 
 ;;;; Lexical variable bindings
 
@@ -182,10 +182,10 @@
 ; The usual sequential-binding LET* where the value expression of each
 ; binding has all earlier bindings in scope (if any).
 (defmacro let* (bindings . body)
-  (%if (nil? bindings)
-       (list* #'let () body)
-       (list #'let (list (car bindings))
-             (list* #'let* (cdr bindings) body))))
+  (if (nil? bindings)
+      (list* #'let () body)
+      (list #'let (list (car bindings))
+            (list* #'let* (cdr bindings) body))))
 
 ; Kernel's recursive parallel-binding LETREC where the value
 ; expression of each binding has all other bindings in scope.
@@ -212,15 +212,15 @@
 ;;;; Logic
 
 (defun not (boolean)
-  (%if boolean #f #t))
+  (if boolean #f #t))
 
 (deffexpr cond clauses env
-  (%if (nil? clauses)
-       #void
-       (let ((((test . body) . rest-clauses) clauses))
-         (%if (eval test env)
-              (eval (cons #'progn body) env)
-              (eval (cons #'cond rest-clauses) env)))))
+  (if (nil? clauses)
+      #void
+      (let ((((test . body) . rest-clauses) clauses))
+        (if (eval test env)
+            (eval (cons #'progn body) env)
+            (eval (cons #'cond rest-clauses) env)))))
 
 (deffexpr and ops env
   (cond ((nil? ops)           #t)
@@ -248,11 +248,11 @@
                     (js-set getter +setter-prop+ new-setter)))
 
 (defmacro setf (place new-val)
-  (%if (symbol? place)
-       (list #'setq place new-val)
-       (let* (((getter-form . args) place)
-              (getter (%if (symbol? getter-form) (%to-fun-sym getter-form) getter-form)))
-         (list* (list #'setter getter) new-val args))))
+  (if (symbol? place)
+      (list #'setq place new-val)
+      (let* (((getter-form . args) place)
+             (getter (if (symbol? getter-form) (%to-fun-sym getter-form) getter-form)))
+        (list* (list #'setter getter) new-val args))))
 
 (defmacro incf (place . opt-increment)
   (let ((increment (optional opt-increment 1)))
@@ -308,34 +308,27 @@
   (let ((body (prognize body)))
     (block exit
       (loop
-        (%if (eval test env)
-             (eval body env)
-             (return-from exit))))))
+        (if (eval test env)
+            (eval body env)
+            (return-from exit))))))
 
-; Arc's IF: (if test-1 then-1 ... test-N then-N [else])
-(deffexpr if (test then . rest) env
-  (%if (eval test env)
-       (eval then env)
-       (%if (nil? rest)
-            #void
-            (%if (nil? (cdr rest))
-                 (eval (car rest) env)
-                 (eval (cons #'if rest) env)))))
+(defmacro if (test then else)
+  (list #'%%if test then else))
 
 (defmacro when (test . body)
-  (list #'%if test (prognize body) #void))
+  (list #'%%if test (prognize body) #void))
 
 (defmacro unless (test . body)
-  (list #'%if test #void (prognize body)))
+  (list #'%%if test #void (prognize body)))
 
 (defun %call-with-escape (#'fn)
   (labels ((escape opt-val
              (%%raise (%make-instance '%%tag :id #'escape :val (optional opt-val)))))
     (%%rescue (lambda (exc)
-                (%if (and (type? exc '%%tag)
-                          (eq (slot-value exc 'id) #'escape))
-                     (slot-value exc 'val)
-                     (%%raise exc)))
+                (if (and (type? exc '%%tag)
+                         (eq (slot-value exc 'id) #'escape))
+                    (slot-value exc 'val)
+                    (%%raise exc)))
               (lambda ()
                 (fn #'escape)))))
 
@@ -347,11 +340,11 @@
   (apply escape opt-val))
 
 (deffexpr prog1 forms env
-  (%if (nil? forms)
-       #void
-       (let ((result (eval (car forms) env)))
-         (eval (prognize (cdr forms)) env)
-         result)))
+  (if (nil? forms)
+      #void
+      (let ((result (eval (car forms) env)))
+        (eval (prognize (cdr forms)) env)
+        result)))
 
 (defmacro prog2 (form . forms)
   (list #'progn form (list* #'prog1 forms)))
@@ -433,12 +426,12 @@
                            (cons (eval dynamic-name env) (eval expr env)))
                          bindings)))
     (labels ((process-pairs (pairs)
-               (%if (nil? pairs)
-                    (eval (prognize body) env)
-                    (let* ((((dynamic . value) . rest-pairs) pairs))
-                      (dynamic-bind dynamic value
-                                    (lambda ()
-                                      (process-pairs rest-pairs)))))))
+               (if (nil? pairs)
+                   (eval (prognize body) env)
+                   (let* ((((dynamic . value) . rest-pairs) pairs))
+                     (dynamic-bind dynamic value
+                                   (lambda ()
+                                     (process-pairs rest-pairs)))))))
       (process-pairs pairs))))
 
 ;;;; JS stuff
@@ -469,11 +462,11 @@
 (defun %js-relational-op (name)
   (let ((#'binop (%%js-binop name)))
     (labels ((op (arg1 arg2 . rest)
-               (%if (binop arg1 arg2)
-                    (%if (nil? rest)
-                         #t
-                         (apply #'op (list* arg2 rest)))
-                    #f)))
+               (if (binop arg1 arg2)
+                   (if (nil? rest)
+                       #t
+                       (apply #'op (list* arg2 rest)))
+                   #f)))
       #'op)))
 
 (def #'== (%js-relational-op "=="))
@@ -498,16 +491,16 @@
 ;; Can't simply use 0 as unit or it won't work with strings
 (def #'+ (let ((#'binop (%%js-binop "+")))
            (lambda args
-             (%if (nil? args)
-                  0
-                  (fold-list #'binop (car args) (cdr args))))))
+             (if (nil? args)
+                 0
+                 (fold-list #'binop (car args) (cdr args))))))
 
 (defun %js-negative-op (name unit)
   (let ((#'binop (%%js-binop name)))
     (lambda (arg1 . rest)
-      (%if (nil? rest)
-           (binop unit arg1)
-           (fold-list #'binop arg1 rest)))))
+      (if (nil? rest)
+          (binop unit arg1)
+          (fold-list #'binop arg1 rest)))))
 
 (def #'- (%js-negative-op "-" 0))
 (def #'/ (%js-negative-op "/" 1))
@@ -515,26 +508,26 @@
 ;;;; Utilities
 
 (defun list-length (list)
-  (%if (nil? list)
-       0
-       (+ 1 (list-length (cdr list)))))
+  (if (nil? list)
+      0
+      (+ 1 (list-length (cdr list)))))
 
 (defun list-elt (list i)
-  (%if (= i 0)
-       (car list)
-       (list-elt (cdr list) (- i 1))))
+  (if (= i 0)
+      (car list)
+      (list-elt (cdr list) (- i 1))))
 
 (defun filter-list (#'pred? list)
-  (%if (nil? list)
-       '()
-       (%if (pred? (car list))
-            (cons (car list) (filter-list #'pred? (cdr list)))
-            (filter-list #'pred? (cdr list)))))
+  (if (nil? list)
+      '()
+      (if (pred? (car list))
+          (cons (car list) (filter-list #'pred? (cdr list)))
+          (filter-list #'pred? (cdr list)))))
 
 (defun append-2-lists (list-1 list-2)
-  (%if (nil? list-1)
-       list-2
-       (cons (car list-1) (append-2-lists (cdr list-1) list-2))))
+  (if (nil? list-1)
+      list-2
+      (cons (car list-1) (append-2-lists (cdr list-1) list-2))))
 
 ;;;; Conditions
 
@@ -636,22 +629,22 @@
 
 (defun signal-condition (condition dynamic-frame)
   (let ((handler-and-frame (find-applicable-handler condition dynamic-frame)))
-    (%if (void? handler-and-frame)
-         #void
-         (let (((handler frame) handler-and-frame))
-           (call-condition-handler condition handler frame)
-           ;; signal unhandled: continue search for handlers
-           (signal-condition condition (slot-value frame 'parent))))))
+    (if (void? handler-and-frame)
+        #void
+        (let (((handler frame) handler-and-frame))
+          (call-condition-handler condition handler frame)
+          ;; signal unhandled: continue search for handlers
+          (signal-condition condition (slot-value frame 'parent))))))
 
 (defun find-applicable-handler (condition dynamic-frame)
-  (%if (void? dynamic-frame)
-       #void
-       (block found
-         (list-for-each (lambda (handler)
-                          (when (condition-applicable? condition handler)
-                            (return-from found (list handler dynamic-frame))))
+  (if (void? dynamic-frame)
+      #void
+      (block found
+        (list-for-each (lambda (handler)
+                         (when (condition-applicable? condition handler)
+                           (return-from found (list handler dynamic-frame))))
                         (slot-value dynamic-frame 'handlers))
-         (find-applicable-handler condition (slot-value dynamic-frame 'parent)))))
+        (find-applicable-handler condition (slot-value dynamic-frame 'parent)))))
 
 (defgeneric condition-applicable? (condition handler))
 
@@ -659,9 +652,9 @@
   (type? condition (slot-value handler 'condition-type)))
 
 (defun slot-void? (obj slot-name)
-  (%if (slot-bound? obj slot-name)
-       (void? (slot-value obj slot-name))
-       #t))
+  (if (slot-bound? obj slot-name)
+      (void? (slot-value obj slot-name))
+      #t))
 
 (%defmethod condition-applicable? ((restart restart) handler)
   (and (type? restart (slot-value handler 'condition-type))
@@ -692,42 +685,42 @@
   (%make-instance '%class-type :name "bottom" :generic-params '()))
 
 (defun %parse-type-spec (type-spec)
-  (if (keyword? type-spec)
-      (%make-instance '%type-variable
-                      :name (symbol-name type-spec))
-      (symbol? type-spec)
-      (%make-instance '%class-type
-                      :name (symbol-name type-spec)
-                      :generic-params '())
-      (cons? type-spec)
-      (let (((class-name . generic-param-specs) type-spec))
-        (%make-instance '%class-type
-                        :name (symbol-name class-name)
-                        :generic-params (map-list #'%parse-generic-param-spec
-                                                  generic-param-specs)))
-      (simple-error "Illegal type-spec")))
+  (cond ((keyword? type-spec)
+         (%make-instance '%type-variable
+                         :name (symbol-name type-spec)))
+        ((symbol? type-spec)
+         (%make-instance '%class-type
+                         :name (symbol-name type-spec)
+                         :generic-params '()))
+        ((cons? type-spec)
+         (let (((class-name . generic-param-specs) type-spec))
+           (%make-instance '%class-type
+                           :name (symbol-name class-name)
+                           :generic-params (map-list #'%parse-generic-param-spec
+                                                     generic-param-specs))))
+        (#t (simple-error "Illegal type-spec"))))
   
 (defun %parse-generic-param-spec (gp-spec)
-  (if (or (keyword? gp-spec) (symbol? gp-spec))
-      (let ((type (%parse-type-spec gp-spec)))
-        (%make-instance '%generic-param :in-type type :out-type type))
-      (cons? gp-spec)
-      (let (((op . rest) gp-spec))
-        (%if (keyword? op)
-             (case (symbol-name op)
-               ("io"
-                (let* ((in-type (%parse-type-spec (car rest)))
-                       (out-type (%parse-type-spec (optional (cdr rest) in-type))))
-                  (%make-instance '%generic-param :in-type in-type :out-type out-type)))
-               ("in"
-                (let ((in-type (%parse-type-spec (car rest))))
-                  (%make-instance '%generic-param :in-type in-type :out-type +top-type+)))
-               ("out"
-                (let ((out-type (%parse-type-spec (car rest))))
-                  (%make-instance '%generic-param :in-type +bottom-type+ :out-type out-type))))
-             (let ((type (%parse-type-spec gp-spec)))
-               (%make-instance '%generic-param :in-type type :out-type type))))
-      (error "Illegal generic param spec")))
+  (cond ((or (keyword? gp-spec) (symbol? gp-spec))
+         (let ((type (%parse-type-spec gp-spec)))
+           (%make-instance '%generic-param :in-type type :out-type type)))
+        ((cons? gp-spec)
+         (let (((op . rest) gp-spec))
+           (if (keyword? op)
+               (case (symbol-name op)
+                 ("io"
+                  (let* ((in-type (%parse-type-spec (car rest)))
+                         (out-type (%parse-type-spec (optional (cdr rest) in-type))))
+                    (%make-instance '%generic-param :in-type in-type :out-type out-type)))
+                 ("in"
+                  (let ((in-type (%parse-type-spec (car rest))))
+                    (%make-instance '%generic-param :in-type in-type :out-type +top-type+)))
+                 ("out"
+                  (let ((out-type (%parse-type-spec (car rest))))
+                    (%make-instance '%generic-param :in-type +bottom-type+ :out-type out-type))))
+               (let ((type (%parse-type-spec gp-spec)))
+                 (%make-instance '%generic-param :in-type type :out-type type)))))
+        (#t (error "Illegal generic param spec"))))
 
 (defun type? (obj type-spec)
   (%%type? obj (%parse-type-spec type-spec)))
@@ -736,27 +729,18 @@
   (let ((val (eval expr env)))
     (block match
       (list-for-each (lambda ((type-spec . body))
-                       (%if (eq type-spec #t)
-                            (return-from match (eval (prognize body) env))
-                            (when (type? val type-spec)
-                         (return-from match (eval (prognize body) env)))))
+                       (if (eq type-spec #t)
+                           (return-from match (eval (prognize body) env))
+                           (when (type? val type-spec)
+                             (return-from match (eval (prognize body) env)))))
                      clauses)
       #void)))
 
 (defun the (type-spec obj)
-  (%if (type? obj type-spec)
-       obj
-       (error (%make-instance 'type-mismatch-error
-                              :type-spec type-spec :obj obj))))
-
-(defun %method-lambda-list-type-checks (method-ll)
-  (map-list (lambda (param)
-              (typecase param
-                (cons #void)
-                (symbol #void)
-                (keyword )
-                (#t (simple-error "Weird method parameter" :arg param))))
-            ()))
+  (if (type? obj type-spec)
+      obj
+      (error (%make-instance 'type-mismatch-error
+                             :type-spec type-spec :obj obj))))
 
 (defun %parse-method-lambda-list (method-ll)
   (if (cons? method-ll)
@@ -769,7 +753,7 @@
                             (#t (simple-error "Not a method parameter" :arg param))))
                         other-params))
              (simplified-ll (cons receiver-spec simplified-other-params))
-             (type-checks (%method-lambda-list-type-checks method-ll)))
+             (type-checks '()))
         (list simplified-ll type-checks))
       (simple-error "Not a method lambda list" :arg method-ll)))
 

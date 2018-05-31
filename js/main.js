@@ -30,10 +30,10 @@ vm.init(e);
 vm.time("run initialization",
         function() { vm.eval(vm.parse_bytecode([vm.sym("%%progn")].concat(init_bytecode)), e); });
 
-if (!process.browser) {
+
     vm.time("run tests",
             function() { vm.eval(vm.parse_bytecode([vm.sym("%%progn")].concat(test_bytecode)), e) });
-}
+
 
 module.exports.vm = function() {
     return {

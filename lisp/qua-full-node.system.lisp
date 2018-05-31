@@ -1,3 +1,3 @@
 (defsystem qua-full-node
   :depends-on ("collections.system.lisp" "tests.system.lisp")
-  :components ())
+  :components ("test-node.lisp"))
