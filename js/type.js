@@ -1,5 +1,5 @@
 // Type system
-module.exports = function(vm, e) {
+module.exports = function(vm, root_env) {
     vm.Type = vm.defclass("%type", ["standard-object"], {});
     vm.TypeVar = vm.defclass("%type-variable", ["%type"], { "name": {} });
     vm.ClassType = vm.defclass("%class-type", ["%type"], { "name": {}, "generic-params": {} });
@@ -19,7 +19,7 @@ module.exports = function(vm, e) {
                                     { "name": vm.sym_name(type_designator),
                                       "generic-params": [] });
         } else {
-            return vm.error("Illegal type designator: " + JSON.stringify(type_designator));
+            return vm.error("Illegal type designator: " + JSON.stringify(type_designator), root_env);
         }
     };
     vm.generic_subclassp = function(generic_class, other_class) {

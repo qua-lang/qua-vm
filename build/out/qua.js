@@ -7,7 +7,7 @@ module.exports.main = [null,["deffexpr","%assert",["expr"],"env",["unless",["eva
 },{}],3:[function(require,module,exports){
 (function (global){
 // Native JS support
-module.exports = function(vm, e) {
+module.exports = function(vm, root_env) {
     // Make all JS functions callable as Lisp combiners
     vm.original_combine = vm.combine;
     vm.combine = function(e, cmb, o) {
@@ -58,14 +58,14 @@ module.exports = function(vm, e) {
         return new factoryFunction(); }
     vm.own_property_p = function(obj, name) {
         return Object.prototype.hasOwnProperty.call(obj, vm.designate_string(name)); };
-    vm.defun(e, vm.sym("%%js-apply"), vm.jswrap(function(fun, self, args) { return fun.apply(self, args); }));
-    vm.defun(e, vm.sym("%%js-binop"), vm.jswrap(vm.js_binop));
-    vm.defun(e, vm.sym("%%js-function"), vm.jswrap(vm.js_function));
-    vm.defun(e, vm.sym("%%js-get"), vm.jswrap(function(obj, name) { return obj[name]; }));
-    vm.defun(e, vm.sym("%%js-global"), vm.JSGlobal);
-    vm.defun(e, vm.sym("%%js-new"), vm.jswrap(vm.js_new));
-    vm.defun(e, vm.sym("%%js-set"), vm.jswrap(function(obj, name, val) { return obj[name] = val; }));
-    vm.defun(e, vm.sym("%%own-property?"), vm.jswrap(vm.own_property_p));
+    vm.defun(root_env, vm.sym("%%js-apply"), vm.jswrap(function(fun, self, args) { return fun.apply(self, args); }));
+    vm.defun(root_env, vm.sym("%%js-binop"), vm.jswrap(vm.js_binop));
+    vm.defun(root_env, vm.sym("%%js-function"), vm.jswrap(vm.js_function));
+    vm.defun(root_env, vm.sym("%%js-get"), vm.jswrap(function(obj, name) { return obj[name]; }));
+    vm.defun(root_env, vm.sym("%%js-global"), vm.JSGlobal);
+    vm.defun(root_env, vm.sym("%%js-new"), vm.jswrap(vm.js_new));
+    vm.defun(root_env, vm.sym("%%js-set"), vm.jswrap(function(obj, name, val) { return obj[name] = val; }));
+    vm.defun(root_env, vm.sym("%%own-property?"), vm.jswrap(vm.own_property_p));
 };
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
@@ -74,7 +74,7 @@ module.exports = function(vm, e) {
 // Documentation: http://okmij.org/ftp/continuations/implementations.html
 // Also adds continuation-aware implementations of loops, exception handling,
 // and dynamically-scoped variables.
-module.exports = function(vm, e) {
+module.exports = function(vm, root_env) {
     /* Continuations */
     // A continuation or stack frame is created in order to freeze
     // (suspend, capture) a computation so that we can treat it as a
@@ -372,14 +372,14 @@ module.exports = function(vm, e) {
         }
     });
     // Export to Lisp
-    vm.defun(e, vm.sym("%%push-prompt"), vm.PushPrompt);
-    vm.defun(e, vm.sym("%%take-subcont"), vm.TakeSubcont);
-    vm.defun(e, vm.sym("%%push-subcont"), vm.PushSubcont);
-    vm.defun(e, vm.sym("%%push-prompt-subcont"), vm.PushPromptSubcont);
-    vm.defun(e, vm.sym("%%loop"), vm.Loop);
-    vm.defun(e, vm.sym("%%raise"), vm.Raise);
-    vm.defun(e, vm.sym("%%rescue"), vm.Rescue);
-    vm.defun(e, vm.sym("%%dynamic-bind"), vm.DynamicBind);
+    vm.defun(root_env, vm.sym("%%push-prompt"), vm.PushPrompt);
+    vm.defun(root_env, vm.sym("%%take-subcont"), vm.TakeSubcont);
+    vm.defun(root_env, vm.sym("%%push-subcont"), vm.PushSubcont);
+    vm.defun(root_env, vm.sym("%%push-prompt-subcont"), vm.PushPromptSubcont);
+    vm.defun(root_env, vm.sym("%%loop"), vm.Loop);
+    vm.defun(root_env, vm.sym("%%raise"), vm.Raise);
+    vm.defun(root_env, vm.sym("%%rescue"), vm.Rescue);
+    vm.defun(root_env, vm.sym("%%dynamic-bind"), vm.DynamicBind);
 }
 
 },{}],5:[function(require,module,exports){
@@ -395,40 +395,39 @@ vm.Env = function(parent) {
     this.parent = parent;
 };
 vm.make_env = function(parent) { return new vm.Env(parent); };
-var e = vm.make_env();
-require("./util")(vm, e);
-require("./obj")(vm, e);
-require("./vm")(vm, e);
-require("./type")(vm, e);
-require("./cont")(vm, e);
-require("./alien")(vm, e);
-require("./read")(vm, e);
-require("./print")(vm, e);
-require("./optim")(vm, e);
+var root_env = vm.make_env();
+require("./util")(vm, root_env);
+require("./obj")(vm, root_env);
+require("./type")(vm, root_env);
+require("./vm")(vm, root_env);
+require("./cont")(vm, root_env);
+require("./alien")(vm, root_env);
+require("./read")(vm, root_env);
+require("./print")(vm, root_env);
+require("./optim")(vm, root_env);
 if (!process.browser) {
-    require("./node")(vm, e);
-    require("./termio")(vm, e, parser);
+    require("./node")(vm, root_env);
+    require("./termio")(vm, root_env);
 }
-require("./test")(vm, e);
-vm.init(e);
+require("./test")(vm, root_env);
 
 vm.time("run initialization",
-        function() { vm.eval(vm.parse_bytecode([vm.sym("%%progn")].concat(init_bytecode)), e); });
+        function() { vm.eval(vm.parse_bytecode([vm.sym("%%progn")].concat(init_bytecode)), root_env); });
 
 vm.time("run tests",
-        function() { vm.eval(vm.parse_bytecode([vm.sym("%%progn")].concat(test_bytecode)), e) });
+        function() { vm.eval(vm.parse_bytecode([vm.sym("%%progn")].concat(test_bytecode)), root_env) });
 
 module.exports.vm = function() {
     return {
         // TODO: should this call USER-EVAL?
-        "eval": function(str) { return vm.eval(vm.parse_bytecode([vm.sym("%%progn")].concat(parser.parse_sexp(str))), e); }
+        "eval": function(str) { return vm.eval(vm.parse_bytecode([vm.sym("%%progn")].concat(parser.parse_sexp(str))), root_env); }
     };
 };
 
 }).call(this,require('_process'))
 },{"../build/out/init.js":1,"../build/out/test.js":2,"./alien":3,"./cont":4,"./node":18,"./obj":6,"./optim":7,"./print":8,"./read":9,"./termio":18,"./test":10,"./type":11,"./util":12,"./vm":13,"_process":19}],6:[function(require,module,exports){
 // Object system
-module.exports = function(vm, e) {
+module.exports = function(vm, root_env) {
     /* Bootstrap CONCRETE-CLASS */
     vm.THE_GENERIC_CLASS_CONCRETE_CLASS = {
         "qs_name": "concrete-class",
@@ -502,12 +501,12 @@ module.exports = function(vm, e) {
     vm.find_concrete_class = function(name) {
         var key = vm.concrete_class_key(name);
         var c = vm.CONCRETE_CLASSES[key];
-        if (c !== undefined) { return c; } else { return vm.error("concrete class not found: " + key); }
+        if (c !== undefined) { return c; } else { return vm.error("concrete class not found: " + key, root_env); }
     };
     vm.find_generic_class = function(name) {
         var key = vm.generic_class_key(name);
         var c = vm.GENERIC_CLASSES[key];
-        if (c !== undefined) { return c; } else { return vm.error("generic class not found: " + key); }
+        if (c !== undefined) { return c; } else { return vm.error("generic class not found: " + key, root_env); }
     };
     // Classes, methods, and slots have names which can be specified
     // as symbols, keywords, strings, or class types from Lisp.
@@ -616,7 +615,7 @@ module.exports = function(vm, e) {
         } else {
             var methods = vm.find_superclass_methods(obj, gcls, name);
             switch (methods.length) {
-            case 0: return vm.error("method not found: " + key);
+            case 0: return vm.error("method not found: " + key, root_env);
             case 1: return methods[0];
             default: return vm.ambiguous_method_hook(obj, name);
             }
@@ -664,7 +663,7 @@ module.exports = function(vm, e) {
 };
 
 },{}],7:[function(require,module,exports){
-module.exports = function(vm, e) {
+module.exports = function(vm, root_env) {
     vm.list_star = function() {
         var len = arguments.length; var c = len >= 1 ? arguments[len-1] : vm.NIL;
         for (var i = len-1; i > 0; i--) c = vm.cons(arguments[i - 1], c); return c;
@@ -680,9 +679,9 @@ module.exports = function(vm, e) {
             return vm.plist_to_js_object(vm.cdr(vm.cdr(plist)), obj);
         }
     };
-    vm.defun(e, vm.sym("%%list*"), vm.jswrap(vm.list_star));
-    vm.defun(e, vm.sym("%%plist-to-js-object"), vm.jswrap(vm.plist_to_js_object));
-}
+    vm.defun(root_env, vm.sym("%%list*"), vm.jswrap(vm.list_star));
+    vm.defun(root_env, vm.sym("%%plist-to-js-object"), vm.jswrap(vm.plist_to_js_object));
+};
 
 },{}],8:[function(require,module,exports){
 module.exports = function(vm, e) {
@@ -701,12 +700,12 @@ module.exports = function(vm, e) {
 
 },{}],9:[function(require,module,exports){
 var jsparse = require("jsparse");
-module.exports = function(vm, e) {
+module.exports = function(vm, root_env) {
     vm.read = function() {
         return vm.parse_bytecode([vm.sym("%%progn")].concat(parse_sexp(vm.read_line())));
     };
-    vm.defun(e, vm.sym("%%read"), vm.jswrap(vm.read));
-    vm.defun(e, vm.sym("%%parse-sexp"), vm.jswrap(parse_sexp));
+    vm.defun(root_env, vm.sym("%%read"), vm.jswrap(vm.read));
+    vm.defun(root_env, vm.sym("%%parse-sexp"), vm.jswrap(parse_sexp));
 };
 module.exports.parse_sexp = parse_sexp;
 
@@ -778,14 +777,14 @@ var program_stx = whitespace(repeat0(choice(x_stx, whitespace_stx))); // HACK!
 },{"jsparse":17}],10:[function(require,module,exports){
 // Adds utility functions for testing the built-ins to a VM
 var deep_equal = require("deep-equal");
-module.exports = function(vm, e) {
-    vm.defun(e, vm.sym("%%assert"), vm.jswrap(vm.assert));
-    vm.defun(e, vm.sym("%%deep-equal"), vm.jswrap(deep_equal));
+module.exports = function(vm, root_env) {
+    vm.defun(root_env, vm.sym("%%assert"), vm.jswrap(vm.assert));
+    vm.defun(root_env, vm.sym("%%deep-equal"), vm.jswrap(deep_equal));
 };
 
 },{"deep-equal":14}],11:[function(require,module,exports){
 // Type system
-module.exports = function(vm, e) {
+module.exports = function(vm, root_env) {
     vm.Type = vm.defclass("%type", ["standard-object"], {});
     vm.TypeVar = vm.defclass("%type-variable", ["%type"], { "name": {} });
     vm.ClassType = vm.defclass("%class-type", ["%type"], { "name": {}, "generic-params": {} });
@@ -805,7 +804,7 @@ module.exports = function(vm, e) {
                                     { "name": vm.sym_name(type_designator),
                                       "generic-params": [] });
         } else {
-            return vm.error("Illegal type designator: " + JSON.stringify(type_designator));
+            return vm.error("Illegal type designator: " + JSON.stringify(type_designator), root_env);
         }
     };
     vm.generic_subclassp = function(generic_class, other_class) {
@@ -1202,6 +1201,7 @@ module.exports = function(vm, root_env) {
         // Temporary
         vm.defun(e, vm.sym("%%parse-bytecode"), vm.jswrap(vm.parse_bytecode));
     };
+    vm.init(root_env);
     vm.eval = function(x, e) {
         return vm.evaluate(e, x); // change to x,e
     };

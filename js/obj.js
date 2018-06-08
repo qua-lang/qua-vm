@@ -1,5 +1,5 @@
 // Object system
-module.exports = function(vm, e) {
+module.exports = function(vm, root_env) {
     /* Bootstrap CONCRETE-CLASS */
     vm.THE_GENERIC_CLASS_CONCRETE_CLASS = {
         "qs_name": "concrete-class",
@@ -73,12 +73,12 @@ module.exports = function(vm, e) {
     vm.find_concrete_class = function(name) {
         var key = vm.concrete_class_key(name);
         var c = vm.CONCRETE_CLASSES[key];
-        if (c !== undefined) { return c; } else { return vm.error("concrete class not found: " + key); }
+        if (c !== undefined) { return c; } else { return vm.error("concrete class not found: " + key, root_env); }
     };
     vm.find_generic_class = function(name) {
         var key = vm.generic_class_key(name);
         var c = vm.GENERIC_CLASSES[key];
-        if (c !== undefined) { return c; } else { return vm.error("generic class not found: " + key); }
+        if (c !== undefined) { return c; } else { return vm.error("generic class not found: " + key, root_env); }
     };
     // Classes, methods, and slots have names which can be specified
     // as symbols, keywords, strings, or class types from Lisp.
@@ -187,7 +187,7 @@ module.exports = function(vm, e) {
         } else {
             var methods = vm.find_superclass_methods(obj, gcls, name);
             switch (methods.length) {
-            case 0: return vm.error("method not found: " + key);
+            case 0: return vm.error("method not found: " + key, root_env);
             case 1: return methods[0];
             default: return vm.ambiguous_method_hook(obj, name);
             }

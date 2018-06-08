@@ -1,5 +1,5 @@
 // Native JS support
-module.exports = function(vm, e) {
+module.exports = function(vm, root_env) {
     // Make all JS functions callable as Lisp combiners
     vm.original_combine = vm.combine;
     vm.combine = function(e, cmb, o) {
@@ -50,12 +50,12 @@ module.exports = function(vm, e) {
         return new factoryFunction(); }
     vm.own_property_p = function(obj, name) {
         return Object.prototype.hasOwnProperty.call(obj, vm.designate_string(name)); };
-    vm.defun(e, vm.sym("%%js-apply"), vm.jswrap(function(fun, self, args) { return fun.apply(self, args); }));
-    vm.defun(e, vm.sym("%%js-binop"), vm.jswrap(vm.js_binop));
-    vm.defun(e, vm.sym("%%js-function"), vm.jswrap(vm.js_function));
-    vm.defun(e, vm.sym("%%js-get"), vm.jswrap(function(obj, name) { return obj[name]; }));
-    vm.defun(e, vm.sym("%%js-global"), vm.JSGlobal);
-    vm.defun(e, vm.sym("%%js-new"), vm.jswrap(vm.js_new));
-    vm.defun(e, vm.sym("%%js-set"), vm.jswrap(function(obj, name, val) { return obj[name] = val; }));
-    vm.defun(e, vm.sym("%%own-property?"), vm.jswrap(vm.own_property_p));
+    vm.defun(root_env, vm.sym("%%js-apply"), vm.jswrap(function(fun, self, args) { return fun.apply(self, args); }));
+    vm.defun(root_env, vm.sym("%%js-binop"), vm.jswrap(vm.js_binop));
+    vm.defun(root_env, vm.sym("%%js-function"), vm.jswrap(vm.js_function));
+    vm.defun(root_env, vm.sym("%%js-get"), vm.jswrap(function(obj, name) { return obj[name]; }));
+    vm.defun(root_env, vm.sym("%%js-global"), vm.JSGlobal);
+    vm.defun(root_env, vm.sym("%%js-new"), vm.jswrap(vm.js_new));
+    vm.defun(root_env, vm.sym("%%js-set"), vm.jswrap(function(obj, name, val) { return obj[name] = val; }));
+    vm.defun(root_env, vm.sym("%%own-property?"), vm.jswrap(vm.own_property_p));
 };
