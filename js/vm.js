@@ -281,6 +281,7 @@ module.exports = function(vm, root_env) {
         // Temporary
         vm.defun(e, vm.sym("%%parse-bytecode"), vm.jswrap(vm.parse_bytecode));
     };
+    vm.init(root_env);
     vm.eval = function(x, e) {
         return vm.evaluate(e, x); // change to x,e
     };

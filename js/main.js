@@ -12,8 +12,8 @@ vm.make_env = function(parent) { return new vm.Env(parent); };
 var e = vm.make_env();
 require("./util")(vm, e);
 require("./obj")(vm, e);
-require("./vm")(vm); // kludgy mckludge
 require("./type")(vm, e);
+require("./vm")(vm, e);
 require("./cont")(vm, e);
 require("./alien")(vm, e);
 require("./read")(vm, e);
@@ -24,7 +24,6 @@ if (!process.browser) {
     require("./termio")(vm, e, parser);
 }
 require("./test")(vm, e);
-vm.init(e);
 
 vm.time("run initialization",
         function() { vm.eval(vm.parse_bytecode([vm.sym("%%progn")].concat(init_bytecode)), e); });

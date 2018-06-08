@@ -398,7 +398,7 @@ vm.make_env = function(parent) { return new vm.Env(parent); };
 var e = vm.make_env();
 require("./util")(vm, e);
 require("./obj")(vm, e);
-require("./vm")(vm); // kludgy mckludge
+require("./vm")(vm, e);
 require("./type")(vm, e);
 require("./cont")(vm, e);
 require("./alien")(vm, e);
