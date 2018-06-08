@@ -741,7 +741,7 @@ module.exports = function(vm, e) {
 var jsparse = require("jsparse");
 module.exports = function(vm, e) {
     vm.read = function() {
-        return vm.parse_bytecode([vm.sym("%%progn")].concat(parser.parse_sexp(vm.read_line())));
+        return vm.parse_bytecode([vm.sym("%%progn")].concat(parse_sexp(vm.read_line())));
     };
     vm.defun(e, vm.sym("%%read"), vm.jswrap(vm.read));
     vm.defun(e, vm.sym("%%parse-sexp"), vm.jswrap(parse_sexp));
