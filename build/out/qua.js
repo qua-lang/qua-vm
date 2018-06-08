@@ -383,41 +383,6 @@ module.exports = function(vm, e) {
 }
 
 },{}],5:[function(require,module,exports){
-// Plugin for the Qua VM that adds a second namespace for functions.
-// This should be loaded before anything else so that primitive
-// functions defined in other modules go into the function namespace.
-module.exports = function(vm, e) {
-    // Add function namespace in addition to variable namespace.
-    vm.FUN_NS = "f";
-    // If the first element of a list form being evaluated is a
-    // symbol, look up the symbol in the function namespace instead of
-    // the variable namespace.
-    vm.original_eval_operator = vm.eval_operator;
-    vm.eval_operator = function(e, op) { // override vm.js
-        if (op instanceof vm.Sym) {
-            return vm.lookup(e, vm.to_fun_sym(op));
-        } else {
-            return vm.original_eval_operator(e, op);
-        }
-    };
-    // Create a symbol in the function namespace.
-    vm.fun_sym = function(name) { return vm.sym(name, vm.FUN_NS); };
-    // Return a symbol that has the same name as the argument symbol,
-    // but in the function namespace.
-    vm.to_fun_sym = function(sym) {
-        return vm.fun_sym(vm.assert_type(sym, vm.Sym).qs_name);
-    };
-    // Override the VM's function definition utility so that it puts
-    // primitive functions into the function namespace.
-    vm.original_defun = vm.defun;
-    vm.defun = function(e, name, cmb) { // override vm.js
-        vm.original_defun(e, vm.to_fun_sym(name), cmb);
-    };
-    // Primitives:
-    vm.defun(e, vm.sym("%%to-fun-sym"), vm.jswrap(vm.to_fun_sym));
-};
-
-},{}],6:[function(require,module,exports){
 (function (process){
 var parser = require("./read");
 var init_bytecode = require("../build/out/init.js").main;
@@ -434,7 +399,6 @@ var e = vm.make_env();
 require("./util")(vm, e);
 require("./obj")(vm, e);
 require("./vm")(vm); // kludgy mckludge
-require("./lisp-2")(vm, e);
 require("./type")(vm, e);
 require("./cont")(vm, e);
 require("./alien")(vm, e);
@@ -451,10 +415,8 @@ vm.init(e);
 vm.time("run initialization",
         function() { vm.eval(vm.parse_bytecode([vm.sym("%%progn")].concat(init_bytecode)), e); });
 
-
-    vm.time("run tests",
-            function() { vm.eval(vm.parse_bytecode([vm.sym("%%progn")].concat(test_bytecode)), e) });
-
+vm.time("run tests",
+        function() { vm.eval(vm.parse_bytecode([vm.sym("%%progn")].concat(test_bytecode)), e) });
 
 module.exports.vm = function() {
     return {
@@ -464,7 +426,7 @@ module.exports.vm = function() {
 };
 
 }).call(this,require('_process'))
-},{"../build/out/init.js":1,"../build/out/test.js":2,"./alien":3,"./cont":4,"./lisp-2":5,"./node":19,"./obj":7,"./optim":8,"./print":9,"./read":10,"./termio":19,"./test":11,"./type":12,"./util":13,"./vm":14,"_process":20}],7:[function(require,module,exports){
+},{"../build/out/init.js":1,"../build/out/test.js":2,"./alien":3,"./cont":4,"./node":18,"./obj":6,"./optim":7,"./print":8,"./read":9,"./termio":18,"./test":10,"./type":11,"./util":12,"./vm":13,"_process":19}],6:[function(require,module,exports){
 // Object system
 module.exports = function(vm, e) {
     /* Bootstrap CONCRETE-CLASS */
@@ -701,7 +663,7 @@ module.exports = function(vm, e) {
     };
 };
 
-},{}],8:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 module.exports = function(vm, e) {
     vm.list_star = function() {
         var len = arguments.length; var c = len >= 1 ? arguments[len-1] : vm.NIL;
@@ -722,7 +684,7 @@ module.exports = function(vm, e) {
     vm.defun(e, vm.sym("%%plist-to-js-object"), vm.jswrap(vm.plist_to_js_object));
 }
 
-},{}],9:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 module.exports = function(vm, e) {
     vm.to_sexp = function(obj) {
         return obj.qua_to_sexp(obj);
@@ -737,7 +699,7 @@ module.exports = function(vm, e) {
     };
 }
 
-},{}],10:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 var jsparse = require("jsparse");
 module.exports = function(vm, e) {
     vm.read = function() {
@@ -813,7 +775,7 @@ var x_stx = whitespace(choice(ign_stx, void_stx, nil_stx, nil_stx_2, t_stx, f_st
                               quote_stx, compound_stx, keyword_stx, id_stx, string_stx, cmt_stx));
 var program_stx = whitespace(repeat0(choice(x_stx, whitespace_stx))); // HACK!
 
-},{"jsparse":18}],11:[function(require,module,exports){
+},{"jsparse":17}],10:[function(require,module,exports){
 // Adds utility functions for testing the built-ins to a VM
 var deep_equal = require("deep-equal");
 module.exports = function(vm, e) {
@@ -821,7 +783,7 @@ module.exports = function(vm, e) {
     vm.defun(e, vm.sym("%%deep-equal"), vm.jswrap(deep_equal));
 };
 
-},{"deep-equal":15}],12:[function(require,module,exports){
+},{"deep-equal":14}],11:[function(require,module,exports){
 // Type system
 module.exports = function(vm, e) {
     vm.Type = vm.defclass("%type", ["standard-object"], {});
@@ -874,7 +836,7 @@ module.exports = function(vm, e) {
     };
 };
 
-},{}],13:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 module.exports = function(vm, e) {
     vm.assert_type = function(obj, type_spec) {
         if (vm.check_type(obj, type_spec)) return obj;
@@ -956,8 +918,8 @@ module.exports = function(vm, e) {
     };
 };
 
-},{}],14:[function(require,module,exports){
-module.exports = function(vm) {
+},{}],13:[function(require,module,exports){
+module.exports = function(vm, root_env) {
     /* Setup class hierarchy - still in flux */
     vm.Object = vm.defclass("object", []);
     vm.StandardObject = vm.defclass("standard-object", ["object"]);
@@ -1012,7 +974,11 @@ module.exports = function(vm) {
                           function(cmb) { return vm.combine(e, cmb, vm.cdr(self)); });
     };
     vm.eval_operator = function(e, op) {
-        return vm.evaluate(e, op);
+        if (op instanceof vm.Sym) {
+            return vm.lookup(e, vm.to_fun_sym(op));
+        } else {
+            return vm.evaluate(e, op);
+        }
     };
     /* Combiners */
     vm.combine = function(e, cmb, o) {
@@ -1118,9 +1084,12 @@ module.exports = function(vm) {
     vm.jswrap = function(js_fn) { return vm.wrap(new vm.JSOperator(js_fn)); };
     /* Forms */
     vm.VAR_NS = "v";
+    vm.FUN_NS = "f";
     vm.sym = function(name, ns) { var s = new vm.Sym(name, ns ? ns : vm.VAR_NS); return s; };
+    vm.fun_sym = function(name) { return vm.sym(name, vm.FUN_NS); };
     vm.sym_key = function(sym) { return sym.qs_name + "_" + sym.qs_ns; };
     vm.sym_name = function(sym) { return vm.assert_type(sym, vm.Sym).qs_name; };
+    vm.to_fun_sym = function(sym) { return vm.fun_sym(vm.assert_type(sym, vm.Sym).qs_name); };
     vm.cons = function cons(car, cdr) { var c = new vm.Cons(car, cdr); return c; }
     vm.car = function(cons) { return vm.assert_type(cons, vm.Cons).qs_car; };
     vm.cdr = function(cons) { return vm.assert_type(cons, vm.Cons).qs_cdr; };
@@ -1192,12 +1161,13 @@ module.exports = function(vm) {
     };
     /* API */
     vm.def = vm.bind;
-    vm.defun = vm.bind;
+    vm.defun = function(e, name, cmb) { vm.def(e, vm.to_fun_sym(name), cmb); };
     vm.init = function(e) {
         // Forms
         vm.defun(e, vm.sym("%%car"), vm.jswrap(vm.car));
         vm.defun(e, vm.sym("%%cdr"), vm.jswrap(vm.cdr));
         vm.defun(e, vm.sym("%%cons"), vm.jswrap(vm.cons));
+        vm.defun(e, vm.sym("%%to-fun-sym"), vm.jswrap(vm.to_fun_sym));
         // Evaluation
         vm.defun(e, vm.sym("%%def"), vm.Def);
         vm.defun(e, vm.sym("%%eval"), vm.Eval);
@@ -1237,7 +1207,7 @@ module.exports = function(vm) {
     };
 };
 
-},{}],15:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 var pSlice = Array.prototype.slice;
 var objectKeys = require('./lib/keys.js');
 var isArguments = require('./lib/is_arguments.js');
@@ -1333,7 +1303,7 @@ function objEquiv(a, b, opts) {
   return typeof a === typeof b;
 }
 
-},{"./lib/is_arguments.js":16,"./lib/keys.js":17}],16:[function(require,module,exports){
+},{"./lib/is_arguments.js":15,"./lib/keys.js":16}],15:[function(require,module,exports){
 var supportsArgumentsClass = (function(){
   return Object.prototype.toString.call(arguments)
 })() == '[object Arguments]';
@@ -1355,7 +1325,7 @@ function unsupported(object){
     false;
 };
 
-},{}],17:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 exports = module.exports = typeof Object.keys === 'function'
   ? Object.keys : shim;
 
@@ -1366,7 +1336,7 @@ function shim (obj) {
   return keys;
 }
 
-},{}],18:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 // Copyright (C) 2007 Chris Double.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -2056,9 +2026,9 @@ jsparse.inject_into = function inject_into(into) {
 }
 
 
-},{}],19:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 
-},{}],20:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -2244,5 +2214,5 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}]},{},[6])(6)
+},{}]},{},[5])(5)
 });

@@ -1,4 +1,4 @@
-module.exports = function(vm) {
+module.exports = function(vm, root_env) {
     /* Setup class hierarchy - still in flux */
     vm.Object = vm.defclass("object", []);
     vm.StandardObject = vm.defclass("standard-object", ["object"]);
@@ -53,7 +53,11 @@ module.exports = function(vm) {
                           function(cmb) { return vm.combine(e, cmb, vm.cdr(self)); });
     };
     vm.eval_operator = function(e, op) {
-        return vm.evaluate(e, op);
+        if (op instanceof vm.Sym) {
+            return vm.lookup(e, vm.to_fun_sym(op));
+        } else {
+            return vm.evaluate(e, op);
+        }
     };
     /* Combiners */
     vm.combine = function(e, cmb, o) {
@@ -159,9 +163,12 @@ module.exports = function(vm) {
     vm.jswrap = function(js_fn) { return vm.wrap(new vm.JSOperator(js_fn)); };
     /* Forms */
     vm.VAR_NS = "v";
+    vm.FUN_NS = "f";
     vm.sym = function(name, ns) { var s = new vm.Sym(name, ns ? ns : vm.VAR_NS); return s; };
+    vm.fun_sym = function(name) { return vm.sym(name, vm.FUN_NS); };
     vm.sym_key = function(sym) { return sym.qs_name + "_" + sym.qs_ns; };
     vm.sym_name = function(sym) { return vm.assert_type(sym, vm.Sym).qs_name; };
+    vm.to_fun_sym = function(sym) { return vm.fun_sym(vm.assert_type(sym, vm.Sym).qs_name); };
     vm.cons = function cons(car, cdr) { var c = new vm.Cons(car, cdr); return c; }
     vm.car = function(cons) { return vm.assert_type(cons, vm.Cons).qs_car; };
     vm.cdr = function(cons) { return vm.assert_type(cons, vm.Cons).qs_cdr; };
@@ -233,12 +240,13 @@ module.exports = function(vm) {
     };
     /* API */
     vm.def = vm.bind;
-    vm.defun = vm.bind;
+    vm.defun = function(e, name, cmb) { vm.def(e, vm.to_fun_sym(name), cmb); };
     vm.init = function(e) {
         // Forms
         vm.defun(e, vm.sym("%%car"), vm.jswrap(vm.car));
         vm.defun(e, vm.sym("%%cdr"), vm.jswrap(vm.cdr));
         vm.defun(e, vm.sym("%%cons"), vm.jswrap(vm.cons));
+        vm.defun(e, vm.sym("%%to-fun-sym"), vm.jswrap(vm.to_fun_sym));
         // Evaluation
         vm.defun(e, vm.sym("%%def"), vm.Def);
         vm.defun(e, vm.sym("%%eval"), vm.Eval);

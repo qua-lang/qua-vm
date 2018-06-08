@@ -13,7 +13,6 @@ var e = vm.make_env();
 require("./util")(vm, e);
 require("./obj")(vm, e);
 require("./vm")(vm); // kludgy mckludge
-require("./lisp-2")(vm, e);
 require("./type")(vm, e);
 require("./cont")(vm, e);
 require("./alien")(vm, e);
