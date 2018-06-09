@@ -10,8 +10,7 @@ module.exports = function(vm, root_env) {
     vm.js_function = function(cmb) {
         return function() {
             var args = vm.array_to_list(Array.prototype.slice.call(arguments));
-            // TODO: probably not a good idea that env is null here?
-            return vm.combine(null, cmb, args);
+            return vm.combine(vm.make_env(), cmb, args);
         }
     };
     vm.JSObject = vm.defclass("js-object", ["object"], {});
