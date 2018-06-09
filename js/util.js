@@ -1,4 +1,4 @@
-module.exports = function(vm, e) {
+module.exports = function(vm, root_env) {
     vm.assert_type = function(obj, type_spec) {
         if (vm.check_type(obj, type_spec)) return obj;
         else return vm.error("type error: " + obj + " should be " + type_spec + " but is " + obj, e);

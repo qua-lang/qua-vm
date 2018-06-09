@@ -836,7 +836,7 @@ module.exports = function(vm, root_env) {
 };
 
 },{}],12:[function(require,module,exports){
-module.exports = function(vm, e) {
+module.exports = function(vm, root_env) {
     vm.assert_type = function(obj, type_spec) {
         if (vm.check_type(obj, type_spec)) return obj;
         else return vm.error("type error: " + obj + " should be " + type_spec + " but is " + obj, e);
@@ -918,6 +918,7 @@ module.exports = function(vm, e) {
 };
 
 },{}],13:[function(require,module,exports){
+// Interpreter core
 module.exports = function(vm, root_env) {
     /* Setup class hierarchy - still in flux */
     vm.Object = vm.defclass("object", []);
@@ -948,19 +949,22 @@ module.exports = function(vm, root_env) {
     vm.Restart = vm.defclass("restart", ["standard-object"], { "associated-condition": {} });
     vm.UseValue = vm.defclass("use-value", ["restart"], { "value": {} });
     /* Evaluation */
+    vm.trap_exceptions = function(thunk) {
+        try {
+            return thunk();
+        } catch(exc) {
+            if ((exc instanceof vm.Tag) || (exc instanceof vm.Panic)) {
+                // let nonlocal exits and panics through
+                throw exc;
+            } else {
+                // pipe all other evaluation exceptions into condition system
+                return vm.error(exc, root_env);
+            }
+        }
+    };
     vm.evaluate = function(e, x) {
         if (x && x.qua_evaluate) {
-            try {
-                return x.qua_evaluate(x, e);
-            } catch(exc) {
-                if ((exc instanceof vm.Tag) || (exc instanceof vm.Panic)) {
-                    // let nonlocal exits and panics through
-                    throw exc;
-                } else {
-                    // pipe all other evaluation exceptions into condition system
-                    return vm.error(exc, e);
-                }
-            }
+            return vm.trap_exceptions(function() { return x.qua_evaluate(x, e); });
         } else {
             return x;
         }
@@ -982,15 +986,7 @@ module.exports = function(vm, root_env) {
     /* Combiners */
     vm.combine = function(e, cmb, o) {
         if (cmb && cmb.qua_combine) {
-            try {
-                return cmb.qua_combine(cmb, e, o);
-            } catch(exc) {
-                if ((exc instanceof vm.Tag) || (exc instanceof vm.Panic)) {
-                    throw exc;
-                } else {
-                    return vm.error(exc, e);
-                }
-            }
+            return vm.trap_exceptions(function() { return cmb.qua_combine(cmb, e, o); });
         } else {
             return vm.error("not a combiner: " + cmb, e);
         }
@@ -1070,15 +1066,9 @@ module.exports = function(vm, root_env) {
     /* Operator that calls JS function to do work */
     vm.JSOperator = function(js_fn) { this.js_fn = vm.assert_type(js_fn, "function"); };
     vm.JSOperator.prototype.qua_combine = function(self, e, o) {
-        try {
+        return vm.trap_exceptions(function() {
             return self.js_fn.apply(null, vm.list_to_array(o));
-        } catch(exc) {
-            if ((exc instanceof vm.Tag) || (exc instanceof vm.Panic)) {
-                throw exc;
-            } else {
-                return vm.error(exc, e);
-            }
-        }
+        });
     };
     vm.jswrap = function(js_fn) { return vm.wrap(new vm.JSOperator(js_fn)); };
     /* Forms */
