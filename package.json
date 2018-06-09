@@ -10,6 +10,6 @@
     "browser": {
         "./js/node.js": false,
         "./js/termio.js": false,
-        "./build/out/init.js": "./build/out/init-browser.js"
+        "./build/out/init.json": "./build/out/init-browser.json"
     }
 }

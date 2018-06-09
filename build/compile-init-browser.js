@@ -7,4 +7,4 @@ function file(path) {
     return fs.readFileSync(path, "utf8")
 }
 
-console.log("module.exports.main = " + JSON.stringify(parser.parse_sexp(code)));
+console.log(JSON.stringify(parser.parse_sexp(code)));
