@@ -1,9 +1,6 @@
 #!/usr/bin/env node
 var fs = require("fs");
 var browserify = require("browserify");
-var b = browserify({
-    entries: "js/main.js",
-    standalone: "qua"
-});
-b.require("./build/out/test.json", {expose: "qua-user-code"})
+var b = browserify("./js/main.js");
+b.require("./build/out/test.json", { expose: "qua-user-code" });
 b.bundle().pipe(fs.createWriteStream("build/out/qua.js"));
