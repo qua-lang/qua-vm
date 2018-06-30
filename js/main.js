@@ -1,6 +1,6 @@
 var parser = require("./read");
 var init_bytecode = require("../build/out/init.json");
-var test_bytecode = require("qua-user-code");
+var user_bytecode = require("qua-user-code");
 
 var vm = {};
 // Where should this go? Whole init process = borked
@@ -19,17 +19,16 @@ require("./alien")(vm, root_env);
 require("./read")(vm, root_env);
 require("./print")(vm, root_env);
 require("./optim")(vm, root_env);
-if (!process.browser) {
-    require("./node")(vm, root_env);
-    require("./termio")(vm, root_env);
-}
+require("./arch")(vm, root_env);
+// FIXME: this should only be included if we're actually a test build
 require("./test")(vm, root_env);
 
-vm.time("run initialization",
+vm.time("run init bytecode",
         function() { vm.eval(vm.parse_bytecode([vm.sym("%%progn")].concat(init_bytecode)), root_env); });
 
-vm.time("run tests",
-        function() { vm.eval(vm.parse_bytecode([vm.sym("%%progn")].concat(test_bytecode)), root_env) });
+// FIXME: This should use USER-EVAL
+vm.time("run user bytecode",
+        function() { vm.eval(vm.parse_bytecode([vm.sym("%%progn")].concat(user_bytecode)), root_env) });
 
 module.exports.vm = function() {
     return {

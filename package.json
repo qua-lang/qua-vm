@@ -9,8 +9,7 @@
         "readline-sync": "^1.4.9"
     },
     "browser": {
-        "./js/node.js": false,
-        "./js/termio.js": false,
+        "./js/arch.js": "./js/arch-browser.js",
         "./build/out/init.json": "./build/out/init-browser.json"
     }
 }
