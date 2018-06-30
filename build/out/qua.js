@@ -424,7 +424,7 @@ module.exports.vm = function() {
 };
 
 }).call(this,require('_process'))
-},{"../build/out/init.json":1,"../build/out/test.json":2,"./alien":3,"./cont":4,"./node":18,"./obj":6,"./optim":7,"./print":8,"./read":9,"./termio":18,"./test":10,"./type":11,"./util":12,"./vm":13,"_process":19}],6:[function(require,module,exports){
+},{"../build/out/init.json":1,"../build/out/test.json":2,"./alien":3,"./cont":4,"./node":14,"./obj":6,"./optim":7,"./print":8,"./read":9,"./termio":14,"./test":10,"./type":11,"./util":12,"./vm":13,"_process":19}],6:[function(require,module,exports){
 // Object system
 module.exports = function(vm, root_env) {
     /* Bootstrap CONCRETE-CLASS */
@@ -773,7 +773,7 @@ var x_stx = whitespace(choice(ign_stx, void_stx, nil_stx, nil_stx_2, t_stx, f_st
                               quote_stx, compound_stx, keyword_stx, id_stx, string_stx, cmt_stx));
 var program_stx = whitespace(repeat0(choice(x_stx, whitespace_stx))); // HACK!
 
-},{"jsparse":17}],10:[function(require,module,exports){
+},{"jsparse":18}],10:[function(require,module,exports){
 // Adds utility functions for testing the built-ins to a VM
 var deep_equal = require("deep-equal");
 module.exports = function(vm, root_env) {
@@ -781,7 +781,7 @@ module.exports = function(vm, root_env) {
     vm.defun(root_env, vm.sym("%%deep-equal"), vm.jswrap(deep_equal));
 };
 
-},{"deep-equal":14}],11:[function(require,module,exports){
+},{"deep-equal":15}],11:[function(require,module,exports){
 // Type system
 module.exports = function(vm, root_env) {
     vm.Type = vm.defclass("%type", ["standard-object"], {});
@@ -1197,6 +1197,8 @@ module.exports = function(vm, root_env) {
 };
 
 },{}],14:[function(require,module,exports){
+
+},{}],15:[function(require,module,exports){
 var pSlice = Array.prototype.slice;
 var objectKeys = require('./lib/keys.js');
 var isArguments = require('./lib/is_arguments.js');
@@ -1292,7 +1294,7 @@ function objEquiv(a, b, opts) {
   return typeof a === typeof b;
 }
 
-},{"./lib/is_arguments.js":15,"./lib/keys.js":16}],15:[function(require,module,exports){
+},{"./lib/is_arguments.js":16,"./lib/keys.js":17}],16:[function(require,module,exports){
 var supportsArgumentsClass = (function(){
   return Object.prototype.toString.call(arguments)
 })() == '[object Arguments]';
@@ -1314,7 +1316,7 @@ function unsupported(object){
     false;
 };
 
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 exports = module.exports = typeof Object.keys === 'function'
   ? Object.keys : shim;
 
@@ -1325,7 +1327,7 @@ function shim (obj) {
   return keys;
 }
 
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 // Copyright (C) 2007 Chris Double.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -2014,8 +2016,6 @@ jsparse.inject_into = function inject_into(into) {
     }
 }
 
-
-},{}],18:[function(require,module,exports){
 
 },{}],19:[function(require,module,exports){
 // shim for using process in browser

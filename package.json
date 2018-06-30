@@ -3,6 +3,7 @@
     "preferGlobal": true,
     "bin": "./js/cmd.js",
     "dependencies": {
+        "browserify": "^16.2.2",
         "deep-equal": "^1.0.1",
         "jsparse": "^0.1.0",
         "readline-sync": "^1.4.9"

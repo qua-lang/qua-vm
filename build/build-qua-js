@@ -1,1 +1,8 @@
-browserify js/main.js --standalone qua > build/out/qua.js
+#!/usr/bin/env node
+var fs = require("fs");
+var browserify = require("browserify");
+var b = browserify({
+    entries: "js/main.js",
+    standalone: "qua"
+});
+b.bundle().pipe(fs.createWriteStream("build/out/qua.js"));
