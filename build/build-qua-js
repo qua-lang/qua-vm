@@ -1,0 +1,1 @@
+browserify js/main.js --standalone qua > build/out/qua.js
