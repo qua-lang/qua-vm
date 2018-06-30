@@ -5,4 +5,5 @@ var b = browserify({
     entries: "js/main.js",
     standalone: "qua"
 });
+b.require("./build/out/test.json", {expose: "qua-user-code"})
 b.bundle().pipe(fs.createWriteStream("build/out/qua.js"));

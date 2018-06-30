@@ -1,1 +1,2 @@
-build/build-qua.sh && node js/main.js
+build/build-qua.sh && node build/out/qua.js
+

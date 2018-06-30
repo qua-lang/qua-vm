@@ -1,6 +1,6 @@
 var parser = require("./read");
 var init_bytecode = require("../build/out/init.json");
-var test_bytecode = require("../build/out/test.json");
+var test_bytecode = require("qua-user-code");
 
 var vm = {};
 // Where should this go? Whole init process = borked
