@@ -362,17 +362,17 @@
 
 ;;;; Reference cells
 
-(defclass mut (standard-object)
+(defclass box (standard-object)
   (val))
 
-(defun mut (val)
-  (%make-instance 'mut :val val))
+(defun make-box (val)
+  (%make-instance 'box :val val))
 
-(defun ref (mut)
-  (slot-value mut 'val))
+(defun box-value (box)
+  (slot-value box 'val))
 
-(defsetf #'ref (lambda (new-val mut)
-                 (setf (slot-value mut 'val) new-val)))
+(defsetf #'box-value (lambda (new-val box)
+                       (setf (slot-value box 'val) new-val)))
 
 ;;;; Continuations
 
@@ -402,11 +402,12 @@
 ;;;; Dynamic variables
 
 (defmacro defdynamic (name . opt-val)
-  (list #'def name (list #'mut (optional opt-val))))
+  (list #'def name (list #'make-box (optional opt-val))))
 
-(def #'dynamic #'ref)
+(def #'dynamic #'box-value)
 
-; Bind a single dynamic variable.
+; Bind a single dynamic variable.  This directly uses the VAL slot of
+; the dynamic, which is a hack but works for now.
 (def #'dynamic-bind #'%%dynamic-bind)
 
 ; Parallel dynamic binding: first evaluate all right hand side value

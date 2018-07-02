@@ -152,18 +152,18 @@
   (%expect 14 x))
 
 ;;;; Reference cells
-(let ((cell (mut 12)))
-  (%expect 12 (ref cell))
-  (setf (ref cell) 14)
-  (%expect 14 (ref cell))
-  (incf (ref cell))
-  (%expect 15 (ref cell))
-  (incf (ref cell) 2)
-  (%expect 17 (ref cell))
-  (decf (ref cell))
-  (%expect 16 (ref cell))
-  (decf (ref cell) 2)
-  (%expect 14 (ref cell)))
+(let ((box (make-box 12)))
+  (%expect 12 (box-value box))
+  (setf (box-value box) 14)
+  (%expect 14 (box-value box))
+  (incf (box-value box))
+  (%expect 15 (box-value box))
+  (incf (box-value box) 2)
+  (%expect 17 (box-value box))
+  (decf (box-value box))
+  (%expect 16 (box-value box))
+  (decf (box-value box) 2)
+  (%expect 14 (box-value box)))
 
 ;;;; Simple control
 
@@ -203,9 +203,9 @@
 (%expect 1 (unwind-protect 1))
 (%expect 1 (unwind-protect 1 2))
 (%expect 1 (unwind-protect 1 2 3))
-(let ((cell (mut #f)))
-  (%expect 1 (unwind-protect 1 (setf (ref cell) #t)))
-  (%expect #t (ref cell)))
+(let ((box (make-box #f)))
+  (%expect 1 (unwind-protect 1 (setf (box-value box) #t)))
+  (%expect #t (box-value box)))
 (let ((cell #f))
   (block exit
     (unwind-protect (return-from exit)
