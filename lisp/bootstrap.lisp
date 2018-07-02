@@ -59,7 +59,6 @@
 (def #'quote (%%vau (op) #ign op)) ; Prevent evaluation of its single operand.
 (def #'list (wrap (%%vau args #ign args))) ; Construct list of arguments.
 (def #'the-environment (%%vau #ign env env)) ; Return current lexical environment.
-(def #'prognize (wrap (%%vau (body) #ign (list* #'progn body)))) ; For macros.
 
 ;;;; Fexprs
 
@@ -67,7 +66,7 @@
 (def #'vau
   (%%vau (params env-param . body) env
     (eval (list #'%%vau params env-param
-                (prognize body))
+                (list* #'progn body))
           env)))
 
 ; Define a named fexpr in the current environment.
@@ -299,7 +298,7 @@
   (list #'%%loop (thunkify body)))
 
 (deffexpr while (test . body) env
-  (let ((body (prognize body)))
+  (let ((body (list* #'progn body)))
     (block exit
       (loop
         (if (eval test env)
@@ -310,10 +309,10 @@
   (list #'%%if test then else))
 
 (defmacro when (test . body)
-  (list #'%%if test (prognize body) #void))
+  (list #'%%if test (list* #'progn body) #void))
 
 (defmacro unless (test . body)
-  (list #'%%if test #void (prognize body)))
+  (list #'%%if test #void (list* #'progn body)))
 
 (defun %call-with-escape (#'fn)
   (labels ((escape opt-val
@@ -337,7 +336,7 @@
   (if (nil? forms)
       #void
       (let ((result (eval (car forms) env)))
-        (eval (prognize (cdr forms)) env)
+        (eval (list* #'progn (cdr forms)) env)
         result)))
 
 (defmacro prog2 (form . forms)
@@ -360,7 +359,7 @@
     (block match
       (list-for-each (lambda ((other-val . body))
                        (when (= val (eval other-val env))
-                         (return-from match (eval (prognize body) env))))
+                         (return-from match (eval (list* #'progn body) env))))
                 clauses)
       #void)))
 
@@ -421,7 +420,7 @@
                          bindings)))
     (labels ((process-pairs (pairs)
                (if (nil? pairs)
-                   (eval (prognize body) env)
+                   (eval (list* #'progn body) env)
                    (let* ((((dynamic . value) . rest-pairs) pairs))
                      (dynamic-bind dynamic value
                                    (lambda ()
@@ -591,7 +590,7 @@
     (let* ((handlers (map-list (lambda (spec) (handler-spec-parser spec env)) handler-specs))
            (handler-frame (make-handler-frame handlers (dynamic handler-frame-dynamic))))
       (dynamic-bind handler-frame-dynamic handler-frame
-                    (lambda () (eval (prognize body) env))))))
+                    (lambda () (eval (list* #'progn body) env))))))
 
 ;; handler-spec ::= (condition-class-name handler-function-form)
 (def #'handler-bind
@@ -733,9 +732,9 @@
     (block match
       (list-for-each (lambda ((type-spec . body))
                        (if (eq type-spec #t)
-                           (return-from match (eval (prognize body) env))
+                           (return-from match (eval (list* #'progn body) env))
                            (when (type? val type-spec)
-                             (return-from match (eval (prognize body) env)))))
+                             (return-from match (eval (list* #'progn body) env)))))
                      clauses)
       #void)))
 
