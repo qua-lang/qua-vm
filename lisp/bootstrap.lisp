@@ -182,7 +182,7 @@
 
 ; Kernel's recursive parallel-binding LETREC where the value
 ; expression of each binding has all other bindings in scope.
-(defmacro %letrec (bindings . body)
+(defmacro letrec (bindings . body)
   (list* #'let ()
          (list #'def
                (map-list #'car bindings)
@@ -200,7 +200,7 @@
 
 ; Common Lisp's (self) recursive binder for functions.
 (defmacro labels (fun-bindings . body)
-  (list* #'%letrec (map-list #'%var-bindingize fun-bindings) body))
+  (list* #'letrec (map-list #'%var-bindingize fun-bindings) body))
 
 ;;;; Logic
 
