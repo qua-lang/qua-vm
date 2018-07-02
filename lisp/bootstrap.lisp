@@ -165,14 +165,14 @@
 
 ;;;; Lexical variable bindings
 
-; The usual parallel-binding LET with left to right evaluation of
+; The common parallel-binding LET with left to right evaluation of
 ; value expressions.
 (defmacro let (bindings . body)
   (list* (list* #'lambda (map-list #'car bindings)
                 body)
          (map-list #'cadr bindings)))
 
-; The usual sequential-binding LET* where the value expression of each
+; The common sequential-binding LET* where the value expression of each
 ; binding has all earlier bindings in scope (if any).
 (defmacro let* (bindings . body)
   (if (nil? bindings)
