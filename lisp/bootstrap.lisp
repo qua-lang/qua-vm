@@ -101,19 +101,13 @@
 
 ;;;; Functions
 
-; Create a function that doesn't do any type checking.
-(defmacro %lambda (params . body)
+; Create a function.
+(defmacro lambda (params . body)
   (list #'wrap (list* #'vau params #ign body)))
 
-; Define a named function that doesn't do any type checking in the
-; current environment.
-(defmacro %defun (name params . body)
-  (list #'def (%to-fun-sym name) (list* #'%lambda params body)))
-
-; Use the unchecked versions for LAMBDA and DEFUN for now
-; which will later use checked versions.
-(def #'lambda #'%lambda)
-(def #'defun #'%defun)
+; Define a named function.
+(defmacro defun (name params . body)
+  (list #'def (%to-fun-sym name) (list* #'lambda params body)))
 
 ; Treat the rest arg as an optional value with optional default.
 (defun optional (opt-arg . opt-default)
@@ -299,7 +293,7 @@
 ;;;; Simple control
 
 (defun thunkify (body)
-  (list* #'%lambda () body))
+  (list* #'lambda () body))
 
 (defmacro loop body
   (list #'%%loop (thunkify body)))
