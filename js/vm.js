@@ -195,6 +195,7 @@ module.exports = function(vm, root_env) {
     vm.Nil.prototype.qua_bind = function(self, e, rhs, doit) {
         if (!vm.is_nil(rhs)) return vm.error("NIL expected, but got: " + JSON.stringify(rhs), e);
     };
+    // This is cute, but probably too much trouble.
     vm.Keyword.prototype.qua_bind = function(self, e, rhs, doit) {
         if (!(rhs && (rhs instanceof vm.Keyword) && (rhs.qs_name === self.qs_name))) {
             return vm.error(":" + self.qs_name + " expected, but got: " + JSON.stringify(rhs), e);

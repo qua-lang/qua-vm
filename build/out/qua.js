@@ -431,7 +431,6 @@ require("./vm")(vm, root_env);
 require("./cont")(vm, root_env);
 require("./alien")(vm, root_env);
 require("./read")(vm, root_env);
-require("./print")(vm, root_env);
 require("./optim")(vm, root_env);
 require("./arch")(vm, root_env);
 // FIXME: this should only be included if we're actually a test build
@@ -451,7 +450,7 @@ module.exports.vm = function() {
     };
 };
 
-},{"../build/out/init.json":1,"./alien":2,"./arch":3,"./cont":4,"./obj":6,"./optim":7,"./print":8,"./read":9,"./test":10,"./type":11,"./util":12,"./vm":13,"qua-user-code":"qua-user-code"}],6:[function(require,module,exports){
+},{"../build/out/init.json":1,"./alien":2,"./arch":3,"./cont":4,"./obj":6,"./optim":7,"./read":8,"./test":9,"./type":10,"./util":11,"./vm":12,"qua-user-code":"qua-user-code"}],6:[function(require,module,exports){
 // Object system
 module.exports = function(vm, root_env) {
     /* Bootstrap CONCRETE-CLASS */
@@ -710,21 +709,6 @@ module.exports = function(vm, root_env) {
 };
 
 },{}],8:[function(require,module,exports){
-module.exports = function(vm, e) {
-    vm.to_sexp = function(obj) {
-        return obj.qua_to_sexp(obj);
-    };
-    vm.to_str = function(sexp) {
-        return sexp.qua_to_str(sexp);
-    };
-    vm.Sym.prototype.qua_to_str = function(self) { return self.name; };
-    vm.Cons.prototype.qua_to_str = function(self) {
-        var elements = vm.map_list(self, vm.to_str);
-        return "(" + vm.list_to_array(elements).join(" ") + ")";
-    };
-}
-
-},{}],9:[function(require,module,exports){
 var jsparse = require("jsparse");
 module.exports = function(vm, root_env) {
     vm.read = function() {
@@ -800,7 +784,7 @@ var x_stx = whitespace(choice(ign_stx, void_stx, nil_stx, nil_stx_2, t_stx, f_st
                               quote_stx, compound_stx, keyword_stx, id_stx, string_stx, cmt_stx));
 var program_stx = whitespace(repeat0(choice(x_stx, whitespace_stx))); // HACK!
 
-},{"jsparse":17}],10:[function(require,module,exports){
+},{"jsparse":16}],9:[function(require,module,exports){
 // Adds utility functions for testing the built-ins to a VM
 var deep_equal = require("deep-equal");
 module.exports = function(vm, root_env) {
@@ -808,7 +792,7 @@ module.exports = function(vm, root_env) {
     vm.defun(root_env, vm.sym("%%deep-equal"), vm.jswrap(deep_equal));
 };
 
-},{"deep-equal":14}],11:[function(require,module,exports){
+},{"deep-equal":13}],10:[function(require,module,exports){
 // Type system
 module.exports = function(vm, root_env) {
     vm.Type = vm.defclass("%type", ["standard-object"], {});
@@ -861,7 +845,7 @@ module.exports = function(vm, root_env) {
     };
 };
 
-},{}],12:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 module.exports = function(vm, root_env) {
     vm.assert_type = function(obj, type_spec) {
         if (vm.check_type(obj, type_spec)) return obj;
@@ -943,7 +927,7 @@ module.exports = function(vm, root_env) {
     };
 };
 
-},{}],13:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 // Interpreter core
 module.exports = function(vm, root_env) {
     /* Setup class hierarchy - still in flux */
@@ -1141,6 +1125,7 @@ module.exports = function(vm, root_env) {
     vm.Nil.prototype.qua_bind = function(self, e, rhs, doit) {
         if (!vm.is_nil(rhs)) return vm.error("NIL expected, but got: " + JSON.stringify(rhs), e);
     };
+    // This is cute, but probably too much trouble.
     vm.Keyword.prototype.qua_bind = function(self, e, rhs, doit) {
         if (!(rhs && (rhs instanceof vm.Keyword) && (rhs.qs_name === self.qs_name))) {
             return vm.error(":" + self.qs_name + " expected, but got: " + JSON.stringify(rhs), e);
@@ -1215,7 +1200,7 @@ module.exports = function(vm, root_env) {
     };
 };
 
-},{}],14:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 var pSlice = Array.prototype.slice;
 var objectKeys = require('./lib/keys.js');
 var isArguments = require('./lib/is_arguments.js');
@@ -1311,7 +1296,7 @@ function objEquiv(a, b, opts) {
   return typeof a === typeof b;
 }
 
-},{"./lib/is_arguments.js":15,"./lib/keys.js":16}],15:[function(require,module,exports){
+},{"./lib/is_arguments.js":14,"./lib/keys.js":15}],14:[function(require,module,exports){
 var supportsArgumentsClass = (function(){
   return Object.prototype.toString.call(arguments)
 })() == '[object Arguments]';
@@ -1333,7 +1318,7 @@ function unsupported(object){
     false;
 };
 
-},{}],16:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 exports = module.exports = typeof Object.keys === 'function'
   ? Object.keys : shim;
 
@@ -1344,7 +1329,7 @@ function shim (obj) {
   return keys;
 }
 
-},{}],17:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 // Copyright (C) 2007 Chris Double.
 //
 // Redistribution and use in source and binary forms, with or without

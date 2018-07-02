@@ -17,7 +17,6 @@ require("./vm")(vm, root_env);
 require("./cont")(vm, root_env);
 require("./alien")(vm, root_env);
 require("./read")(vm, root_env);
-require("./print")(vm, root_env);
 require("./optim")(vm, root_env);
 require("./arch")(vm, root_env);
 // FIXME: this should only be included if we're actually a test build
