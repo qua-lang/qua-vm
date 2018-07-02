@@ -56,6 +56,8 @@ module.exports = function(vm, root_env) {
         }
         }
     };
+    // Applies JS function.
+    vm.js_apply = function(fun, thiz, args) { return fun.apply(thiz, args); };
     // Implements the semantics of the `$some_global' syntax for
     // accessing JS global variables.
     vm.js_global = function(name) { return global[name]; }; // from Browserify
@@ -70,7 +72,7 @@ module.exports = function(vm, root_env) {
     vm.own_property_p = function(obj, name) {
         return Object.prototype.hasOwnProperty.call(obj, vm.designate_string(name)); };
     // Export to Lisp.
-    vm.defun(root_env, vm.sym("%%js-apply"), vm.jswrap(function(fun, self, args) { return fun.apply(self, args); }));
+    vm.defun(root_env, vm.sym("%%js-apply"), vm.jswrap(vm.js_apply));
     vm.defun(root_env, vm.sym("%%js-binop"), vm.jswrap(vm.js_binop));
     vm.defun(root_env, vm.sym("%%js-function"), vm.jswrap(vm.js_function));
     vm.defun(root_env, vm.sym("%%js-get"), vm.jswrap(function(obj, name) { return obj[name]; }));
