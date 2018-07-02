@@ -58,12 +58,13 @@ module.exports = function(vm, root_env) {
     };
     // Applies JS function.
     vm.js_apply = function(fun, thiz, args) { return fun.apply(thiz, args); };
-    // Implements the semantics of the `$some_global' syntax for
-    // accessing JS global variables.
-    vm.js_global = function(name) { return global[name]; }; // from Browserify
     // Creates a Lisp operator whose body executes a JS binary operator.
     vm.js_binop = function(op) {
 	return vm.jswrap(new Function("a", "b", "return (a " + op + " b)")); };
+    // Reads a JS property, implementation of `.some_property' syntax.
+    vm.js_get = function(obj, name) { return obj[name]; };
+    // Reads a JS global variable, implementation of the `$some_global' syntax.
+    vm.js_global = function(name) { return global[name]; }; // from Browserify
     // Creates a new JS object with a given constructor.
     vm.js_new = function(ctor) {
         var factoryFunction = ctor.bind.apply(ctor, arguments);
@@ -75,7 +76,7 @@ module.exports = function(vm, root_env) {
     vm.defun(root_env, vm.sym("%%js-apply"), vm.jswrap(vm.js_apply));
     vm.defun(root_env, vm.sym("%%js-binop"), vm.jswrap(vm.js_binop));
     vm.defun(root_env, vm.sym("%%js-function"), vm.jswrap(vm.js_function));
-    vm.defun(root_env, vm.sym("%%js-get"), vm.jswrap(function(obj, name) { return obj[name]; }));
+    vm.defun(root_env, vm.sym("%%js-get"), vm.jswrap(vm.js_get));
     vm.defun(root_env, vm.sym("%%js-global"), vm.jswrap(vm.js_global));
     vm.defun(root_env, vm.sym("%%js-new"), vm.jswrap(vm.js_new));
     vm.defun(root_env, vm.sym("%%js-set"), vm.jswrap(function(obj, name, val) { return obj[name] = val; }));
