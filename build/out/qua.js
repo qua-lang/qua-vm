@@ -971,9 +971,7 @@ module.exports = function(vm, root_env) {
     vm.SeriousCondition = vm.defclass("serious-condition", ["condition"], {});
     vm.Error = vm.defclass("error", ["serious-condition"], {});
     vm.UnboundVariable = vm.defclass("unbound-variable", ["error"], { "name": {} });
-    // TODO: move to Lisp
     vm.Restart = vm.defclass("restart", ["standard-object"], { "associated-condition": {} });
-    vm.UseValue = vm.defclass("use-value", ["restart"], { "value": {} });
     /* Evaluation */
     vm.trap_exceptions = function(thunk) {
         try {
