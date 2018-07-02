@@ -531,9 +531,10 @@
 
 ;;;; Conditions
 
+(defclass condition (standard-object))
+(defclass warning (condition))
 (defclass serious-condition (condition))
 (defclass error (serious-condition))
-(defclass warning (condition))
 
 (defclass simple-condition (condition)
   (message))
@@ -550,8 +551,16 @@
 (defclass restart-control-error (control-error)
   (restart))
 
+;; Restarts probably shouldn't be conditions but currently are to
+;; simplify handling code, which is shared between the two to some
+;; extent.  Which that is turning out not to be so great an idea
+;; anyway, so the future is probably restarts separate from
+;; conditions.
+(defclass restart (condition))
 (defclass abort (restart))
 (defclass continue (restart))
+(defclass use-value (restart)
+  (value))
 (defclass store-value (restart)
   (value))
 

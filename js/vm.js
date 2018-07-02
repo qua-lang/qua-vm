@@ -20,11 +20,6 @@ module.exports = function(vm, root_env) {
     // Instances of this class are thrown as JS exceptions to transfer a
     // value from a RETURN-FROM expression to its enclosing BLOCK.
     vm.Tag = vm.defclass("%%tag", ["standard-object"], { "id": {}, "val": {} });
-    // Conditions
-    vm.Condition = vm.defclass("condition", ["standard-object"], {});
-    vm.SeriousCondition = vm.defclass("serious-condition", ["condition"], {});
-    vm.Error = vm.defclass("error", ["serious-condition"], {});
-    vm.Restart = vm.defclass("restart", ["standard-object"], { "associated-condition": {} });
     /* Evaluation */
     vm.trap_exceptions = function(thunk) {
         try {
