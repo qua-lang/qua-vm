@@ -412,6 +412,10 @@ module.exports = function(vm, root_env) {
 }
 
 },{}],5:[function(require,module,exports){
+// This is the main file, that pulls together all components and
+// creates a Qua VM.  While the code in the individual components is
+// not too shabby, the way this file connects them together is
+// definitely sub-par.
 var parser = require("./read");
 var init_bytecode = require("../build/out/init.json");
 var user_bytecode = require("qua-user-code");
