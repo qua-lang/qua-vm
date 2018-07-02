@@ -1,5 +1,5 @@
 // Node-specific code (Node is the "default architecture", due to the
-// way Browserify's package.json browser field works, that lets us
+// way Browserify's `package.json' browser field works, that lets us
 // switch the contents of this file with those of `arch-browser.js' if
 // we're doing a browser build.)
 var fs = require("fs");

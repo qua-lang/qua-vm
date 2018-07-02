@@ -419,12 +419,3 @@
          (map (lambda (x) (* x 2)) ()))
 (%expect (js-array-list 'object 2 4 6)
          (map (lambda (x) (* x 2)) (js-array-list 'object 1 2 3)))
-
-;;;; Userland
-
-(%expect 12 (block ret
-              (handler-bind ((unbound-variable
-                              (lambda #ign
-                                (return-from ret 12))))
-                x)))
-

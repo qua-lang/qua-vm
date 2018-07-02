@@ -24,7 +24,6 @@ module.exports = function(vm, root_env) {
     vm.Condition = vm.defclass("condition", ["standard-object"], {});
     vm.SeriousCondition = vm.defclass("serious-condition", ["condition"], {});
     vm.Error = vm.defclass("error", ["serious-condition"], {});
-    vm.UnboundVariable = vm.defclass("unbound-variable", ["error"], { "name": {} });
     vm.Restart = vm.defclass("restart", ["standard-object"], { "associated-condition": {} });
     /* Evaluation */
     vm.trap_exceptions = function(thunk) {
@@ -170,7 +169,7 @@ module.exports = function(vm, root_env) {
         var key = vm.sym_key(sym);
         if (key in e.bindings) return e.bindings[key];
         else if (default_val !== undefined) return default_val;
-        else return vm.error(vm.make_instance(vm.UnboundVariable, { "name": sym }), e);
+        else return vm.error("unbound variable: " + vm.sym_key(sym));
     };
     vm.bind = function(e, lhs, rhs, doit) {
         vm.assert_type(e, vm.Env);
@@ -189,7 +188,7 @@ module.exports = function(vm, root_env) {
         else if (e.parent)
             return vm.do_setq(e.parent, lhs, rhs);
         else
-            return vm.error("cannot set unbound variable: " + lhs.qs_name, e);
+            return vm.error("cannot set unbound variable: " + vm.sym_key(lhs), e);
     };
     vm.Sym.prototype.qua_bind = function(self, e, rhs, doit) {
         return doit(e, self, rhs);
