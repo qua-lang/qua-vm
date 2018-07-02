@@ -69,6 +69,8 @@ module.exports = function(vm, root_env) {
     vm.js_new = function(ctor) {
         var factoryFunction = ctor.bind.apply(ctor, arguments);
         return new factoryFunction(); }
+    // Writes a JS property, implementation of `(setf (.property_name ...) ...)'.
+    vm.js_set = function(obj, name, val) { return obj[name] = val; };
     // This definitely should be done from Lisp.
     vm.own_property_p = function(obj, name) {
         return Object.prototype.hasOwnProperty.call(obj, vm.designate_string(name)); };
@@ -79,7 +81,7 @@ module.exports = function(vm, root_env) {
     vm.defun(root_env, vm.sym("%%js-get"), vm.jswrap(vm.js_get));
     vm.defun(root_env, vm.sym("%%js-global"), vm.jswrap(vm.js_global));
     vm.defun(root_env, vm.sym("%%js-new"), vm.jswrap(vm.js_new));
-    vm.defun(root_env, vm.sym("%%js-set"), vm.jswrap(function(obj, name, val) { return obj[name] = val; }));
+    vm.defun(root_env, vm.sym("%%js-set"), vm.jswrap(vm.js_set));
     vm.defun(root_env, vm.sym("%%own-property?"), vm.jswrap(vm.own_property_p));
 };
 
