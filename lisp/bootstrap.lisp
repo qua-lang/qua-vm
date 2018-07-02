@@ -291,11 +291,8 @@
 
 ;;;; Simple control
 
-(defun thunkify (body)
-  (list* #'lambda () body))
-
 (defmacro loop body
-  (list #'%%loop (thunkify body)))
+  (list #'%%loop (list* #'lambda () body)))
 
 (deffexpr while (test . body) env
   (let ((body (list* #'progn body)))
@@ -352,7 +349,7 @@
 (defmacro unwind-protect (protected-form . cleanup-forms)
   (list #'unwind-protect*
         (list #'lambda () protected-form)
-        (thunkify cleanup-forms)))
+        (list* #'lambda () cleanup-forms)))
 
 (deffexpr case (expr . clauses) env
   (let ((val (eval expr env)))
@@ -380,16 +377,16 @@
 ;;;; Continuations
 
 (defmacro push-prompt (prompt . body)
-  (list #'%%push-prompt prompt (thunkify body)))
+  (list #'%%push-prompt prompt (list* #'lambda () body)))
 
 (defmacro take-subcont (prompt name . body)
   (list #'%%take-subcont prompt (list* #'lambda (list name) body)))
 
 (defmacro push-subcont (continuation . body)
-  (list #'%%push-subcont continuation (thunkify body)))
+  (list #'%%push-subcont continuation (list* #'lambda () body)))
 
 (defmacro push-prompt-subcont (prompt continuation . body)
-  (list #'%%push-prompt-subcont prompt continuation (thunkify body)))
+  (list #'%%push-prompt-subcont prompt continuation (list* #'lambda () body)))
 
 (defconstant +default-prompt+ :default-prompt)
 
@@ -830,7 +827,7 @@
     (thunk)))
 
 (defmacro push-userspace body
-  (list #'push-userspace* (thunkify body)))
+  (list #'push-userspace* (list* #'lambda () body)))
 
 (defun user-eval (expr env)
   (push-userspace (eval expr env)))
