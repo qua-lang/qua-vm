@@ -115,7 +115,9 @@ module.exports = function(vm, root_env) {
     // %%TAKE-SUBCONT expression that effected the continuation
     // capture.  (For this innermost stack frame, .inner is null.)
     function StackFrame(work_fun, inner) {
+	// primitive-specific JS function
         this.work_fun = work_fun;
+	// next stack frame or null for innermost %%TAKE-SUBCONT frame
         this.inner = inner;
     };
     // A suspension is a helper object created for the capture of a
@@ -123,11 +125,16 @@ module.exports = function(vm, root_env) {
     // call will return a fresh suspension, and the outer caller will
     // react specially to receiving such a suspension from the callee
     // instead of an ordinary return value -- usually by pushing a
-    // specially constructed stack frame for later resumption, and
-    // itself returning the suspension to its caller.  In other words,
-    // every language primitive knows how to reify itself as a (later
-    // resumable) stack frame in case an inner expression is
-    // suspended.
+    // stack frame with a primitive-specific work function onto the
+    // suspension, and itself returning the suspension to its caller.
+    // In other words, every language primitive knows how to reify
+    // itself as a (later resumable) stack frame in case an inner
+    // expression is suspended.  Eventually, the outer %%PUSH-PROMPT
+    // expression whose prompt matches the suspension's will call the
+    // suspension's handler function (i.e., the Lisp function supplied
+    // by the user to %%TAKE-SUBCONT that gets to determine what
+    // happens once we reach the prompt) with the continuation
+    // accumulated during the capture.
     function Suspension(prompt, handler) {
         // capture up to this prompt (EQ)
         this.prompt = prompt;
@@ -149,22 +156,23 @@ module.exports = function(vm, root_env) {
     // stack frame, created by a %%TAKE-SUBCONT expression.  This
     // innermost frame will call the stimulus function within the
     // newly composed context and return its value, giving the user
-    // full control over what happens once a continuation has been
-    // composed onto the current stack.
+    // control over what happens once a continuation has been composed
+    // onto the current stack.
     function resumeFrame(k, f) {
         return k.work_fun(k.inner, f);
     };
     // vm.monadic() is a basic building block for many language
-    // primitives that need to do two operations that may capture a
-    // continuation in sequence.  Examples are PROGN that needs to
-    // evaluate the first and then the rest of its body expressions,
-    // and IF that needs to evaluate the test expression before
-    // evaluating either the then or the else expression depending on
-    // the result of the test.  It is instructive because it shows the
-    // general protocol that language primitives have to follow in
-    // order to the able to suspend and resume themselves in a pure
-    // form.  (Primitives like %%RESCUE with more complex control flow
-    // requirements cannot use vm.monadic() but follow this same
+    // primitives that need to do two or more operations that may
+    // capture a continuation in sequence.  Examples are PROGN that
+    // needs to evaluate the first and then the rest of its body
+    // expressions, and IF that needs to evaluate the test expression
+    // before evaluating either the then or the else expression
+    // depending on the result of the test.  Looking at vm.monadic in
+    // details is instructive because it shows in a pure form the
+    // general protocol that language primitives have to honor in
+    // order to the able to suspend and resume themselves.
+    // (Primitives like %%RESCUE with more complex control flow
+    // requirements cannot use vm.monadic but follow this same
     // protocol.)
     //
     // So, we have two thunks, A and B, that we want to call so that B
@@ -199,7 +207,15 @@ module.exports = function(vm, root_env) {
             // continuation whose work function remembers what we were
             // doing prior to suspension and will restore us back to
             // this point when resumed.
-            suspendFrame(val, function(k, f) { return vm.monadic(a, b, k, f); });
+	    //
+	    // The work function closure remembers our parameters A
+	    // and B, and in effect will repeat the original, current
+	    // call to vm.monadic when the captured continuation is
+	    // resumed at a future point.
+	    var work_fun = function(k, f) {
+		return vm.monadic(a, b, k, f);
+	    };
+            suspendFrame(val, work_fun);
             // Pass suspension back to caller.
             return val;
         } else {
@@ -209,7 +225,7 @@ module.exports = function(vm, root_env) {
         }
     };
     /* Delimited control */
-    // %%PUSH-PROMPT prompt body-thunk
+    // %%PUSH-PROMPT prompt body-thunk => result
     //
     // Push a prompt and call the body thunk within this delimited
     // context.
@@ -234,7 +250,9 @@ module.exports = function(vm, root_env) {
                     var handler = val.handler;
                     return vm.combine(e, handler, vm.cons(continuation, vm.NIL));
                 } else {
-                    suspendFrame(val, function(k, f) { return do_push_prompt(self, e, o, k, f); });
+                    suspendFrame(val, function(k, f) {
+			return do_push_prompt(self, e, o, k, f);
+		    });
                     return val;
                 }
             }
@@ -248,15 +266,17 @@ module.exports = function(vm, root_env) {
     // Inject a suspension that will lead to the call of the
     // user-supplied handler at the outer %%PUSH-PROMPT with matching
     // prompt.  The innermost stack frame's work function will call
-    // the protocol parameter F, the user-supplied stimulus function,
-    // thereby completing resumption and entering back into normal
-    // evaluation.
+    // the protocol parameter F, the user-supplied stimulus function
+    // passed in during continiation resumption/composition, thereby
+    // completing resumption and entering back into normal evaluation.
     vm.TakeSubcont = vm.wrap({
         qua_combine: function(self, e, o, k, f) {
             var prompt = vm.elt(o, 0);
             var handler = vm.elt(o, 1);
             var sus = new Suspension(prompt, handler);
-            suspendFrame(sus, function(k, f) { return vm.combine(e, f, vm.NIL); });
+            suspendFrame(sus, function(k, f) {
+		return vm.combine(e, f, vm.NIL);
+	    });
             return sus;
         }
     });
@@ -277,7 +297,9 @@ module.exports = function(vm, root_env) {
                 var val = resumeFrame(thek, thef);
             }
             if (val instanceof Suspension) {
-                suspendFrame(val, function(k, f) { return do_push_subcont(self, e, o, k, f); });
+                suspendFrame(val, function(k, f) {
+		    return do_push_subcont(self, e, o, k, f);
+		});
                 return val;
             }
             return val;
@@ -304,7 +326,9 @@ module.exports = function(vm, root_env) {
                     var handler = val.handler;
                     return vm.combine(e, handler, vm.cons(continuation, vm.NIL));
                 } else {
-                    suspendFrame(val, function(k, f) { return do_push_prompt_subcont(self, e, o, k, f); });
+                    suspendFrame(val, function(k, f) {
+			return do_push_prompt_subcont(self, e, o, k, f);
+		    });
                     return val;
                 }
             }
@@ -327,7 +351,9 @@ module.exports = function(vm, root_env) {
                 }
                 first = false;
                 if (val instanceof Suspension) {
-                    suspendFrame(val, function(k, f) { return do_loop(self, e, o, k, f); });
+                    suspendFrame(val, function(k, f) {
+			return do_loop(self, e, o, k, f);
+		    });
                     return val;
                 }
             }
@@ -363,7 +389,9 @@ module.exports = function(vm, root_env) {
                 }
             }
             if (val instanceof Suspension) {
-                suspendFrame(val, function(k, f) { return do_rescue(self, e, o, k, f); });
+                suspendFrame(val, function(k, f) {
+		    return do_rescue(self, e, o, k, f);
+		});
                 return val;
             }
             return val;
@@ -390,7 +418,9 @@ module.exports = function(vm, root_env) {
                     var res = vm.combine(e, thunk, vm.NIL);
                 }
                 if (res instanceof Suspension) {
-                    suspendFrame(res, function(k, f) { return dynamic_bind(self, e, o, k, f); });
+                    suspendFrame(res, function(k, f) {
+			return dynamic_bind(self, e, o, k, f);
+		    });
                     return res;
                 } else {
                     return res;
