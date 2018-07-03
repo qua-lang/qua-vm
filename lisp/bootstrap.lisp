@@ -237,8 +237,9 @@
 (defun defsetf (access-fn update-fn)
   (js-set access-fn +setter-prop+ update-fn))
 
-(defsetf #'setter (lambda (new-setter getter)
-                    (js-set getter +setter-prop+ new-setter)))
+(defsetf #'setter
+  (lambda (new-setter getter)
+    (js-set getter +setter-prop+ new-setter)))
 
 (defmacro setf (place new-val)
   (if (symbol? place)
@@ -282,8 +283,9 @@
   (ensure-class (%parse-type-spec class-spec)
                 (list-to-js-array (map-list #'%parse-type-spec superclass-specs))))
 
-(defsetf #'slot-value (lambda (new-val obj slot-name)
-                        (set-slot-value obj slot-name new-val)))
+(defsetf #'slot-value
+  (lambda (new-val obj slot-name)
+    (set-slot-value obj slot-name new-val)))
 
 (defgeneric hash-object (self))
 (defgeneric compare-object (self))
@@ -371,8 +373,9 @@
 (defun box-value (box)
   (slot-value box 'val))
 
-(defsetf #'box-value (lambda (new-val box)
-                       (setf (slot-value box 'val) new-val)))
+(defsetf #'box-value
+  (lambda (new-val box)
+    (setf (slot-value box 'val) new-val)))
 
 ;;;; Continuations
 
@@ -429,9 +432,10 @@
 
 ; Implementation of .prop-name JS property reference syntax
 (defun js-getter (prop-name)
-  (flet ((getter (obj)  (js-get obj prop-name)))
-    (defsetf #'getter (lambda (new-val obj)
-                        (js-set obj prop-name new-val)))
+  (flet ((getter (obj) (js-get obj prop-name)))
+    (defsetf #'getter
+      (lambda (new-val obj)
+        (js-set obj prop-name new-val)))
     #'getter))
 
 ; Implementation of @method-name JS method call syntax
