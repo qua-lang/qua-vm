@@ -1,5 +1,0 @@
-#!/usr/bin/env node
-var fs = require("fs");
-var browserify = require("browserify");
-var b = browserify("./src/main.js");
-b.bundle().pipe(fs.createWriteStream("build/out/qua.js"));

@@ -1,10 +1,3 @@
-var fs = require("fs");
-var parser = require("../src/read");
-var paths = ["lisp/bootstrap.lisp", "lisp/arch.lisp"];
-var code = paths.map(file).join("\n");
-
-function file(path) {
-    return fs.readFileSync(path, "utf8")
-}
-
-console.log(JSON.stringify(parser.parse_sexp(code)));
+var image = require("./image");
+image.write(["lisp/bootstrap.lisp", "lisp/arch.lisp"]
+	    "build/out/init.json");
