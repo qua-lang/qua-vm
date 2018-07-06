@@ -1,3 +1,5 @@
+// A "bytecode file" is a JSON file containing is a JSON file
+// effectively containing the parse results of an S-expression.
 var fs = require("fs");
 var parser = require("../src/read");
 module.exports.write_bytecode_file = function(in_lisp_paths, out_json_path) {

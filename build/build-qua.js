@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+// Main build script.  This calls into Lisp ASAP.
+
 // Write boot bytecode file so we can init VM
 require("./bytefile").write_bytecode_file(["lisp/bootstrap.lisp", "lisp/arch.lisp"],
 					  "build/out/bootstrap.json");
