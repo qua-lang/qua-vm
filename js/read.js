@@ -1,10 +1,11 @@
 var jsparse = require("jsparse");
-module.exports = function(vm, root_env) {
+module.exports = function(vm, init_env) {
+    vm.parse_sexp = parse_sexp;
     vm.read = function() {
         return vm.parse_bytecode([vm.sym("%%progn")].concat(parse_sexp(vm.read_line())));
     };
-    vm.defun(root_env, vm.sym("%%read"), vm.jswrap(vm.read));
-    vm.defun(root_env, vm.sym("%%parse-sexp"), vm.jswrap(parse_sexp));
+    vm.defun(init_env, vm.sym("%%read"), vm.jswrap(vm.read));
+    vm.defun(init_env, vm.sym("%%parse-sexp"), vm.jswrap(parse_sexp));
 };
 module.exports.parse_sexp = parse_sexp;
 

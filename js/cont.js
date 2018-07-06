@@ -2,7 +2,7 @@
 // Documentation: http://okmij.org/ftp/continuations/implementations.html
 // Also adds continuation-aware implementations of loops, exception handling,
 // and dynamically-scoped variables.
-module.exports = function(vm, root_env) {
+module.exports = function(vm, init_env) {
     /* Continuations */
     // A continuation or stack frame is created in order to freeze
     // (suspend, capture) a computation so that we can treat it as a
@@ -330,12 +330,12 @@ module.exports = function(vm, root_env) {
         }
     });
     // Export to Lisp
-    vm.defun(root_env, vm.sym("%%push-prompt"), vm.PushPrompt);
-    vm.defun(root_env, vm.sym("%%take-subcont"), vm.TakeSubcont);
-    vm.defun(root_env, vm.sym("%%push-subcont"), vm.PushSubcont);
-    vm.defun(root_env, vm.sym("%%push-prompt-subcont"), vm.PushPromptSubcont);
-    vm.defun(root_env, vm.sym("%%loop"), vm.Loop);
-    vm.defun(root_env, vm.sym("%%raise"), vm.Raise);
-    vm.defun(root_env, vm.sym("%%rescue"), vm.Rescue);
-    vm.defun(root_env, vm.sym("%%dynamic-bind"), vm.DynamicBind);
-}
+    vm.defun(init_env, vm.sym("%%push-prompt"), vm.PushPrompt);
+    vm.defun(init_env, vm.sym("%%take-subcont"), vm.TakeSubcont);
+    vm.defun(init_env, vm.sym("%%push-subcont"), vm.PushSubcont);
+    vm.defun(init_env, vm.sym("%%push-prompt-subcont"), vm.PushPromptSubcont);
+    vm.defun(init_env, vm.sym("%%loop"), vm.Loop);
+    vm.defun(init_env, vm.sym("%%raise"), vm.Raise);
+    vm.defun(init_env, vm.sym("%%rescue"), vm.Rescue);
+    vm.defun(init_env, vm.sym("%%dynamic-bind"), vm.DynamicBind);
+};

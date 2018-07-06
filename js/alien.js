@@ -2,7 +2,7 @@
 // versa, as well as accessing JS global variables, operators, etc.
 // As with most things, some of this stuff could probably be done
 // equally well from Lisp userspace.
-module.exports = function(vm, root_env) {
+module.exports = function(vm, init_env) {
     // Overwrite VM's core combination function so it can call JS
     // functions just like normal Lisp operators.
     vm.original_combine = vm.combine;
@@ -70,12 +70,12 @@ module.exports = function(vm, root_env) {
     vm.own_property_p = function(obj, name) {
         return Object.prototype.hasOwnProperty.call(obj, vm.designate_string(name)); };
     // Export to Lisp.
-    vm.defun(root_env, vm.sym("%%js-apply"), vm.jswrap(vm.js_apply));
-    vm.defun(root_env, vm.sym("%%js-binop"), vm.jswrap(vm.js_binop));
-    vm.defun(root_env, vm.sym("%%js-function"), vm.jswrap(vm.js_function));
-    vm.defun(root_env, vm.sym("%%js-get"), vm.jswrap(vm.js_get));
-    vm.defun(root_env, vm.sym("%%js-global"), vm.jswrap(vm.js_global));
-    vm.defun(root_env, vm.sym("%%js-new"), vm.jswrap(vm.js_new));
-    vm.defun(root_env, vm.sym("%%js-set"), vm.jswrap(vm.js_set));
-    vm.defun(root_env, vm.sym("%%own-property?"), vm.jswrap(vm.own_property_p));
+    vm.defun(init_env, vm.sym("%%js-apply"), vm.jswrap(vm.js_apply));
+    vm.defun(init_env, vm.sym("%%js-binop"), vm.jswrap(vm.js_binop));
+    vm.defun(init_env, vm.sym("%%js-function"), vm.jswrap(vm.js_function));
+    vm.defun(init_env, vm.sym("%%js-get"), vm.jswrap(vm.js_get));
+    vm.defun(init_env, vm.sym("%%js-global"), vm.jswrap(vm.js_global));
+    vm.defun(init_env, vm.sym("%%js-new"), vm.jswrap(vm.js_new));
+    vm.defun(init_env, vm.sym("%%js-set"), vm.jswrap(vm.js_set));
+    vm.defun(init_env, vm.sym("%%own-property?"), vm.jswrap(vm.own_property_p));
 };

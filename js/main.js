@@ -1,41 +1,61 @@
 // This is the main file, that pulls together all components and
-// creates a Qua VM.  While the code in the individual components is
-// not too shabby, the way this file connects them together is
-// definitely sub-par.
-var parser = require("./read");
-var init_bytecode = require("../build/out/init.json");
+// creates a user environment in which Qua code can be evaluated.
+
+// The boot bytecode is the precompiled version of the
+// `bootstrap.lisp' file.
+var boot_bytecode = require("../build/out/init.json");
+
+// This will go away shortly.  Instead the user will have to load
+// whatever startup code they want (beyond the special boot bytecode)
+// themselves.
 var user_bytecode = require("qua-user-code");
 
-var vm = {};
-// Where should this go? Whole init process = borked
-vm.Env = function(parent) {
-    this.bindings = Object.create(parent ? parent.bindings : null);
-    this.parent = parent;
-};
-vm.make_env = function(parent) { return new vm.Env(parent); };
-var root_env = vm.make_env();
-require("./util")(vm, root_env);
-require("./obj")(vm, root_env);
-require("./type")(vm, root_env);
-require("./vm")(vm, root_env);
-require("./cont")(vm, root_env);
-require("./alien")(vm, root_env);
-require("./read")(vm, root_env);
-require("./optim")(vm, root_env);
-require("./arch")(vm, root_env);
-// FIXME: this should only be included if we're actually a test build
-require("./test")(vm, root_env);
+// VM initialization: The `vm.init' function from the file `vm.js'
+// performs the major part of initialization: it populates a fresh
+// environment, called the boot environment, with primitive bindings.
+var vm = require("./vm");
+var boot_env = vm.init();
 
-vm.time("run init bytecode",
-        function() { vm.eval(vm.parse_bytecode([vm.sym("%%progn")].concat(init_bytecode)), root_env); });
+// Once that is done, we run some "plug-in" files, each of which
+// receives the VM module, and the created boot environment, and can
+// add new primitive functionality to both.  Most of these are
+// plug-ins simply to keep the `vm.js' file a bit leaner and more
+// readable.  The only files where this is really required are the
+// `arch.js'/`arch-browser.js' files that get used depending on what
+// architecture we're building for with some Browserify magic in
+// `package.json'.
+require("./cont")(vm, boot_env);  // Continuations
+require("./alien")(vm, boot_env); // JavaScript Native Interface
+require("./read")(vm, boot_env);  // S-Expression Parser
+require("./optim")(vm, boot_env); // Optimizations
+require("./arch")(vm, boot_env);  // Architecture-Specific Code
+// FIXME: this should only be included if we're actually a test build
+require("./test")(vm, boot_env);  // VM Testing Support
+
+// Finally, we run the Lisp boot bytecode, i.e. the Lisp code from the
+// file `bootstrap.lisp'.  This code actually creates the user
+// environment, which is distinct from the boot environment, and is
+// the environment in which all user code is evaluated.  The boot code
+// defines a function `USER-EVAL' that closes over the user
+// environment and is used by the VM to evaluate user code.  This
+// separation of boot and user environments has the purpose of
+// forbidding user access to VM primitives by default, unless they are
+// explicitly exported by the boot code to the user environment it
+// creates.
+vm.time("run boot bytecode",
+        function() {
+	    vm.eval(vm.parse_bytecode([vm.sym("%%progn")].concat(boot_bytecode)), boot_env);
+	});
 
 // FIXME: This should use USER-EVAL
 vm.time("run user bytecode",
-        function() { vm.eval(vm.parse_bytecode([vm.sym("%%progn")].concat(user_bytecode)), root_env) });
+        function() {
+	    vm.eval(vm.parse_bytecode([vm.sym("%%progn")].concat(user_bytecode)), boot_env)
+	});
 
 module.exports.vm = function() {
     return {
         // TODO: should this call USER-EVAL?
-        "eval": function(str) { return vm.eval(vm.parse_bytecode([vm.sym("%%progn")].concat(parser.parse_sexp(str))), root_env); }
+        "eval": function(str) { return vm.eval(vm.parse_bytecode([vm.sym("%%progn")].concat(vm.parse_sexp(str))), boot_env); }
     };
 };
