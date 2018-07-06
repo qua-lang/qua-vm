@@ -1,5 +1,5 @@
 #!/usr/bin/env node
 // This is the main entry point for the `qua' UNIX command.
-var vm = require("./main").vm();
+var vm = require("../src/main").vm();
 // ugh, there must be a better way?
-vm.eval("(load-system \"lisp/qua-node-repl.system.lisp\")");
+vm.eval("(load \"lisp/repl.lisp\")");

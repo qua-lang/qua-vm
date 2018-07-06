@@ -1,7 +1,7 @@
 {
     "name": "qua",
     "preferGlobal": true,
-    "bin": "./src/cmd.js",
+    "bin": "./cmd/qua.js",
     "dependencies": {
         "browserify": "^16.2.2",
         "deep-equal": "^1.0.1",
