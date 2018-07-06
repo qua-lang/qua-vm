@@ -5,11 +5,6 @@
 // `bootstrap.lisp' file.
 var boot_bytecode = require("../build/out/init.json");
 
-// This will go away shortly.  Instead the user will have to load
-// whatever startup code they want (beyond the special boot bytecode)
-// themselves.
-var user_bytecode = require("qua-user-code");
-
 // VM initialization: The `vm.init' function from the file `vm.js'
 // performs the major part of initialization: it populates a fresh
 // environment, called the boot environment, with primitive bindings.
@@ -45,12 +40,6 @@ require("./test")(vm, boot_env);  // VM Testing Support
 vm.time("run boot bytecode",
         function() {
 	    vm.eval(vm.parse_bytecode([vm.sym("%%progn")].concat(boot_bytecode)), boot_env);
-	});
-
-// FIXME: This should use USER-EVAL
-vm.time("run user bytecode",
-        function() {
-	    vm.eval(vm.parse_bytecode([vm.sym("%%progn")].concat(user_bytecode)), boot_env)
 	});
 
 module.exports.vm = function() {
