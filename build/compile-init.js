@@ -1,5 +1,5 @@
 var fs = require("fs");
-var parser = require("../js/read");
+var parser = require("../src/read");
 var paths = ["lisp/bootstrap.lisp", "lisp/arch.lisp"];
 var code = paths.map(file).join("\n");
 

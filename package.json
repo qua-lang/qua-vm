@@ -1,7 +1,7 @@
 {
     "name": "qua",
     "preferGlobal": true,
-    "bin": "./js/cmd.js",
+    "bin": "./src/cmd.js",
     "dependencies": {
         "browserify": "^16.2.2",
         "deep-equal": "^1.0.1",
@@ -9,7 +9,7 @@
         "readline-sync": "^1.4.9"
     },
     "browser": {
-        "./js/arch.js": "./js/arch-browser.js",
+        "./src/arch.js": "./src/arch-browser.js",
         "./build/out/init.json": "./build/out/init-browser.json"
     }
 }
