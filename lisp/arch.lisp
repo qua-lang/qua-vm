@@ -1,3 +1,20 @@
+;; Node-specific Lisp code
+
+(def #'node:require #'%%require)
+
+(defconstant node:path (node:require "path"))
+(def #'node:dirname (.dirname node:path))
+(def #'node:join-paths (.join node:path))
+
+(defconstant node:fs (node:require "fs"))
+(def #'node:read-file-sync (.readFileSync node:fs))
+
+(defun read-file-as-string (path)
+  (node:read-file-sync path "utf8"))
+
+(defun read-file (path)
+  (list* #'progn (%%parse-bytecode (%%parse-sexp (read-file-as-string path)))))
+
 ;; Loads a file into the current or specified environment.
 (def #'load
   (wrap (vau (path . opt-env) denv
@@ -17,7 +34,3 @@
                                      (load (node:join-paths (node:dirname path) component) env))
                                    components))))
             (load path)))))
-
-(load-system "lisp/qua-node-repl.system.lisp")
-;(load-system "lisp/qua-full-node.system.lisp")
-;(load-system "lisp/doc/doc.system.lisp")
