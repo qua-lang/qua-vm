@@ -3,7 +3,7 @@
 
 // The boot bytecode is the precompiled version of the
 // `bootstrap.lisp' file.
-var boot_bytecode = require("../build/out/init.json");
+var boot_bytecode = require("../build/out/bootstrap.json");
 
 // VM initialization: The `vm.init' function from the file `vm.js'
 // performs the major part of initialization: it populates a fresh
