@@ -8,9 +8,9 @@
 
 (defconstant node:fs (node:require "fs"))
 (def #'node:read-file-sync (.readFileSync node:fs))
+(def #'node:create-write-stream (.createWriteStream node:fs))
 
-(defun read-file-as-string (path)
-  (node:read-file-sync path "utf8"))
+(defun read-file-as-string (path) (node:read-file-sync path "utf8"))
 
 (defun read-file (path)
   (list* #'progn (%%parse-bytecode (%%parse-sexp (read-file-as-string path)))))

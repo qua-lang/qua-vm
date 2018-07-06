@@ -10,6 +10,6 @@
     },
     "browser": {
         "./src/arch.js": "./src/arch-browser.js",
-        "./build/out/init.json": "./build/out/init-browser.json"
+        "./build/out/bootstrap.json": "./build/out/bootstrap-browser.json"
     }
 }

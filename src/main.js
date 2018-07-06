@@ -28,23 +28,20 @@ require("./arch")(vm, boot_env);  // Architecture-Specific Code
 require("./test")(vm, boot_env);  // VM Testing Support
 
 // Finally, we run the Lisp boot bytecode, i.e. the Lisp code from the
-// file `bootstrap.lisp'.  This code actually creates the user
-// environment, which is distinct from the boot environment, and is
-// the environment in which all user code is evaluated.  The boot code
-// defines a function `USER-EVAL' that closes over the user
-// environment and is used by the VM to evaluate user code.  This
-// separation of boot and user environments has the purpose of
-// forbidding user access to VM primitives by default, unless they are
-// explicitly exported by the boot code to the user environment it
-// creates.
+// file `bootstrap.lisp'.
 vm.time("run boot bytecode",
         function() {
 	    vm.eval(vm.parse_bytecode([vm.sym("%%progn")].concat(boot_bytecode)), boot_env);
 	});
 
+// This is still a hack to be addressed.
 module.exports.vm = function() {
     return {
-        // TODO: should this call USER-EVAL?
-        "eval": function(str) { return vm.eval(vm.parse_bytecode([vm.sym("%%progn")].concat(vm.parse_sexp(str))), boot_env); }
+        "eval": function(expr) {
+	    if (typeof(expr) === "string") {
+		expr = vm.parse_sexp(expr);
+	    }
+	    return vm.eval(vm.parse_bytecode([vm.sym("%%progn")].concat(expr)), boot_env);
+	}
     };
 };
