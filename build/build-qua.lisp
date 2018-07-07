@@ -12,7 +12,7 @@
 (write-bytecode-file (js-array)
 		     "build/out/prod-browser.json")
 
-(write-bytecode-file (js-array "lisp/test.lisp" "lisp/test-browser.lisp")
+(write-bytecode-file (js-array "test/lisp/test.lisp" "test/lisp/test-browser.lisp")
 		     "build/out/test-browser.json")
 
 ;;;; Build browser Browserify "images"

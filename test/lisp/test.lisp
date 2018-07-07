@@ -1,10 +1,10 @@
 ;; Test bindings
+(def #'%deep-equal (node:require "deep-equal"))
 (deffexpr %assert (expr) env
           (unless (eval expr env)
             (print "assertion failed")
             (print expr)
             (%%panic "assertion failed")))
-(def #'%deep-equal #'%%deep-equal)
 (defun #'%expect (expected actual) (%assert (%deep-equal expected actual)))
 
 ;;;; Forms
@@ -416,3 +416,5 @@
          (map (lambda (x) (* x 2)) (list 1 2 3)))
 (%expect ()
          (map (lambda (x) (* x 2)) ()))
+
+(print "OK")
