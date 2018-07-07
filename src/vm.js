@@ -153,7 +153,6 @@ vm.concrete_class_of = function(obj) {
         return vm.concrete_class_of_hook(obj);
     }
 };
-vm.concrete_class_of_hook = function(obj) { vm.panic("object is missing class: " + obj); };
 vm.unknown_class_hook = function(obj) { vm.panic("unknown class: " + obj); };
 vm.generic_class_of = function(obj) {
     var ccls = vm.concrete_class_of(obj);
@@ -347,6 +346,8 @@ vm.eval_operator = function(e, op) {
 vm.combine = function(e, cmb, o) {
     if (cmb && cmb.qua_combine) {
         return vm.trap_exceptions(function() { return cmb.qua_combine(cmb, e, o); });
+    } else if (cmb instanceof Function) {
+	return vm.combine(e, vm.jswrap(cmb), o);
     } else {
         return vm.error("not a combiner: " + cmb, e);
     }
@@ -424,13 +425,339 @@ vm.progn = function(e, xs) {
                       });
 };
 /* Operator that calls JS function to do work */
-vm.JSOperator = function(js_fn) { this.js_fn = vm.assert_type(js_fn, "function"); };
+vm.JSOperator = function(js_fn) { this.js_fn = js_fn; };
 vm.JSOperator.prototype.qua_combine = function(self, e, o) {
     return vm.trap_exceptions(function() {
         return self.js_fn.apply(null, vm.list_to_array(o));
     });
 };
 vm.jswrap = function(js_fn) { return vm.wrap(new vm.JSOperator(js_fn)); };
+/* Continuations */
+// A continuation or stack frame is created in order to freeze
+// (suspend, capture) a computation so that we can treat it as a
+// data structure, and later resume it again and turn it back into
+// control flow.  A stack frame consists of a work function that
+// "does something" which is specially created by each distinct
+// language primitive, and an inner suspended stack frame.  The
+// innermost stack frame is always the one created by the
+// %%TAKE-SUBCONT expression that effected the continuation
+// capture.  (For this innermost stack frame, .inner is null.)
+function StackFrame(work_fun, inner) {
+    // primitive-specific JS function
+    this.work_fun = work_fun;
+    // next stack frame or null for innermost %%TAKE-SUBCONT frame
+    this.inner = inner;
+};
+// A suspension is a helper object created for the capture of a
+// continuation and passed from the inside out.  A %%TAKE-SUBCONT
+// call will return a fresh suspension, and the outer caller will
+// react specially to receiving such a suspension from the callee
+// instead of an ordinary return value -- usually by pushing a
+// stack frame with a primitive-specific work function onto the
+// suspension, and itself returning the suspension to its caller.
+// In other words, every language primitive knows how to reify
+// itself as a (later resumable) stack frame in case an inner
+// expression is suspended.  Eventually, the outer %%PUSH-PROMPT
+// expression whose prompt matches the suspension's will call the
+// suspension's handler function (i.e., the Lisp function supplied
+// by the user to %%TAKE-SUBCONT that gets to determine what
+// happens once we reach the prompt) with the continuation
+// accumulated during the capture.
+function Suspension(prompt, handler) {
+    // capture up to this prompt (EQ)
+    this.prompt = prompt;
+    // call this handler with captured continuation once we reach prompt
+    this.handler = handler;
+    // continuation / outermost stack frame accumulated during unwind/capture
+    this.k = null;
+};
+// During continuation capture, destructively push a new outer
+// stack frame with a primitive-specific work function onto a
+// suspension's continuation.
+function suspendFrame(sus, work_fun) {
+    sus.k = new StackFrame(work_fun, sus.k);
+};
+// During continuation resumption, call the primitive-specific
+// work function of the outermost stack frame with the next inner
+// frame, and the user-supplied "stimulus" function (F).  The next
+// inner frame will do the same, until we reach the innermost
+// stack frame, created by a %%TAKE-SUBCONT expression.  This
+// innermost frame will call the stimulus function within the
+// newly composed context and return its value, giving the user
+// control over what happens once a continuation has been composed
+// onto the current stack.
+function resumeFrame(k, f) {
+    return k.work_fun(k.inner, f);
+};
+// vm.monadic() is a basic building block for many language
+// primitives that need to do two or more operations that may
+// capture a continuation in sequence.  Examples are PROGN that
+// needs to evaluate the first and then the rest of its body
+// expressions, and IF that needs to evaluate the test expression
+// before evaluating either the then or the else expression
+// depending on the result of the test.  Looking at vm.monadic in
+// details is instructive because it shows in a pure form the
+// general protocol that language primitives have to honor in
+// order to the able to suspend and resume themselves.
+// (Primitives like %%RESCUE with more complex control flow
+// requirements cannot use vm.monadic but follow this same
+// protocol.)
+//
+// So, we have two thunks, A and B, that we want to call so that B
+// receives the result of A(), i.e. B(A()).  We also have the two
+// protocol parameters K (continuation, outermost stack frame) and
+// F (stimulus function) which are only relevant and passed in if
+// we are resuming a continuation.  (If we are not resuming they
+// are undefined.)
+vm.monadic = function(a, b, k, f) {
+    // Caller passed in continuation?  This means we are resuming.
+    // In other words, a previous call to A() led to a suspension
+    // which we returned, and now the caller is passing in the
+    // then-captured continuation again for resumption via
+    // resumeFrame(k, f).
+    if (k instanceof StackFrame) {
+        // Resume into inner stack frames until exhausted, calling
+        // stimulus function F in innermost context.  Here we are
+        // reconstructing the control state of our previously
+        // suspended inner expression A, ultimately giving control
+        // to the caller as to what happens once the continuation
+        // has been fully composed again onto the current stack.
+        var val = resumeFrame(k, f);
+    } else {
+        // Otherwise, we are just normally executing,
+        // so execute first expression/thunk.
+        var val = a();
+    }
+    // Did the first expression suspend (lead to a %%TAKE-SUBCONT)?
+    if (val instanceof Suspension) {
+        // If it did, we suspend ourselves -- i.e. push an outer
+        // stack frame onto to the already accumulated
+        // continuation whose work function remembers what we were
+        // doing prior to suspension and will restore us back to
+        // this point when resumed.
+	//
+	// The work function closure remembers our parameters A
+	// and B, and in effect will repeat the original, current
+	// call to vm.monadic when the captured continuation is
+	// resumed at a future point.
+	var work_fun = function(k, f) {
+	    return vm.monadic(a, b, k, f);
+	};
+        suspendFrame(val, work_fun);
+        // Pass suspension back to caller.
+        return val;
+    } else {
+        // First expression didn't suspend, we can just pass its
+        // result to second expression.
+        return b(val);
+    }
+};
+/* Delimited control */
+// %%PUSH-PROMPT prompt body-thunk => result
+//
+// Push a prompt and call the body thunk within this delimited
+// context.
+// 
+// Analyze the result of the body thunk and if it's a suspension,
+// check if it matches our, the pushed, prompt.  If it matches,
+// call the suspension's user-supplied handler function with the
+// continuation accumulated during the unwind from the originating
+// inner %%TAKE-SUBCONT.
+vm.PushPrompt = vm.wrap({
+    qua_combine: function do_push_prompt(self, e, o, k, f) {
+        var prompt = vm.elt(o, 0);
+        var body_thunk = vm.elt(o, 1);
+        if (k instanceof StackFrame) {
+            var val = resumeFrame(k, f);
+        } else {
+            var val = vm.combine(e, body_thunk, vm.NIL);
+        }
+        if (val instanceof Suspension) {
+            if (val.prompt === prompt) {
+                var continuation = val.k;
+                var handler = val.handler;
+                return vm.combine(e, handler, vm.cons(continuation, vm.NIL));
+            } else {
+                suspendFrame(val, function(k, f) {
+		    return do_push_prompt(self, e, o, k, f);
+		});
+                return val;
+            }
+        }
+        return val;
+    }
+});
+// %%TAKE-SUBCONT prompt handler
+//
+// Abort up to prompt and call handler with captured continuation.
+//
+// Inject a suspension that will lead to the call of the
+// user-supplied handler at the outer %%PUSH-PROMPT with matching
+// prompt.  The innermost stack frame's work function will call
+// the protocol parameter F, the user-supplied stimulus function
+// passed in during continiation resumption/composition, thereby
+// completing resumption and entering back into normal evaluation.
+vm.TakeSubcont = vm.wrap({
+    qua_combine: function(self, e, o, k, f) {
+        var prompt = vm.elt(o, 0);
+        var handler = vm.elt(o, 1);
+        var sus = new Suspension(prompt, handler);
+        suspendFrame(sus, function(k, f) {
+	    return vm.combine(e, f, vm.NIL);
+	});
+        return sus;
+    }
+});
+// %%PUSH-SUBCONT k f
+//
+// Resume into a user-supplied continuation, calling the
+// "stimulus" thunk F within the newly established stack context
+// (this is accomplished by the stack frame pushed by
+// %%TAKE-SUBCONT, which ultimately calls the passed-in F, see
+// lines above).
+vm.PushSubcont = vm.wrap({
+    qua_combine: function do_push_subcont(self, e, o, k, f) {
+        var thek = vm.elt(o, 0);
+        var thef = vm.elt(o, 1);
+        if (k instanceof StackFrame) {
+            var val = resumeFrame(k, f);
+        } else {
+            var val = resumeFrame(thek, thef);
+        }
+        if (val instanceof Suspension) {
+            suspendFrame(val, function(k, f) {
+		return do_push_subcont(self, e, o, k, f);
+	    });
+            return val;
+        }
+        return val;
+    }
+});
+// %%PUSH-PROMPT-SUBCONT prompt k f
+//
+// Manually fused version of pushing a prompt and continuation in
+// one fell swoop, to work around stack overflow issue for
+// server-type apps, see Oleg's paper.
+vm.PushPromptSubcont = vm.wrap({
+    qua_combine: function do_push_prompt_subcont(self, e, o, k, f) {
+        var prompt = vm.elt(o, 0);
+        var thek = vm.elt(o, 1);
+        var thef = vm.elt(o, 2);
+        if (k instanceof StackFrame) {
+            var val = resumeFrame(k, f);
+        } else {
+            var val = resumeFrame(thek, thef);
+        }
+        if (val instanceof Suspension) {
+            if (val.prompt === prompt) {
+                var continuation = val.k;
+                var handler = val.handler;
+                return vm.combine(e, handler, vm.cons(continuation, vm.NIL));
+            } else {
+                suspendFrame(val, function(k, f) {
+		    return do_push_prompt_subcont(self, e, o, k, f);
+		});
+                return val;
+            }
+        }
+        return val;
+    }
+});
+/* Simple control */
+// %%LOOP thunk
+//
+// Call thunk repeatedly.
+vm.Loop = vm.wrap({
+    qua_combine: function do_loop(self, e, o, k, f) {
+        var body = vm.elt(o, 0);
+        var first = true; // only resume once
+        while (true) {
+            if (first && (k instanceof StackFrame)) {
+                var val = resumeFrame(k, f);
+            } else {
+                var val = vm.combine(e, body, vm.NIL);
+            }
+            first = false;
+            if (val instanceof Suspension) {
+                suspendFrame(val, function(k, f) {
+		    return do_loop(self, e, o, k, f);
+		});
+                return val;
+            }
+        }
+    }
+});
+// %%RAISE obj
+//
+// Throw something as a JS exception.
+vm.Raise = vm.jswrap(function(err) { throw err; });
+// %%RESCUE handler-fun body-thunk
+//
+// Call HANDLER-FUN if a JS exception is thrown during BODY-THUNK
+// (except VM panics, let those through so that user can't
+// interfere with panicking).
+vm.Rescue = vm.wrap({
+    qua_combine: function do_rescue(self, e, o, k, f) {
+        var handler = vm.elt(o, 0);
+        var body = vm.elt(o, 1);
+        try {
+            if (k instanceof StackFrame) {
+                var val = resumeFrame(k, f);
+            } else {
+                var val = vm.combine(e, body, vm.NIL);
+            }
+        } catch(exc) {
+            if (exc instanceof vm.Panic) {
+                // let panics through, do not pass them to user handler
+                throw exc;
+            } else {
+                // unwrap handler to prevent double eval of exception
+                // TODO: murky
+                var val = vm.combine(e, vm.unwrap(handler), vm.list(exc));
+            }
+        }
+        if (val instanceof Suspension) {
+            suspendFrame(val, function(k, f) {
+		return do_rescue(self, e, o, k, f);
+	    });
+            return val;
+        }
+        return val;
+    }
+});
+/* Dynamic Variables */
+// %%DYNAMIC-BIND dynvar new-val body-thunk
+//
+// Bind a single dynamic variable to a new value during the
+// execution of a body thunk.  For now, any standard object with a
+// VAL slot can be used as a dynamic variable, this will probably
+// change.
+vm.DynamicBind = vm.wrap({
+    qua_combine: function dynamic_bind(self, e, o, k, f) {
+        var dynvar = vm.elt(o, 0);
+        var val = vm.elt(o, 1);
+        var thunk = vm.elt(o, 2);
+        var oldVal = dynvar.qs_val;
+        dynvar.qs_val = val;
+        try {
+            if (k instanceof StackFrame) {
+                var res = resumeFrame(k, f);
+            } else {
+                var res = vm.combine(e, thunk, vm.NIL);
+            }
+            if (res instanceof Suspension) {
+                suspendFrame(res, function(k, f) {
+		    return dynamic_bind(self, e, o, k, f);
+		});
+                return res;
+            } else {
+                return res;
+            }
+        } finally {
+            dynvar.qs_val = oldVal;
+        }
+    }
+});
 /* Forms */
 vm.VAR_NS = "v";
 vm.FUN_NS = "f";
@@ -508,6 +835,21 @@ vm.reverse_list = function(list) {
 };
 vm.is_list = function(obj) {
     return vm.is_nil(obj) || obj instanceof vm.Cons;
+};
+vm.list_star = function() {
+    var len = arguments.length; var c = len >= 1 ? arguments[len-1] : vm.NIL;
+    for (var i = len-1; i > 0; i--) c = vm.cons(arguments[i - 1], c); return c;
+};
+vm.plist_to_js_object = function(plist, obj) {
+    obj = (obj !== undefined) ? obj : Object.create(null);
+    if (plist === vm.NIL) {
+        return obj;
+    } else {
+        var name = vm.assert_type(vm.elt(plist, 0), vm.Keyword);
+        var value = vm.elt(plist, 1);
+        obj[vm.designate_string(name)] = value;
+        return vm.plist_to_js_object(vm.cdr(vm.cdr(plist)), obj);
+    }
 };
 /* Util Dumping Ground */
 vm.assert_type = function(obj, type_spec) {
@@ -588,6 +930,66 @@ vm.parse_bytecode_array = function(arr) {
     else { var front = arr.slice(0, i);
            return vm.array_to_list(front.map(vm.parse_bytecode), vm.parse_bytecode(arr[i + 1])); }
 };
+/* JS Native Interface */
+// Returns a JS function that calls the given Lisp operator with
+// the arguments passed to the function.
+vm.js_function = function(cmb) {
+    return function() {
+        var args = vm.array_to_list(Array.prototype.slice.call(arguments));
+        return vm.combine(vm.make_env(), cmb, args);
+    }
+};
+// Synthetic/virtual classes given to JS built-in objects, so we
+// can define Lisp methods on them.
+vm.JSObject = vm.defclass("js-object", ["object"], {});
+vm.JSArray = vm.defclass("js-array", ["js-object"], {});
+vm.JSFunction = vm.defclass("js-function", ["js-object"], {});
+vm.JSNumber = vm.defclass("js-number", ["number", "js-object"], {});
+vm.JSString = vm.defclass("js-string", ["string", "js-object"], {});
+vm.JSNull = vm.defclass("js-null", ["js-object"], {});
+vm.JSUndefined = vm.defclass("js-undefined", ["js-object"], {});
+// Detect JS built-in types and make them appear to object system
+// as objects with (synthetic) Lisp classes (define above).
+vm.concrete_class_of_hook = function(obj) {
+    switch (typeof(obj)) {
+    case "string": return vm.JSString;
+    case "number": return vm.JSNumber;
+    case "boolean": return vm.Boolean;
+    case "function": return vm.JSFunction;
+    case "undefined": return vm.JSUndefined;
+    default:
+        if (obj === null) {
+            return vm.JSNull;
+        } else if (Array.isArray(obj)) {
+            return vm.JSArray;
+        } else {
+            var proto = Object.getPrototypeOf(obj);
+            if (proto) {
+                return vm.unknown_class_hook(obj);
+            } else {
+                return vm.JSObject;
+            }
+        }
+    }
+};
+// Applies JS function.
+vm.js_apply = function(fun, thiz, args) { return fun.apply(thiz, args); };
+// Creates a Lisp operator whose body executes a JS binary operator.
+vm.js_binop = function(op) {
+    return vm.jswrap(new Function("a", "b", "return (a " + op + " b)")); };
+// Reads a JS property, implementation of `.some_property' syntax.
+vm.js_get = function(obj, name) { return obj[name]; };
+// Reads a JS global variable, implementation of the `$some_global' syntax.
+vm.js_global = function(name) { return global[name]; }; // from Browserify
+// Creates a new JS object with a given constructor.
+vm.js_new = function(ctor) {
+    var factoryFunction = ctor.bind.apply(ctor, arguments);
+    return new factoryFunction(); }
+// Writes a JS property, implementation of `(setf (.property_name ...) ...)'.
+vm.js_set = function(obj, name, val) { return obj[name] = val; };
+// This definitely should be done from Lisp.
+vm.own_property_p = function(obj, name) {
+    return Object.prototype.hasOwnProperty.call(obj, vm.designate_string(name)); };
 /* API */
 vm.def = vm.bind;
 vm.defun = function(e, name, cmb) { vm.def(e, vm.to_fun_sym(name), cmb); };
@@ -609,6 +1011,15 @@ vm.init = function() {
     vm.defun(init_env, vm.sym("%%vau"), vm.Vau);
     vm.defun(init_env, vm.sym("%%wrap"), vm.jswrap(vm.wrap));
     vm.defun(init_env, vm.sym("%%unwrap"), vm.jswrap(vm.unwrap));
+    // Continuations
+    vm.defun(init_env, vm.sym("%%push-prompt"), vm.PushPrompt);
+    vm.defun(init_env, vm.sym("%%take-subcont"), vm.TakeSubcont);
+    vm.defun(init_env, vm.sym("%%push-subcont"), vm.PushSubcont);
+    vm.defun(init_env, vm.sym("%%push-prompt-subcont"), vm.PushPromptSubcont);
+    vm.defun(init_env, vm.sym("%%loop"), vm.Loop);
+    vm.defun(init_env, vm.sym("%%raise"), vm.Raise);
+    vm.defun(init_env, vm.sym("%%rescue"), vm.Rescue);
+    vm.defun(init_env, vm.sym("%%dynamic-bind"), vm.DynamicBind);
     // Environments
     vm.defun(init_env, vm.sym("%%make-environment"), vm.jswrap(vm.make_env));
     // Object system
@@ -625,11 +1036,23 @@ vm.init = function() {
     vm.defun(init_env, vm.sym("%%slot-value"), vm.jswrap(vm.slot_value));
     vm.defun(init_env, vm.sym("%%type?"), vm.jswrap(vm.typep));
     // Misc
-    vm.defun(init_env, vm.sym("%%panic"), vm.panic);
+    vm.defun(init_env, vm.sym("%%assert"), vm.jswrap(vm.assert));
+    vm.defun(init_env, vm.sym("%%panic"), vm.jswrap(vm.panic));
     vm.defun(init_env, vm.sym("%%eq"), vm.jswrap(function(a, b) { return a === b; }));
     vm.defun(init_env, vm.sym("%%print"), vm.jswrap(console.log));
     vm.defun(init_env, vm.sym("%%list-to-array"), vm.jswrap(vm.list_to_array));
     vm.defun(init_env, vm.sym("%%reverse-list"), vm.jswrap(vm.reverse_list));
+    vm.defun(init_env, vm.sym("%%list*"), vm.jswrap(vm.list_star));
+    vm.defun(init_env, vm.sym("%%plist-to-js-object"), vm.jswrap(vm.plist_to_js_object));
+    // JSNI
+    vm.defun(init_env, vm.sym("%%js-apply"), vm.jswrap(vm.js_apply));
+    vm.defun(init_env, vm.sym("%%js-binop"), vm.jswrap(vm.js_binop));
+    vm.defun(init_env, vm.sym("%%js-function"), vm.jswrap(vm.js_function));
+    vm.defun(init_env, vm.sym("%%js-get"), vm.jswrap(vm.js_get));
+    vm.defun(init_env, vm.sym("%%js-global"), vm.jswrap(vm.js_global));
+    vm.defun(init_env, vm.sym("%%js-new"), vm.jswrap(vm.js_new));
+    vm.defun(init_env, vm.sym("%%js-set"), vm.jswrap(vm.js_set));
+    vm.defun(init_env, vm.sym("%%own-property?"), vm.jswrap(vm.own_property_p));
     // Temporary, till we find a better place
     vm.defun(init_env, vm.sym("%%parse-bytecode"), vm.jswrap(vm.parse_bytecode));
     return init_env;
