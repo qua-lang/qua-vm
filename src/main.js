@@ -39,10 +39,6 @@ qua.vm = function() {
 		expr = vm.parse_sexp(expr);
 	    }
 	    return vm.eval(vm.parse_bytecode([vm.sym("%%progn")].concat(expr)), boot_env);
-	},
-	"run_user_bytecode": function() {
-	    var user_bytecode = require("qua-user-bytecode");
-	    vm.eval(vm.parse_bytecode([vm.sym("%%progn")].concat(user_bytecode)), boot_env);
 	}
     };
 };

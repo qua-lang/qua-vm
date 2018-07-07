@@ -778,15 +778,11 @@ qua.vm = function() {
 		expr = vm.parse_sexp(expr);
 	    }
 	    return vm.eval(vm.parse_bytecode([vm.sym("%%progn")].concat(expr)), boot_env);
-	},
-	"run_user_bytecode": function() {
-	    var user_bytecode = require("qua-user-bytecode");
-	    vm.eval(vm.parse_bytecode([vm.sym("%%progn")].concat(user_bytecode)), boot_env);
 	}
     };
 };
 
-},{"../build/out/bootstrap.json":2,"./arch":6,"./read":8,"./vm":9,"qua-user-bytecode":"qua-user-bytecode"}],8:[function(require,module,exports){
+},{"../build/out/bootstrap.json":2,"./arch":6,"./read":8,"./vm":9}],8:[function(require,module,exports){
 var jsparse = require("jsparse");
 module.exports = function(vm, init_env) {
     vm.parse_sexp = parse_sexp;
