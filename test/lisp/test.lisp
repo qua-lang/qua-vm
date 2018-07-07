@@ -257,11 +257,11 @@
 ;;;; JS getter
 (%assert (%deep-equal "String" (%%js-get (%%js-get "foo" "constructor") "name")))
 (%assert (%deep-equal "String" (.name (.constructor "foo"))))
-                                        ; Can access raw Qua slots
-(%assert (%deep-equal "foo" (.qs_name 'foo)))
-(%assert (%deep-equal "v" (.qs_ns 'foo)))
-(%assert (%deep-equal "f" (.qs_ns '#'foo)))
-                                        ; Can set slots
+;; Can access raw Qua slots
+(%assert (%deep-equal "foo" (.name 'foo)))
+(%assert (%deep-equal "v" (.ns 'foo)))
+(%assert (%deep-equal "f" (.ns '#'foo)))
+;; Can set slots
 (let ((obj (create-js-object)))
   (setf (.message obj) "foo")
   (%assert (%deep-equal "foo" (.message obj))))
@@ -338,8 +338,8 @@
 (%assert (type? 12 'object))
 (%assert (not (type? 12 'standard-object)))
 
-(%assert (type? (.qs_direct-superclasses (find-generic-class 'object)) 'js-array))
-(%assert (type? (.qs_slots (find-generic-class 'object)) 'js-object))
+(%assert (type? (.direct-superclasses (find-generic-class 'object)) 'js-array))
+(%assert (type? (.slots (find-generic-class 'object)) 'js-object))
 
 ;;;; Types
 (%expect #void (typecase #t))

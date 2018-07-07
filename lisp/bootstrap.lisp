@@ -23,17 +23,13 @@
 (def #'unwrap #'%%unwrap) ; Extract fexpr underlying a function.
 (def #'wrap #'%%wrap) ; Construct a function out of a fexpr.
 ;; Objects:
-(def #'concrete-class-of #'%%concrete-class-of)
-(def #'ensure-class #'%%ensure-class)
-(def #'find-concrete-class #'%%find-concrete-class)
-(def #'find-generic-class #'%%find-generic-class)
-(def #'find-method #'%%find-method)
-(def #'generic-class-of #'%%generic-class-of)
-(def #'type? #'%%type?)
-(def #'put-method #'%%put-method)
+(def #'send #'%%send)
 (def #'set-slot-value #'%%set-slot-value)
 (def #'slot-bound? #'%%slot-bound?)
 (def #'slot-value #'%%slot-value)
+(def #'vtable-allocate #'%%vtable-allocate)
+(def #'vtable-delegated #'%%vtable-delegated)
+(def #'vtable-of #'%%vtable-of)
 ;; JS:
 (def #'js-apply #'%%js-apply)
 (def #'js-function #'%%js-function)
@@ -45,6 +41,7 @@
 ;; Use one % as prefix for stuff that's not expected to be called by
 ;; the user or that doesn't have a final API yet.
 (def #'%to-fun-sym #'%%to-fun-sym) ; Turn any symbol into a function namespaced one.
+(def #'%to-type-sym #'%%to-type-sym) ; Turn any symbol into a type namespaced one.
 ;; Optimization bindings:
 (def #'list* #'%%list*) ; Construct list of arguments, with the final argument as tail.
 (def #'list-to-js-array #'%%list-to-array)
@@ -107,6 +104,9 @@
 ; Define a named function.
 (defmacro defun (name params . body)
   (list #'def (%to-fun-sym name) (list* #'lambda params body)))
+
+(defmacro defun/env (name params env-param . body)
+  (list #'def (%to-fun-sym name) (list #'wrap (list* #'vau params env-param body))))
 
 ; Treat the rest arg as an optional value with optional default.
 (defun optional (opt-arg . opt-default)
@@ -258,38 +258,39 @@
 
 ;;;; Objects and classes
 
-(def #'%parse-type-spec #'identity) ; Overridden later
+(defun/env make-instance (class-desig . initargs) env
+  (%%make-instance (eval (%to-type-sym class-desig) env)
+		   (plist-to-js-object initargs)))
 
-(defun %make-instance (class-desig . initargs)
-  (%%make-instance class-desig (plist-to-js-object initargs)))
+(defun/env find-class (class-desig) env
+  (eval (%to-type-sym class-desig) env))
 
 (defun call-method (obj name args)
   (let ((method (find-method obj name)))
     (apply method args)))
 
 (deffexpr defgeneric (name . #ign) env
-  (eval (list #'def (%to-fun-sym name)
-              (lambda args
-                (call-method (car args) name args)))
-        env))
+  (let ((generic (lambda args
+                   (call-method (car args) name args))))
+    (eval (list #'def (%to-fun-sym name) generic) env)
+    generic))  
 
-(deffexpr %defmethod (name ((self class-spec) . args) . body) env
-  (let ((class (find-generic-class (%parse-type-spec class-spec)))
+(deffexpr defmethod (name ((self class-spec) . args) . body) env
+  (let ((class (find-class class-spec))
         (fun (eval (list* #'lambda (list* self args) body) env)))
-    (put-method class name fun)
-    name))
+    (%%put-method class (symbol-name name) fun)
+    fun))
 
-(deffexpr defclass (class-spec superclass-specs . #ign) #ign
-  (ensure-class (%parse-type-spec class-spec)
-                (list-to-js-array (map-list #'%parse-type-spec superclass-specs))))
+(deffexpr defclass (class-spec (superclass-spec) . #ign) env
+  (let* ((name (symbol-name class-spec))
+	 (parent (eval (%to-type-sym superclass-spec) env))
+	 (vt (vtable-delegated parent name)))
+    (eval (list #'def (%to-type-sym class-spec) vt) env)
+    vt))
 
 (defsetf #'slot-value
   (lambda (new-val obj slot-name)
     (set-slot-value obj slot-name new-val)))
-
-(defgeneric hash-object (self))
-(defgeneric compare-object (self))
-(defgeneric print-object (self stream))
 
 ;;;; Simple control
 
@@ -315,7 +316,7 @@
 
 (defun %call-with-escape (#'fn)
   (labels ((escape opt-val
-             (%%raise (%make-instance '%%tag :id #'escape :val (optional opt-val)))))
+             (%%raise (make-instance '%%tag :id #'escape :val (optional opt-val)))))
     (%%rescue (lambda (exc)
                 (if (and (type? exc '%%tag)
                          (eq (slot-value exc 'id) #'escape))
@@ -368,7 +369,7 @@
   (val))
 
 (defun make-box (val)
-  (%make-instance 'box :val val))
+  (make-instance 'box :val val))
 
 (defun box-value (box)
   (slot-value box 'val))
@@ -526,10 +527,10 @@
 
 ;;;; Conditions
 
-(defclass condition (standard-object))
-(defclass warning (condition))
-(defclass serious-condition (condition))
-(defclass error (serious-condition))
+(defclass condition (standard-object) ())
+(defclass warning (condition) ())
+(defclass serious-condition (condition) ())
+(defclass error (serious-condition) ())
 
 (defclass simple-condition (condition)
   (message))
@@ -541,8 +542,8 @@
 (defun simple-error (message . #ign)
   (error (make-instance 'simple-error :message message)))
 
-(defclass runtime-error (error))
-(defclass control-error (runtime-error))
+(defclass runtime-error (error) ())
+(defclass control-error (runtime-error) ())
 (defclass restart-control-error (control-error)
   (restart))
 
@@ -551,9 +552,9 @@
 ;; extent.  Which that is turning out not to be so great an idea
 ;; anyway, so the future is probably restarts separate from
 ;; conditions.
-(defclass restart (condition))
-(defclass abort (restart))
-(defclass continue (restart))
+(defclass restart (condition) ())
+(defclass abort (restart) ())
+(defclass continue (restart) ())
 (defclass use-value (restart)
   (value))
 (defclass store-value (restart)
@@ -571,11 +572,11 @@
    associated-condition))
 
 (defun make-handler (condition-type handler-function . opt-associated-condition)
-  (%make-instance 'handler
-                  :name (symbol-name condition-type)
-                  :condition-type condition-type
-                  :handler-function handler-function
-                  :associated-condition (optional opt-associated-condition)))
+  (make-instance 'handler
+                 :name (symbol-name condition-type)
+                 :condition-type condition-type
+                 :handler-function handler-function
+                 :associated-condition (optional opt-associated-condition)))
 
 (defun handle-condition (handler condition)
   (funcall (slot-value handler 'handler-function) condition))
@@ -585,7 +586,7 @@
    parent))
 
 (defun make-handler-frame (handlers . opt-parent)
-  (%make-instance 'handler-frame :handlers handlers :parent (optional opt-parent)))
+  (make-instance 'handler-frame :handlers handlers :parent (optional opt-parent)))
 
 (defun %make-handler-bind (#'handler-spec-parser handler-frame-dynamic)
   (vau (handler-specs . body) env
@@ -652,7 +653,7 @@
 
 (defgeneric condition-applicable? (condition handler))
 
-(%defmethod condition-applicable? ((condition condition) handler)
+(defmethod condition-applicable? ((condition condition) handler)
   (type? condition (slot-value handler 'condition-type)))
 
 (defun slot-void? (obj slot-name)
@@ -660,7 +661,7 @@
       (void? (slot-value obj slot-name))
       #t))
 
-(%defmethod condition-applicable? ((restart restart) handler)
+(defmethod condition-applicable? ((restart restart) handler)
   (and (type? restart (slot-value handler 'condition-type))
        (or (slot-void? restart 'associated-condition)
            (slot-void? handler 'associated-condition)
@@ -669,62 +670,15 @@
 
 (defgeneric call-condition-handler (condition handler handler-frame))
 
-(%defmethod call-condition-handler ((condition condition) handler handler-frame)
+(defmethod call-condition-handler ((condition condition) handler handler-frame)
   ; Condition firewall
   (dynamic-let ((*condition-handler-frame* (slot-value handler-frame 'parent)))
     (handle-condition handler condition)))
 
-(%defmethod call-condition-handler ((restart restart) handler handler-frame)
+(defmethod call-condition-handler ((restart restart) handler handler-frame)
   (handle-condition handler restart))
 
-;;;; Types
-
-(defclass type-error (error) ())
-(defclass type-mismatch-error (type-error) (type-spec obj))
-
-(defconstant +top-type+
-  (%make-instance '%class-type :name "top" :generic-params '()))
-
-(defconstant +bottom-type+
-  (%make-instance '%class-type :name "bottom" :generic-params '()))
-
-(defun %parse-type-spec (type-spec)
-  (cond ((keyword? type-spec)
-         (%make-instance '%type-variable
-                         :name (symbol-name type-spec)))
-        ((symbol? type-spec)
-         (%make-instance '%class-type
-                         :name (symbol-name type-spec)
-                         :generic-params '()))
-        ((cons? type-spec)
-         (let (((class-name . generic-param-specs) type-spec))
-           (%make-instance '%class-type
-                           :name (symbol-name class-name)
-                           :generic-params (map-list #'%parse-generic-param-spec
-                                                     generic-param-specs))))
-        (#t (simple-error "Illegal type-spec"))))
-  
-(defun %parse-generic-param-spec (gp-spec)
-  (cond ((or (keyword? gp-spec) (symbol? gp-spec))
-         (let ((type (%parse-type-spec gp-spec)))
-           (%make-instance '%generic-param :in-type type :out-type type)))
-        ((cons? gp-spec)
-         (let (((op . rest) gp-spec))
-           (if (keyword? op)
-               (case (symbol-name op)
-                 ("io"
-                  (let* ((in-type (%parse-type-spec (car rest)))
-                         (out-type (%parse-type-spec (optional (cdr rest) in-type))))
-                    (%make-instance '%generic-param :in-type in-type :out-type out-type)))
-                 ("in"
-                  (let ((in-type (%parse-type-spec (car rest))))
-                    (%make-instance '%generic-param :in-type in-type :out-type +top-type+)))
-                 ("out"
-                  (let ((out-type (%parse-type-spec (car rest))))
-                    (%make-instance '%generic-param :in-type +bottom-type+ :out-type out-type))))
-               (let ((type (%parse-type-spec gp-spec)))
-                 (%make-instance '%generic-param :in-type type :out-type type)))))
-        (#t (error "Illegal generic param spec"))))
+;;;; Typechecks
 
 (defun type? (obj type-spec)
   (%%type? obj (%parse-type-spec type-spec)))
@@ -743,33 +697,8 @@
 (defun the (type-spec obj)
   (if (type? obj type-spec)
       obj
-      (error (%make-instance 'type-mismatch-error
-                             :type-spec type-spec :obj obj))))
-
-(defun %parse-method-lambda-list (method-ll)
-  (if (cons? method-ll)
-      (let* (((receiver-spec . other-params) method-ll)
-             (simplified-other-params
-              (map-list (lambda (param)
-                          (typecase param
-                            (cons (car param))
-                            (symbol param)
-                            (#t (simple-error "Not a method parameter" :arg param))))
-                        other-params))
-             (simplified-ll (cons receiver-spec simplified-other-params))
-             (type-checks '()))
-        (list simplified-ll type-checks))
-      (simple-error "Not a method lambda list" :arg method-ll)))
-
-(defmacro defmethod (name method-lambda-list . body)
-  (let (((simplified-method-ll type-checks)
-         (%parse-method-lambda-list method-lambda-list)))
-    (list* #'%defmethod name simplified-method-ll
-           type-checks
-           body)))
-
-(defun make-instance (type-spec . args)
-  (apply #'%make-instance (cons (%parse-type-spec type-spec) args)))
+      (error (make-instance 'type-mismatch-error
+                            :type-spec type-spec :obj obj))))
 
 ;;;; Debugging and interaction
 
@@ -796,7 +725,7 @@
                          (print "You didn't enter a number. Please try again.")
                          (return-from continue))
                        (let ((class (slot-value (list-elt restarts (- n 1)) 'condition-type)))
-                         (invoke-restart-interactively (%make-instance class)))))))
+                         (invoke-restart-interactively (make-instance class)))))))
              (%%panic condition))))))
 
 (defun compute-restarts (condition)
@@ -817,7 +746,7 @@
 
 (defgeneric invoke-restart-interactively (restart))
 
-(%defmethod invoke-restart-interactively ((r restart))
+(defmethod invoke-restart-interactively ((r restart))
   (invoke-restart r))
 
 ;;;; Userspace
@@ -839,7 +768,7 @@
 
 ;;;; Sequences and Collections
 
-(defclass (sequence :e) (standard-object) ())
+(defclass sequence (standard-object) ())
 
 ;; PLOT's sequence iteration protocol
 (defgeneric start-iteration (sequence) => iteration-state)
@@ -849,7 +778,7 @@
 
 (defgeneric empty-clone (sequence))
 (defgeneric finish-clone (sequence))
-(defmethod finish-clone ((obj object)) obj)
+(defmethod finish-clone ((obj standard-object)) obj)
 
 (defun for-each (#'fn seq)
   (let ((state (start-iteration seq)))
@@ -878,11 +807,11 @@
 (defmethod finish-clone ((self cons)) (reverse-list self))
 (defmethod add ((self list) elt) (cons elt self))
 
-(defclass (collection :e) ((sequence :e)) ())
+(defclass collection (sequence) ())
 (defgeneric add (collection element))
 (defgeneric len (collection))
 
-(defclass (indexed-collection :e) ((collection :e)) ())
+(defclass indexed-collection (collection) ())
 (defgeneric elt (collection index))
 
-(defclass (array-list :e) ((indexed-collection :e)) ())
+(defclass array-list (indexed-collection) ())

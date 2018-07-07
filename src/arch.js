@@ -8,9 +8,9 @@ var readline = require("readline-sync");
 module.exports = function(vm, init_env) {
     // Export some utils... might be better to just give `require' to
     // Lisp, and then do everything from there?
-    vm.defun(init_env, vm.sym("%%require"), vm.jswrap(require));
-    vm.defun(init_env, vm.sym("%%read-file-sync"), vm.jswrap(fs.readFileSync));
+    vm.defun(init_env, "%%require", vm.jswrap(require));
+    vm.defun(init_env, "%%read-file-sync", vm.jswrap(fs.readFileSync));
     // FIXME: any uses of this outside of this file are probably broken
     vm.read_line = function() { return readline.question("> "); };
-    vm.defun(init_env, vm.sym("%%read-line"), vm.jswrap(vm.read_line));
+    vm.defun(init_env, "%%read-line", vm.jswrap(vm.read_line));
 };
