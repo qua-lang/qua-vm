@@ -154,17 +154,16 @@ vm.jswrap = function(js_fn) {
     if (typeof(js_fn) !== "function") { vm.error("not a function"); }
     return vm.wrap(new vm.JSOperator(js_fn)); };
 /* Continuations */
-// A continuation or stack frame is created in order to freeze
-// (suspend, capture) a computation so that we can treat it as a
-// data structure, and later resume it again and turn it back into
-// control flow.  A stack frame consists of a work function that
-// "does something" which is specially created by each distinct
-// language primitive, and an inner suspended stack frame.  The
-// innermost stack frame is always the one created by the
-// %%TAKE-SUBCONT expression that effected the continuation
-// capture.  (For this innermost stack frame, .inner is null.)
+// A continuation or stack frame is created in order to suspend
+// (capture) a computation so that we can treat it as a data
+// structure, and later resume (compose) it again and turn it back
+// into control flow.  A stack frame consists of a work function, that
+// restores the stack frame on resumption which is specially created
+// by each distinct language primitive, and an inner suspended stack
+// frame.  The innermost stack frame is always the one created by the
+// %%TAKE-SUBCONT expression that effected the continuation capture.
 function StackFrame(work_fun, inner) {
-    // primitive-specific JS function
+    // primitive-specific JS function that will be called to resume this frame
     this.work_fun = work_fun;
     // next stack frame or null for innermost %%TAKE-SUBCONT frame
     this.inner = inner;
