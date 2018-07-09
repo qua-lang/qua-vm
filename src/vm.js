@@ -9,10 +9,10 @@ vm.VAR_NS = "variable";
 vm.FUN_NS = "function";
 vm.TYPE_NS = "type";
 vm.sym = function(name, ns) { var s = new vm.Sym(name, ns ? ns : vm.VAR_NS); return s; };
-vm.fun_sym = function(name) { return vm.sym(name, vm.FUN_NS); };
-vm.type_sym = function(name) { return vm.sym(name, vm.TYPE_NS); };
 vm.sym_key = function(sym) { return sym.ns + ":" + sym.name; };
 vm.sym_name = function(sym) { return vm.assert_type(sym, vm.Sym).name; };
+vm.fun_sym = function(name) { return vm.sym(name, vm.FUN_NS); };
+vm.type_sym = function(name) { return vm.sym(name, vm.TYPE_NS); };
 vm.to_fun_sym = function(sym) { return vm.fun_sym(vm.assert_type(sym, vm.Sym).name); };
 vm.to_type_sym = function(sym) { return vm.type_sym(vm.assert_type(sym, vm.Sym).name); };
 /* Keywords */
@@ -92,50 +92,42 @@ vm.eval_args = function(e, todo, done) {
                       function(arg) { return vm.eval_args(e, vm.cdr(todo), vm.cons(arg, done)); });
 };
 /* Built-in combiners */
-vm.Vau = {
-    qua_combine: function(self, e, o) {
-        var p = vm.elt(o, 0);
-        var ep = vm.elt(o, 1);
-        var x = vm.elt(o, 2);
-        return new vm.Opv(p, ep, x, e);
-    }
+vm.Prim = function Prim(fn) {
+    this.qua_combine = fn;
 };
-vm.Def = {
-    qua_combine: function (self, e, o) {
-        var lhs = vm.elt(o, 0);
-        var rhs = vm.elt(o, 1);
-        return vm.monadic(function() { return vm.evaluate(e, rhs); },
-                          function(val) { return vm.bind(e, lhs, val, vm.do_def); });
-    }
-};
-vm.Setq = {
-    qua_combine: function (self, e, o) {
-        var lhs = vm.elt(o, 0);
-        var rhs = vm.elt(o, 1);
-        return vm.monadic(function() { return vm.evaluate(e, rhs); },
-                          function(val) { return vm.bind(e, lhs, val, vm.do_setq); });
-    }
-};
-vm.Eval = vm.wrap({
-    qua_combine: function(self, e, o) {
-        var x = vm.elt(o, 0);
-        var e = vm.elt(o, 1);
-        return vm.evaluate(e, x);
-    }
+vm.prim = function(fn) { return new vm.Prim(fn); }
+vm.Vau = vm.prim(function(self, e, o) {
+    var p = vm.elt(o, 0);
+    var ep = vm.elt(o, 1);
+    var x = vm.elt(o, 2);
+    return new vm.Opv(p, ep, x, e);
 });
-vm.If = {
-    qua_combine: function(self, e, o) {
-        return vm.monadic(function() { return vm.evaluate(e, vm.elt(o, 0)); },
-                          function(test_result) {
-                              return vm.evaluate(e, test_result ? vm.elt(o, 1) : vm.elt(o, 2));
-                          });
-    }
-};
-vm.Progn = {
-    qua_combine: function(self, e, o) {
-        if (vm.is_nil(o)) return vm.VOID; else return vm.progn(e, o);
-    }
-};
+vm.Def = vm.prim(function (self, e, o) {
+    var lhs = vm.elt(o, 0);
+    var rhs = vm.elt(o, 1);
+    return vm.monadic(function() { return vm.evaluate(e, rhs); },
+                      function(val) { return vm.bind(e, lhs, val, vm.do_def); });
+});
+vm.Setq = vm.prim(function (self, e, o) {
+    var lhs = vm.elt(o, 0);
+    var rhs = vm.elt(o, 1);
+    return vm.monadic(function() { return vm.evaluate(e, rhs); },
+                      function(val) { return vm.bind(e, lhs, val, vm.do_setq); });
+});
+vm.Eval = vm.wrap(vm.prim(function(self, e, o) {
+    var x = vm.elt(o, 0);
+    var e = vm.elt(o, 1);
+    return vm.evaluate(e, x);
+}));
+vm.If = vm.prim(function(self, e, o) {
+    return vm.monadic(function() { return vm.evaluate(e, vm.elt(o, 0)); },
+                      function(test_result) {
+                          return vm.evaluate(e, test_result ? vm.elt(o, 1) : vm.elt(o, 2));
+                      });
+});
+vm.Progn = vm.prim(function(self, e, o) {
+    if (vm.is_nil(o)) return vm.VOID; else return vm.progn(e, o);
+});
 vm.progn = function(e, xs) {
     return vm.monadic(function() { return vm.evaluate(e, vm.car(xs)); },
                       function(res) {
@@ -283,30 +275,28 @@ vm.monadic = function(a, b, k, f) {
 // call the suspension's user-supplied handler function with the
 // continuation accumulated during the unwind from the originating
 // inner %%TAKE-SUBCONT.
-vm.PushPrompt = vm.wrap({
-    qua_combine: function do_push_prompt(self, e, o, k, f) {
-        var prompt = vm.elt(o, 0);
-        var body_thunk = vm.elt(o, 1);
-        if (k instanceof StackFrame) {
-            var val = resumeFrame(k, f);
-        } else {
-            var val = vm.combine(e, body_thunk, vm.NIL);
-        }
-        if (val instanceof Suspension) {
-            if (val.prompt === prompt) {
-                var continuation = val.k;
-                var handler = val.handler;
-                return vm.combine(e, handler, vm.cons(continuation, vm.NIL));
-            } else {
-                suspendFrame(val, function(k, f) {
-		    return do_push_prompt(self, e, o, k, f);
-		});
-                return val;
-            }
-        }
-        return val;
+vm.PushPrompt = vm.wrap(vm.prim(function do_push_prompt(self, e, o, k, f) {
+    var prompt = vm.elt(o, 0);
+    var body_thunk = vm.elt(o, 1);
+    if (k instanceof StackFrame) {
+        var val = resumeFrame(k, f);
+    } else {
+        var val = vm.combine(e, body_thunk, vm.NIL);
     }
-});
+    if (val instanceof Suspension) {
+        if (val.prompt === prompt) {
+            var continuation = val.k;
+            var handler = val.handler;
+            return vm.combine(e, handler, vm.cons(continuation, vm.NIL));
+        } else {
+            suspendFrame(val, function(k, f) {
+		return do_push_prompt(self, e, o, k, f);
+	    });
+            return val;
+        }
+    }
+    return val;
+}));
 // %%TAKE-SUBCONT prompt handler
 //
 // Abort up to prompt and call handler with captured continuation.
@@ -317,17 +307,15 @@ vm.PushPrompt = vm.wrap({
 // the protocol parameter F, the user-supplied stimulus function
 // passed in during continiation resumption/composition, thereby
 // completing resumption and entering back into normal evaluation.
-vm.TakeSubcont = vm.wrap({
-    qua_combine: function(self, e, o, k, f) {
-        var prompt = vm.elt(o, 0);
-        var handler = vm.elt(o, 1);
-        var sus = new Suspension(prompt, handler);
-        suspendFrame(sus, function(k, f) {
-	    return vm.combine(e, f, vm.NIL);
-	});
-        return sus;
-    }
-});
+vm.TakeSubcont = vm.wrap(vm.prim(function(self, e, o, k, f) {
+    var prompt = vm.elt(o, 0);
+    var handler = vm.elt(o, 1);
+    var sus = new Suspension(prompt, handler);
+    suspendFrame(sus, function(k, f) {
+	return vm.combine(e, f, vm.NIL);
+    });
+    return sus;
+}));
 // %%PUSH-SUBCONT k f
 //
 // Resume into a user-supplied continuation, calling the
@@ -335,78 +323,72 @@ vm.TakeSubcont = vm.wrap({
 // (this is accomplished by the stack frame pushed by
 // %%TAKE-SUBCONT, which ultimately calls the passed-in F, see
 // lines above).
-vm.PushSubcont = vm.wrap({
-    qua_combine: function do_push_subcont(self, e, o, k, f) {
-        var thek = vm.elt(o, 0);
-        var thef = vm.elt(o, 1);
-        if (k instanceof StackFrame) {
-            var val = resumeFrame(k, f);
-        } else {
-            var val = resumeFrame(thek, thef);
-        }
-        if (val instanceof Suspension) {
-            suspendFrame(val, function(k, f) {
-		return do_push_subcont(self, e, o, k, f);
-	    });
-            return val;
-        }
+vm.PushSubcont = vm.wrap(vm.prim(function do_push_subcont(self, e, o, k, f) {
+    var thek = vm.elt(o, 0);
+    var thef = vm.elt(o, 1);
+    if (k instanceof StackFrame) {
+        var val = resumeFrame(k, f);
+    } else {
+        var val = resumeFrame(thek, thef);
+    }
+    if (val instanceof Suspension) {
+        suspendFrame(val, function(k, f) {
+	    return do_push_subcont(self, e, o, k, f);
+	});
         return val;
     }
-});
+    return val;
+}));
 // %%PUSH-PROMPT-SUBCONT prompt k f
 //
 // Manually fused version of pushing a prompt and continuation in
 // one fell swoop, to work around stack overflow issue for
 // server-type apps, see Oleg's paper.
-vm.PushPromptSubcont = vm.wrap({
-    qua_combine: function do_push_prompt_subcont(self, e, o, k, f) {
-        var prompt = vm.elt(o, 0);
-        var thek = vm.elt(o, 1);
-        var thef = vm.elt(o, 2);
-        if (k instanceof StackFrame) {
-            var val = resumeFrame(k, f);
-        } else {
-            var val = resumeFrame(thek, thef);
-        }
-        if (val instanceof Suspension) {
-            if (val.prompt === prompt) {
-                var continuation = val.k;
-                var handler = val.handler;
-                return vm.combine(e, handler, vm.cons(continuation, vm.NIL));
-            } else {
-                suspendFrame(val, function(k, f) {
-		    return do_push_prompt_subcont(self, e, o, k, f);
-		});
-                return val;
-            }
-        }
-        return val;
+vm.PushPromptSubcont = vm.wrap(vm.prim(function do_push_prompt_subcont(self, e, o, k, f) {
+    var prompt = vm.elt(o, 0);
+    var thek = vm.elt(o, 1);
+    var thef = vm.elt(o, 2);
+    if (k instanceof StackFrame) {
+        var val = resumeFrame(k, f);
+    } else {
+        var val = resumeFrame(thek, thef);
     }
-});
+    if (val instanceof Suspension) {
+        if (val.prompt === prompt) {
+            var continuation = val.k;
+            var handler = val.handler;
+            return vm.combine(e, handler, vm.cons(continuation, vm.NIL));
+        } else {
+            suspendFrame(val, function(k, f) {
+		return do_push_prompt_subcont(self, e, o, k, f);
+	    });
+            return val;
+        }
+    }
+    return val;
+}));
 /* Simple control */
 // %%LOOP thunk
 //
 // Call thunk repeatedly.
-vm.Loop = vm.wrap({
-    qua_combine: function do_loop(self, e, o, k, f) {
-        var body = vm.elt(o, 0);
-        var first = true; // only resume once
-        while (true) {
-            if (first && (k instanceof StackFrame)) {
-                var val = resumeFrame(k, f);
-            } else {
-                var val = vm.combine(e, body, vm.NIL);
-            }
-            first = false;
-            if (val instanceof Suspension) {
-                suspendFrame(val, function(k, f) {
-		    return do_loop(self, e, o, k, f);
-		});
-                return val;
-            }
+vm.Loop = vm.wrap(vm.prim(function do_loop(self, e, o, k, f) {
+    var body = vm.elt(o, 0);
+    var first = true; // only resume once
+    while (true) {
+        if (first && (k instanceof StackFrame)) {
+            var val = resumeFrame(k, f);
+        } else {
+            var val = vm.combine(e, body, vm.NIL);
+        }
+        first = false;
+        if (val instanceof Suspension) {
+            suspendFrame(val, function(k, f) {
+		return do_loop(self, e, o, k, f);
+	    });
+            return val;
         }
     }
-});
+}));
 // %%RAISE obj
 //
 // Throw something as a JS exception.
@@ -416,35 +398,33 @@ vm.Raise = vm.jswrap(function(err) { throw err; });
 // Call HANDLER-FUN if a JS exception is thrown during BODY-THUNK
 // (except VM panics, let those through so that user can't
 // interfere with panicking).
-vm.Rescue = vm.wrap({
-    qua_combine: function do_rescue(self, e, o, k, f) {
-        var handler = vm.elt(o, 0);
-        var body = vm.elt(o, 1);
-        try {
-            if (k instanceof StackFrame) {
-                var val = resumeFrame(k, f);
-            } else {
-                var val = vm.combine(e, body, vm.NIL);
-            }
-        } catch(exc) {
-            if (exc instanceof vm.Panic) {
-                // let panics through, do not pass them to user handler
-                throw exc;
-            } else {
-                // unwrap handler to prevent double eval of exception
-                // TODO: murky
-                var val = vm.combine(e, vm.unwrap(handler), vm.list(exc));
-            }
+vm.Rescue = vm.wrap(vm.prim(function do_rescue(self, e, o, k, f) {
+    var handler = vm.elt(o, 0);
+    var body = vm.elt(o, 1);
+    try {
+        if (k instanceof StackFrame) {
+            var val = resumeFrame(k, f);
+        } else {
+            var val = vm.combine(e, body, vm.NIL);
         }
-        if (val instanceof Suspension) {
-            suspendFrame(val, function(k, f) {
-		return do_rescue(self, e, o, k, f);
-	    });
-            return val;
+    } catch(exc) {
+        if (exc instanceof vm.Panic) {
+            // let panics through, do not pass them to user handler
+            throw exc;
+        } else {
+            // unwrap handler to prevent double eval of exception
+            // TODO: murky
+            var val = vm.combine(e, vm.unwrap(handler), vm.list(exc));
         }
+    }
+    if (val instanceof Suspension) {
+        suspendFrame(val, function(k, f) {
+	    return do_rescue(self, e, o, k, f);
+	});
         return val;
     }
-});
+    return val;
+}));
 /* Dynamic Variables */
 // %%DYNAMIC-BIND dynvar new-val body-thunk
 //
@@ -452,32 +432,30 @@ vm.Rescue = vm.wrap({
 // execution of a body thunk.  For now, any standard object with a
 // VAL slot can be used as a dynamic variable, this will probably
 // change.
-vm.DynamicBind = vm.wrap({
-    qua_combine: function dynamic_bind(self, e, o, k, f) {
-        var dynvar = vm.elt(o, 0);
-        var val = vm.elt(o, 1);
-        var thunk = vm.elt(o, 2);
-        var oldVal = dynvar.val;
-        dynvar.val = val;
-        try {
-            if (k instanceof StackFrame) {
-                var res = resumeFrame(k, f);
-            } else {
-                var res = vm.combine(e, thunk, vm.NIL);
-            }
-            if (res instanceof Suspension) {
-                suspendFrame(res, function(k, f) {
-		    return dynamic_bind(self, e, o, k, f);
-		});
-                return res;
-            } else {
-                return res;
-            }
-        } finally {
-            dynvar.val = oldVal;
+vm.DynamicBind = vm.wrap(vm.prim(function dynamic_bind(self, e, o, k, f) {
+    var dynvar = vm.elt(o, 0);
+    var val = vm.elt(o, 1);
+    var thunk = vm.elt(o, 2);
+    var oldVal = dynvar.val;
+    dynvar.val = val;
+    try {
+        if (k instanceof StackFrame) {
+            var res = resumeFrame(k, f);
+        } else {
+            var res = vm.combine(e, thunk, vm.NIL);
         }
+        if (res instanceof Suspension) {
+            suspendFrame(res, function(k, f) {
+		return dynamic_bind(self, e, o, k, f);
+	    });
+            return res;
+        } else {
+            return res;
+        }
+    } finally {
+        dynvar.val = oldVal;
     }
-});
+}));
 /* Environments */
 vm.Env = function Env(parent) {
     this.bindings = Object.create(parent ? parent.bindings : null);
@@ -504,7 +482,7 @@ vm.do_def = function(e, lhs, rhs) {
 };
 vm.do_setq = function(e, lhs, rhs) {
     vm.assert_type(lhs, vm.Sym);
-    if (Object.prototype.hasOwnProperty.call(e.bindings, vm.sym_key(lhs)))
+    if (vm.has_own_property(e.bindings, vm.sym_key(lhs)))
         return vm.do_def(e, lhs, rhs);
     else if (e.parent)
         return vm.do_setq(e.parent, lhs, rhs);
@@ -528,59 +506,91 @@ vm.Keyword.prototype.qua_bind = function(self, e, rhs, doit) {
     }
 };
 vm.Ign.prototype.qua_bind = function(self, e, rhs, doit) {};
-/* COLA object model */
-vm.vtable_allocate = function(self) {
-    var object = Object.create(null);
-    object.qua_isa = self;
-    return object;
+/* Object model */
+vm.make_class = function(metaclass, name) {
+    var c = Object.create(null);
+    c.qua_isa = metaclass;
+    c.name = name;
+    c.methods = Object.create(null);
+    return c;
 };
-vm.vtable_delegated = function(self, name) {
-    if (self !== null) {
-	var child = vm.vtable_allocate(self.qua_isa);
-    } else {
-	var child = vm.vtable_allocate(null); // for bootstrap
-    }
-    child.parent = self;
-    child.methods = Object.create(null);
-    child.name = name;
-    return child;
+vm.allocate_instance = function(c) {
+    var obj = Object.create(null);
+    obj.qua_isa = c;
+    return obj;
 };
-vm.vtable_lookup = function(self, msg_name) {
-    if (msg_name in self.methods) {
-	return self.methods[msg_name];
-    } else {
-	return vm.send(self.parent, "lookup-method", vm.list(msg_name));    
-    }
-};
-vm.send = function(object, msg_name, args) {
-    var method = vm.bind_method(object, msg_name);
-    return vm.combine(vm.make_env(), method, args);
-};
-vm.bind_method = function(object, msg_name) {
-    var vt = vm.vtable_of(object);
-    if ((msg_name === "lookup-method") && (object === vm.VtableVT)) {
-	var method = vm.vtable_lookup(vt, "lookup-method");
-    } else {
-	var method = vm.send(vt, "lookup-method", vm.list(msg_name));
-    }
-};
-vm.vtable_of = function(object) {
-    if (object && object.qua_isa) {
-	return object.qua_isa;
-    } else {
-	return vm.concrete_class_of_hook(object);
-    }
-};
-vm.make_instance = function(vt, initargs) {
-    var obj = vm.vtable_allocate(vt);
+vm.make_instance = function(c, initargs) {
+    var obj = vm.allocate_instance(c);
     for (name in initargs) {
         var value = initargs[name];
         obj[name] = value;
     }
     return obj;
 };
-vm.put_method = function(vt, name, method) {
-    vt.methods[name] = method;
+vm.class_of = function(obj) {
+    if (obj && obj.qua_isa) {
+	return obj.qua_isa;
+    } else {
+	// generate pseudo-classes for JS built-ins
+	return vm.synthetic_class_of(obj);
+    }
+};
+vm.put_method = function(c, name, method) {
+    c.methods[name] = method;
+};
+vm.send = function(rcv, msg, args) { // args has to include rcv as first elt
+    return vm.monadic(
+	function() {
+	    var c = vm.class_of(rcv);
+	    var metaclass = vm.class_of(c);
+	    if (metaclass === vm.STD_CLS) {
+		return vm.builtin_lookup(rcv, msg);
+	    } else {
+		return vm.send(c, "compute-effective-method",
+			       vm.list(c, rcv, msg, args));
+	    }
+	},
+	function(method) {
+	    return vm.combine(vm.make_env(), vm.unwrap(method), args);
+	}
+    );
+};
+vm.builtin_lookup = function(rcv, msg) {
+    vm.assert_type(msg, "string");
+    var c = vm.class_of(rcv);
+    if (c.methods[msg]) {
+	return c.methods[msg];
+    } else if (vm.STD_OBJ.methods[msg]) {
+	return vm.STD_OBJ.methods[msg];
+    } else {
+	return vm.error("builtin lookup failed: " + msg);
+    }
+};
+/* Slots */
+vm.slot_key = function(name) { return name; };
+vm.slot_value = function(obj, name) {
+    var key = vm.slot_key(name);
+    if (vm.has_own_property(obj, key)) {
+        return obj[key];
+    } else {
+        return vm.slot_unbound_hook(obj, name);
+    }
+};
+vm.set_slot_value = function(obj, name, value) {
+    var key = vm.slot_key(name);
+    try {
+        obj[key] = value;
+        return value;
+    } catch(exc) {
+        return vm.set_slot_value_error_hook(obj, name, value, exc);
+    };
+};
+vm.slot_bound_p = function(obj, name) {
+    var key = vm.slot_key(name);
+    return vm.has_own_property(obj, name);
+};
+vm.slot_unbound_hook = function(obj, name) {
+    return vm.error("slot unbound: " + name);
 };
 /* Utilities */
 vm.list = function() {
@@ -627,7 +637,7 @@ vm.trap_exceptions = function(thunk) {
     try {
         return thunk();
     } catch(exc) {
-        if ((exc instanceof vm.Tag) || (exc instanceof vm.Panic)) {
+        if ((exc.qua_isa === vm.Tag) || (exc instanceof vm.Panic)) {
             // let nonlocal exits and panics through
             throw exc;
         } else {
@@ -668,9 +678,15 @@ vm.panic = function(err) {
     throw new vm.Panic(err);
 };
 /* Util Dumping Ground */
+vm.has_own_property = function(obj, name) {
+    return obj && Object.prototype.hasOwnProperty.call(obj, name); // WHY?
+};
 vm.assert_type = function(obj, type_spec) {
     if (vm.check_type(obj, type_spec)) return obj;
-    else return vm.error("type error: " + obj + " should be " + type_spec + " but is " + obj, e);
+    else {
+	console.log(obj);
+	return vm.error("type error: " + obj + " should be " + type_spec + " but is " + JSON.stringify(obj));
+    }
 };
 vm.check_type = function(obj, type_spec) {
     if (typeof(type_spec) === "string") {
@@ -724,12 +740,12 @@ vm.js_function = function(cmb) {
     }
 };
 // Detect JS built-in types and make them appear to object system
-// as objects with (synthetic) Lisp classes (define above).
-vm.concrete_class_of_hook = function(obj) {
+// as objects with (pseudo) Lisp classes.
+vm.synthetic_class_of = function(obj) {
     switch (typeof(obj)) {
     case "string": return vm.JSString;
     case "number": return vm.JSNumber;
-    case "boolean": return vm.Boolean;
+    case "boolean": return vm.JSBoolean;
     case "function": return vm.JSFunction;
     case "undefined": return vm.JSUndefined;
     default:
@@ -738,12 +754,7 @@ vm.concrete_class_of_hook = function(obj) {
         } else if (Array.isArray(obj)) {
             return vm.JSArray;
         } else {
-            var proto = Object.getPrototypeOf(obj);
-            if (proto) {
-                return vm.unknown_class_hook(obj);
-            } else {
-                return vm.JSObject;
-            }
+            return vm.JSObject;
         }
     }
 };
@@ -762,8 +773,6 @@ vm.js_new = function(ctor) {
     return new factoryFunction(); }
 // Writes a JS property, implementation of `(setf (.property_name ...) ...)'.
 vm.js_set = function(obj, name, val) { return obj[name] = val; };
-// This definitely should be done from Lisp.
-vm.own_property_p = function(obj, name) { return Object.prototype.hasOwnProperty.call(obj, name); };
 /* API */
 vm.def = vm.bind;
 vm.defun = function(e, name, cmb) { vm.assert(cmb); vm.def(e, vm.fun_sym(name), cmb); };
@@ -772,39 +781,45 @@ vm.deftype = function(e, type, name) { vm.assert(type); vm.def(e, vm.type_sym(na
 vm.init = function() {
     var init_env = vm.make_env();
     // Bootstrap object model
-    vm.VTable = vm.vtable_delegated(null, "standard-class");
-    vm.VTable.qua_isa = vm.VTable;
-    vm.Object = vm.vtable_delegated(null, "standard-object");
-    vm.Object.qua_isa = vm.VTable;
-    vm.VTable.parent = vm.Object;
-    vm.deftype(init_env, vm.Object, "standard-object");
-    vm.deftype(init_env, vm.VTable, "standard-class");
+    vm.STD_CLS = vm.make_class(null, "standard-class");
+    vm.STD_CLS.qua_isa = vm.STD_CLS;
+    vm.STD_OBJ = vm.make_class(vm.STD_CLS, "standard-object");
+    vm.deftype(init_env, vm.STD_OBJ, "standard-object");
+    vm.deftype(init_env, vm.STD_CLS, "standard-class");
     // Bless built-in types as Lisp types
-    function define_builtin_type(type, parent, name) {
-	type.qua_isa = vm.VTable;
-	type.methods = Object.create(null);
-	type.parent = parent;
+    function define_builtin_type(type, name) {
+	type.qua_isa = vm.STD_CLS;
 	type.name = name;
+	type.methods = Object.create(null);
+	type.prototype.qua_isa = type;
 	vm.deftype(init_env, type, name);
     }
-    vm.List = vm.vtable_delegated(vm.Object, "list");
-    vm.deftype(init_env, vm.List, "list");
-    define_builtin_type(vm.Cons, vm.List, "cons");
-    define_builtin_type(vm.Nil, vm.List, "nil");
+    define_builtin_type(vm.Cons, "cons");
+    define_builtin_type(vm.Nil, "nil");
+    define_builtin_type(vm.Sym, "symbol");
+    define_builtin_type(vm.Keyword, "keyword");
+    define_builtin_type(vm.Ign, "ign");
+    define_builtin_type(vm.Void, "void");
+    define_builtin_type(vm.Opv, "fexpr");
+    define_builtin_type(vm.Apv, "function");
+    define_builtin_type(vm.JSOperator, "js-operator");
+    define_builtin_type(vm.Prim, "primitive");
+    define_builtin_type(vm.Tag, "%%tag");
     // Synthetic/virtual classes given to JS built-in objects, so we
     // can define methods on them.
-    function define_js_type(parent, name) {
-	var vt = vm.vtable_delegated(parent, name);
-	vm.deftype(init_env, vt, name);
-	return vt;
+    function define_js_type(name) {
+	var c = vm.make_class(vm.STD_CLS, name);
+	vm.deftype(init_env, c, name);
+	return c;
     }
-    vm.JSObject = define_js_type(vm.Object, "js-array");
-    vm.JSArray = define_js_type(vm.JSObject, "js-array");
-    vm.JSFunction = define_js_type(vm.JSObject, "js-function");
-    vm.JSNumber = define_js_type(vm.JSObject, "js-number");
-    vm.JSString = define_js_type(vm.JSObject, "js-string");
-    vm.JSNull = define_js_type(vm.JSObject, "js-null");
-    vm.JSUndefined = define_js_type(vm.JSObject, "js-undefined");
+    vm.JSObject = define_js_type("js-object");
+    vm.JSArray = define_js_type("js-array");
+    vm.JSFunction = define_js_type("js-function");
+    vm.JSBoolean = define_js_type("boolean");
+    vm.JSNumber = define_js_type("number");
+    vm.JSString = define_js_type("string");
+    vm.JSNull = define_js_type("js-null");
+    vm.JSUndefined = define_js_type("js-undefined");
     // Forms
     vm.defun(init_env, "%%car", vm.jswrap(vm.car));
     vm.defun(init_env, "%%cdr", vm.jswrap(vm.cdr));
@@ -833,15 +848,14 @@ vm.init = function() {
     vm.defun(init_env, "%%rescue", vm.Rescue);
     vm.defun(init_env, "%%dynamic-bind", vm.DynamicBind);
     // Object system
+    vm.defun(init_env, "%%class-of", vm.jswrap(vm.class_of));
+    vm.defun(init_env, "%%make-class", vm.jswrap(vm.make_class));
     vm.defun(init_env, "%%make-instance", vm.jswrap(vm.make_instance));
     vm.defun(init_env, "%%put-method", vm.jswrap(vm.put_method));
     vm.defun(init_env, "%%send", vm.jswrap(vm.send));
-    vm.defun(init_env, "%%set-slot-value", vm.jswrap(vm.js_set));
-    vm.defun(init_env, "%%slot-bound?", vm.jswrap(vm.own_property_p));
-    vm.defun(init_env, "%%slot-value", vm.jswrap(vm.js_get));
-    vm.defun(init_env, "%%vtable-allocate", vm.jswrap(vm.vtable_allocate));
-    vm.defun(init_env, "%%vtable-delegated", vm.jswrap(vm.vtable_delegated));
-    vm.defun(init_env, "%%vtable-of", vm.jswrap(vm.vtable_of));
+    vm.defun(init_env, "%%set-slot-value", vm.jswrap(vm.set_slot_value));
+    vm.defun(init_env, "%%slot-bound?", vm.jswrap(vm.slot_bound_p));
+    vm.defun(init_env, "%%slot-value", vm.jswrap(vm.slot_value));
     // JSNI
     vm.defun(init_env, "%%js-apply", vm.jswrap(vm.js_apply));
     vm.defun(init_env, "%%js-binop", vm.jswrap(vm.js_binop));
@@ -850,7 +864,7 @@ vm.init = function() {
     vm.defun(init_env, "%%js-global", vm.jswrap(vm.js_global));
     vm.defun(init_env, "%%js-new", vm.jswrap(vm.js_new));
     vm.defun(init_env, "%%js-set", vm.jswrap(vm.js_set));
-    vm.defun(init_env, "%%own-property?", vm.jswrap(vm.own_property_p));
+    vm.defun(init_env, "%%own-property?", vm.jswrap(vm.has_own_property));
     // Misc
     vm.defun(init_env, "%%eq", vm.jswrap(function(a, b) { return a === b; }));
     vm.defun(init_env, "%%panic", vm.jswrap(vm.panic));
