@@ -782,46 +782,54 @@
 
 ;;;; Sequences and Collections
 
-;; PLOT's sequence iteration protocol
+;; PLOT's sequence iteration protocol (mostly)
 (defgeneric start-iteration (sequence))
-(defgeneric end? (sequence iteration-state))
+(defgeneric more? (sequence iteration-state))
 (defgeneric current (sequence iteration-state))
 (defgeneric advance (sequence iteration-state))
-
 (defgeneric empty-clone (sequence))
-(defgeneric add (sequence element))
+(defgeneric add-for-iteration (sequence element))
 (defgeneric finish-clone (sequence))
-(defmethod finish-clone ((obj object)) obj)
 
 (defun for-each (#'fn seq)
   (let ((state (start-iteration seq)))
-    (while (not (end? seq state))
+    (while (more? seq state)
       (fn (current seq state))
       (setq state (advance seq state)))))
 
 (defun map (#'fn seq)
   (let ((result (empty-clone seq))
         (state (start-iteration seq)))
-    (while (not (end? seq state))
-      (setq result (add result (fn (current seq state))))
+    (while (more? seq state)
+      (setq result (add-for-iteration result (fn (current seq state))))
       (setq state (advance seq state)))
     (finish-clone result)))
 
+;; Implement sequence protocol for lists
 (defmethod start-iteration ((self cons)) self)
-(defmethod end? ((self cons) state) (nil? state))
+(defmethod more? ((self cons) state) (cons? state))
 (defmethod current ((self cons) state) (car state))
 (defmethod advance ((self cons) state) (cdr state))
+(defmethod empty-clone ((self cons)) #nil)
+(defmethod add-for-iteration ((self cons) elt) (cons elt self))
+(defmethod finish-clone ((self cons)) (reverse-list self))
+
 (defmethod start-iteration ((self nil)) #nil)
-(defmethod end? ((self nil) state) #t)
+(defmethod more? ((self nil) state) #f)
 (defmethod current ((self nil) state) (simple-error "At end"))
 (defmethod advance ((self nil) state) (simple-error "Can't advance past end"))
-
-(defmethod empty-clone ((self cons)) #nil)
 (defmethod empty-clone ((self nil)) #nil)
-(defmethod add ((self cons) elt) (cons elt self))
-(defmethod add ((self nil) elt) (cons elt self))
-(defmethod finish-clone ((self cons)) (reverse-list self))
+(defmethod add-for-iteration ((self nil) elt) (cons elt self))
 (defmethod finish-clone ((self nil)) #nil)
+
+;; Implement sequence protocol for JS arrays
+(defmethod start-iteration ((self js-array)) 0)
+(defmethod more? ((self js-array) state) (lt state (.length self)))
+(defmethod current ((self js-array) state) (js-get self state))
+(defmethod advance ((self js-array) state) (+ state 1))
+(defmethod empty-clone ((self js-array)) (js-array))
+(defmethod add-for-iteration ((self js-array) elt) (@push self elt) self)
+(defmethod finish-clone ((self js-array)) self)
 
 ;;;; Userspace
 

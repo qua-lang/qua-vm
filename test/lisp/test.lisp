@@ -318,12 +318,17 @@
 		      (let ((sum 0))
 			(for-each (lambda (elt) (incf sum elt)) coll)
 			(%expect 6 sum))))
-      (test-for-each (list 1 2 3)))
+      (test-for-each (list 1 2 3))
+      (test-for-each (js-array 1 2 3)))
 
 (%expect (list 2 4 6)
          (map (lambda (x) (* x 2)) (list 1 2 3)))
+(%expect (js-array 2 4 6)
+         (map (lambda (x) (* x 2)) (js-array 1 2 3)))
 (%expect ()
          (map (lambda (x) (* x 2)) ()))
+(%expect (js-array)
+         (map (lambda (x) (* x 2)) (js-array)))
 
 ;;;; Metaclasses
 
