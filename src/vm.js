@@ -1,3 +1,4 @@
+///// QUA
 // Interpreter core
 var vm = module.exports;
 /* Symbols */
@@ -201,19 +202,18 @@ function suspendFrame(sus, work_fun) {
 function resumeFrame(k, f) {
     return k.work_fun(k.inner, f);
 };
-// vm.monadic() is a basic building block for many language
-// primitives that need to do two or more operations that may
-// capture a continuation in sequence.  Examples are PROGN that
-// needs to evaluate the first and then the rest of its body
-// expressions, and IF that needs to evaluate the test expression
-// before evaluating either the then or the else expression
-// depending on the result of the test.  Looking at vm.monadic in
-// details is instructive because it shows in a pure form the
-// general protocol that language primitives have to honor in
-// order to the able to suspend and resume themselves.
-// (Primitives like %%RESCUE with more complex control flow
-// requirements cannot use vm.monadic but follow this same
-// protocol.)
+// vm.monadic() is a basic building block for many language primitives
+// that need to do two or more operations that may capture a
+// continuation in sequence.  Examples are PROGN that needs to
+// evaluate the first and then the rest of its body expressions, and
+// IF that needs to evaluate the test expression before evaluating
+// either the then or the else expression depending on the result of
+// the test.  Looking at vm.monadic in details is instructive because
+// it shows in a pure form the general protocol that language
+// primitives have to honor in order to the able to suspend and resume
+// themselves.  (Primitives like %%PUSH-PROMPT and %%RESCUE with more
+// complex control flow requirements cannot use vm.monadic but follow
+// this same protocol.)
 //
 // So, we have two thunks, A and B, that we want to call so that B
 // receives the result of A(), i.e. B(A()).  We also have the two
@@ -269,12 +269,6 @@ vm.monadic = function(a, b, k, f) {
 //
 // Push a prompt and call the body thunk within this delimited
 // context.
-// 
-// Analyze the result of the body thunk and if it's a suspension,
-// check if it matches our, the pushed, prompt.  If it matches,
-// call the suspension's user-supplied handler function with the
-// continuation accumulated during the unwind from the originating
-// inner %%TAKE-SUBCONT.
 vm.PushPrompt = vm.wrap(vm.prim(function do_push_prompt(self, e, o, k, f) {
     var prompt = vm.elt(o, 0);
     var body_thunk = vm.elt(o, 1);
@@ -284,6 +278,11 @@ vm.PushPrompt = vm.wrap(vm.prim(function do_push_prompt(self, e, o, k, f) {
         var val = vm.combine(e, body_thunk, vm.NIL);
     }
     if (val instanceof Suspension) {
+	// Analyze the result of the body thunk and if it's a suspension,
+	// check if it matches our, the pushed, prompt.  If it matches,
+	// call the suspension's user-supplied handler function with the
+	// continuation accumulated during the unwind from the originating
+	// inner %%TAKE-SUBCONT.
         if (val.prompt === prompt) {
             var continuation = val.k;
             var handler = val.handler;
@@ -300,35 +299,39 @@ vm.PushPrompt = vm.wrap(vm.prim(function do_push_prompt(self, e, o, k, f) {
 // %%TAKE-SUBCONT prompt handler
 //
 // Abort up to prompt and call handler with captured continuation.
-//
-// Inject a suspension that will lead to the call of the
-// user-supplied handler at the outer %%PUSH-PROMPT with matching
-// prompt.  The innermost stack frame's work function will call
-// the protocol parameter F, the user-supplied stimulus function
-// passed in during continiation resumption/composition, thereby
-// completing resumption and entering back into normal evaluation.
 vm.TakeSubcont = vm.wrap(vm.prim(function(self, e, o, k, f) {
     var prompt = vm.elt(o, 0);
     var handler = vm.elt(o, 1);
+    // Inject a suspension that will lead to the call of the
+    // user-supplied handler at the outer %%PUSH-PROMPT with matching
+    // prompt.  The innermost stack frame's work function we define
+    // will call the protocol parameter F, the user-supplied stimulus
+    // function passed in during continuation resumption/composition,
+    // thereby completing resumption and entering back into normal
+    // evaluation.
     var sus = new Suspension(prompt, handler);
     suspendFrame(sus, function(k, f) {
+	// As final step of continuation resumption, call
+	// user-supplied stimulus function in innermost context.
 	return vm.combine(e, f, vm.NIL);
     });
     return sus;
 }));
 // %%PUSH-SUBCONT k f
 //
-// Resume into a user-supplied continuation, calling the
-// "stimulus" thunk F within the newly established stack context
-// (this is accomplished by the stack frame pushed by
-// %%TAKE-SUBCONT, which ultimately calls the passed-in F, see
-// lines above).
+// Compose a delimited continuation onto the current stack and when
+// done, call user-supplied thunk inside new context.
 vm.PushSubcont = vm.wrap(vm.prim(function do_push_subcont(self, e, o, k, f) {
     var thek = vm.elt(o, 0);
     var thef = vm.elt(o, 1);
     if (k instanceof StackFrame) {
         var val = resumeFrame(k, f);
     } else {
+	// Resume into a user-supplied continuation, calling the
+	// "stimulus" thunk F within the newly established stack
+	// context (this is accomplished by the innermost stack
+	// frame's work function defined by %%TAKE-SUBCONT, which
+	// ultimately calls the passed-in F).
         var val = resumeFrame(thek, thef);
     }
     if (val instanceof Suspension) {
@@ -409,11 +412,8 @@ vm.Rescue = vm.wrap(vm.prim(function do_rescue(self, e, o, k, f) {
         }
     } catch(exc) {
         if (exc instanceof vm.Panic) {
-            // let panics through, do not pass them to user handler
             throw exc;
         } else {
-            // unwrap handler to prevent double eval of exception
-            // TODO: murky
             var val = vm.combine(e, vm.unwrap(handler), vm.list(exc));
         }
     }
@@ -507,15 +507,18 @@ vm.Keyword.prototype.qua_bind = function(self, e, rhs, doit) {
 };
 vm.Ign.prototype.qua_bind = function(self, e, rhs, doit) {};
 /* Object model */
+vm.mangle_name = function(name) {
+    return name.replace(/-/g, "_").replace(/%/g, "P");
+};
 vm.make_class = function(metaclass, name) {
-    var c = Object.create(null);
+    var c = eval("(function Qua_" + vm.mangle_name(name) + "(){})");
     c.qua_isa = metaclass;
     c.name = name;
     c.methods = Object.create(null);
     return c;
 };
 vm.allocate_instance = function(c) {
-    var obj = Object.create(null);
+    var obj = new c();
     obj.qua_isa = c;
     return obj;
 };
@@ -538,7 +541,7 @@ vm.class_of = function(obj) {
 vm.put_method = function(c, name, method) {
     c.methods[name] = method;
 };
-vm.send = function(rcv, msg, args) { // args has to include rcv as first elt
+vm.send_message = function(rcv, msg, args) { // args has to include rcv as first elt
     return vm.monadic(
 	function() {
 	    var c = vm.class_of(rcv);
@@ -546,8 +549,8 @@ vm.send = function(rcv, msg, args) { // args has to include rcv as first elt
 	    if (metaclass === vm.STD_CLS) {
 		return vm.builtin_lookup(rcv, msg);
 	    } else {
-		return vm.send(c, "compute-effective-method",
-			       vm.list(c, rcv, msg, args));
+		return vm.send_message(c, "compute-effective-method",
+				       vm.list(c, rcv, msg, args));
 	    }
 	},
 	function(method) {
@@ -685,7 +688,7 @@ vm.assert_type = function(obj, type_spec) {
     if (vm.check_type(obj, type_spec)) return obj;
     else {
 	console.log(obj);
-	return vm.error("type error: " + obj + " should be " + type_spec + " but is " + JSON.stringify(obj));
+	return vm.error("type error: " + obj + " should be " + type_spec + " but is " + obj);
     }
 };
 vm.check_type = function(obj, type_spec) {
@@ -828,31 +831,30 @@ vm.init = function() {
     vm.defun(init_env, "%%to-type-sym", vm.jswrap(vm.to_type_sym));
     // Evaluation
     vm.defun(init_env, "%%def", vm.Def);
+    vm.defun(init_env, "%%dynamic-bind", vm.DynamicBind);
     vm.defun(init_env, "%%eval", vm.Eval);
     vm.defun(init_env, "%%if", vm.If);
-    vm.defun(init_env, "%%progn", vm.Progn);
-    vm.defun(init_env, "%%setq", vm.Setq);
-    // Combiners
-    vm.defun(init_env, "%%vau", vm.Vau);
-    vm.defun(init_env, "%%wrap", vm.jswrap(vm.wrap));
-    vm.defun(init_env, "%%unwrap", vm.jswrap(vm.unwrap));
-    // Environments
-    vm.defun(init_env, "%%make-environment", vm.jswrap(vm.make_env));
-    // Continuations
-    vm.defun(init_env, "%%push-prompt", vm.PushPrompt);
-    vm.defun(init_env, "%%take-subcont", vm.TakeSubcont);
-    vm.defun(init_env, "%%push-subcont", vm.PushSubcont);
-    vm.defun(init_env, "%%push-prompt-subcont", vm.PushPromptSubcont);
     vm.defun(init_env, "%%loop", vm.Loop);
+    vm.defun(init_env, "%%progn", vm.Progn);
     vm.defun(init_env, "%%raise", vm.Raise);
     vm.defun(init_env, "%%rescue", vm.Rescue);
-    vm.defun(init_env, "%%dynamic-bind", vm.DynamicBind);
+    vm.defun(init_env, "%%setq", vm.Setq);
+    // Combiners & environments
+    vm.defun(init_env, "%%make-environment", vm.jswrap(vm.make_env));
+    vm.defun(init_env, "%%unwrap", vm.jswrap(vm.unwrap));
+    vm.defun(init_env, "%%vau", vm.Vau);
+    vm.defun(init_env, "%%wrap", vm.jswrap(vm.wrap));
+    // Continuations
+    vm.defun(init_env, "%%push-prompt", vm.PushPrompt);
+    vm.defun(init_env, "%%push-prompt-subcont", vm.PushPromptSubcont);
+    vm.defun(init_env, "%%push-subcont", vm.PushSubcont);
+    vm.defun(init_env, "%%take-subcont", vm.TakeSubcont);
     // Object system
     vm.defun(init_env, "%%class-of", vm.jswrap(vm.class_of));
     vm.defun(init_env, "%%make-class", vm.jswrap(vm.make_class));
     vm.defun(init_env, "%%make-instance", vm.jswrap(vm.make_instance));
     vm.defun(init_env, "%%put-method", vm.jswrap(vm.put_method));
-    vm.defun(init_env, "%%send", vm.jswrap(vm.send));
+    vm.defun(init_env, "%%send-message", vm.jswrap(vm.send_message));
     vm.defun(init_env, "%%set-slot-value", vm.jswrap(vm.set_slot_value));
     vm.defun(init_env, "%%slot-bound?", vm.jswrap(vm.slot_bound_p));
     vm.defun(init_env, "%%slot-value", vm.jswrap(vm.slot_value));

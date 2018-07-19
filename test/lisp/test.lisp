@@ -186,9 +186,9 @@
 (%expect 3 (case 3 (1 1) (2 2) (3 3)))
 (%expect #void (case 4 (1 1) (2 2) (3 3)))
 
-(%expect 1 (%call-with-escape (lambda (#ign) 1)))
-(%expect 2 (%call-with-escape (lambda (escape) 1 (return-from escape 2) 3)))
-(%expect #void (%call-with-escape (lambda (escape) 1 (return-from escape) 3)))
+(%expect 1 (call-with-escape (lambda (#ign) 1)))
+(%expect 2 (call-with-escape (lambda (escape) 1 (return-from escape 2) 3)))
+(%expect #void (call-with-escape (lambda (escape) 1 (return-from escape) 3)))
 (%expect #void (block x))
 (%expect 1 (block x 1))
 (%expect 2 (block x 1 (return-from x 2) 3))
@@ -290,13 +290,11 @@
 (%expect 3 (list-elt (list 1 2 3 4) 2))
 
 (%expect '(#void #void) (filter-list #'void? '(1 #void 2 #void)))
-(%expect '(1 2 3 4) (append-2-lists '(1 2) '(3 4)))
+(%expect '(1 2 3 4) (append-lists '(1 2) '(3 4)))
 
 ;;;; Subclassing
-(%assert (type? (make-instance 'serious-condition) 'standard-object))
-(%assert (type? (make-instance 'error) 'serious-condition))
-(%assert (type? (make-instance 'error) 'standard-object))
-(%assert (not (type? (make-instance 'standard-object) 'error)))
+(%assert (type? (make-instance 'simple-error) 'standard-object))
+(%assert (not (type? (make-instance 'standard-object) 'simple-error)))
 
 (%assert (type? 12 'number))
 (%assert (type? 12 'standard-object))
@@ -310,59 +308,6 @@
 (%expect "default" (typecase 'whatever (#t "default")))
 (%expect 1 (typecase 'whatever (symbol 1) (#t "default")))
 (%expect "default" (typecase 'whatever (number 1) (#t "default")))
-
-(%expect (make-instance '%generic-param
-                        :in-type (%parse-type-spec 'number)
-                        :out-type (%parse-type-spec 'boolean))
-         (%parse-generic-param-spec '(:io number boolean)))
-(%expect (make-instance '%generic-param
-                        :in-type (%parse-type-spec 'number)
-                        :out-type +top-type+)
-         (%parse-generic-param-spec '(:in number)))
-(%expect (make-instance '%generic-param
-                        :in-type +bottom-type+
-                        :out-type (%parse-type-spec 'number))
-         (%parse-generic-param-spec '(:out number)))
-(%expect (make-instance '%generic-param
-                        :in-type (%parse-type-spec 'number)
-                        :out-type (%parse-type-spec 'number))
-         (%parse-generic-param-spec 'number))
-(%expect (make-instance '%generic-param
-                        :in-type (%parse-type-spec '(hash-set number))
-                        :out-type (%parse-type-spec '(hash-set number)))
-         (%parse-generic-param-spec '(hash-set number)))
-
-
-(%expect (make-instance '%type-variable :name "foo")
-         (%parse-type-spec :foo))
-(%expect (make-instance '%class-type :name "foo" :generic-params '())
-         (%parse-type-spec 'foo))
-(%expect (make-instance '%class-type :name "foo" :generic-params '())
-         (%parse-type-spec '(foo)))
-(%expect (make-instance '%class-type
-                        :name "hash-set"
-                        :generic-params
-                        (list 
-                         (make-instance '%generic-param
-                                        :in-type (%parse-type-spec 'number)
-                                        :out-type (%parse-type-spec 'number))))
-         (%parse-type-spec '(hash-set number)))
-(%expect (make-instance '%class-type
-                        :name "hash-set"
-                        :generic-params
-                        (list 
-                         (make-instance '%generic-param
-                                        :in-type (%parse-type-spec :e)
-                                        :out-type (%parse-type-spec :e))))
-         (%parse-type-spec '(hash-set :e)))
-(%expect (make-instance '%class-type
-                        :name "hash-set"
-                        :generic-params
-                        (list 
-                         (make-instance '%generic-param
-                                        :in-type (%parse-type-spec 'number)
-                                        :out-type +top-type+)))
-         (%parse-type-spec '(hash-set (:in number))))
 
 ;;;; Sequence protocol
 

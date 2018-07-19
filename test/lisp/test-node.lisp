@@ -1,5 +1,5 @@
 ;; Node-specific tests
 
 (let ()
-  (load-system "lisp/test-sample.system.lisp")
+  (load-system "test/lisp/test-sample.system.lisp")
   (%expect 77 (test:sample-fn)))
