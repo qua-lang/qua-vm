@@ -9,6 +9,7 @@ vm.Sym = function Sym(name, ns) {
 vm.VAR_NS = "variable";
 vm.FUN_NS = "function";
 vm.TYPE_NS = "type";
+vm.KWD_NS = "keyword";
 vm.sym = function(name, ns) { var s = new vm.Sym(name, ns ? ns : vm.VAR_NS); return s; };
 vm.sym_key = function(sym) { return sym.ns + ":" + sym.name; };
 vm.sym_name = function(sym) { return vm.assert_type(sym, vm.Sym).name; };
@@ -16,11 +17,7 @@ vm.fun_sym = function(name) { return vm.sym(name, vm.FUN_NS); };
 vm.type_sym = function(name) { return vm.sym(name, vm.TYPE_NS); };
 vm.to_fun_sym = function(sym) { return vm.fun_sym(vm.assert_type(sym, vm.Sym).name); };
 vm.to_type_sym = function(sym) { return vm.type_sym(vm.assert_type(sym, vm.Sym).name); };
-/* Keywords */
-vm.Keyword = function Keyword(name) {
-    this.name = name;
-};
-vm.keyword = function(name) { return new vm.Keyword(name); };
+vm.keyword = function(name) { return vm.sym(name, vm.KWD_NS); };
 /* Lists */
 vm.Cons = function Cons(car, cdr) {
     this.car = car;
@@ -44,7 +41,11 @@ vm.evaluate = function(e, x) {
     }
 };
 vm.Sym.prototype.qua_evaluate = function(self, e) {
-    return vm.lookup(e, self);
+    if (self.ns === vm.KWD_NS) {
+	return self;
+    } else {
+	return vm.lookup(e, self);
+    }
 };
 vm.Cons.prototype.qua_evaluate = function(self, e) {
     return vm.monadic(function() { return vm.eval_operator(e, vm.car(self)); },
@@ -490,7 +491,13 @@ vm.do_setq = function(e, lhs, rhs) {
         return vm.error("cannot set unbound variable: " + vm.sym_key(lhs), e);
 };
 vm.Sym.prototype.qua_bind = function(self, e, rhs, doit) {
-    return doit(e, self, rhs);
+    if (self.ns === vm.KWD_NS) {
+	if (!(rhs && (rhs.ns === vm.KWD_NS) && (rhs.name === self.name))) {
+            return vm.error(":" + self.name + " expected, but got: " + JSON.stringify(rhs), e);
+	}
+    } else {
+	return doit(e, self, rhs);
+    }
 };
 vm.Cons.prototype.qua_bind = function(self, e, rhs, doit) {
     return vm.monadic(function() { return vm.bind(e, vm.car(self), vm.car(rhs), doit); },
@@ -498,12 +505,6 @@ vm.Cons.prototype.qua_bind = function(self, e, rhs, doit) {
 };
 vm.Nil.prototype.qua_bind = function(self, e, rhs, doit) {
     if (!vm.is_nil(rhs)) return vm.error("NIL expected, but got: " + JSON.stringify(rhs), e);
-};
-// This is cute, but probably too much trouble.
-vm.Keyword.prototype.qua_bind = function(self, e, rhs, doit) {
-    if (!(rhs && (rhs instanceof vm.Keyword) && (rhs.name === self.name))) {
-        return vm.error(":" + self.name + " expected, but got: " + JSON.stringify(rhs), e);
-    }
 };
 vm.Ign.prototype.qua_bind = function(self, e, rhs, doit) {};
 /* Object model */
@@ -623,7 +624,7 @@ vm.plist_to_js_object = function(plist, obj) {
     if (plist === vm.NIL) {
         return obj;
     } else {
-        var name = vm.assert_type(vm.elt(plist, 0), vm.Keyword);
+        var name = vm.assert_type(vm.elt(plist, 0), vm.Sym);
         var value = vm.elt(plist, 1);
         obj[name.name] = value;
         return vm.plist_to_js_object(vm.cdr(vm.cdr(plist)), obj);
@@ -800,7 +801,6 @@ vm.init = function() {
     define_builtin_type(vm.Cons, "cons");
     define_builtin_type(vm.Nil, "nil");
     define_builtin_type(vm.Sym, "symbol");
-    define_builtin_type(vm.Keyword, "keyword");
     define_builtin_type(vm.Ign, "ign");
     define_builtin_type(vm.Void, "void");
     define_builtin_type(vm.Opv, "fexpr");

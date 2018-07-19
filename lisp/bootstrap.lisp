@@ -133,7 +133,6 @@
 ;;;; Forms
 
 (defun symbol? (sym) (eq (class-of sym) (class symbol)))
-(defun keyword? (obj) (eq (class-of obj) (class keyword)))
 (defun cons? (cons) (eq (class-of cons) (class cons)))
 (defun nil? (obj) (eq obj #nil))
 (defun void? (obj) (eq obj #void))

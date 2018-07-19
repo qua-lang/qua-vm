@@ -18,7 +18,7 @@
 (%assert (%deep-equal (cons 2 3) (cdr (list* 1 2 3))))
 
 (%assert (symbol? 'foo))
-(%assert (keyword? :foo))
+(%assert (symbol? :foo))
 
 ;;;; Evaluation
 (def e1 (make-environment))
@@ -68,7 +68,6 @@
 (%assert (%deep-equal "a number" (describe-yourself 33)))
 (%assert (%deep-equal "a boolean" (describe-yourself #t)))
 (%assert (%deep-equal "a symbol" (describe-yourself 'foo)))
-(%assert (%deep-equal "any other object" (describe-yourself :hello)))
 (%assert (%deep-equal "any other object" (describe-yourself (list 1 2))))
 
 ;;;; "Keyword arguments"
