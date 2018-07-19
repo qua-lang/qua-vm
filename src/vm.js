@@ -1,326 +1,41 @@
+///// QUA
 // Interpreter core
 var vm = module.exports;
-/* Object system */
-/* Bootstrap CONCRETE-CLASS */
-vm.THE_GENERIC_CLASS_CONCRETE_CLASS = {
-    "qs_name": "concrete-class",
-    "qs_type-parameters": [],
-    "qs_slots": {
-        "generic-class": Object.create(null),
-        "type-arguments": Object.create(null)
-    },
-    "qs_direct-superclasses": ["class"],
-    prototype: Object.create(null)
+/* Symbols */
+vm.Sym = function Sym(name, ns) {
+    this.name = name;
+    this.ns = ns;
 };
-vm.ConcreteClass = { // the concrete class
-    "qs_generic-class": vm.THE_GENERIC_CLASS_CONCRETE_CLASS,
-    "qs_type-arguments": [],
-    prototype: vm.THE_GENERIC_CLASS_CONCRETE_CLASS.prototype
+vm.VAR_NS = "variable";
+vm.FUN_NS = "function";
+vm.TYPE_NS = "type";
+vm.sym = function(name, ns) { var s = new vm.Sym(name, ns ? ns : vm.VAR_NS); return s; };
+vm.sym_key = function(sym) { return sym.ns + ":" + sym.name; };
+vm.sym_name = function(sym) { return vm.assert_type(sym, vm.Sym).name; };
+vm.fun_sym = function(name) { return vm.sym(name, vm.FUN_NS); };
+vm.type_sym = function(name) { return vm.sym(name, vm.TYPE_NS); };
+vm.to_fun_sym = function(sym) { return vm.fun_sym(vm.assert_type(sym, vm.Sym).name); };
+vm.to_type_sym = function(sym) { return vm.type_sym(vm.assert_type(sym, vm.Sym).name); };
+/* Keywords */
+vm.Keyword = function Keyword(name) {
+    this.name = name;
 };
-vm.ConcreteClass.qua_isa = vm.ConcreteClass;
-/* Bootstrap GENERIC-CLASS */
-vm.THE_GENERIC_CLASS_GENERIC_CLASS = {
-    "qs_name": "generic-class",
-    "qs_type-parameters": [],
-    "qs_slots": {
-        "name": Object.create(null),
-        "type-parameters": Object.create(null),
-        "methods": Object.create(null),
-        "slots": Object.create(null),
-        "direct-superclasses": Object.create(null)
-    },
-    "qs_direct-superclasses": ["class"],
-    prototype: Object.create(null)
+vm.keyword = function(name) { return new vm.Keyword(name); };
+/* Lists */
+vm.Cons = function Cons(car, cdr) {
+    this.car = car;
+    this.cdr = cdr;
 };
-vm.GenericClass = { // the concrete class
-    qua_isa: vm.ConcreteClass,
-    "qs_generic-class": vm.THE_GENERIC_CLASS_GENERIC_CLASS,
-    "qs_type-arguments": [],
-    prototype: vm.THE_GENERIC_CLASS_GENERIC_CLASS.prototype
-};
-vm.THE_GENERIC_CLASS_CONCRETE_CLASS.qua_isa = vm.GenericClass;
-vm.THE_GENERIC_CLASS_GENERIC_CLASS.qua_isa = vm.GenericClass;
-/* Class registry */
-vm.GENERIC_CLASSES = Object.create(null);
-vm.CONCRETE_CLASSES = Object.create(null);
-vm.defclass = function(name, direct_superclasses, slots) {
-    name = vm.designate_string(name);
-    function generic_class() {};
-    generic_class.qua_isa = vm.GenericClass;
-    generic_class["qs_name"] = name;
-    generic_class["qs_type-parameters"] = [];
-    generic_class["qs_direct-superclasses"] =
-        direct_superclasses.map(vm.designate_string);
-    generic_class["qs_slots"] = slots ? slots : Object.create(null);
-    var concrete_class = vm.js_make_constructor(name, Object.keys(generic_class["qs_slots"]));
-    concrete_class.qua_isa = vm.ConcreteClass;
-    concrete_class["qs_generic-class"] = generic_class;
-    concrete_class["qs_type-arguments"] = [];
-    concrete_class.prototype.toString = function() { return "#[" + name + "]"; };
-    concrete_class.prototype.qua_isa = concrete_class;
-    vm.GENERIC_CLASSES[name] = generic_class;
-    vm.CONCRETE_CLASSES[name] = concrete_class;
-    return concrete_class;
-};
-vm.js_make_constructor = function(name, prop_names) {
-    var param_names = prop_names.map(vm.mangle).join(",");
-    var param_inits = prop_names.map(function(prop_name) {
-        return "this['qs_" + prop_name + "']=" + vm.mangle(prop_name) + ";"; }).join("");
-    return eval("(function Qua_" + vm.mangle(name) + "(" + param_names + "){" + param_inits + "})");
-};
-vm.mangle = function(name) {
-    return name.replace(/-/g, "_").replace(/%/g, "P");
-}
-vm.find_concrete_class = function(name) {
-    var key = vm.concrete_class_key(name);
-    var c = vm.CONCRETE_CLASSES[key];
-    if (c !== undefined) { return c; } else { return vm.error("concrete class not found: " + key, init_env); }
-};
-vm.find_generic_class = function(name) {
-    var key = vm.generic_class_key(name);
-    var c = vm.GENERIC_CLASSES[key];
-    if (c !== undefined) { return c; } else { return vm.error("generic class not found: " + key, init_env); }
-};
-// Classes, methods, and slots have names which can be specified
-// as symbols, keywords, strings, or class types from Lisp.
-// Internally, they're always strings.
-vm.designate_string = function(name) {
-    if (name.hasOwnProperty("qs_name")) {
-        return name.qs_name;
-    } else {
-//        vm.assert_type(name, "string");
-        return name;
-    }
-};
-vm.concrete_class_key = function(name) {
-    return vm.designate_string(name);
-};
-vm.generic_class_key = function(name) {
-    return vm.designate_string(name);
-};
-vm.method_key = function(name) {
-    return "qm_" + vm.designate_string(name);
-};
-vm.slot_key = function(name) {
-    return "qs_" + vm.designate_string(name);
-};
-vm.designate_concrete_class = function(class_des) {
-    if (vm.is_concrete_class(class_des)) {
-        return class_des;
-    } else {
-        return vm.find_concrete_class(class_des);
-    }
-};
-vm.designate_generic_class = function(class_des) {
-    if (vm.is_generic_class(class_des)) {
-        return class_des;
-    } else {
-        return vm.find_generic_class(class_des);
-    }
-};
-// Instanceof does not work for properly for the CONCRETE-CLASS
-// and GENERIC-CLASS classes themselves, so we need these crutches
-// to determine if an object is a class.
-vm.is_concrete_class = function(obj) {
-    return obj && (obj.qua_isa === vm.ConcreteClass);
-};
-vm.is_generic_class = function(obj) {
-    return obj && (obj.qua_isa === vm.GenericClass);
-};
-/* Objects */
-vm.make_instance = function(class_des, initargs) {
-    var concrete_class = vm.designate_concrete_class(class_des);
-    var obj = vm.allocate_instance(concrete_class);
-    return vm.initialize_instance(obj, initargs);
-};
-vm.allocate_instance = function(concrete_class) {
-    vm.assert(vm.is_concrete_class(concrete_class));
-    var obj = Object.create(concrete_class.prototype);
-    return obj;
-};
-vm.initialize_instance = function(obj, initargs) {
-    var initargs_dict = vm.assert_type(initargs, "object");
-    for (name in initargs_dict) {
-        var value = initargs_dict[name];
-        vm.set_slot_value(obj, name, value);
-    }
-    return obj;
-};
-vm.concrete_class_of = function(obj) {
-    if (obj && obj.qua_isa) {
-        return obj.qua_isa;
-    } else {
-        return vm.concrete_class_of_hook(obj);
-    }
-};
-vm.unknown_class_hook = function(obj) { vm.panic("unknown class: " + obj); };
-vm.generic_class_of = function(obj) {
-    var ccls = vm.concrete_class_of(obj);
-    vm.assert(vm.is_concrete_class(ccls));
-    return ccls["qs_generic-class"];
-};
-/* Methods */
-vm.put_method = function(generic_class, name, combiner) {
-    generic_class = vm.designate_generic_class(generic_class);
-    vm.assert(vm.is_generic_class(generic_class));
-    vm.assert((combiner instanceof vm.Opv) || (combiner instanceof vm.Apv));
-    generic_class.prototype[vm.method_key(name)] = combiner;
-    return combiner;
-};
-vm.find_method = function(obj, name) {
-    var key = vm.method_key(name);
-    if (obj && obj[key]) {
-        return obj[key];
-    } else {
-        return vm.find_method_using_concrete_class(obj, vm.concrete_class_of(obj), name);
-    }
-};
-vm.find_method_using_concrete_class = function(obj, cls, name) {
-    vm.assert(vm.is_concrete_class(cls));
-    return vm.find_method_using_generic_class(obj, cls["qs_generic-class"], name);
-};
-vm.find_method_using_generic_class = function(obj, gcls, name) {
-    vm.assert(vm.is_generic_class(gcls));
-    var key = vm.method_key(name);
-    if (gcls.prototype[key]) {
-        return gcls.prototype[key];
-    } else {
-        var methods = vm.find_superclass_methods(obj, gcls, name);
-        switch (methods.length) {
-        case 0: return vm.error("method not found: " + key, init_env);
-        case 1: return methods[0];
-        default: return vm.ambiguous_method_hook(obj, name);
-        }
-    }
-};
-vm.find_superclass_methods = function(obj, gcls, name) {
-    var methods = [];
-    var superclass_names = gcls["qs_direct-superclasses"];
-    superclass_names.forEach(function(superclass_name) {
-        var gsuper = vm.GENERIC_CLASSES[vm.generic_class_key(superclass_name)];
-        vm.assert(vm.is_generic_class(gsuper));
-        // TODO: not reentrant
-        var method = vm.find_method_using_generic_class(obj, gsuper, name);
-        if (method) {
-            methods.push(method);
-        }
-    });
-    return methods;
-};
-/* Slots */
-vm.slot_value = function(obj, name) {
-    var key = vm.slot_key(name);
-    if (obj.hasOwnProperty(key)) {
-        return obj[key];
-    } else {
-        return vm.slot_unbound_hook(obj, name);
-    }
-};
-vm.set_slot_value = function(obj, name, value) {
-    var key = vm.slot_key(name);
-    try {
-        obj[key] = value;
-        return value;
-    } catch(exc) {
-        return vm.set_slot_value_error_hook(obj, name, value, exc);
-    };
-};
-vm.slot_bound_p = function(obj, name) {
-    var key = vm.slot_key(name);
-    return obj && obj.hasOwnProperty(key);
-};
-vm.slot_unbound_hook = function(obj, name) {
-    return vm.error("slot unbound: " + vm.designate_string(name));
-};
-/* Types */
-vm.Type = vm.defclass("%type", ["standard-object"], {});
-vm.TypeVar = vm.defclass("%type-variable", ["%type"], { "name": {} });
-vm.ClassType = vm.defclass("%class-type", ["%type"], { "name": {}, "generic-params": {} });
-vm.GenericParam = vm.defclass("%generic-param", ["standard-object"], { "in-type": {}, "out-type": {} });
-vm.typep = function(obj, type_designator) {
-    var gcls = vm.generic_class_of(obj);
-    var class_type = vm.designate_type(type_designator);
-    vm.assert_type(class_type, vm.ClassType);
-    var other_gcls = vm.find_generic_class(vm.slot_value(class_type, "name"));
-    return vm.generic_subclassp(gcls, other_gcls);
-};
-vm.designate_type = function(type_designator) {
-    if (type_designator instanceof vm.ClassType) {
-        return type_designator;
-    } else if (type_designator instanceof vm.Sym) {
-        return vm.make_instance(vm.ClassType,
-                                { "name": vm.sym_name(type_designator),
-                                  "generic-params": [] });
-    } else {
-        return vm.error("Illegal type designator: " + JSON.stringify(type_designator), init_env);
-    }
-};
-vm.generic_subclassp = function(generic_class, other_class) {
-    vm.assert(vm.is_generic_class(generic_class));
-    vm.assert(vm.is_generic_class(other_class));
-    if (generic_class === other_class) {
-        return true;
-    } else {
-        var tag = {};
-        var superclass_names = generic_class["qs_direct-superclasses"];
-        try {
-            superclass_names.forEach(function(superclass_name) {
-                var superclass = vm.GENERIC_CLASSES[vm.generic_class_key(superclass_name)];
-                vm.assert(vm.is_generic_class(superclass));
-                if (vm.generic_subclassp(superclass, other_class)) {
-                    throw tag;
-                }
-            });
-        } catch(exc) {
-            if (exc === tag) {
-                return true;
-            } else {
-                throw exc;
-            }
-        }
-        return false;
-    }
-};
-/* Environments */
-vm.Env = function(parent) {
-    this.bindings = Object.create(parent ? parent.bindings : null);
-    this.parent = parent;
-};
-vm.make_env = function(parent) { return new vm.Env(parent); };
-/* Setup class hierarchy - still in flux */
-vm.Object = vm.defclass("object", []);
-vm.StandardObject = vm.defclass("standard-object", ["object"]);
-vm.Class = vm.defclass("class", ["standard-object"]);
-vm.Combiner = vm.defclass("combiner", ["standard-object"]);
-vm.Fexpr = vm.defclass("fexpr", ["combiner"]);
-vm.Function = vm.defclass("function", ["combiner"]);
-vm.Number = vm.defclass("number", ["object"]);
-vm.String = vm.defclass("string", ["object"]);
-vm.Boolean = vm.defclass("boolean", ["object"]);
-vm.Sym = vm.defclass("symbol", ["object"], { "name": {}, "ns": {} });
-vm.Keyword = vm.defclass("keyword", ["object"], { "name": {} });
-vm.List = vm.defclass("list", ["object"], {});
-vm.Cons = vm.defclass("cons", ["list"], { "car": {}, "cdr": {} });
-vm.Nil = vm.defclass("nil", ["list"], {}); vm.NIL = new vm.Nil();
-vm.Ign = vm.defclass("ign", ["object"], {}); vm.IGN = new vm.Ign();
-vm.Void = vm.defclass("void", ["object"], {}); vm.VOID = new vm.Void();
-// Instances of this class are thrown as JS exceptions to transfer a
-// value from a RETURN-FROM expression to its enclosing BLOCK.
-vm.Tag = vm.defclass("%%tag", ["standard-object"], { "id": {}, "val": {} });
+vm.Nil = function Nil() {}; vm.NIL = new vm.Nil();
+vm.cons = function cons(car, cdr) { var c = new vm.Cons(car, cdr); return c; }
+vm.car = function(cons) { return vm.assert_type(cons, vm.Cons).car; };
+vm.cdr = function(cons) { return vm.assert_type(cons, vm.Cons).cdr; };
+vm.elt = function(cons, i) { return (i === 0) ? vm.car(cons) : vm.elt(vm.cdr(cons), i - 1); };
+vm.is_nil = function(obj) { return obj === vm.NIL; };
+/* Add'l forms */
+vm.Ign = function Ign() {}; vm.IGN = new vm.Ign();
+vm.Void = function Void() {}; vm.VOID = new vm.Void();
 /* Evaluation */
-vm.trap_exceptions = function(thunk) {
-    try {
-        return thunk();
-    } catch(exc) {
-        if ((exc instanceof vm.Tag) || (exc instanceof vm.Panic)) {
-            // let nonlocal exits and panics through
-            throw exc;
-        } else {
-            // pipe all other evaluation exceptions into condition system
-            return vm.error(exc);
-        }
-    }
-};
 vm.evaluate = function(e, x) {
     if (x && x.qua_evaluate) {
         return vm.trap_exceptions(function() { return x.qua_evaluate(x, e); });
@@ -352,16 +67,21 @@ vm.combine = function(e, cmb, o) {
         return vm.error("not a combiner: " + cmb, e);
     }
 };
-vm.Opv = vm.defclass("opv", ["standard-object"], { "p": {}, "ep": {}, "x": {}, "e": {} });
+vm.Opv = function Opv(p, ep, x, e) {
+    this.p = p;   // Parameter tree
+    this.ep = ep; // Environment parameter
+    this.x = x;   // Body expression
+    this.e = e;   // Lexical definition environment
+};
 vm.Apv = function(cmb) { this.cmb = cmb; };
 vm.wrap = function(cmb) { return new vm.Apv(cmb); };
 vm.unwrap = function(apv) { return apv.cmb; };
 vm.Opv.prototype.qua_combine = function(self, e, o) {
-    var xe = vm.make_env(self.qs_e);
-    return vm.monadic(function() { return vm.bind(xe, self.qs_p, o); },
+    var xe = vm.make_env(self.e);
+    return vm.monadic(function() { return vm.bind(xe, self.p, o); },
                       function() {
-                          return vm.monadic(function() { return vm.bind(xe, self.qs_ep, e); },
-                                            function() { return vm.evaluate(xe, self.qs_x); }); });
+                          return vm.monadic(function() { return vm.bind(xe, self.ep, e); },
+                                            function() { return vm.evaluate(xe, self.x); }); });
 };
 vm.Apv.prototype.qua_combine = function(self, e, o) {
     return vm.monadic(function() { return vm.eval_args(e, o, vm.NIL); },
@@ -373,50 +93,42 @@ vm.eval_args = function(e, todo, done) {
                       function(arg) { return vm.eval_args(e, vm.cdr(todo), vm.cons(arg, done)); });
 };
 /* Built-in combiners */
-vm.Vau = {
-    qua_combine: function(self, e, o) {
-        var p = vm.elt(o, 0);
-        var ep = vm.elt(o, 1);
-        var x = vm.elt(o, 2);
-        return new vm.Opv(p, ep, x, e);
-    }
+vm.Prim = function Prim(fn) {
+    this.qua_combine = fn;
 };
-vm.Def = {
-    qua_combine: function (self, e, o) {
-        var lhs = vm.elt(o, 0);
-        var rhs = vm.elt(o, 1);
-        return vm.monadic(function() { return vm.evaluate(e, rhs); },
-                          function(val) { return vm.bind(e, lhs, val, vm.do_def); });
-    }
-};
-vm.Setq = {
-    qua_combine: function (self, e, o) {
-        var lhs = vm.elt(o, 0);
-        var rhs = vm.elt(o, 1);
-        return vm.monadic(function() { return vm.evaluate(e, rhs); },
-                          function(val) { return vm.bind(e, lhs, val, vm.do_setq); });
-    }
-};
-vm.Eval = vm.wrap({
-    qua_combine: function(self, e, o) {
-        var x = vm.elt(o, 0);
-        var e = vm.elt(o, 1);
-        return vm.evaluate(e, x);
-    }
+vm.prim = function(fn) { return new vm.Prim(fn); }
+vm.Vau = vm.prim(function(self, e, o) {
+    var p = vm.elt(o, 0);
+    var ep = vm.elt(o, 1);
+    var x = vm.elt(o, 2);
+    return new vm.Opv(p, ep, x, e);
 });
-vm.If = {
-    qua_combine: function(self, e, o) {
-        return vm.monadic(function() { return vm.evaluate(e, vm.elt(o, 0)); },
-                          function(test_result) {
-                              return vm.evaluate(e, test_result ? vm.elt(o, 1) : vm.elt(o, 2));
-                          });
-    }
-};
-vm.Progn = {
-    qua_combine: function(self, e, o) {
-        if (vm.is_nil(o)) return vm.VOID; else return vm.progn(e, o);
-    }
-};
+vm.Def = vm.prim(function (self, e, o) {
+    var lhs = vm.elt(o, 0);
+    var rhs = vm.elt(o, 1);
+    return vm.monadic(function() { return vm.evaluate(e, rhs); },
+                      function(val) { return vm.bind(e, lhs, val, vm.do_def); });
+});
+vm.Setq = vm.prim(function (self, e, o) {
+    var lhs = vm.elt(o, 0);
+    var rhs = vm.elt(o, 1);
+    return vm.monadic(function() { return vm.evaluate(e, rhs); },
+                      function(val) { return vm.bind(e, lhs, val, vm.do_setq); });
+});
+vm.Eval = vm.wrap(vm.prim(function(self, e, o) {
+    var x = vm.elt(o, 0);
+    var e = vm.elt(o, 1);
+    return vm.evaluate(e, x);
+}));
+vm.If = vm.prim(function(self, e, o) {
+    return vm.monadic(function() { return vm.evaluate(e, vm.elt(o, 0)); },
+                      function(test_result) {
+                          return vm.evaluate(e, test_result ? vm.elt(o, 1) : vm.elt(o, 2));
+                      });
+});
+vm.Progn = vm.prim(function(self, e, o) {
+    if (vm.is_nil(o)) return vm.VOID; else return vm.progn(e, o);
+});
 vm.progn = function(e, xs) {
     return vm.monadic(function() { return vm.evaluate(e, vm.car(xs)); },
                       function(res) {
@@ -431,19 +143,20 @@ vm.JSOperator.prototype.qua_combine = function(self, e, o) {
         return self.js_fn.apply(null, vm.list_to_array(o));
     });
 };
-vm.jswrap = function(js_fn) { return vm.wrap(new vm.JSOperator(js_fn)); };
+vm.jswrap = function(js_fn) {
+    if (typeof(js_fn) !== "function") { vm.error("not a function"); }
+    return vm.wrap(new vm.JSOperator(js_fn)); };
 /* Continuations */
-// A continuation or stack frame is created in order to freeze
-// (suspend, capture) a computation so that we can treat it as a
-// data structure, and later resume it again and turn it back into
-// control flow.  A stack frame consists of a work function that
-// "does something" which is specially created by each distinct
-// language primitive, and an inner suspended stack frame.  The
-// innermost stack frame is always the one created by the
-// %%TAKE-SUBCONT expression that effected the continuation
-// capture.  (For this innermost stack frame, .inner is null.)
+// A continuation or stack frame is created in order to suspend
+// (capture) a computation so that we can treat it as a data
+// structure, and later resume (compose) it again and turn it back
+// into control flow.  A stack frame consists of a work function, that
+// restores the stack frame on resumption which is specially created
+// by each distinct language primitive, and an inner suspended stack
+// frame.  The innermost stack frame is always the one created by the
+// %%TAKE-SUBCONT expression that effected the continuation capture.
 function StackFrame(work_fun, inner) {
-    // primitive-specific JS function
+    // primitive-specific JS function that will be called to resume this frame
     this.work_fun = work_fun;
     // next stack frame or null for innermost %%TAKE-SUBCONT frame
     this.inner = inner;
@@ -489,19 +202,18 @@ function suspendFrame(sus, work_fun) {
 function resumeFrame(k, f) {
     return k.work_fun(k.inner, f);
 };
-// vm.monadic() is a basic building block for many language
-// primitives that need to do two or more operations that may
-// capture a continuation in sequence.  Examples are PROGN that
-// needs to evaluate the first and then the rest of its body
-// expressions, and IF that needs to evaluate the test expression
-// before evaluating either the then or the else expression
-// depending on the result of the test.  Looking at vm.monadic in
-// details is instructive because it shows in a pure form the
-// general protocol that language primitives have to honor in
-// order to the able to suspend and resume themselves.
-// (Primitives like %%RESCUE with more complex control flow
-// requirements cannot use vm.monadic but follow this same
-// protocol.)
+// vm.monadic() is a basic building block for many language primitives
+// that need to do two or more operations that may capture a
+// continuation in sequence.  Examples are PROGN that needs to
+// evaluate the first and then the rest of its body expressions, and
+// IF that needs to evaluate the test expression before evaluating
+// either the then or the else expression depending on the result of
+// the test.  Looking at vm.monadic in details is instructive because
+// it shows in a pure form the general protocol that language
+// primitives have to honor in order to the able to suspend and resume
+// themselves.  (Primitives like %%PUSH-PROMPT and %%RESCUE with more
+// complex control flow requirements cannot use vm.monadic but follow
+// this same protocol.)
 //
 // So, we have two thunks, A and B, that we want to call so that B
 // receives the result of A(), i.e. B(A()).  We also have the two
@@ -557,136 +269,129 @@ vm.monadic = function(a, b, k, f) {
 //
 // Push a prompt and call the body thunk within this delimited
 // context.
-// 
-// Analyze the result of the body thunk and if it's a suspension,
-// check if it matches our, the pushed, prompt.  If it matches,
-// call the suspension's user-supplied handler function with the
-// continuation accumulated during the unwind from the originating
-// inner %%TAKE-SUBCONT.
-vm.PushPrompt = vm.wrap({
-    qua_combine: function do_push_prompt(self, e, o, k, f) {
-        var prompt = vm.elt(o, 0);
-        var body_thunk = vm.elt(o, 1);
-        if (k instanceof StackFrame) {
-            var val = resumeFrame(k, f);
-        } else {
-            var val = vm.combine(e, body_thunk, vm.NIL);
-        }
-        if (val instanceof Suspension) {
-            if (val.prompt === prompt) {
-                var continuation = val.k;
-                var handler = val.handler;
-                return vm.combine(e, handler, vm.cons(continuation, vm.NIL));
-            } else {
-                suspendFrame(val, function(k, f) {
-		    return do_push_prompt(self, e, o, k, f);
-		});
-                return val;
-            }
-        }
-        return val;
+vm.PushPrompt = vm.wrap(vm.prim(function do_push_prompt(self, e, o, k, f) {
+    var prompt = vm.elt(o, 0);
+    var body_thunk = vm.elt(o, 1);
+    if (k instanceof StackFrame) {
+        var val = resumeFrame(k, f);
+    } else {
+        var val = vm.combine(e, body_thunk, vm.NIL);
     }
-});
-// %%TAKE-SUBCONT prompt handler
-//
-// Abort up to prompt and call handler with captured continuation.
-//
-// Inject a suspension that will lead to the call of the
-// user-supplied handler at the outer %%PUSH-PROMPT with matching
-// prompt.  The innermost stack frame's work function will call
-// the protocol parameter F, the user-supplied stimulus function
-// passed in during continiation resumption/composition, thereby
-// completing resumption and entering back into normal evaluation.
-vm.TakeSubcont = vm.wrap({
-    qua_combine: function(self, e, o, k, f) {
-        var prompt = vm.elt(o, 0);
-        var handler = vm.elt(o, 1);
-        var sus = new Suspension(prompt, handler);
-        suspendFrame(sus, function(k, f) {
-	    return vm.combine(e, f, vm.NIL);
-	});
-        return sus;
-    }
-});
-// %%PUSH-SUBCONT k f
-//
-// Resume into a user-supplied continuation, calling the
-// "stimulus" thunk F within the newly established stack context
-// (this is accomplished by the stack frame pushed by
-// %%TAKE-SUBCONT, which ultimately calls the passed-in F, see
-// lines above).
-vm.PushSubcont = vm.wrap({
-    qua_combine: function do_push_subcont(self, e, o, k, f) {
-        var thek = vm.elt(o, 0);
-        var thef = vm.elt(o, 1);
-        if (k instanceof StackFrame) {
-            var val = resumeFrame(k, f);
+    if (val instanceof Suspension) {
+	// Analyze the result of the body thunk and if it's a suspension,
+	// check if it matches our, the pushed, prompt.  If it matches,
+	// call the suspension's user-supplied handler function with the
+	// continuation accumulated during the unwind from the originating
+	// inner %%TAKE-SUBCONT.
+        if (val.prompt === prompt) {
+            var continuation = val.k;
+            var handler = val.handler;
+            return vm.combine(e, handler, vm.cons(continuation, vm.NIL));
         } else {
-            var val = resumeFrame(thek, thef);
-        }
-        if (val instanceof Suspension) {
             suspendFrame(val, function(k, f) {
-		return do_push_subcont(self, e, o, k, f);
+		return do_push_prompt(self, e, o, k, f);
 	    });
             return val;
         }
+    }
+    return val;
+}));
+// %%TAKE-SUBCONT prompt handler
+//
+// Abort up to prompt and call handler with captured continuation.
+vm.TakeSubcont = vm.wrap(vm.prim(function(self, e, o, k, f) {
+    var prompt = vm.elt(o, 0);
+    var handler = vm.elt(o, 1);
+    // Inject a suspension that will lead to the call of the
+    // user-supplied handler at the outer %%PUSH-PROMPT with matching
+    // prompt.  The innermost stack frame's work function we define
+    // will call the protocol parameter F, the user-supplied stimulus
+    // function passed in during continuation resumption/composition,
+    // thereby completing resumption and entering back into normal
+    // evaluation.
+    var sus = new Suspension(prompt, handler);
+    suspendFrame(sus, function(k, f) {
+	// As final step of continuation resumption, call
+	// user-supplied stimulus function in innermost context.
+	return vm.combine(e, f, vm.NIL);
+    });
+    return sus;
+}));
+// %%PUSH-SUBCONT k f
+//
+// Compose a delimited continuation onto the current stack and when
+// done, call user-supplied thunk inside new context.
+vm.PushSubcont = vm.wrap(vm.prim(function do_push_subcont(self, e, o, k, f) {
+    var thek = vm.elt(o, 0);
+    var thef = vm.elt(o, 1);
+    if (k instanceof StackFrame) {
+        var val = resumeFrame(k, f);
+    } else {
+	// Resume into a user-supplied continuation, calling the
+	// "stimulus" thunk F within the newly established stack
+	// context (this is accomplished by the innermost stack
+	// frame's work function defined by %%TAKE-SUBCONT, which
+	// ultimately calls the passed-in F).
+        var val = resumeFrame(thek, thef);
+    }
+    if (val instanceof Suspension) {
+        suspendFrame(val, function(k, f) {
+	    return do_push_subcont(self, e, o, k, f);
+	});
         return val;
     }
-});
+    return val;
+}));
 // %%PUSH-PROMPT-SUBCONT prompt k f
 //
 // Manually fused version of pushing a prompt and continuation in
 // one fell swoop, to work around stack overflow issue for
 // server-type apps, see Oleg's paper.
-vm.PushPromptSubcont = vm.wrap({
-    qua_combine: function do_push_prompt_subcont(self, e, o, k, f) {
-        var prompt = vm.elt(o, 0);
-        var thek = vm.elt(o, 1);
-        var thef = vm.elt(o, 2);
-        if (k instanceof StackFrame) {
-            var val = resumeFrame(k, f);
-        } else {
-            var val = resumeFrame(thek, thef);
-        }
-        if (val instanceof Suspension) {
-            if (val.prompt === prompt) {
-                var continuation = val.k;
-                var handler = val.handler;
-                return vm.combine(e, handler, vm.cons(continuation, vm.NIL));
-            } else {
-                suspendFrame(val, function(k, f) {
-		    return do_push_prompt_subcont(self, e, o, k, f);
-		});
-                return val;
-            }
-        }
-        return val;
+vm.PushPromptSubcont = vm.wrap(vm.prim(function do_push_prompt_subcont(self, e, o, k, f) {
+    var prompt = vm.elt(o, 0);
+    var thek = vm.elt(o, 1);
+    var thef = vm.elt(o, 2);
+    if (k instanceof StackFrame) {
+        var val = resumeFrame(k, f);
+    } else {
+        var val = resumeFrame(thek, thef);
     }
-});
+    if (val instanceof Suspension) {
+        if (val.prompt === prompt) {
+            var continuation = val.k;
+            var handler = val.handler;
+            return vm.combine(e, handler, vm.cons(continuation, vm.NIL));
+        } else {
+            suspendFrame(val, function(k, f) {
+		return do_push_prompt_subcont(self, e, o, k, f);
+	    });
+            return val;
+        }
+    }
+    return val;
+}));
 /* Simple control */
 // %%LOOP thunk
 //
 // Call thunk repeatedly.
-vm.Loop = vm.wrap({
-    qua_combine: function do_loop(self, e, o, k, f) {
-        var body = vm.elt(o, 0);
-        var first = true; // only resume once
-        while (true) {
-            if (first && (k instanceof StackFrame)) {
-                var val = resumeFrame(k, f);
-            } else {
-                var val = vm.combine(e, body, vm.NIL);
-            }
-            first = false;
-            if (val instanceof Suspension) {
-                suspendFrame(val, function(k, f) {
-		    return do_loop(self, e, o, k, f);
-		});
-                return val;
-            }
+vm.Loop = vm.wrap(vm.prim(function do_loop(self, e, o, k, f) {
+    var body = vm.elt(o, 0);
+    var first = true; // only resume once
+    while (true) {
+        if (first && (k instanceof StackFrame)) {
+            var val = resumeFrame(k, f);
+        } else {
+            var val = vm.combine(e, body, vm.NIL);
+        }
+        first = false;
+        if (val instanceof Suspension) {
+            suspendFrame(val, function(k, f) {
+		return do_loop(self, e, o, k, f);
+	    });
+            return val;
         }
     }
-});
+}));
 // %%RAISE obj
 //
 // Throw something as a JS exception.
@@ -696,35 +401,30 @@ vm.Raise = vm.jswrap(function(err) { throw err; });
 // Call HANDLER-FUN if a JS exception is thrown during BODY-THUNK
 // (except VM panics, let those through so that user can't
 // interfere with panicking).
-vm.Rescue = vm.wrap({
-    qua_combine: function do_rescue(self, e, o, k, f) {
-        var handler = vm.elt(o, 0);
-        var body = vm.elt(o, 1);
-        try {
-            if (k instanceof StackFrame) {
-                var val = resumeFrame(k, f);
-            } else {
-                var val = vm.combine(e, body, vm.NIL);
-            }
-        } catch(exc) {
-            if (exc instanceof vm.Panic) {
-                // let panics through, do not pass them to user handler
-                throw exc;
-            } else {
-                // unwrap handler to prevent double eval of exception
-                // TODO: murky
-                var val = vm.combine(e, vm.unwrap(handler), vm.list(exc));
-            }
+vm.Rescue = vm.wrap(vm.prim(function do_rescue(self, e, o, k, f) {
+    var handler = vm.elt(o, 0);
+    var body = vm.elt(o, 1);
+    try {
+        if (k instanceof StackFrame) {
+            var val = resumeFrame(k, f);
+        } else {
+            var val = vm.combine(e, body, vm.NIL);
         }
-        if (val instanceof Suspension) {
-            suspendFrame(val, function(k, f) {
-		return do_rescue(self, e, o, k, f);
-	    });
-            return val;
+    } catch(exc) {
+        if (exc instanceof vm.Panic) {
+            throw exc;
+        } else {
+            var val = vm.combine(e, vm.unwrap(handler), vm.list(exc));
         }
+    }
+    if (val instanceof Suspension) {
+        suspendFrame(val, function(k, f) {
+	    return do_rescue(self, e, o, k, f);
+	});
         return val;
     }
-});
+    return val;
+}));
 /* Dynamic Variables */
 // %%DYNAMIC-BIND dynvar new-val body-thunk
 //
@@ -732,54 +432,43 @@ vm.Rescue = vm.wrap({
 // execution of a body thunk.  For now, any standard object with a
 // VAL slot can be used as a dynamic variable, this will probably
 // change.
-vm.DynamicBind = vm.wrap({
-    qua_combine: function dynamic_bind(self, e, o, k, f) {
-        var dynvar = vm.elt(o, 0);
-        var val = vm.elt(o, 1);
-        var thunk = vm.elt(o, 2);
-        var oldVal = dynvar.qs_val;
-        dynvar.qs_val = val;
-        try {
-            if (k instanceof StackFrame) {
-                var res = resumeFrame(k, f);
-            } else {
-                var res = vm.combine(e, thunk, vm.NIL);
-            }
-            if (res instanceof Suspension) {
-                suspendFrame(res, function(k, f) {
-		    return dynamic_bind(self, e, o, k, f);
-		});
-                return res;
-            } else {
-                return res;
-            }
-        } finally {
-            dynvar.qs_val = oldVal;
+vm.DynamicBind = vm.wrap(vm.prim(function dynamic_bind(self, e, o, k, f) {
+    var dynvar = vm.elt(o, 0);
+    var val = vm.elt(o, 1);
+    var thunk = vm.elt(o, 2);
+    var oldVal = dynvar.val;
+    dynvar.val = val;
+    try {
+        if (k instanceof StackFrame) {
+            var res = resumeFrame(k, f);
+        } else {
+            var res = vm.combine(e, thunk, vm.NIL);
         }
+        if (res instanceof Suspension) {
+            suspendFrame(res, function(k, f) {
+		return dynamic_bind(self, e, o, k, f);
+	    });
+            return res;
+        } else {
+            return res;
+        }
+    } finally {
+        dynvar.val = oldVal;
     }
-});
-/* Forms */
-vm.VAR_NS = "v";
-vm.FUN_NS = "f";
-vm.sym = function(name, ns) { var s = new vm.Sym(name, ns ? ns : vm.VAR_NS); return s; };
-vm.fun_sym = function(name) { return vm.sym(name, vm.FUN_NS); };
-vm.sym_key = function(sym) { return sym.qs_name + "_" + sym.qs_ns; };
-vm.sym_name = function(sym) { return vm.assert_type(sym, vm.Sym).qs_name; };
-vm.to_fun_sym = function(sym) { return vm.fun_sym(vm.assert_type(sym, vm.Sym).qs_name); };
-vm.cons = function cons(car, cdr) { var c = new vm.Cons(car, cdr); return c; }
-vm.car = function(cons) { return vm.assert_type(cons, vm.Cons).qs_car; };
-vm.cdr = function(cons) { return vm.assert_type(cons, vm.Cons).qs_cdr; };
-vm.elt = function(cons, i) { return (i === 0) ? vm.car(cons) : vm.elt(vm.cdr(cons), i - 1); };
-vm.keyword = function(name) { var k = new vm.Keyword(name); return k; };
-vm.is_nil = function(obj) { return obj === vm.NIL; };
+}));
 /* Environments */
+vm.Env = function Env(parent) {
+    this.bindings = Object.create(parent ? parent.bindings : null);
+    this.parent = parent;
+};
+vm.make_env = function(parent) { return new vm.Env(parent); };
 vm.lookup = function(e, sym, default_val) {
     vm.assert_type(e, vm.Env);
     vm.assert_type(sym, vm.Sym);
     var key = vm.sym_key(sym);
     if (key in e.bindings) return e.bindings[key];
     else if (default_val !== undefined) return default_val;
-    else return vm.error("unbound variable: " + vm.sym_key(sym));
+    else return vm.error("unbound " + sym.ns + ": " + sym.name);
 };
 vm.bind = function(e, lhs, rhs, doit) {
     vm.assert_type(e, vm.Env);
@@ -793,7 +482,7 @@ vm.do_def = function(e, lhs, rhs) {
 };
 vm.do_setq = function(e, lhs, rhs) {
     vm.assert_type(lhs, vm.Sym);
-    if (Object.prototype.hasOwnProperty.call(e.bindings, vm.sym_key(lhs)))
+    if (vm.has_own_property(e.bindings, vm.sym_key(lhs)))
         return vm.do_def(e, lhs, rhs);
     else if (e.parent)
         return vm.do_setq(e.parent, lhs, rhs);
@@ -812,11 +501,100 @@ vm.Nil.prototype.qua_bind = function(self, e, rhs, doit) {
 };
 // This is cute, but probably too much trouble.
 vm.Keyword.prototype.qua_bind = function(self, e, rhs, doit) {
-    if (!(rhs && (rhs instanceof vm.Keyword) && (rhs.qs_name === self.qs_name))) {
-        return vm.error(":" + self.qs_name + " expected, but got: " + JSON.stringify(rhs), e);
+    if (!(rhs && (rhs instanceof vm.Keyword) && (rhs.name === self.name))) {
+        return vm.error(":" + self.name + " expected, but got: " + JSON.stringify(rhs), e);
     }
 };
 vm.Ign.prototype.qua_bind = function(self, e, rhs, doit) {};
+/* Object model */
+vm.mangle_name = function(name) {
+    return name.replace(/-/g, "_").replace(/%/g, "P");
+};
+vm.make_class = function(metaclass, name) {
+    var c = eval("(function Qua_" + vm.mangle_name(name) + "(){})");
+    c.qua_isa = metaclass;
+    c.name = name;
+    c.methods = Object.create(null);
+    return c;
+};
+vm.allocate_instance = function(c) {
+    var obj = new c();
+    obj.qua_isa = c;
+    return obj;
+};
+vm.make_instance = function(c, initargs) {
+    var obj = vm.allocate_instance(c);
+    for (name in initargs) {
+        var value = initargs[name];
+        obj[name] = value;
+    }
+    return obj;
+};
+vm.class_of = function(obj) {
+    if (obj && obj.qua_isa) {
+	return obj.qua_isa;
+    } else {
+	// generate pseudo-classes for JS built-ins
+	return vm.synthetic_class_of(obj);
+    }
+};
+vm.put_method = function(c, name, method) {
+    c.methods[name] = method;
+};
+vm.send_message = function(rcv, msg, args) { // args has to include rcv as first elt
+    return vm.monadic(
+	function() {
+	    var c = vm.class_of(rcv);
+	    var metaclass = vm.class_of(c);
+	    if (metaclass === vm.STD_CLS) {
+		return vm.builtin_lookup(rcv, msg);
+	    } else {
+		return vm.send_message(c, "compute-effective-method",
+				       vm.list(c, rcv, msg, args));
+	    }
+	},
+	function(method) {
+	    return vm.combine(vm.make_env(), vm.unwrap(method), args);
+	}
+    );
+};
+vm.builtin_lookup = function(rcv, msg) {
+    vm.assert_type(msg, "string");
+    var c = vm.class_of(rcv);
+    if (c.methods[msg]) {
+	return c.methods[msg];
+    } else if (vm.STD_OBJ.methods[msg]) {
+	return vm.STD_OBJ.methods[msg];
+    } else {
+	return vm.error("builtin lookup failed: " + msg);
+    }
+};
+/* Slots */
+vm.slot_key = function(name) { return name; };
+vm.slot_value = function(obj, name) {
+    var key = vm.slot_key(name);
+    if (vm.has_own_property(obj, key)) {
+        return obj[key];
+    } else {
+        return vm.slot_unbound_hook(obj, name);
+    }
+};
+vm.set_slot_value = function(obj, name, value) {
+    var key = vm.slot_key(name);
+    try {
+        obj[key] = value;
+        return value;
+    } catch(exc) {
+        return vm.set_slot_value_error_hook(obj, name, value, exc);
+    };
+};
+vm.slot_bound_p = function(obj, name) {
+    var key = vm.slot_key(name);
+    return vm.has_own_property(obj, name);
+};
+vm.slot_unbound_hook = function(obj, name) {
+    return vm.error("slot unbound: " + name);
+};
 /* Utilities */
 vm.list = function() {
     return vm.array_to_list(Array.prototype.slice.call(arguments));
@@ -847,29 +625,30 @@ vm.plist_to_js_object = function(plist, obj) {
     } else {
         var name = vm.assert_type(vm.elt(plist, 0), vm.Keyword);
         var value = vm.elt(plist, 1);
-        obj[vm.designate_string(name)] = value;
+        obj[name.name] = value;
         return vm.plist_to_js_object(vm.cdr(vm.cdr(plist)), obj);
     }
 };
-/* Util Dumping Ground */
-vm.assert_type = function(obj, type_spec) {
-    if (vm.check_type(obj, type_spec)) return obj;
-    else return vm.error("type error: " + obj + " should be " + type_spec + " but is " + obj, e);
+/* Exception handling and nonlocal exits */
+// Instances of this class are thrown as JS exceptions to transfer a
+// value from a RETURN-FROM expression to its enclosing BLOCK.
+vm.Tag = function Tag(id, val) {
+    this.id = id;
+    this.val = val;
 };
-vm.check_type = function(obj, type_spec) {
-    if (typeof(type_spec) === "string") {
-        return (typeof(obj) === type_spec);
-    } else if (Array.isArray(type_spec)) {
-        vm.assert(type_spec.length === 1);
-        vm.assert(Array.isArray(obj));
-        var elt_type_spec = type_spec[0];
-        obj.forEach(function(elt) { vm.assert_type(elt, elt_type_spec); });
-        return true;
-    } else {
-        return (obj instanceof type_spec);
+vm.trap_exceptions = function(thunk) {
+    try {
+        return thunk();
+    } catch(exc) {
+        if ((exc.qua_isa === vm.Tag) || (exc instanceof vm.Panic)) {
+            // let nonlocal exits and panics through
+            throw exc;
+        } else {
+            // pipe all other evaluation exceptions into condition system
+            return vm.error(exc);
+        }
     }
 };
-vm.assert = function(x) { if (!x) vm.panic("assertion failed"); };
 vm.Panic = function Panic(exc) {
     vm.assert_type(exc, Error);
     this.exc = exc;
@@ -888,7 +667,6 @@ vm.error = function(err, e) {
             // fall through
         }
     } else {
-        console.log("No environment passed to vm.error()");
         // fall through
     }
     // if nothing else worked, panic
@@ -898,10 +676,35 @@ vm.error = function(err, e) {
 // of the VM.  Bypasses any intervening %%RESCUE handlers to
 // prevent user code from interfering with the unwinding.
 vm.panic = function(err) {
-    console.log("vm.panic", err);
+    console.log("vm.panic:", err);
     err = (err instanceof Error) ? err : new Error(err);
     throw new vm.Panic(err);
 };
+/* Util Dumping Ground */
+vm.has_own_property = function(obj, name) {
+    return obj && Object.prototype.hasOwnProperty.call(obj, name); // WHY?
+};
+vm.assert_type = function(obj, type_spec) {
+    if (vm.check_type(obj, type_spec)) return obj;
+    else {
+	console.log(obj);
+	return vm.error("type error: " + obj + " should be " + type_spec + " but is " + obj);
+    }
+};
+vm.check_type = function(obj, type_spec) {
+    if (typeof(type_spec) === "string") {
+        return (typeof(obj) === type_spec);
+    } else if (Array.isArray(type_spec)) {
+        vm.assert(type_spec.length === 1);
+        vm.assert(Array.isArray(obj));
+        var elt_type_spec = type_spec[0];
+        obj.forEach(function(elt) { vm.assert_type(elt, elt_type_spec); });
+        return true;
+    } else {
+        return (obj instanceof type_spec);
+    }
+};
+vm.assert = function(x) { if (!x) vm.panic("assertion failed"); };
 vm.time = function(name, fun) {
     var start = new Date().getTime();
     fun();
@@ -939,22 +742,13 @@ vm.js_function = function(cmb) {
         return vm.combine(vm.make_env(), cmb, args);
     }
 };
-// Synthetic/virtual classes given to JS built-in objects, so we
-// can define Lisp methods on them.
-vm.JSObject = vm.defclass("js-object", ["object"], {});
-vm.JSArray = vm.defclass("js-array", ["js-object"], {});
-vm.JSFunction = vm.defclass("js-function", ["js-object"], {});
-vm.JSNumber = vm.defclass("js-number", ["number", "js-object"], {});
-vm.JSString = vm.defclass("js-string", ["string", "js-object"], {});
-vm.JSNull = vm.defclass("js-null", ["js-object"], {});
-vm.JSUndefined = vm.defclass("js-undefined", ["js-object"], {});
 // Detect JS built-in types and make them appear to object system
-// as objects with (synthetic) Lisp classes (define above).
-vm.concrete_class_of_hook = function(obj) {
+// as objects with (pseudo) Lisp classes.
+vm.synthetic_class_of = function(obj) {
     switch (typeof(obj)) {
     case "string": return vm.JSString;
     case "number": return vm.JSNumber;
-    case "boolean": return vm.Boolean;
+    case "boolean": return vm.JSBoolean;
     case "function": return vm.JSFunction;
     case "undefined": return vm.JSUndefined;
     default:
@@ -963,12 +757,7 @@ vm.concrete_class_of_hook = function(obj) {
         } else if (Array.isArray(obj)) {
             return vm.JSArray;
         } else {
-            var proto = Object.getPrototypeOf(obj);
-            if (proto) {
-                return vm.unknown_class_hook(obj);
-            } else {
-                return vm.JSObject;
-            }
+            return vm.JSObject;
         }
     }
 };
@@ -987,74 +776,109 @@ vm.js_new = function(ctor) {
     return new factoryFunction(); }
 // Writes a JS property, implementation of `(setf (.property_name ...) ...)'.
 vm.js_set = function(obj, name, val) { return obj[name] = val; };
-// This definitely should be done from Lisp.
-vm.own_property_p = function(obj, name) {
-    return Object.prototype.hasOwnProperty.call(obj, vm.designate_string(name)); };
 /* API */
 vm.def = vm.bind;
-vm.defun = function(e, name, cmb) { vm.def(e, vm.to_fun_sym(name), cmb); };
+vm.defun = function(e, name, cmb) { vm.assert(cmb); vm.def(e, vm.fun_sym(name), cmb); };
+vm.deftype = function(e, type, name) { vm.assert(type); vm.def(e, vm.type_sym(name), type); };
 // Populates a fresh init environment with the VM primitives.
 vm.init = function() {
     var init_env = vm.make_env();
+    // Bootstrap object model
+    vm.STD_CLS = vm.make_class(null, "standard-class");
+    vm.STD_CLS.qua_isa = vm.STD_CLS;
+    vm.STD_OBJ = vm.make_class(vm.STD_CLS, "standard-object");
+    vm.deftype(init_env, vm.STD_OBJ, "standard-object");
+    vm.deftype(init_env, vm.STD_CLS, "standard-class");
+    // Bless built-in types as Lisp types
+    function define_builtin_type(type, name) {
+	type.qua_isa = vm.STD_CLS;
+	type.name = name;
+	type.methods = Object.create(null);
+	type.prototype.qua_isa = type;
+	vm.deftype(init_env, type, name);
+    }
+    define_builtin_type(vm.Cons, "cons");
+    define_builtin_type(vm.Nil, "nil");
+    define_builtin_type(vm.Sym, "symbol");
+    define_builtin_type(vm.Keyword, "keyword");
+    define_builtin_type(vm.Ign, "ign");
+    define_builtin_type(vm.Void, "void");
+    define_builtin_type(vm.Opv, "fexpr");
+    define_builtin_type(vm.Apv, "function");
+    define_builtin_type(vm.JSOperator, "js-operator");
+    define_builtin_type(vm.Prim, "primitive");
+    define_builtin_type(vm.Tag, "%%tag");
+    // Synthetic/virtual classes given to JS built-in objects, so we
+    // can define methods on them.
+    function define_js_type(name) {
+	var c = vm.make_class(vm.STD_CLS, name);
+	vm.deftype(init_env, c, name);
+	return c;
+    }
+    vm.JSObject = define_js_type("js-object");
+    vm.JSArray = define_js_type("js-array");
+    vm.JSFunction = define_js_type("js-function");
+    vm.JSBoolean = define_js_type("boolean");
+    vm.JSNumber = define_js_type("number");
+    vm.JSString = define_js_type("string");
+    vm.JSNull = define_js_type("js-null");
+    vm.JSUndefined = define_js_type("js-undefined");
     // Forms
-    vm.defun(init_env, vm.sym("%%car"), vm.jswrap(vm.car));
-    vm.defun(init_env, vm.sym("%%cdr"), vm.jswrap(vm.cdr));
-    vm.defun(init_env, vm.sym("%%cons"), vm.jswrap(vm.cons));
-    vm.defun(init_env, vm.sym("%%to-fun-sym"), vm.jswrap(vm.to_fun_sym));
+    vm.defun(init_env, "%%car", vm.jswrap(vm.car));
+    vm.defun(init_env, "%%cdr", vm.jswrap(vm.cdr));
+    vm.defun(init_env, "%%cons", vm.jswrap(vm.cons));
+    vm.defun(init_env, "%%to-fun-sym", vm.jswrap(vm.to_fun_sym));
+    vm.defun(init_env, "%%to-type-sym", vm.jswrap(vm.to_type_sym));
     // Evaluation
-    vm.defun(init_env, vm.sym("%%def"), vm.Def);
-    vm.defun(init_env, vm.sym("%%eval"), vm.Eval);
-    vm.defun(init_env, vm.sym("%%if"), vm.If);
-    vm.defun(init_env, vm.sym("%%progn"), vm.Progn);
-    vm.defun(init_env, vm.sym("%%setq"), vm.Setq);
-    // Combiners
-    vm.defun(init_env, vm.sym("%%vau"), vm.Vau);
-    vm.defun(init_env, vm.sym("%%wrap"), vm.jswrap(vm.wrap));
-    vm.defun(init_env, vm.sym("%%unwrap"), vm.jswrap(vm.unwrap));
+    vm.defun(init_env, "%%def", vm.Def);
+    vm.defun(init_env, "%%dynamic-bind", vm.DynamicBind);
+    vm.defun(init_env, "%%eval", vm.Eval);
+    vm.defun(init_env, "%%if", vm.If);
+    vm.defun(init_env, "%%loop", vm.Loop);
+    vm.defun(init_env, "%%progn", vm.Progn);
+    vm.defun(init_env, "%%raise", vm.Raise);
+    vm.defun(init_env, "%%rescue", vm.Rescue);
+    vm.defun(init_env, "%%setq", vm.Setq);
+    // Combiners & environments
+    vm.defun(init_env, "%%make-environment", vm.jswrap(vm.make_env));
+    vm.defun(init_env, "%%unwrap", vm.jswrap(vm.unwrap));
+    vm.defun(init_env, "%%vau", vm.Vau);
+    vm.defun(init_env, "%%wrap", vm.jswrap(vm.wrap));
     // Continuations
-    vm.defun(init_env, vm.sym("%%push-prompt"), vm.PushPrompt);
-    vm.defun(init_env, vm.sym("%%take-subcont"), vm.TakeSubcont);
-    vm.defun(init_env, vm.sym("%%push-subcont"), vm.PushSubcont);
-    vm.defun(init_env, vm.sym("%%push-prompt-subcont"), vm.PushPromptSubcont);
-    vm.defun(init_env, vm.sym("%%loop"), vm.Loop);
-    vm.defun(init_env, vm.sym("%%raise"), vm.Raise);
-    vm.defun(init_env, vm.sym("%%rescue"), vm.Rescue);
-    vm.defun(init_env, vm.sym("%%dynamic-bind"), vm.DynamicBind);
-    // Environments
-    vm.defun(init_env, vm.sym("%%make-environment"), vm.jswrap(vm.make_env));
+    vm.defun(init_env, "%%push-prompt", vm.PushPrompt);
+    vm.defun(init_env, "%%push-prompt-subcont", vm.PushPromptSubcont);
+    vm.defun(init_env, "%%push-subcont", vm.PushSubcont);
+    vm.defun(init_env, "%%take-subcont", vm.TakeSubcont);
     // Object system
-    vm.defun(init_env, vm.sym("%%concrete-class-of"), vm.jswrap(vm.concrete_class_of));
-    vm.defun(init_env, vm.sym("%%ensure-class"), vm.jswrap(vm.defclass));
-    vm.defun(init_env, vm.sym("%%find-concrete-class"), vm.jswrap(vm.find_concrete_class));
-    vm.defun(init_env, vm.sym("%%find-generic-class"), vm.jswrap(vm.find_generic_class));
-    vm.defun(init_env, vm.sym("%%find-method"), vm.jswrap(vm.find_method));
-    vm.defun(init_env, vm.sym("%%generic-class-of"), vm.jswrap(vm.generic_class_of));
-    vm.defun(init_env, vm.sym("%%make-instance"), vm.jswrap(vm.make_instance));
-    vm.defun(init_env, vm.sym("%%put-method"), vm.jswrap(vm.put_method));
-    vm.defun(init_env, vm.sym("%%set-slot-value"), vm.jswrap(vm.set_slot_value));
-    vm.defun(init_env, vm.sym("%%slot-bound?"), vm.jswrap(vm.slot_bound_p));
-    vm.defun(init_env, vm.sym("%%slot-value"), vm.jswrap(vm.slot_value));
-    vm.defun(init_env, vm.sym("%%type?"), vm.jswrap(vm.typep));
-    // Misc
-    vm.defun(init_env, vm.sym("%%assert"), vm.jswrap(vm.assert));
-    vm.defun(init_env, vm.sym("%%panic"), vm.jswrap(vm.panic));
-    vm.defun(init_env, vm.sym("%%eq"), vm.jswrap(function(a, b) { return a === b; }));
-    vm.defun(init_env, vm.sym("%%print"), vm.jswrap(console.log));
-    vm.defun(init_env, vm.sym("%%list-to-array"), vm.jswrap(vm.list_to_array));
-    vm.defun(init_env, vm.sym("%%reverse-list"), vm.jswrap(vm.reverse_list));
-    vm.defun(init_env, vm.sym("%%list*"), vm.jswrap(vm.list_star));
-    vm.defun(init_env, vm.sym("%%plist-to-js-object"), vm.jswrap(vm.plist_to_js_object));
+    vm.defun(init_env, "%%class-of", vm.jswrap(vm.class_of));
+    vm.defun(init_env, "%%make-class", vm.jswrap(vm.make_class));
+    vm.defun(init_env, "%%make-instance", vm.jswrap(vm.make_instance));
+    vm.defun(init_env, "%%put-method", vm.jswrap(vm.put_method));
+    vm.defun(init_env, "%%send-message", vm.jswrap(vm.send_message));
+    vm.defun(init_env, "%%set-slot-value", vm.jswrap(vm.set_slot_value));
+    vm.defun(init_env, "%%slot-bound?", vm.jswrap(vm.slot_bound_p));
+    vm.defun(init_env, "%%slot-value", vm.jswrap(vm.slot_value));
     // JSNI
-    vm.defun(init_env, vm.sym("%%js-apply"), vm.jswrap(vm.js_apply));
-    vm.defun(init_env, vm.sym("%%js-binop"), vm.jswrap(vm.js_binop));
-    vm.defun(init_env, vm.sym("%%js-function"), vm.jswrap(vm.js_function));
-    vm.defun(init_env, vm.sym("%%js-get"), vm.jswrap(vm.js_get));
-    vm.defun(init_env, vm.sym("%%js-global"), vm.jswrap(vm.js_global));
-    vm.defun(init_env, vm.sym("%%js-new"), vm.jswrap(vm.js_new));
-    vm.defun(init_env, vm.sym("%%js-set"), vm.jswrap(vm.js_set));
-    vm.defun(init_env, vm.sym("%%own-property?"), vm.jswrap(vm.own_property_p));
+    vm.defun(init_env, "%%js-apply", vm.jswrap(vm.js_apply));
+    vm.defun(init_env, "%%js-binop", vm.jswrap(vm.js_binop));
+    vm.defun(init_env, "%%js-function", vm.jswrap(vm.js_function));
+    vm.defun(init_env, "%%js-get", vm.jswrap(vm.js_get));
+    vm.defun(init_env, "%%js-global", vm.jswrap(vm.js_global));
+    vm.defun(init_env, "%%js-new", vm.jswrap(vm.js_new));
+    vm.defun(init_env, "%%js-set", vm.jswrap(vm.js_set));
+    vm.defun(init_env, "%%own-property?", vm.jswrap(vm.has_own_property));
+    // Misc
+    vm.defun(init_env, "%%eq", vm.jswrap(function(a, b) { return a === b; }));
+    vm.defun(init_env, "%%panic", vm.jswrap(vm.panic));
+    vm.defun(init_env, "%%print", vm.jswrap(console.log));
+    // List optims
+    vm.defun(init_env, "%%list*", vm.jswrap(vm.list_star));
+    vm.defun(init_env, "%%list-to-array", vm.jswrap(vm.list_to_array));
+    vm.defun(init_env, "%%plist-to-js-object", vm.jswrap(vm.plist_to_js_object));
+    vm.defun(init_env, "%%reverse-list", vm.jswrap(vm.reverse_list));
     // Temporary, till we find a better place
-    vm.defun(init_env, vm.sym("%%parse-bytecode"), vm.jswrap(vm.parse_bytecode));
+    vm.defun(init_env, "%%assert", vm.jswrap(vm.assert));
+    vm.defun(init_env, "%%parse-bytecode", vm.jswrap(vm.parse_bytecode));
     return init_env;
 };
 vm.eval = function(x, e) {

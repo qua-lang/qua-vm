@@ -4,8 +4,8 @@ module.exports = function(vm, init_env) {
     vm.read = function() {
         return vm.parse_bytecode([vm.sym("%%progn")].concat(parse_sexp(vm.read_line())));
     };
-    vm.defun(init_env, vm.sym("%%read"), vm.jswrap(vm.read));
-    vm.defun(init_env, vm.sym("%%parse-sexp"), vm.jswrap(parse_sexp));
+    vm.defun(init_env, "%%read", vm.jswrap(vm.read));
+    vm.defun(init_env, "%%parse-sexp", vm.jswrap(parse_sexp));
 };
 module.exports.parse_sexp = parse_sexp;
 

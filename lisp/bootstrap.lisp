@@ -1,39 +1,34 @@
+;;;;; QUA
+
 ;; The forms in this file get evaluated immediately after VM startup,
 ;; with only primitive bindings provided by the JS code (%%-prefixed),
-;; in order to setup the high-level user language.  The user language
-;; combiners should all be defined as type-checked functions and
-;; fortified macros -- which we don't have yet.  So we need to define
-;; unsafe barebones implementations for some combiners such as LET.
-;; These will then later be overridden with the safer user language
-;; combiners.
+;; in order to setup the high-level user language.
 
 ;;;; Import primitive bindings
 
+;; Core language:
 (%%def #'def #'%%def) ; Bind new or update symbols in current environment.
 (def #'car #'%%car) ; Access first element of pair.
 (def #'cdr #'%%cdr) ; Access second element of pair.
 (def #'cons #'%%cons) ; Construct a new pair.
+(def #'defconstant #'def) ; One man's constant ...
+(def #'dynamic-bind #'%%dynamic-bind) ; Bind a single dynamic variable.  
 (def #'eq #'%%eq) ; Compare two values for pointer equality.
+(def #'eql #'eq)  ; Value equality for booleans, numbers, strings; pointer else.
 (def #'eval #'%%eval) ; Evaluate an expression in an environment.
 (def #'if #'%%if) ; Evaluate either of two expressions depending on a test.
 (def #'make-environment #'%%make-environment) ; Create new lexical environment.
 (def #'print #'%%print) ; Print line.
 (def #'progn #'%%progn) ; Evaluate expressions in order.
 (def #'setq #'%%setq) ; Update existing bindings in current or ancestor environment.
+(def #'to-fun-sym #'%%to-fun-sym) ; Turn any symbol into a function namespaced one.
+(def #'to-type-sym #'%%to-type-sym) ; Turn any symbol into a type namespaced one.
 (def #'unwrap #'%%unwrap) ; Extract fexpr underlying a function.
 (def #'wrap #'%%wrap) ; Construct a function out of a fexpr.
 ;; Objects:
-(def #'concrete-class-of #'%%concrete-class-of)
-(def #'ensure-class #'%%ensure-class)
-(def #'find-concrete-class #'%%find-concrete-class)
-(def #'find-generic-class #'%%find-generic-class)
-(def #'find-method #'%%find-method)
-(def #'generic-class-of #'%%generic-class-of)
-(def #'type? #'%%type?)
-(def #'put-method #'%%put-method)
-(def #'set-slot-value #'%%set-slot-value)
-(def #'slot-bound? #'%%slot-bound?)
-(def #'slot-value #'%%slot-value)
+(def #'class-of #'%%class-of)
+(def #'make-class #'%%make-class)
+(def #'send-message #'%%send-message)
 ;; JS:
 (def #'js-apply #'%%js-apply)
 (def #'js-function #'%%js-function)
@@ -42,23 +37,17 @@
 (def #'js-new #'%%js-new)
 (def #'js-set #'%%js-set)
 (def #'own-property? #'%%own-property?)
-;; Use one % as prefix for stuff that's not expected to be called by
-;; the user or that doesn't have a final API yet.
-(def #'%to-fun-sym #'%%to-fun-sym) ; Turn any symbol into a function namespaced one.
 ;; Optimization bindings:
-(def #'list* #'%%list*) ; Construct list of arguments, with the final argument as tail.
+(def #'list* #'%%list*)
 (def #'list-to-js-array #'%%list-to-array)
 (def #'plist-to-js-object #'%%plist-to-js-object)
 (def #'reverse-list #'%%reverse-list)
-;; Other
-(def #'= #'eq) ; Use EQ for now as generic equality (since it works for JS values)
-(def #'defconstant #'def) ; One man's constant ...
 
 ;;;; Basics
 
-(def #'quote (%%vau (op) #ign op)) ; Prevent evaluation of its single operand.
-(def #'list (wrap (%%vau args #ign args))) ; Construct list of arguments.
-(def #'the-environment (%%vau #ign env env)) ; Return current lexical environment.
+(def #'quote (%%vau (operand) #ign operand)) ; Prevent evaluation of its single operand.
+(def #'list (wrap (%%vau arguments #ign arguments))) ; Construct list of arguments.
+(def #'the-environment (%%vau #ign environment environment)) ; Return current environment.
 
 ;;;; Fexprs
 
@@ -72,7 +61,7 @@
 ; Define a named fexpr in the current environment.
 (def #'deffexpr 
   (vau (name params env-param . body) env
-    (eval (list #'def (%to-fun-sym name) 
+    (eval (list #'def (to-fun-sym name) 
                 (list* #'vau params env-param body))
           env)))
 
@@ -96,7 +85,7 @@
 ; Define a named macro in the current environment.
 (def #'defmacro
   (macro (name params . body)
-    (list #'def (%to-fun-sym name) (list* #'macro params body))))
+    (list #'def (to-fun-sym name) (list* #'macro params body))))
 
 ;;;; Functions
 
@@ -106,28 +95,36 @@
 
 ; Define a named function.
 (defmacro defun (name params . body)
-  (list #'def (%to-fun-sym name) (list* #'lambda params body)))
+  (list #'def (to-fun-sym name) (list* #'lambda params body)))
 
-; Treat the rest arg as an optional value with optional default.
+; Create a function that has access to the current lexical environment.
+(defmacro lambda/env (params env-param . body)
+  (list #'wrap (list* #'vau params env-param body)))
+
+; Define a named function that has access to the current lexical environment.
+(defmacro defun/env (name params env-param . body)
+  (list #'def (to-fun-sym name) (list* #'lambda/env params env-param body)))
+
+; Treat the rest argument as an optional value with optional default.
 (defun optional (opt-arg . opt-default)
   (if (nil? opt-arg)
       (if (nil? opt-default) #void (car opt-default))
       (car opt-arg)))
 
 ; Apply a function to a list of arguments.
-(defun apply (fun args . opt-env)
-  (eval (cons (unwrap fun) args)
+(defun apply (fun arguments . opt-env)
+  (eval (cons (unwrap fun) arguments)
         (optional opt-env (make-environment))))
 
 ; Similar to an ordinary function call, but can be used to call a
 ; function from the variable namespace.
-(defun funcall (fun . args)
-  (apply fun args))
+(defun funcall (fun . arguments)
+  (apply fun arguments))
 
 ; Don't need FUNCALL as much as in Common Lisp though, since we can
 ; always bind lexical vars in function namespace (plus, if FOO returns
 ; a function, then we can do ((FOO)) to call it, so using FUNCALL is
-; for readability only)
+; used to enhance readability only).
 (defun compose (#'f #'g)
   (lambda (arg) (f (g arg))))
 
@@ -135,7 +132,9 @@
 
 ;;;; Forms
 
-; Return true if an object is #NIL or #VOID, false otherwise.
+(defun symbol? (sym) (eq (class-of sym) (class symbol)))
+(defun keyword? (obj) (eq (class-of obj) (class keyword)))
+(defun cons? (cons) (eq (class-of cons) (class cons)))
 (defun nil? (obj) (eq obj #nil))
 (defun void? (obj) (eq obj #void))
 
@@ -144,11 +143,10 @@
 (def #'cdar (compose #'cdr #'car))
 (def #'cddr (compose #'cdr #'cdr))
 
-(defun symbol? (sym) (%%type? sym 'symbol))
-(defun keyword? (obj) (%%type? obj 'keyword))
-(defun cons? (cons) (%%type? cons 'cons))
+(defmacro function (name) (to-fun-sym name))
+(defmacro class (name) (to-type-sym name))
 
-(defun symbol-name (sym) (slot-value sym 'name))
+(defun symbol-name (sym) (%%slot-value sym "name"))
 
 ; Produce a new list by applying a function to each element of a list.
 (defun map-list (#'fun list)
@@ -191,16 +189,16 @@
 
 ;;;; Lexical function bindings
 
-(defun %var-bindingize ((fun-name fun-params . fun-body))
-  (list (%to-fun-sym fun-name) (list* #'lambda fun-params fun-body)))
+(defun var-bindingize ((fun-name fun-params . fun-body))
+  (list (to-fun-sym fun-name) (list* #'lambda fun-params fun-body)))
 
 ; Common Lisp's parallel binder for functions.
 (defmacro flet (fun-bindings . body)
-  (list* #'let (map-list #'%var-bindingize fun-bindings) body))
+  (list* #'let (map-list #'var-bindingize fun-bindings) body))
 
 ; Common Lisp's (self) recursive binder for functions.
 (defmacro labels (fun-bindings . body)
-  (list* #'letrec (map-list #'%var-bindingize fun-bindings) body))
+  (list* #'letrec (map-list #'var-bindingize fun-bindings) body))
 
 ;;;; Logic
 
@@ -244,9 +242,9 @@
 (defmacro setf (place new-val)
   (if (symbol? place)
       (list #'setq place new-val)
-      (let* (((getter-form . args) place)
-             (getter (if (symbol? getter-form) (%to-fun-sym getter-form) getter-form)))
-        (list* (list #'setter getter) new-val args))))
+      (let* (((getter-form . arguments) place)
+             (getter (if (symbol? getter-form) (to-fun-sym getter-form) getter-form)))
+        (list* (list #'setter getter) new-val arguments))))
 
 (defmacro incf (place . opt-increment)
   (let ((increment (optional opt-increment 1)))
@@ -258,38 +256,45 @@
 
 ;;;; Objects and classes
 
-(def #'%parse-type-spec #'identity) ; Overridden later
+(defun/env find-class (class-desig) env
+  (eval (to-type-sym class-desig) env))
 
-(defun %make-instance (class-desig . initargs)
-  (%%make-instance class-desig (plist-to-js-object initargs)))
-
-(defun call-method (obj name args)
-  (let ((method (find-method obj name)))
-    (apply method args)))
+(defun make-instance (class-desig . initargs)
+  (%%make-instance (find-class class-desig) (plist-to-js-object initargs)))
 
 (deffexpr defgeneric (name . #ign) env
-  (eval (list #'def (%to-fun-sym name)
-              (lambda args
-                (call-method (car args) name args)))
-        env))
+  (let ((generic (lambda arguments
+                   (send-message (car arguments) (symbol-name name) arguments))))
+    (eval (list #'def (to-fun-sym name) generic) env)))
 
-(deffexpr %defmethod (name ((self class-spec) . args) . body) env
-  (let ((class (find-generic-class (%parse-type-spec class-spec)))
-        (fun (eval (list* #'lambda (list* self args) body) env)))
-    (put-method class name fun)
-    name))
+(deffexpr defmethod (name ((self class-spec) . arguments) . body) env
+  (let ((class (find-class class-spec))
+        (method (eval (list* #'lambda (list* self arguments) body) env)))
+    (%%put-method class (symbol-name name) method)))
 
-(deffexpr defclass (class-spec superclass-specs . #ign) #ign
-  (ensure-class (%parse-type-spec class-spec)
-                (list-to-js-array (map-list #'%parse-type-spec superclass-specs))))
+(deffexpr defclass (class-spec . #ign) env
+  (let* ((class-name (symbol-name class-spec))
+	 (class (make-class (class standard-class) class-name)))
+    (eval (list #'def (to-type-sym class-spec) class) env)))
+
+(defun slot-value (obj name)
+  (%%slot-value obj (symbol-name name)))
+
+(defun set-slot-value (obj name value)
+  (%%set-slot-value obj (symbol-name name) value))
+
+(defun slot-bound? (obj name)
+  (%%slot-bound? obj (symbol-name name)))
 
 (defsetf #'slot-value
   (lambda (new-val obj slot-name)
     (set-slot-value obj slot-name new-val)))
 
-(defgeneric hash-object (self))
-(defgeneric compare-object (self))
-(defgeneric print-object (self stream))
+;; sloppy check
+(defun slot-void? (obj slot-name)
+  (if (slot-bound? obj slot-name)
+      (void? (slot-value obj slot-name))
+      #t))
 
 ;;;; Simple control
 
@@ -308,25 +313,24 @@
   (list #'%%if test then else))
 
 (defmacro when (test . body)
-  (list #'%%if test (list* #'progn body) #void))
+  (list #'if test (list* #'progn body) #void))
 
 (defmacro unless (test . body)
-  (list #'%%if test #void (list* #'progn body)))
+  (list #'if test #void (list* #'progn body)))
 
-(defun %call-with-escape (#'fn)
+(defun call-with-escape (#'fn)
   (labels ((escape opt-val
-             (%%raise (%make-instance '%%tag :id #'escape :val (optional opt-val)))))
+             (%%raise (make-instance '%%tag :id #'escape :val (optional opt-val)))))
     (%%rescue (lambda (exc)
-                (if (and (type? exc '%%tag)
+                (if (and (eq (class-of exc) (class %%tag))
                          (eq (slot-value exc 'id) #'escape))
                     (slot-value exc 'val)
-                    (%%raise exc)))
+                  (%%raise exc)))
               (lambda ()
                 (fn #'escape)))))
 
-; Unlike CL, block tags are first class lexical objects.
 (defmacro block (name . body)
-  (list #'%call-with-escape (list* #'lambda (list name) body)))
+  (list #'call-with-escape (list* #'lambda (list name) body)))
 
 (defun return-from (escape . opt-val)
   (apply escape opt-val))
@@ -342,10 +346,11 @@
   (list #'progn form (list* #'prog1 forms)))
 
 (defun unwind-protect* (#'protected-thunk #'cleanup-thunk)
-  (prog1 (%%rescue (lambda (exc)
-                     (cleanup-thunk)
-                     (%%raise exc))
-                   #'protected-thunk)
+  (prog1
+      (%%rescue (lambda (exc)
+                  (cleanup-thunk)
+                  (%%raise exc))
+                #'protected-thunk)
     (cleanup-thunk)))
 
 (defmacro unwind-protect (protected-form . cleanup-forms)
@@ -357,18 +362,18 @@
   (let ((val (eval expr env)))
     (block match
       (list-for-each (lambda ((other-val . body))
-                       (when (= val (eval other-val env))
+                       (when (eql val (eval other-val env))
                          (return-from match (eval (list* #'progn body) env))))
-                clauses)
+                     clauses)
       #void)))
 
 ;;;; Reference cells
 
-(defclass box (standard-object)
+(defclass box ()
   (val))
 
-(defun make-box (val)
-  (%make-instance 'box :val val))
+(defun make-box opt-val
+  (make-instance 'box :val (optional opt-val)))
 
 (defun box-value (box)
   (slot-value box 'val))
@@ -409,10 +414,6 @@
 
 (def #'dynamic #'box-value)
 
-; Bind a single dynamic variable.  This directly uses the VAL slot of
-; the dynamic, which is a hack but works for now.
-(def #'dynamic-bind #'%%dynamic-bind)
-
 ; Parallel dynamic binding: first evaluate all right hand side value
 ; expressions, then bind all dynamic variables.
 (deffexpr dynamic-let (bindings . body) env
@@ -440,9 +441,9 @@
 
 ; Implementation of @method-name JS method call syntax
 (defun js-invoker (method-name)
-  (lambda (this . args)
-    (let ((fun (js-get this method-name)))
-      (js-apply fun this (list-to-js-array args)))))
+  (lambda (this . arguments)
+    (let ((js-fun (js-get this method-name)))
+      (js-apply js-fun this (list-to-js-array arguments)))))
 
 (defun create-js-object opt-proto
   (@create $Object (optional opt-proto #null)))
@@ -454,7 +455,7 @@
 (defmacro js-lambda (lambda-list . body)
   (list #'js-function (list* #'lambda lambda-list body)))
 
-(defun %js-relational-op (name)
+(defun js-relational-op (name)
   (let ((#'binop (%%js-binop name)))
     (labels ((op (arg1 arg2 . rest)
                (if (binop arg1 arg2)
@@ -464,41 +465,41 @@
                    #f)))
       #'op)))
 
-(def #'== (%js-relational-op "=="))
-(def #'=== (%js-relational-op "==="))
-(def #'< (%js-relational-op "<"))
-(def #'> (%js-relational-op ">"))
-(def #'<= (%js-relational-op "<="))
-(def #'>= (%js-relational-op ">="))
+(def #'== (js-relational-op "=="))
+(def #'=== (js-relational-op "==="))
+(def #'< (js-relational-op "<"))
+(def #'> (js-relational-op ">"))
+(def #'<= (js-relational-op "<="))
+(def #'>= (js-relational-op ">="))
 
 (def #'lt #'<)
 (def #'lte #'<=)
 (def #'gt #'>)
 (def #'gte #'>=)
 
-(defun != args (not (apply == args)))
-(defun !== args (not (apply === args)))
+(defun != arguments (not (apply #'== arguments)))
+(defun !== arguments (not (apply #'=== arguments)))
 
 (def #'* (let ((#'binop (%%js-binop "*")))
-           (lambda args
-             (fold-list #'binop 1 args))))
+           (lambda arguments
+             (fold-list #'binop 1 arguments))))
 
 ;; Can't simply use 0 as unit or it won't work with strings
 (def #'+ (let ((#'binop (%%js-binop "+")))
-           (lambda args
-             (if (nil? args)
+           (lambda arguments
+             (if (nil? arguments)
                  0
-                 (fold-list #'binop (car args) (cdr args))))))
+                 (fold-list #'binop (car arguments) (cdr arguments))))))
 
-(defun %js-negative-op (name unit)
+(defun js-negative-op (name unit)
   (let ((#'binop (%%js-binop name)))
     (lambda (arg1 . rest)
       (if (nil? rest)
           (binop unit arg1)
           (fold-list #'binop arg1 rest)))))
 
-(def #'- (%js-negative-op "-" 0))
-(def #'/ (%js-negative-op "/" 1))
+(def #'- (js-negative-op "-" 0))
+(def #'/ (js-negative-op "/" 1))
 
 ;;;; Utilities
 
@@ -508,7 +509,7 @@
       (+ 1 (list-length (cdr list)))))
 
 (defun list-elt (list i)
-  (if (= i 0)
+  (if (eql i 0)
       (car list)
       (list-elt (cdr list) (- i 1))))
 
@@ -519,215 +520,21 @@
           (cons (car list) (filter-list #'pred? (cdr list)))
           (filter-list #'pred? (cdr list)))))
 
-(defun append-2-lists (list-1 list-2)
+(defun append-lists (list-1 list-2)
   (if (nil? list-1)
       list-2
-      (cons (car list-1) (append-2-lists (cdr list-1) list-2))))
+      (cons (car list-1) (append-lists (cdr list-1) list-2))))
 
-;;;; Conditions
+;;;; Typechecks
 
-(defclass condition (standard-object))
-(defclass warning (condition))
-(defclass serious-condition (condition))
-(defclass error (serious-condition))
+(defgeneric type? (obj type-spec))
+(defmethod type? ((obj standard-object) type-spec)
+  (default-type? obj type-spec))
 
-(defclass simple-condition (condition)
-  (message))
-(defclass simple-warning (warning)
-  (message))
-(defclass simple-error (error)
-  (message))
-
-(defun simple-error (message . #ign)
-  (error (make-instance 'simple-error :message message)))
-
-(defclass runtime-error (error))
-(defclass control-error (runtime-error))
-(defclass restart-control-error (control-error)
-  (restart))
-
-;; Restarts probably shouldn't be conditions but currently are to
-;; simplify handling code, which is shared between the two to some
-;; extent.  Which that is turning out not to be so great an idea
-;; anyway, so the future is probably restarts separate from
-;; conditions.
-(defclass restart (condition))
-(defclass abort (restart))
-(defclass continue (restart))
-(defclass use-value (restart)
-  (value))
-(defclass store-value (restart)
-  (value))
-
-;;; Condition handlers
-
-(defdynamic *condition-handler-frame*)
-(defdynamic *restart-handler-frame*)
-
-(defclass handler (standard-object)
-  (name
-   condition-type
-   handler-function
-   associated-condition))
-
-(defun make-handler (condition-type handler-function . opt-associated-condition)
-  (%make-instance 'handler
-                  :name (symbol-name condition-type)
-                  :condition-type condition-type
-                  :handler-function handler-function
-                  :associated-condition (optional opt-associated-condition)))
-
-(defun handle-condition (handler condition)
-  (funcall (slot-value handler 'handler-function) condition))
-
-(defclass handler-frame (standard-object)
-  (handlers
-   parent))
-
-(defun make-handler-frame (handlers . opt-parent)
-  (%make-instance 'handler-frame :handlers handlers :parent (optional opt-parent)))
-
-(defun %make-handler-bind (#'handler-spec-parser handler-frame-dynamic)
-  (vau (handler-specs . body) env
-    (let* ((handlers (map-list (lambda (spec) (handler-spec-parser spec env)) handler-specs))
-           (handler-frame (make-handler-frame handlers (dynamic handler-frame-dynamic))))
-      (dynamic-bind handler-frame-dynamic handler-frame
-                    (lambda () (eval (list* #'progn body) env))))))
-
-;; handler-spec ::= (condition-class-name handler-function-form)
-(def #'handler-bind
-  (%make-handler-bind
-   (lambda ((class-name function-form) env)
-     (make-handler class-name (eval function-form env)))
-   *condition-handler-frame*))
-
-;; handler-spec ::= (restart-class-name handler-function-form . opt-associated-condition)
-(def #'restart-bind
-  (%make-handler-bind
-   (lambda ((class-name function-form . opt-associated-condition) env)
-     (make-handler class-name
-                   (eval function-form env)
-                   (eval (optional opt-associated-condition) env)))
-   *restart-handler-frame*))
-
-;;; Condition signaling
-          
-(defun signal (condition)
-  (signal-condition condition (dynamic *condition-handler-frame*)))
-
-(defun warn (condition)
-  (signal condition)
-  (print "Warning:" condition))
-
-;; Additionally to explicit use from Lisp, ERROR gets called by the VM
-;; if a JS exception (that's not a block tag for a nonlocal control
-;; transfer) occurs during evaluation.  By virtue of calling
-;; INVOKE-DEBUGGER, it is guaranteed to never normally return back
-;; into JS, only to a formally established restart.
-(defun error (condition)
-  (signal condition)
-  (invoke-debugger condition))
-
-(defun invoke-restart (restart)
-  (signal-condition restart (dynamic *restart-handler-frame*)))
-
-(defun signal-condition (condition dynamic-frame)
-  (let ((handler-and-frame (find-applicable-handler condition dynamic-frame)))
-    (if (void? handler-and-frame)
-        #void
-        (let (((handler frame) handler-and-frame))
-          (call-condition-handler condition handler frame)
-          ;; signal unhandled: continue search for handlers
-          (signal-condition condition (slot-value frame 'parent))))))
-
-(defun find-applicable-handler (condition dynamic-frame)
-  (if (void? dynamic-frame)
-      #void
-      (block found
-        (list-for-each (lambda (handler)
-                         (when (condition-applicable? condition handler)
-                           (return-from found (list handler dynamic-frame))))
-                        (slot-value dynamic-frame 'handlers))
-        (find-applicable-handler condition (slot-value dynamic-frame 'parent)))))
-
-(defgeneric condition-applicable? (condition handler))
-
-(%defmethod condition-applicable? ((condition condition) handler)
-  (type? condition (slot-value handler 'condition-type)))
-
-(defun slot-void? (obj slot-name)
-  (if (slot-bound? obj slot-name)
-      (void? (slot-value obj slot-name))
-      #t))
-
-(%defmethod condition-applicable? ((restart restart) handler)
-  (and (type? restart (slot-value handler 'condition-type))
-       (or (slot-void? restart 'associated-condition)
-           (slot-void? handler 'associated-condition)
-           (eq (slot-value restart 'associated-condition)
-               (slot-value handler 'associated-condition)))))
-
-(defgeneric call-condition-handler (condition handler handler-frame))
-
-(%defmethod call-condition-handler ((condition condition) handler handler-frame)
-  ; Condition firewall
-  (dynamic-let ((*condition-handler-frame* (slot-value handler-frame 'parent)))
-    (handle-condition handler condition)))
-
-(%defmethod call-condition-handler ((restart restart) handler handler-frame)
-  (handle-condition handler restart))
-
-;;;; Types
-
-(defclass type-error (error) ())
-(defclass type-mismatch-error (type-error) (type-spec obj))
-
-(defconstant +top-type+
-  (%make-instance '%class-type :name "top" :generic-params '()))
-
-(defconstant +bottom-type+
-  (%make-instance '%class-type :name "bottom" :generic-params '()))
-
-(defun %parse-type-spec (type-spec)
-  (cond ((keyword? type-spec)
-         (%make-instance '%type-variable
-                         :name (symbol-name type-spec)))
-        ((symbol? type-spec)
-         (%make-instance '%class-type
-                         :name (symbol-name type-spec)
-                         :generic-params '()))
-        ((cons? type-spec)
-         (let (((class-name . generic-param-specs) type-spec))
-           (%make-instance '%class-type
-                           :name (symbol-name class-name)
-                           :generic-params (map-list #'%parse-generic-param-spec
-                                                     generic-param-specs))))
-        (#t (simple-error "Illegal type-spec"))))
-  
-(defun %parse-generic-param-spec (gp-spec)
-  (cond ((or (keyword? gp-spec) (symbol? gp-spec))
-         (let ((type (%parse-type-spec gp-spec)))
-           (%make-instance '%generic-param :in-type type :out-type type)))
-        ((cons? gp-spec)
-         (let (((op . rest) gp-spec))
-           (if (keyword? op)
-               (case (symbol-name op)
-                 ("io"
-                  (let* ((in-type (%parse-type-spec (car rest)))
-                         (out-type (%parse-type-spec (optional (cdr rest) in-type))))
-                    (%make-instance '%generic-param :in-type in-type :out-type out-type)))
-                 ("in"
-                  (let ((in-type (%parse-type-spec (car rest))))
-                    (%make-instance '%generic-param :in-type in-type :out-type +top-type+)))
-                 ("out"
-                  (let ((out-type (%parse-type-spec (car rest))))
-                    (%make-instance '%generic-param :in-type +bottom-type+ :out-type out-type))))
-               (let ((type (%parse-type-spec gp-spec)))
-                 (%make-instance '%generic-param :in-type type :out-type type)))))
-        (#t (error "Illegal generic param spec"))))
-
-(defun type? (obj type-spec)
-  (%%type? obj (%parse-type-spec type-spec)))
+(defun default-type? (obj type-spec)
+  (let ((c (find-class type-spec)))
+    (or (eq c (class standard-object))
+	(eq c (class-of obj)))))
 
 (deffexpr typecase (expr . clauses) env
   (let ((val (eval expr env)))
@@ -743,113 +550,248 @@
 (defun the (type-spec obj)
   (if (type? obj type-spec)
       obj
-      (error (%make-instance 'type-mismatch-error
-                             :type-spec type-spec :obj obj))))
+      (error (make-instance 'type-mismatch-error
+                            :type-spec type-spec :obj obj))))
 
-(defun %parse-method-lambda-list (method-ll)
-  (if (cons? method-ll)
-      (let* (((receiver-spec . other-params) method-ll)
-             (simplified-other-params
-              (map-list (lambda (param)
-                          (typecase param
-                            (cons (car param))
-                            (symbol param)
-                            (#t (simple-error "Not a method parameter" :arg param))))
-                        other-params))
-             (simplified-ll (cons receiver-spec simplified-other-params))
-             (type-checks '()))
-        (list simplified-ll type-checks))
-      (simple-error "Not a method lambda list" :arg method-ll)))
+;;;; Conditions
 
-(defmacro defmethod (name method-lambda-list . body)
-  (let (((simplified-method-ll type-checks)
-         (%parse-method-lambda-list method-lambda-list)))
-    (list* #'%defmethod name simplified-method-ll
-           type-checks
-           body)))
+;;; Condition handling and restart handling share some similarities
+;;; while also being quite different in other aspects.  The following
+;;; tries to share as much code as possible between the two handling
+;;; systems, leading to some mildly awkward puns.
+;;;
+;;; The main similarities between condition and restart handling:
+;;;
+;;; * Both condition and restart handlers are arranged in
+;;;   dynamically-bound handler chains, consisting of individual
+;;;   handler frames.  Each frame binds a number of condition and
+;;;   restart handlers.  We use two dynamic variables,
+;;;   *CONDITION-HANDLER-FRAME* and *RESTART-HANDLER-FRAME*, to point
+;;;   at the innermost frame of each chain.
+;;;
+;;; * Signaling a condition and invoking a restart are very similar
+;;;   operations, in that a handler is looked up in the chain, and
+;;;   then its handler function is invoked.
+;;;
+;;; The main differences:
+;;;
+;;; * Conditions are classes organized in a type hierarchy (e.g. ERROR
+;;;   as subtype of SERIOUS-CONDITION), whereas restarts are plain
+;;;   names (e.g. USE-VALUE).
+;;;
+;;; * A condition handler always receives only a single argument, the
+;;;   condition, whereas a restart handler receives any number of
+;;;   arguments.
+;;;
+;;; * A restart handler might optionally be associated with a
+;;;   particular condition instance, to tell apart the sets of
+;;;   restarts belonging to different, concurrently signaled
+;;;   conditions.
+;;;
+;;; * A restart handler might have an interactive function to supply
+;;;   arguments if the restart is invoked interactively in the
+;;;   debugger (e.g. by prompting the user for the values).
+;;;
+;;; We follow the Common Lisp condition system very closely (including
+;;; details like the condition firewall), except for some details
+;;; related to restart invocation, plus a quite arcane difference: We
+;;; omit WITH-CONDITION-RESTARTS, which is used to associate a restart
+;;; with a particular condition, because it seems like an afterthought
+;;; in the CL design, and also probably wouldn't work with fexprs.
+;;; Instead we allow an additional keyword, not in CL,
+;;; :ASSOCIATED-CONDITION in RESTART-BIND's handler-specs that
+;;; establishes the association.  This means that a restart can only
+;;; be associated with a single condition, and not, as in Cl, with
+;;; multiple conditions.
 
-(defun make-instance (type-spec . args)
-  (apply #'%make-instance (cons (%parse-type-spec type-spec) args)))
+(defclass handler-frame ()
+  (handlers
+   parent))
 
-;;;; Debugging and interaction
+(defclass condition-handler ()
+  (condition-type
+   handler-function))
 
-(defun invoke-debugger (condition)
-  (print "")
-  (print "Welcome to the debugger!")
-  (loop
-     (block continue
-       (print (+ "Condition: " condition))
-       (let ((restarts (compute-restarts condition)))
-         (if (> (list-length restarts) 0)
-             (progn
-               (print "Restarts:")
-               (let ((i 1))
-                 (list-for-each (lambda (restart)
-                                  (print (+ i ": " (slot-value restart 'name)))
-                                  (incf i))
-                                restarts)
-                 (print "Enter a restart number:")
-                 (let* ((s (%%read-line))
-                        (n ($Number s)))
-                   (if ($isNaN n)
-                       (progn
-                         (print "You didn't enter a number. Please try again.")
-                         (return-from continue))
-                       (let ((class (slot-value (list-elt restarts (- n 1)) 'condition-type)))
-                         (invoke-restart-interactively (%make-instance class)))))))
-             (%%panic condition))))))
+(defclass restart-handler ()
+  (restart-name
+   handler-function
+   associated-condition
+   interactive-function))
 
-(defun compute-restarts (condition)
-  (reverse-list (%compute-restarts condition '() (dynamic *restart-handler-frame*))))
+(defdynamic *condition-handler-frame*)
+(defdynamic *restart-handler-frame*)
 
-(defun %compute-restarts (condition restart-list handler-frame)
+;;; Condition handlers
+
+(defun apply-handler-function (handler arguments)
+  (apply (slot-value handler 'handler-function) arguments))
+
+(defun make-handler-frame (handlers . opt-parent)
+  (make-instance 'handler-frame :handlers handlers :parent (optional opt-parent)))
+
+(defun make-handler-bind-operator (#'handler-spec-parser handler-frame-dynamic)
+  (vau (handler-specs . body) env
+    (let* ((handlers (map-list (lambda (spec) (handler-spec-parser spec env)) handler-specs))
+           (handler-frame (make-handler-frame handlers (dynamic handler-frame-dynamic))))
+      (dynamic-bind handler-frame-dynamic handler-frame
+                    (lambda () (eval (list* #'progn body) env))))))
+
+;; handler-spec ::= (condition-class-name handler-function-form)
+(def #'handler-bind
+  (make-handler-bind-operator
+   (lambda ((class-name function-form) env)
+     (make-instance 'condition-handler
+		    :condition-type class-name
+		    :handler-function (eval function-form env)))
+   *condition-handler-frame*))
+
+;; handler-spec ::= (restart-name handler-function-form . keywords)
+;; keywords::= :interactive-function interactive-function |
+;;             :associated-condition associated-condition
+(def #'restart-bind
+  (make-handler-bind-operator
+   (lambda ((name function-form . keywords) env)
+     ;; gross
+     (let* ((dict (plist-to-js-object keywords))
+	    (interactive-function
+	     (if (own-property? dict "interactive-function")
+		 (eval (.interactive-function dict) env)
+	       (lambda () '())))
+	    (associated-condition
+	     (if (own-property? dict "associated-condition")
+		 (eval (.associated-condition dict) env)
+	       #void)))
+       (make-instance 'restart-handler 
+		      :restart-name name
+                      :handler-function (eval function-form env)
+                      :interactive-function interactive-function
+		      :associated-condition associated-condition)))
+   *restart-handler-frame*))
+
+;;; Condition signaling
+          
+(defun signal (condition)
+  (signal-condition condition (dynamic *condition-handler-frame*) (list condition)))
+
+(defun warn (condition)
+  (signal condition)
+  (print "Warning:" condition))
+
+;; Additionally to explicit use from Lisp, ERROR gets called by the VM
+;; if a JS exception (that's not a block tag for a nonlocal control
+;; transfer) occurs during evaluation.  By virtue of calling
+;; INVOKE-DEBUGGER, it is guaranteed to never normally return back
+;; into JS, only to a formally established restart.
+(defun error (condition)
+  (signal condition)
+  (invoke-debugger condition))
+
+(defun invoke-restart (restart-designator . arguments)
+  (if (symbol? restart-designator)
+      (signal-condition restart-designator (dynamic *restart-handler-frame*) arguments)
+    (apply-handler-function restart-designator arguments))
+  (simple-error "Restart invocation failed"))
+
+;; Main signaling entry point, used by both condition and restart
+;; signaling.  For condition signaling, the arguments for the handler
+;; function are list containing as single element the condition.  In
+;; case of restarts, the condition is actually a restart name, and the
+;; arguments are the arguments supplied via INVOKE-RESTART.
+(defun signal-condition (condition dynamic-frame arguments)
+  (let ((handler-and-frame (find-applicable-handler condition dynamic-frame #void)))
+    (if (void? handler-and-frame)
+        #void
+        (let (((handler frame) handler-and-frame))
+          (call-condition-handler handler frame arguments)
+          ;; signal unhandled: continue search for handlers
+          (signal-condition condition (slot-value frame 'parent) arguments)))))
+
+;; Returns a list of the found handler and the frame
+;; binding/establishing it.  The frame is needed so that we can access
+;; its parent in the implementation of the condition firewall.
+(defun find-applicable-handler (condition dynamic-frame payload)
+  (if (void? dynamic-frame)
+      #void
+      (block found
+        (list-for-each (lambda (handler)
+                         (when (condition-applicable? handler condition payload)
+                           (return-from found (list handler dynamic-frame))))
+                       (slot-value dynamic-frame 'handlers))
+        (find-applicable-handler condition (slot-value dynamic-frame 'parent) payload))))
+
+(defun find-restart (restart-name . opt-condition)
+  (let ((associated-condition (optional opt-condition)))
+    (find-applicable-handler restart-name *restart-handler-frame* associated-condition)))
+
+(defgeneric condition-applicable? (handler condition payload))
+
+(defmethod condition-applicable? ((handler condition-handler) condition #ign)
+  (type? condition (slot-value handler 'condition-type)))
+
+(defmethod condition-applicable? ((handler restart-handler) restart-name associated-condition)
+  (and (eql (symbol-name restart-name)
+	    (symbol-name (slot-value handler 'restart-name)))
+       (or (void? associated-condition)
+           (slot-void? handler 'associated-condition)
+           (eq associated-condition (slot-value handler 'associated-condition)))))
+
+(defgeneric call-condition-handler (handler handler-frame arguments))
+
+(defmethod call-condition-handler ((handler condition-handler) handler-frame arguments)
+  ;; Condition firewall
+  (dynamic-let ((*condition-handler-frame* (slot-value handler-frame 'parent)))
+    (apply-handler-function handler arguments)))
+
+(defmethod call-condition-handler ((handler restart-handler) handler-frame arguments)
+  (apply-handler-function handler arguments))
+
+(defun compute-restarts opt-condition
+  (reverse-list
+   (do-compute-restarts (optional opt-condition)
+			'()
+			(dynamic *restart-handler-frame*))))
+
+(defun do-compute-restarts (condition restart-list handler-frame)
   (if (void? handler-frame)
       restart-list
-      (let ((restarts
-             (filter-list
-              (lambda (handler)
-                (or (slot-void? handler 'associated-condition)
-                    (eq (slot-value handler 'associated-condition) condition)))
-              (slot-value handler-frame 'handlers))))
-        (%compute-restarts condition
-                           (append-2-lists restarts restart-list)
+    (let ((restarts
+           (filter-list
+            (lambda (handler)
+              (or (void? condition)
+		  (slot-void? handler 'associated-condition)
+                  (eq (slot-value handler 'associated-condition) condition)))
+            (slot-value handler-frame 'handlers))))
+      (do-compute-restarts condition
+                           (append-lists restarts restart-list)
                            (slot-value handler-frame 'parent)))))
 
-(defgeneric invoke-restart-interactively (restart))
+(defun invoke-restart-interactively (restart-designator)
+  (let* ((restart (if (symbol? restart-designator)
+		      (find-restart restart-designator)
+		    restart-designator))
+	 (arguments (funcall (.interactive-function restart))))
+    (apply #'invoke-restart restart arguments)))
 
-(%defmethod invoke-restart-interactively ((r restart))
-  (invoke-restart r))
+(defclass simple-error ()
+  (message))
 
-;;;; Userspace
-
-;; Delimits all user interactions, so that stack traces can be taken.
-(defconstant +user-prompt+ :user-prompt)
-
-;; Wrapped around all user code.  Provides useful handler bindings,
-;; prompts, and other dynamic stuff.
-(defun push-userspace* (#'thunk)
-  (push-prompt +user-prompt+
-    (thunk)))
-
-(defmacro push-userspace body
-  (list #'push-userspace* (list* #'lambda () body)))
-
-(defun user-eval (expr env)
-  (push-userspace (eval expr env)))
+(defun simple-error (message)
+  (error (make-instance 'simple-error :message message)))
 
 ;;;; Sequences and Collections
 
-(defclass (sequence :e) (standard-object) ())
+(defclass sequence () ())
 
 ;; PLOT's sequence iteration protocol
-(defgeneric start-iteration (sequence) => iteration-state)
-(defgeneric end? (sequence iteration-state) => boolean)
-(defgeneric current (sequence iteration-state) => element)
-(defgeneric advance (sequence iteration-state) => iteration-state)
+(defgeneric start-iteration (sequence))
+(defgeneric end? (sequence iteration-state))
+(defgeneric current (sequence iteration-state))
+(defgeneric advance (sequence iteration-state))
 
 (defgeneric empty-clone (sequence))
+(defgeneric add (sequence element))
 (defgeneric finish-clone (sequence))
-(defmethod finish-clone ((obj object)) obj)
+(defmethod finish-clone ((obj standard-object)) obj)
 
 (defun for-each (#'fn seq)
   (let ((state (start-iteration seq)))
@@ -874,15 +816,26 @@
 (defmethod current ((self nil) state) (simple-error "At end"))
 (defmethod advance ((self nil) state) (simple-error "Can't advance past end"))
 
-(defmethod empty-clone ((self list)) #nil)
+(defmethod empty-clone ((self cons)) #nil)
+(defmethod empty-clone ((self nil)) #nil)
+(defmethod add ((self cons) elt) (cons elt self))
+(defmethod add ((self nil) elt) (cons elt self))
 (defmethod finish-clone ((self cons)) (reverse-list self))
-(defmethod add ((self list) elt) (cons elt self))
+(defmethod finish-clone ((self nil)) #nil)
 
-(defclass (collection :e) ((sequence :e)) ())
-(defgeneric add (collection element))
-(defgeneric len (collection))
+;;;; Userspace
 
-(defclass (indexed-collection :e) ((collection :e)) ())
-(defgeneric elt (collection index))
+;; Delimits all user interactions, so that stack traces can be taken.
+(defconstant +user-prompt+ :user-prompt)
 
-(defclass (array-list :e) ((indexed-collection :e)) ())
+;; Wrapped around all user code.  Provides useful handler bindings,
+;; prompts, and other dynamic stuff.
+(defun push-userspace* (#'thunk)
+  (push-prompt +user-prompt+
+    (thunk)))
+
+(defmacro push-userspace body
+  (list #'push-userspace* (list* #'lambda () body)))
+
+(defun user-eval (expr env)
+  (push-userspace (eval expr env)))

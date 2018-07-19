@@ -1,10 +1,10 @@
 ;; Test bindings
 (def #'%deep-equal (node:require "deep-equal"))
 (deffexpr %assert (expr) env
-          (unless (eval expr env)
-            (print "assertion failed")
-            (print expr)
-            (%%panic "assertion failed")))
+  (unless (eval expr env)
+    (print "assertion failed")
+    (print expr)
+    (%%panic "assertion failed")))
 (defun #'%expect (expected actual) (%assert (%deep-equal expected actual)))
 
 ;;;; Forms
@@ -61,10 +61,10 @@
 
 ;;;; Objects
 (defgeneric describe-yourself (self))
-(%defmethod describe-yourself ((self js-number)) "a number")
-(%defmethod describe-yourself ((self boolean)) "a boolean")
-(%defmethod describe-yourself ((self symbol)) "a symbol")
-(%defmethod describe-yourself ((self object)) "any other object")
+(defmethod describe-yourself ((self number)) "a number")
+(defmethod describe-yourself ((self boolean)) "a boolean")
+(defmethod describe-yourself ((self symbol)) "a symbol")
+(defmethod describe-yourself ((self standard-object)) "any other object")
 (%assert (%deep-equal "a number" (describe-yourself 33)))
 (%assert (%deep-equal "a boolean" (describe-yourself #t)))
 (%assert (%deep-equal "a symbol" (describe-yourself 'foo)))
@@ -79,27 +79,21 @@
                       (fun-with-keywords :x 2 :y 4)))
 
 ;;;; Basic classes
-(defclass my-class ())
+(defclass my-class () ())
 (defgeneric my-generic (self))
-(%defmethod my-generic ((self my-class))
-            "wow!")
-(def obj1 (%make-instance 'my-class))
-
-(defclass my-subclass (my-class))
-(def obj2 (%make-instance 'my-subclass))
-
+(defmethod my-generic ((self standard-object))
+  "wow!")
+(def obj1 (make-instance 'my-class))
 (%assert (%deep-equal "wow!" (my-generic obj1)))
-(%assert (%deep-equal "wow!" (my-generic obj2)))
-(%defmethod my-generic ((self my-subclass))
-            "wowzers!")
-(%assert (%deep-equal "wow!" (my-generic obj1)))
-(%assert (%deep-equal "wowzers!" (my-generic obj2)))
+(defmethod my-generic ((self my-class))
+  "wowzers!")
+(%assert (%deep-equal "wowzers!" (my-generic obj1)))
 
 ;;;; Slots
 (defclass class-with-slots ()
   ((x :type number)
    (y :type number)))
-(def object-with-slots (%make-instance 'class-with-slots :x 2 :y 4))
+(def object-with-slots (make-instance 'class-with-slots :x 2 :y 4))
 (%assert (%deep-equal 2 (slot-value object-with-slots 'x)))
 (%assert (%deep-equal 4 (slot-value object-with-slots 'y)))
 (%assert (slot-bound? object-with-slots 'x))
@@ -192,9 +186,9 @@
 (%expect 3 (case 3 (1 1) (2 2) (3 3)))
 (%expect #void (case 4 (1 1) (2 2) (3 3)))
 
-(%expect 1 (%call-with-escape (lambda (#ign) 1)))
-(%expect 2 (%call-with-escape (lambda (escape) 1 (return-from escape 2) 3)))
-(%expect #void (%call-with-escape (lambda (escape) 1 (return-from escape) 3)))
+(%expect 1 (call-with-escape (lambda (#ign) 1)))
+(%expect 2 (call-with-escape (lambda (escape) 1 (return-from escape 2) 3)))
+(%expect #void (call-with-escape (lambda (escape) 1 (return-from escape) 3)))
 (%expect #void (block x))
 (%expect 1 (block x 1))
 (%expect 2 (block x 1 (return-from x 2) 3))
@@ -208,9 +202,9 @@
   (%expect #t (box-value box)))
 (let ((cell #f))
   (block exit
-    (unwind-protect (return-from exit)
-      (setf cell #t))
-    (%expect #t cell)))
+	 (unwind-protect (return-from exit)
+	   (setf cell #t))
+	 (%expect #t cell)))
 
 (%expect #void (prog1))
 (%expect 1 (prog1 1 2 3))
@@ -219,10 +213,10 @@
 
 (%expect 12 (flet ((bar () 3)
                    (foo () 4))
-              (* (bar) (foo))))
+		  (* (bar) (foo))))
 (%expect 12 (labels ((bar (x) (* x (foo)))
                      (foo () 4))
-              (bar 3)))
+		    (bar 3)))
 
 ;;;; Dynamic variables
 
@@ -237,9 +231,9 @@
 (progn
   (%expect 1 (dynamic *my-dynamic*))
   (block exc
-    (dynamic-let ((*my-dynamic* 2))
-                 (%expect 2 (dynamic *my-dynamic*))
-                 (return-from exc)))
+	 (dynamic-let ((*my-dynamic* 2))
+                      (%expect 2 (dynamic *my-dynamic*))
+                      (return-from exc)))
   (%expect 1 (dynamic *my-dynamic*)))
 
 ;;;; JS object
@@ -247,21 +241,17 @@
   (%assert (%deep-equal "hello" (.message obj)))
   (%assert (%deep-equal #f (.sent obj)))
   (%assert (own-property? obj "message"))
-  (%assert (own-property? obj :message))
-  (%assert (own-property? obj 'message))
   (%assert (own-property? obj "sent"))
-  (%assert (own-property? obj :sent))
-  (%assert (own-property? obj 'sent))
-  (%assert (not (own-property? obj 'xyz))))
+  (%assert (not (own-property? obj "xyz"))))
 
 ;;;; JS getter
 (%assert (%deep-equal "String" (%%js-get (%%js-get "foo" "constructor") "name")))
 (%assert (%deep-equal "String" (.name (.constructor "foo"))))
-                                        ; Can access raw Qua slots
-(%assert (%deep-equal "foo" (.qs_name 'foo)))
-(%assert (%deep-equal "v" (.qs_ns 'foo)))
-(%assert (%deep-equal "f" (.qs_ns '#'foo)))
-                                        ; Can set slots
+;; Can access raw Qua slots
+(%assert (%deep-equal "foo" (.name 'foo)))
+(%assert (%deep-equal "variable" (.ns 'foo)))
+(%assert (%deep-equal "function" (.ns '#'foo)))
+;; Can set slots
 (let ((obj (create-js-object)))
   (setf (.message obj) "foo")
   (%assert (%deep-equal "foo" (.message obj))))
@@ -300,46 +290,14 @@
 (%expect 3 (list-elt (list 1 2 3 4) 2))
 
 (%expect '(#void #void) (filter-list #'void? '(1 #void 2 #void)))
-(%expect '(1 2 3 4) (append-2-lists '(1 2) '(3 4)))
-
-;;;; Conditions
-
-(%expect #void (handler-bind ()))
-(%expect #t (handler-bind () 1 2 (= #t #t)))
-(%expect 1
-         (block b
-           (handler-bind ((condition (lambda (c) (return-from b 1))))
-             (signal (%make-instance 'condition))
-             2)))
-
-(%expect 2
-         (block b
-           (handler-bind ((warning (lambda (c) (return-from b 1)))
-                          (serious-condition (lambda (c) (return-from b 2))))
-             (signal (%make-instance 'error))
-             3)))
-
-(%expect #void (signal (%make-instance 'condition)))
-
-(%expect "foo"
-         (block exit
-           (handler-bind ((condition (lambda #ign (invoke-restart (%make-instance 'continue)))))
-             (restart-bind ((continue (lambda #ign (return-from exit "foo"))))
-               (signal (%make-instance 'condition))))))
+(%expect '(1 2 3 4) (append-lists '(1 2) '(3 4)))
 
 ;;;; Subclassing
-(%assert (type? (%make-instance 'serious-condition) 'object))
-(%assert (type? (%make-instance 'error) 'serious-condition))
-(%assert (type? (%make-instance 'error) 'object))
-(%assert (not (type? (%make-instance 'object) 'error)))
+(%assert (type? (make-instance 'simple-error) 'standard-object))
+(%assert (not (type? (make-instance 'standard-object) 'simple-error)))
 
-(%assert (type? 12 'js-number))
 (%assert (type? 12 'number))
-(%assert (type? 12 'object))
-(%assert (not (type? 12 'standard-object)))
-
-(%assert (type? (.qs_direct-superclasses (find-generic-class 'object)) 'js-array))
-(%assert (type? (.qs_slots (find-generic-class 'object)) 'js-object))
+(%assert (type? 12 'standard-object))
 
 ;;;; Types
 (%expect #void (typecase #t))
@@ -351,66 +309,13 @@
 (%expect 1 (typecase 'whatever (symbol 1) (#t "default")))
 (%expect "default" (typecase 'whatever (number 1) (#t "default")))
 
-(%expect (%make-instance '%generic-param
-                         :in-type (%parse-type-spec 'number)
-                         :out-type (%parse-type-spec 'boolean))
-         (%parse-generic-param-spec '(:io number boolean)))
-(%expect (%make-instance '%generic-param
-                         :in-type (%parse-type-spec 'number)
-                         :out-type +top-type+)
-         (%parse-generic-param-spec '(:in number)))
-(%expect (%make-instance '%generic-param
-                         :in-type +bottom-type+
-                         :out-type (%parse-type-spec 'number))
-         (%parse-generic-param-spec '(:out number)))
-(%expect (%make-instance '%generic-param
-                         :in-type (%parse-type-spec 'number)
-                         :out-type (%parse-type-spec 'number))
-         (%parse-generic-param-spec 'number))
-(%expect (%make-instance '%generic-param
-                         :in-type (%parse-type-spec '(hash-set number))
-                         :out-type (%parse-type-spec '(hash-set number)))
-         (%parse-generic-param-spec '(hash-set number)))
-
-
-(%expect (%make-instance '%type-variable :name "foo")
-         (%parse-type-spec :foo))
-(%expect (%make-instance '%class-type :name "foo" :generic-params '())
-         (%parse-type-spec 'foo))
-(%expect (%make-instance '%class-type :name "foo" :generic-params '())
-         (%parse-type-spec '(foo)))
-(%expect (%make-instance '%class-type
-                         :name "hash-set"
-                         :generic-params
-                         (list 
-                          (%make-instance '%generic-param
-                                          :in-type (%parse-type-spec 'number)
-                                          :out-type (%parse-type-spec 'number))))
-         (%parse-type-spec '(hash-set number)))
-(%expect (%make-instance '%class-type
-                         :name "hash-set"
-                         :generic-params
-                         (list 
-                          (%make-instance '%generic-param
-                                          :in-type (%parse-type-spec :e)
-                                          :out-type (%parse-type-spec :e))))
-         (%parse-type-spec '(hash-set :e)))
-(%expect (%make-instance '%class-type
-                         :name "hash-set"
-                         :generic-params
-                         (list 
-                          (%make-instance '%generic-param
-                                          :in-type (%parse-type-spec 'number)
-                                          :out-type +top-type+)))
-         (%parse-type-spec '(hash-set (:in number))))
-
 ;;;; Sequence protocol
 
 (flet ((test-for-each (coll)
-         (let ((sum 0))
-           (for-each (lambda (elt) (incf sum elt)) coll)
-           (%expect 6 sum))))
-  (test-for-each (list 1 2 3)))
+		      (let ((sum 0))
+			(for-each (lambda (elt) (incf sum elt)) coll)
+			(%expect 6 sum))))
+      (test-for-each (list 1 2 3)))
 
 (%expect (list 2 4 6)
          (map (lambda (x) (* x 2)) (list 1 2 3)))
