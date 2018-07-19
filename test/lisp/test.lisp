@@ -325,4 +325,43 @@
 (%expect ()
          (map (lambda (x) (* x 2)) ()))
 
+;;;; Metaclasses
+
+;;; Construct metaclass that for every message sent to instances
+;;; returns the same string.
+
+(deffexpr defclass (name #ign #ign (:metaclass metaclass-name)) env
+  (let* ((class-name (symbol-name name))
+	 (class (make-class (find-class metaclass-name) class-name)))
+    (eval (list #'def (to-type-sym name) class) env)))
+
+(defstruct my-metaclass)
+
+(defmethod compute-effective-method ((class my-metaclass)
+				     receiver
+				     message
+				     arguments)
+  (lambda (self . #ign)
+    "foo!"))
+
+(defclass my-class-with-custom-metaclass ()
+  ()
+  (:metaclass my-metaclass))
+
+(defgeneric my-custom-generic-1 (self))
+(defgeneric my-custom-generic-2 (self))
+
+(let ((obj (make-instance 'my-class-with-custom-metaclass)))
+  (%expect (class my-metaclass)
+	   (class-of (class-of obj)))
+  (%expect "foo!"
+	   (funcall (compute-effective-method (class my-class-with-custom-metaclass)
+					      obj
+					      "any-method"
+					      (list obj))
+		    obj))
+  ;; Now any method call to an instance will do the same thing
+  (%expect "foo!" (my-custom-generic-1 obj))
+  (%expect "foo!" (my-custom-generic-2 obj)))
+
 (print "OK")

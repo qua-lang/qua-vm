@@ -3,7 +3,9 @@
 var qua = module.exports;
 
 // The boot bytecode is the precompiled version of the
-// `bootstrap.lisp' file.
+// `bootstrap.lisp' file.  Using some Browserify magic in
+// `package.json', this gets replaced with `bootstrap-browser.json' if
+// we're doing a browser build.
 var boot_bytecode = require("../build/out/bootstrap.json");
 
 qua.vm = function() {

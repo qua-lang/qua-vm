@@ -829,6 +829,11 @@ vm.init = function() {
     vm.defun(init_env, "%%cons", vm.jswrap(vm.cons));
     vm.defun(init_env, "%%to-fun-sym", vm.jswrap(vm.to_fun_sym));
     vm.defun(init_env, "%%to-type-sym", vm.jswrap(vm.to_type_sym));
+    // Combiners & environments
+    vm.defun(init_env, "%%make-environment", vm.jswrap(vm.make_env));
+    vm.defun(init_env, "%%unwrap", vm.jswrap(vm.unwrap));
+    vm.defun(init_env, "%%vau", vm.Vau);
+    vm.defun(init_env, "%%wrap", vm.jswrap(vm.wrap));
     // Evaluation
     vm.defun(init_env, "%%def", vm.Def);
     vm.defun(init_env, "%%dynamic-bind", vm.DynamicBind);
@@ -839,11 +844,6 @@ vm.init = function() {
     vm.defun(init_env, "%%raise", vm.Raise);
     vm.defun(init_env, "%%rescue", vm.Rescue);
     vm.defun(init_env, "%%setq", vm.Setq);
-    // Combiners & environments
-    vm.defun(init_env, "%%make-environment", vm.jswrap(vm.make_env));
-    vm.defun(init_env, "%%unwrap", vm.jswrap(vm.unwrap));
-    vm.defun(init_env, "%%vau", vm.Vau);
-    vm.defun(init_env, "%%wrap", vm.jswrap(vm.wrap));
     // Continuations
     vm.defun(init_env, "%%push-prompt", vm.PushPrompt);
     vm.defun(init_env, "%%push-prompt-subcont", vm.PushPromptSubcont);
