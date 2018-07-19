@@ -272,10 +272,10 @@
         (method (eval (list* #'lambda (list* self arguments) body) env)))
     (%%put-method class (symbol-name name) method)))
 
-(deffexpr defclass (class-spec . #ign) env
-  (let* ((class-name (symbol-name class-spec))
-	 (class (make-class (class standard-class) class-name)))
-    (eval (list #'def (to-type-sym class-spec) class) env)))
+(deffexpr defstruct (name . #ign) env
+  (let* ((class-name (symbol-name name))
+	 (class (make-class (class structure-class) class-name)))
+    (eval (list #'def (to-type-sym name) class) env)))
 
 (defun slot-value (obj name)
   (%%slot-value obj (symbol-name name)))
@@ -369,8 +369,8 @@
 
 ;;;; Reference cells
 
-(defclass box ()
-  (val))
+(defstruct box
+  val)
 
 (defun make-box opt-val
   (make-instance 'box :val (optional opt-val)))
@@ -528,12 +528,12 @@
 ;;;; Typechecks
 
 (defgeneric type? (obj type-spec))
-(defmethod type? ((obj standard-object) type-spec)
+(defmethod type? ((obj object) type-spec)
   (default-type? obj type-spec))
 
 (defun default-type? (obj type-spec)
   (let ((c (find-class type-spec)))
-    (or (eq c (class standard-object))
+    (or (eq c (class object))
 	(eq c (class-of obj)))))
 
 (deffexpr typecase (expr . clauses) env
@@ -604,19 +604,19 @@
 ;;; be associated with a single condition, and not, as in Cl, with
 ;;; multiple conditions.
 
-(defclass handler-frame ()
-  (handlers
-   parent))
+(defstruct handler-frame
+  handlers
+  parent)
 
-(defclass condition-handler ()
-  (condition-type
-   handler-function))
+(defstruct condition-handler
+  condition-type
+  handler-function)
 
-(defclass restart-handler ()
-  (restart-name
-   handler-function
-   associated-condition
-   interactive-function))
+(defstruct restart-handler
+  restart-name
+  handler-function
+  associated-condition
+  interactive-function)
 
 (defdynamic *condition-handler-frame*)
 (defdynamic *restart-handler-frame*)
@@ -772,15 +772,13 @@
 	 (arguments (funcall (.interactive-function restart))))
     (apply #'invoke-restart restart arguments)))
 
-(defclass simple-error ()
-  (message))
+(defstruct simple-error
+  message)
 
 (defun simple-error (message)
   (error (make-instance 'simple-error :message message)))
 
 ;;;; Sequences and Collections
-
-(defclass sequence () ())
 
 ;; PLOT's sequence iteration protocol
 (defgeneric start-iteration (sequence))
@@ -791,7 +789,7 @@
 (defgeneric empty-clone (sequence))
 (defgeneric add (sequence element))
 (defgeneric finish-clone (sequence))
-(defmethod finish-clone ((obj standard-object)) obj)
+(defmethod finish-clone ((obj object)) obj)
 
 (defun for-each (#'fn seq)
   (let ((state (start-iteration seq)))

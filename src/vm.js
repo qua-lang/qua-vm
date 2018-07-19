@@ -546,7 +546,7 @@ vm.send_message = function(rcv, msg, args) { // args has to include rcv as first
 	function() {
 	    var c = vm.class_of(rcv);
 	    var metaclass = vm.class_of(c);
-	    if (metaclass === vm.STD_CLS) {
+	    if (metaclass === vm.STR_CLS) {
 		return vm.builtin_lookup(rcv, msg);
 	    } else {
 		return vm.send_message(c, "compute-effective-method",
@@ -563,8 +563,8 @@ vm.builtin_lookup = function(rcv, msg) {
     var c = vm.class_of(rcv);
     if (c.methods[msg]) {
 	return c.methods[msg];
-    } else if (vm.STD_OBJ.methods[msg]) {
-	return vm.STD_OBJ.methods[msg];
+    } else if (vm.OBJ.methods[msg]) {
+	return vm.OBJ.methods[msg];
     } else {
 	return vm.error("builtin lookup failed: " + msg);
     }
@@ -784,14 +784,14 @@ vm.deftype = function(e, type, name) { vm.assert(type); vm.def(e, vm.type_sym(na
 vm.init = function() {
     var init_env = vm.make_env();
     // Bootstrap object model
-    vm.STD_CLS = vm.make_class(null, "standard-class");
-    vm.STD_CLS.qua_isa = vm.STD_CLS;
-    vm.STD_OBJ = vm.make_class(vm.STD_CLS, "standard-object");
-    vm.deftype(init_env, vm.STD_OBJ, "standard-object");
-    vm.deftype(init_env, vm.STD_CLS, "standard-class");
+    vm.STR_CLS = vm.make_class(null, "structure-class");
+    vm.STR_CLS.qua_isa = vm.STR_CLS;
+    vm.OBJ = vm.make_class(vm.STR_CLS, "object");
+    vm.deftype(init_env, vm.OBJ, "object");
+    vm.deftype(init_env, vm.STR_CLS, "structure-class");
     // Bless built-in types as Lisp types
     function define_builtin_type(type, name) {
-	type.qua_isa = vm.STD_CLS;
+	type.qua_isa = vm.STR_CLS;
 	type.name = name;
 	type.methods = Object.create(null);
 	type.prototype.qua_isa = type;
@@ -811,7 +811,7 @@ vm.init = function() {
     // Synthetic/virtual classes given to JS built-in objects, so we
     // can define methods on them.
     function define_js_type(name) {
-	var c = vm.make_class(vm.STD_CLS, name);
+	var c = vm.make_class(vm.STR_CLS, name);
 	vm.deftype(init_env, c, name);
 	return c;
     }

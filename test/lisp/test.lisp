@@ -64,7 +64,7 @@
 (defmethod describe-yourself ((self number)) "a number")
 (defmethod describe-yourself ((self boolean)) "a boolean")
 (defmethod describe-yourself ((self symbol)) "a symbol")
-(defmethod describe-yourself ((self standard-object)) "any other object")
+(defmethod describe-yourself ((self object)) "any other object")
 (%assert (%deep-equal "a number" (describe-yourself 33)))
 (%assert (%deep-equal "a boolean" (describe-yourself #t)))
 (%assert (%deep-equal "a symbol" (describe-yourself 'foo)))
@@ -79,9 +79,9 @@
                       (fun-with-keywords :x 2 :y 4)))
 
 ;;;; Basic classes
-(defclass my-class () ())
+(defstruct my-class)
 (defgeneric my-generic (self))
-(defmethod my-generic ((self standard-object))
+(defmethod my-generic ((self object))
   "wow!")
 (def obj1 (make-instance 'my-class))
 (%assert (%deep-equal "wow!" (my-generic obj1)))
@@ -90,9 +90,9 @@
 (%assert (%deep-equal "wowzers!" (my-generic obj1)))
 
 ;;;; Slots
-(defclass class-with-slots ()
-  ((x :type number)
-   (y :type number)))
+(defstruct class-with-slots
+  x
+  y)
 (def object-with-slots (make-instance 'class-with-slots :x 2 :y 4))
 (%assert (%deep-equal 2 (slot-value object-with-slots 'x)))
 (%assert (%deep-equal 4 (slot-value object-with-slots 'y)))
@@ -293,11 +293,14 @@
 (%expect '(1 2 3 4) (append-lists '(1 2) '(3 4)))
 
 ;;;; Subclassing
-(%assert (type? (make-instance 'simple-error) 'standard-object))
-(%assert (not (type? (make-instance 'standard-object) 'simple-error)))
+(%assert (type? (make-instance 'simple-error) 'object))
+(%assert (not (type? (make-instance 'object) 'simple-error)))
 
 (%assert (type? 12 'number))
-(%assert (type? 12 'standard-object))
+(%assert (type? 12 'object))
+
+(%assert (eq (class-of (class object))
+	     (class structure-class)))
 
 ;;;; Types
 (%expect #void (typecase #t))
