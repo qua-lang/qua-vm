@@ -68,23 +68,23 @@ vm.combine = function(e, cmb, o) {
         return vm.error("not a combiner: " + cmb, e);
     }
 };
-vm.Opv = function Opv(p, ep, x, e) {
+vm.Fexpr = function Fexpr(p, ep, x, e) {
     this.p = p;   // Parameter tree
     this.ep = ep; // Environment parameter
     this.x = x;   // Body expression
     this.e = e;   // Lexical definition environment
 };
-vm.Apv = function(cmb) { this.cmb = cmb; };
-vm.wrap = function(cmb) { return new vm.Apv(cmb); };
-vm.unwrap = function(apv) { return apv.cmb; };
-vm.Opv.prototype.qua_combine = function(self, e, o) {
+vm.Function = function(cmb) { this.cmb = cmb; };
+vm.wrap = function(cmb) { return new vm.Function(cmb); };
+vm.unwrap = function(fun) { return fun.cmb; };
+vm.Fexpr.prototype.qua_combine = function(self, e, o) {
     var xe = vm.make_env(self.e);
     return vm.monadic(function() { return vm.bind(xe, self.p, o); },
                       function() {
                           return vm.monadic(function() { return vm.bind(xe, self.ep, e); },
                                             function() { return vm.evaluate(xe, self.x); }); });
 };
-vm.Apv.prototype.qua_combine = function(self, e, o) {
+vm.Function.prototype.qua_combine = function(self, e, o) {
     return vm.monadic(function() { return vm.eval_args(e, o, vm.NIL); },
                       function(args) { return vm.combine(e, self.cmb, args); });
 };
@@ -102,7 +102,7 @@ vm.Vau = vm.prim(function(self, e, o) {
     var p = vm.elt(o, 0);
     var ep = vm.elt(o, 1);
     var x = vm.elt(o, 2);
-    return new vm.Opv(p, ep, x, e);
+    return new vm.Fexpr(p, ep, x, e);
 });
 vm.Def = vm.prim(function (self, e, o) {
     var lhs = vm.elt(o, 0);
@@ -803,8 +803,8 @@ vm.init = function() {
     define_builtin_type(vm.Sym, "symbol");
     define_builtin_type(vm.Ign, "ign");
     define_builtin_type(vm.Void, "void");
-    define_builtin_type(vm.Opv, "fexpr");
-    define_builtin_type(vm.Apv, "function");
+    define_builtin_type(vm.Fexpr, "fexpr");
+    define_builtin_type(vm.Function, "function");
     define_builtin_type(vm.JSOperator, "js-operator");
     define_builtin_type(vm.Prim, "primitive");
     define_builtin_type(vm.Tag, "%%tag");
