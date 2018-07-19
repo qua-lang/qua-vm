@@ -351,16 +351,8 @@
 (defgeneric my-custom-generic-1 (self))
 (defgeneric my-custom-generic-2 (self))
 
+;; Now any method call to an instance will do the same thing
 (let ((obj (make-instance 'my-class-with-custom-metaclass)))
-  (%expect (class my-metaclass)
-	   (class-of (class-of obj)))
-  (%expect "foo!"
-	   (funcall (compute-effective-method (class my-class-with-custom-metaclass)
-					      obj
-					      "any-method"
-					      (list obj))
-		    obj))
-  ;; Now any method call to an instance will do the same thing
   (%expect "foo!" (my-custom-generic-1 obj))
   (%expect "foo!" (my-custom-generic-2 obj)))
 
