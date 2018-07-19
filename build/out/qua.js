@@ -895,6 +895,7 @@ vm.combine = function(e, cmb, o) {
     if (cmb && cmb.qua_combine) {
         return vm.trap_exceptions(function() { return cmb.qua_combine(cmb, e, o); });
     } else if (cmb instanceof Function) {
+	// make JS functions transparently usable like Lisp functions
 	return vm.combine(e, vm.jswrap(cmb), o);
     } else {
         return vm.error("not a combiner: " + cmb, e);
@@ -908,7 +909,7 @@ vm.Fexpr = function Fexpr(p, ep, x, e) {
 };
 vm.Function = function(cmb) { this.cmb = cmb; };
 vm.wrap = function(cmb) { return new vm.Function(cmb); };
-vm.unwrap = function(apv) { return apv.cmb; };
+vm.unwrap = function(fun) { return fun.cmb; };
 vm.Fexpr.prototype.qua_combine = function(self, e, o) {
     var xe = vm.make_env(self.e);
     return vm.monadic(function() { return vm.bind(xe, self.p, o); },

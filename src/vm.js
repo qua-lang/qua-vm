@@ -63,6 +63,7 @@ vm.combine = function(e, cmb, o) {
     if (cmb && cmb.qua_combine) {
         return vm.trap_exceptions(function() { return cmb.qua_combine(cmb, e, o); });
     } else if (cmb instanceof Function) {
+	// make JS functions transparently usable like Lisp functions
 	return vm.combine(e, vm.jswrap(cmb), o);
     } else {
         return vm.error("not a combiner: " + cmb, e);
