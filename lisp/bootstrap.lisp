@@ -633,9 +633,8 @@
   condition-type
   handler-function)
 
-(defun make-condition-handler (condition-type handler-function)
-  (the symbol condition-type)
-  (the function handler-function)
+(defun make-condition-handler ((the symbol condition-type)
+			       (the function handler-function))
   (make-instance 'condition-handler
 		 :condition-type condition-type
 		 :handler-function handler-function))
@@ -646,14 +645,10 @@
   associated-condition
   interactive-function)
 
-(defun make-restart-handler (restart-name
-			     handler-function
-			     associated-condition
-			     interactive-function)
-  ;; To be replaced with a platinum mechanism
-  (the symbol restart-name)
-  (the function handler-function)
-  (the function interactive-function)
+(defun make-restart-handler ((the symbol restart-name)
+			     (the function handler-function)
+			     (the function interactive-function)
+			     associated-condition)
   (make-instance 'restart-handler
 		 :restart-name restart-name
 		 :handler-function handler-function
@@ -703,8 +698,8 @@
        (make-restart-handler
 	restart-name
 	(eval function-form env)
-	associated-condition
-	interactive-function)))
+	interactive-function
+	associated-condition)))
    *restart-handler-frame*))
 
 ;;; Condition signaling
@@ -766,8 +761,7 @@
                        (slot-value dynamic-frame 'handlers))
         (find-applicable-handler condition (slot-value dynamic-frame 'parent) payload))))
 
-(defun find-restart (restart-name . opt-condition)
-  (the symbol restart-name)
+(defun find-restart ((the symbol restart-name) . opt-condition)
   (let* ((associated-condition (optional opt-condition))
 	 (handler-and-frame (find-applicable-handler
 			     restart-name
