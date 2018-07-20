@@ -22,6 +22,7 @@
 (def #'progn #'%%progn) ; Evaluate expressions in order.
 (def #'setq #'%%setq) ; Update existing bindings in current or ancestor environment.
 (def #'to-fun-sym #'%%to-fun-sym) ; Turn any symbol into a function namespaced one.
+(def #'to-matcher-sym #'%%to-matcher-sym) ; Turn any symbol into a matcher namespaced one.
 (def #'to-type-sym #'%%to-type-sym) ; Turn any symbol into a type namespaced one.
 (def #'unwrap #'%%unwrap) ; Extract fexpr underlying a function.
 (def #'wrap #'%%wrap) ; Construct a function out of a fexpr.
@@ -559,6 +560,17 @@
       (error (make-instance 'type-mismatch-error
                             :type-spec type-spec
 			    :obj evaluated-obj)))))
+
+(deffexpr the-matcher ((type-spec var) rhs doit) env
+  (let ((evaluated-rhs (eval rhs env)))
+    (if (type? evaluated-rhs type-spec)
+	(doit env var evaluated-rhs)
+      (error (make-instance 'type-mismatch-error
+                            :type-spec type-spec
+			    :obj evaluated-rhs)))))
+
+(eval (list #'def (to-matcher-sym 'the) #'the-matcher)
+      (the-environment))
 
 ;;;; Conditions
 
