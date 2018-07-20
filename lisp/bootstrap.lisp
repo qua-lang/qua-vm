@@ -673,7 +673,7 @@
 ;; handler-spec ::= (condition-class-name handler-function-form)
 (def #'handler-bind
   (make-handler-bind-operator
-   (lambda ((class-name function-form) env)
+   (lambda (((the symbol class-name) function-form) env)
      (make-condition-handler
       class-name
       (eval function-form env)))
@@ -684,7 +684,7 @@
 ;;             :associated-condition associated-condition
 (def #'restart-bind
   (make-handler-bind-operator
-   (lambda ((restart-name function-form . keywords) env)
+   (lambda (((the symbol restart-name) function-form . keywords) env)
      ;; gross
      (let* ((dict (plist-to-js-object keywords))
 	    (interactive-function
