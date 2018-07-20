@@ -413,6 +413,55 @@
  (restart-bind ((restart-with-no-interactive-function (lambda args args)))
 	       (invoke-restart-interactively 'restart-with-no-interactive-function)))
 
+(%expect
+ 1000
+ (block ok
+	(restart-bind ((foo (lambda (x y)
+			      (return-from ok (+ x y)))))
+		      (restart-bind ((foo (lambda (x y)
+					    (return-from ok 1000))))
+				    (invoke-restart 'foo 1 2)))))
+
+(%expect
+ 1000
+ (block ok
+	(let ((condition (make-instance 'simple-error)))
+	  (restart-bind ((foo (lambda (x y)
+				(return-from ok (+ x y)))
+			      :associated-condition condition))
+			(restart-bind ((foo (lambda (x y)
+					      (return-from ok 1000))))
+				      (let ((restart (find-restart 'foo condition)))
+					(invoke-restart restart 1 2)))))))
+
+(%expect
+ 3
+ (block ok
+	(let ((condition-1 (make-instance 'simple-error))
+	      (condition-2 (make-instance 'simple-error)))
+	  (restart-bind ((foo (lambda (x y)
+				(return-from ok (+ x y)))
+			      :associated-condition condition-1))
+			(restart-bind ((foo (lambda (x y)
+					      (return-from ok 1000))
+					    :associated-condition condition-2))
+				      (let ((restart (find-restart 'foo condition-1)))
+					(invoke-restart restart 1 2)))))))
+
+(%expect
+ 1000
+ (block ok
+	(let ((condition-1 (make-instance 'simple-error))
+	      (condition-2 (make-instance 'simple-error)))
+	  (restart-bind ((foo (lambda (x y)
+				(return-from ok (+ x y)))
+			      :associated-condition condition-1))
+			(restart-bind ((foo (lambda (x y)
+					      (return-from ok 1000))
+					    :associated-condition condition-2))
+				      (let ((restart (find-restart 'foo condition-2)))
+					(invoke-restart restart 1 2)))))))
+
 ;;;; Types
 (%expect #void (typecase #t))
 (%expect 2 (typecase #t (number 1) (boolean 2)))
