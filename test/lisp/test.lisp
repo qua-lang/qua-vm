@@ -301,16 +301,6 @@
 (%assert (eq (class-of (class object))
 	     (class structure-class)))
 
-;;;; Types
-(%expect #void (typecase #t))
-(%expect 2 (typecase #t (number 1) (boolean 2)))
-(%expect 1 (typecase 10 (number 1) (boolean 2)))
-(%expect #void (typecase "foo" (number 1) (boolean 2)))
-
-(%expect "default" (typecase 'whatever (#t "default")))
-(%expect 1 (typecase 'whatever (symbol 1) (#t "default")))
-(%expect "default" (typecase 'whatever (number 1) (#t "default")))
-
 ;;;; Sequence protocol
 
 (flet ((test-for-each (coll)
@@ -359,5 +349,83 @@
 (let ((obj (make-instance 'my-class-with-custom-metaclass)))
   (%expect "foo!" (my-custom-generic-1 obj))
   (%expect "foo!" (my-custom-generic-2 obj)))
+
+;;;; Conditions
+
+(defstruct condition-not-signaled
+  condition-type)
+
+(defun condition-not-signaled (condition-type)
+  (make-instance 'condition-not-signaled :condition-type condition-type))
+
+(defun %expect-condition (condition-type #'thunk)
+  (block ok
+    (handler-bind ((object
+		    (lambda (condition)
+		      (if (type? condition condition-type)
+			  (return-from ok)
+			(error (condition-not-signaled condition-type))))))
+      (thunk))))
+
+(%expect-condition
+ 'condition-not-signaled
+ (lambda ()
+   (%expect-condition
+    'simple-error
+    (progn))))
+
+(%expect-condition
+ 'condition-not-signaled
+ (lambda ()
+   (%expect-condition
+    'condition-not-signaled
+    (lambda ()
+      (%expect-condition
+       'simple-error
+       (simple-error "bla"))))))
+
+(%expect-condition
+ 'restart-not-found
+ (lambda ()
+   (invoke-restart 'foo)))
+
+(%expect-condition
+ 'restart-not-found
+ (lambda ()
+   (invoke-restart 12)))
+
+(%expect
+ 3
+ (block ok
+	(restart-bind ((foo (lambda (x y)
+			      (return-from ok (+ x y)))))
+		      (the restart-handler (find-restart 'foo))
+		      (the void (find-restart 'bar))
+		      (invoke-restart 'foo 1 2))))
+(%expect
+ 127
+ (restart-bind ((make-number-cool (lambda (n) (+ n 100))
+				  :interactive-function (lambda () (list 27))))
+ 	       (invoke-restart-interactively 'make-number-cool)))
+
+(%expect
+ '()
+ (restart-bind ((restart-with-no-interactive-function (lambda args args)))
+	       (invoke-restart-interactively 'restart-with-no-interactive-function)))
+
+;;;; Types
+(%expect #void (typecase #t))
+(%expect 2 (typecase #t (number 1) (boolean 2)))
+(%expect 1 (typecase 10 (number 1) (boolean 2)))
+(%expect #void (typecase "foo" (number 1) (boolean 2)))
+
+(%expect "default" (typecase 'whatever (#t "default")))
+(%expect 1 (typecase 'whatever (symbol 1) (#t "default")))
+(%expect "default" (typecase 'whatever (number 1) (#t "default")))
+
+(%expect 4 (the object (+ 2 2)))
+(%expect 4 (the number (+ 2 2)))
+(%expect-condition 'type-mismatch-error
+		   (lambda () (the string 12)))
 
 (print "OK")

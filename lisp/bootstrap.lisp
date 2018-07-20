@@ -548,11 +548,17 @@
                      clauses)
       #void)))
 
-(defun the (type-spec obj)
-  (if (type? obj type-spec)
-      obj
+(defstruct type-mismatch-error
+  type-spec
+  obj)
+
+(deffexpr the (type-spec obj) env
+  (let ((evaluated-obj (eval obj env)))
+    (if (type? evaluated-obj type-spec)
+	evaluated-obj
       (error (make-instance 'type-mismatch-error
-                            :type-spec type-spec :obj obj))))
+                            :type-spec type-spec
+			    :obj evaluated-obj)))))
 
 ;;;; Conditions
 
@@ -609,15 +615,39 @@
   handlers
   parent)
 
+(defun make-handler-frame (handlers parent)
+  (make-instance 'handler-frame :handlers handlers :parent parent))
+
 (defstruct condition-handler
   condition-type
   handler-function)
+
+(defun make-condition-handler (condition-type handler-function)
+  (the symbol condition-type)
+  (the function handler-function)
+  (make-instance 'condition-handler
+		 :condition-type condition-type
+		 :handler-function handler-function))
 
 (defstruct restart-handler
   restart-name
   handler-function
   associated-condition
   interactive-function)
+
+(defun make-restart-handler (restart-name
+			     handler-function
+			     associated-condition
+			     interactive-function)
+  ;; To be replaced with a platinum mechanism
+  (the symbol restart-name)
+  (the function handler-function)
+  (the function interactive-function)
+  (make-instance 'restart-handler
+		 :restart-name restart-name
+		 :handler-function handler-function
+		 :associated-condition associated-condition
+		 :interactive-function interactive-function))
 
 (defdynamic *condition-handler-frame*)
 (defdynamic *restart-handler-frame*)
@@ -626,9 +656,6 @@
 
 (defun apply-handler-function (handler arguments)
   (apply (slot-value handler 'handler-function) arguments))
-
-(defun make-handler-frame (handlers . opt-parent)
-  (make-instance 'handler-frame :handlers handlers :parent (optional opt-parent)))
 
 (defun make-handler-bind-operator (#'handler-spec-parser handler-frame-dynamic)
   (vau (handler-specs . body) env
@@ -641,9 +668,9 @@
 (def #'handler-bind
   (make-handler-bind-operator
    (lambda ((class-name function-form) env)
-     (make-instance 'condition-handler
-		    :condition-type class-name
-		    :handler-function (eval function-form env)))
+     (make-condition-handler
+      class-name
+      (eval function-form env)))
    *condition-handler-frame*))
 
 ;; handler-spec ::= (restart-name handler-function-form . keywords)
@@ -651,7 +678,7 @@
 ;;             :associated-condition associated-condition
 (def #'restart-bind
   (make-handler-bind-operator
-   (lambda ((name function-form . keywords) env)
+   (lambda ((restart-name function-form . keywords) env)
      ;; gross
      (let* ((dict (plist-to-js-object keywords))
 	    (interactive-function
@@ -662,11 +689,11 @@
 	     (if (own-property? dict "associated-condition")
 		 (eval (.associated-condition dict) env)
 	       #void)))
-       (make-instance 'restart-handler 
-		      :restart-name name
-                      :handler-function (eval function-form env)
-                      :interactive-function interactive-function
-		      :associated-condition associated-condition)))
+       (make-restart-handler
+	restart-name
+	(eval function-form env)
+	associated-condition
+	interactive-function)))
    *restart-handler-frame*))
 
 ;;; Condition signaling
@@ -687,11 +714,19 @@
   (signal condition)
   (invoke-debugger condition))
 
+(defstruct restart-not-found
+  restart-designator)
+
+(defun restart-not-found (restart-designator)
+  (make-instance 'restart-not-found :restart-designator restart-designator))
+
 (defun invoke-restart (restart-designator . arguments)
-  (if (symbol? restart-designator)
-      (signal-condition restart-designator (dynamic *restart-handler-frame*) arguments)
-    (apply-handler-function restart-designator arguments))
-  (simple-error "Restart invocation failed"))
+  (cond ((symbol? restart-designator)
+	 (signal-condition restart-designator (dynamic *restart-handler-frame*) arguments))
+	((type? restart-designator 'restart-handler)
+	 (apply-handler-function restart-designator arguments))
+	(#t
+	 (error (restart-not-found restart-designator)))))
 
 ;; Main signaling entry point, used by both condition and restart
 ;; signaling.  For condition signaling, the arguments for the handler
@@ -721,9 +756,17 @@
         (find-applicable-handler condition (slot-value dynamic-frame 'parent) payload))))
 
 (defun find-restart (restart-name . opt-condition)
-  (let ((associated-condition (optional opt-condition)))
-    (find-applicable-handler restart-name *restart-handler-frame* associated-condition)))
-
+  (the symbol restart-name)
+  (let* ((associated-condition (optional opt-condition))
+	 (handler-and-frame (find-applicable-handler
+			     restart-name
+			     (dynamic *restart-handler-frame*)
+			     associated-condition)))
+    (if (void? handler-and-frame)
+	#void
+      (let (((handler #ign) handler-and-frame))
+	handler))))
+    
 (defgeneric condition-applicable? (handler condition payload))
 
 (defmethod condition-applicable? ((handler condition-handler) condition #ign)
@@ -767,11 +810,17 @@
                            (slot-value handler-frame 'parent)))))
 
 (defun invoke-restart-interactively (restart-designator)
-  (let* ((restart (if (symbol? restart-designator)
-		      (find-restart restart-designator)
-		    restart-designator))
-	 (arguments (funcall (.interactive-function restart))))
-    (apply #'invoke-restart restart arguments)))
+  (let* ((restart (cond ((symbol? restart-designator)
+			 (let ((restart (find-restart restart-designator)))
+			   (if (void? restart)
+			       (error (restart-not-found restart-designator))
+			     restart)))
+			((type? restart-designator 'restart-handler)
+			 restart-designator)
+			(#t
+			 (error (restart-not-found restart-designator)))))
+	 (arguments (funcall (slot-value restart 'interactive-function))))
+    (apply #'invoke-restart (list* restart arguments))))
 
 (defstruct simple-error
   message)
