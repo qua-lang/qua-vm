@@ -485,4 +485,10 @@
 		   (lambda ()
 		     (let (((the string x) (cons 1 2))))))
 
+(let ((x #void) (y #void))
+  (setq ((the string x) (the number y))
+	(list "foo" 12))
+  (%expect "foo" x)
+  (%expect 12 y))
+
 (print "OK")
