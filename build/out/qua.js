@@ -842,13 +842,16 @@ vm.VAR_NS = "variable";
 vm.FUN_NS = "function";
 vm.TYPE_NS = "type";
 vm.KWD_NS = "keyword";
+vm.MATCH_NS = "matcher";
 vm.sym = function(name, ns) { var s = new vm.Sym(name, ns ? ns : vm.VAR_NS); return s; };
 vm.sym_key = function(sym) { return sym.ns + ":" + sym.name; };
 vm.sym_name = function(sym) { return vm.assert_type(sym, vm.Sym).name; };
 vm.fun_sym = function(name) { return vm.sym(name, vm.FUN_NS); };
 vm.type_sym = function(name) { return vm.sym(name, vm.TYPE_NS); };
+vm.matcher_sym = function(name) { return vm.sym(name, vm.MATCH_NS); };
 vm.to_fun_sym = function(sym) { return vm.fun_sym(vm.assert_type(sym, vm.Sym).name); };
 vm.to_type_sym = function(sym) { return vm.type_sym(vm.assert_type(sym, vm.Sym).name); };
+vm.to_matcher_sym = function(sym) { return vm.matcher_sym(vm.assert_type(sym, vm.Sym).name); };
 vm.keyword = function(name) { return vm.sym(name, vm.KWD_NS); };
 /* Lists */
 vm.Cons = function Cons(car, cdr) {
@@ -1333,8 +1336,25 @@ vm.Sym.prototype.qua_bind = function(self, e, rhs, doit) {
     }
 };
 vm.Cons.prototype.qua_bind = function(self, e, rhs, doit) {
+    var op = vm.car(self);
+    if (op && (op instanceof vm.Sym)) {
+	return vm.monadic(function() { return vm.lookup(e, vm.to_matcher_sym(op), false); },
+			  function(matcher) {
+			      if (matcher) {
+				  return vm.combine(e,
+						    matcher,
+						    vm.list(vm.cdr(self), rhs, doit));
+			      } else {
+				  return vm.cons_bind(e, self, rhs, doit);
+			      }
+			  });
+    } else {
+	return vm.cons_bind(e, self, rhs, doit);
+    }
+};
+vm.cons_bind = function(e, self, rhs, doit) {
     return vm.monadic(function() { return vm.bind(e, vm.car(self), vm.car(rhs), doit); },
-                      function() { return vm.bind(e, vm.cdr(self), vm.cdr(rhs), doit); });
+		      function() { return vm.bind(e, vm.cdr(self), vm.cdr(rhs), doit); });
 };
 vm.Nil.prototype.qua_bind = function(self, e, rhs, doit) {
     if (!vm.is_nil(rhs)) return vm.error("NIL expected, but got: " + JSON.stringify(rhs), e);
@@ -1661,6 +1681,7 @@ vm.init = function() {
     vm.defun(init_env, "%%cdr", vm.jswrap(vm.cdr));
     vm.defun(init_env, "%%cons", vm.jswrap(vm.cons));
     vm.defun(init_env, "%%to-fun-sym", vm.jswrap(vm.to_fun_sym));
+    vm.defun(init_env, "%%to-matcher-sym", vm.jswrap(vm.to_matcher_sym));
     vm.defun(init_env, "%%to-type-sym", vm.jswrap(vm.to_type_sym));
     // Combiners & environments
     vm.defun(init_env, "%%make-environment", vm.jswrap(vm.make_env));
