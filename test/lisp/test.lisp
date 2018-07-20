@@ -477,4 +477,12 @@
 (%expect-condition 'type-mismatch-error
 		   (lambda () (the string 12)))
 
+;;;; Matchers
+(let (((the cons x) (cons 1 2)))
+  (%expect (cons 1 2) x))
+
+(%expect-condition 'type-mismatch-error
+		   (lambda ()
+		     (let (((the string x) (cons 1 2))))))
+
 (print "OK")

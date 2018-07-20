@@ -561,13 +561,12 @@
                             :type-spec type-spec
 			    :obj evaluated-obj)))))
 
-(deffexpr the-matcher ((type-spec var) rhs doit) env
-  (let ((evaluated-rhs (eval rhs env)))
-    (if (type? evaluated-rhs type-spec)
-	(doit env var evaluated-rhs)
-      (error (make-instance 'type-mismatch-error
-                            :type-spec type-spec
-			    :obj evaluated-rhs)))))
+(deffexpr the-matcher ((type-spec var) rhs #'doit) env
+  (if (type? rhs type-spec)
+      (doit env var rhs)
+    (error (make-instance 'type-mismatch-error
+                          :type-spec type-spec
+			  :obj rhs))))
 
 (eval (list #'def (to-matcher-sym 'the) #'the-matcher)
       (the-environment))
