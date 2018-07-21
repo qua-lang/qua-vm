@@ -924,6 +924,11 @@
 (defun user-eval (expr env)
   (push-userspace (eval expr env)))
 
+;;;; Interaction
+
+(defun log args
+  (apply @log (list* $console args)))
+
 ;;;; Debugger
 
 (defun invoke-debugger (condition)
@@ -952,3 +957,12 @@
                      (invoke-restart-interactively (list-elt restarts n))))))
            (%%panic condition))))))
 
+(defun print-stacktrace ()
+  (labels ((print-frame (k)
+             (log (.dbg_info k))
+	     (when (.inner k)
+	       (print-frame (.inner k)))))
+    (take-subcont +user-prompt+ k
+      (print-frame k)
+      (push-prompt +user-prompt+
+	(push-subcont k)))))
