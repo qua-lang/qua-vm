@@ -70,7 +70,7 @@ vm.combine = function(e, cmb, o) {
 	// make JS functions transparently usable like Lisp functions
 	return vm.combine(e, vm.jswrap(cmb), o);
     } else {
-        return vm.error("not a combiner: " + cmb, e);
+        return vm.error("not a combiner: " + cmb);
     }
 };
 vm.Fexpr = function Fexpr(p, ep, x, e) {
@@ -525,7 +525,7 @@ vm.lookup = function(e, sym, default_val) {
 vm.bind = function(e, lhs, rhs, doit) {
     vm.assert_type(e, vm.Env);
     if (lhs.qua_bind) return lhs.qua_bind(lhs, e, rhs, doit ? doit : vm.do_def);
-    else return vm.error("cannot match", { lhs: lhs, rhs: rhs }, e);
+    else return vm.error("cannot match", { lhs: lhs, rhs: rhs });
 };
 vm.do_def = function(e, lhs, rhs) {
     vm.assert_type(lhs, vm.Sym);
@@ -539,12 +539,12 @@ vm.do_setq = function(e, lhs, rhs) {
     else if (e.parent)
         return vm.do_setq(e.parent, lhs, rhs);
     else
-        return vm.error("cannot set unbound variable: " + vm.sym_key(lhs), e);
+        return vm.error("cannot set unbound variable: " + vm.sym_key(lhs));
 };
 vm.Sym.prototype.qua_bind = function(self, e, rhs, doit) {
     if (self.ns === vm.KWD_NS) {
 	if (!(rhs && (rhs.ns === vm.KWD_NS) && (rhs.name === self.name))) {
-            return vm.error(":" + self.name + " expected, but got: " + JSON.stringify(rhs), e);
+            return vm.error(":" + self.name + " expected, but got: " + JSON.stringify(rhs));
 	}
     } else {
 	return doit(e, self, rhs);
@@ -574,7 +574,7 @@ vm.cons_bind = function(e, self, rhs, doit) {
 		      dbg_info(e, self));
 };
 vm.Nil.prototype.qua_bind = function(self, e, rhs, doit) {
-    if (!vm.is_nil(rhs)) return vm.error("NIL expected, but got: " + JSON.stringify(rhs), e);
+    if (!vm.is_nil(rhs)) return vm.error("NIL expected, but got: " + JSON.stringify(rhs));
 };
 vm.Ign.prototype.qua_bind = function(self, e, rhs, doit) {};
 /* Object model */
@@ -727,20 +727,16 @@ vm.Panic = function Panic(exc) {
 vm.Panic.prototype.toString = function() {
     return this.exc.stack;
 };
-vm.error = function(err, e) {
-    if (vm.check_type(e, vm.Env)) {
-        // call into userspace ERROR function if we have an environment
-        var error = vm.lookup(e, vm.fun_sym("error"), false);
-        if (error) {
-            return vm.combine(e, error, vm.list(err));
-        } else {
-            console.log("ERROR not bound");
-            // fall through
-        }
-    } else {
-        // fall through
+vm.error = function(err) {
+    // Call into user ERROR handler if defined...
+    if (vm.init_env) {
+	var error = vm.lookup(vm.init_env, vm.fun_sym("error"), false);
+	if (error) {
+            return vm.combine(vm.make_env(), error, vm.list(err));
+	}
     }
-    // if nothing else worked, panic
+    // ...otherwise panic.
+    console.log("Panic at boot");
     vm.panic(err);
 };
 // Unconditionally abort up to the next exception handler outside
@@ -853,20 +849,20 @@ vm.defun = function(e, name, cmb) { vm.assert(cmb); vm.def(e, vm.fun_sym(name), 
 vm.deftype = function(e, type, name) { vm.assert(type); vm.def(e, vm.type_sym(name), type); };
 // Populates a fresh init environment with the VM primitives.
 vm.init = function() {
-    var init_env = vm.make_env();
+    vm.init_env = vm.make_env();
     // Bootstrap object model
     vm.STR_CLS = vm.make_class(null, "structure-class");
     vm.STR_CLS.qua_isa = vm.STR_CLS;
     vm.OBJ = vm.make_class(vm.STR_CLS, "object");
-    vm.deftype(init_env, vm.OBJ, "object");
-    vm.deftype(init_env, vm.STR_CLS, "structure-class");
+    vm.deftype(vm.init_env, vm.OBJ, "object");
+    vm.deftype(vm.init_env, vm.STR_CLS, "structure-class");
     // Bless built-in types as Lisp types
     function define_builtin_type(type, name) {
 	type.qua_isa = vm.STR_CLS;
 	type.name = name;
 	type.methods = Object.create(null);
 	type.prototype.qua_isa = type;
-	vm.deftype(init_env, type, name);
+	vm.deftype(vm.init_env, type, name);
     }
     define_builtin_type(vm.Cons, "cons");
     define_builtin_type(vm.Nil, "nil");
@@ -882,7 +878,7 @@ vm.init = function() {
     // can define methods on them.
     function define_js_type(name) {
 	var c = vm.make_class(vm.STR_CLS, name);
-	vm.deftype(init_env, c, name);
+	vm.deftype(vm.init_env, c, name);
 	return c;
     }
     vm.JSObject = define_js_type("js-object");
@@ -894,63 +890,63 @@ vm.init = function() {
     vm.JSNull = define_js_type("js-null");
     vm.JSUndefined = define_js_type("js-undefined");
     // Forms
-    vm.defun(init_env, "%%car", vm.jswrap(vm.car));
-    vm.defun(init_env, "%%cdr", vm.jswrap(vm.cdr));
-    vm.defun(init_env, "%%cons", vm.jswrap(vm.cons));
-    vm.defun(init_env, "%%to-fun-sym", vm.jswrap(vm.to_fun_sym));
-    vm.defun(init_env, "%%to-matcher-sym", vm.jswrap(vm.to_matcher_sym));
-    vm.defun(init_env, "%%to-type-sym", vm.jswrap(vm.to_type_sym));
+    vm.defun(vm.init_env, "%%car", vm.jswrap(vm.car));
+    vm.defun(vm.init_env, "%%cdr", vm.jswrap(vm.cdr));
+    vm.defun(vm.init_env, "%%cons", vm.jswrap(vm.cons));
+    vm.defun(vm.init_env, "%%to-fun-sym", vm.jswrap(vm.to_fun_sym));
+    vm.defun(vm.init_env, "%%to-matcher-sym", vm.jswrap(vm.to_matcher_sym));
+    vm.defun(vm.init_env, "%%to-type-sym", vm.jswrap(vm.to_type_sym));
     // Combiners & environments
-    vm.defun(init_env, "%%make-environment", vm.jswrap(vm.make_env));
-    vm.defun(init_env, "%%unwrap", vm.jswrap(vm.unwrap));
-    vm.defun(init_env, "%%vau", vm.Vau);
-    vm.defun(init_env, "%%wrap", vm.jswrap(vm.wrap));
+    vm.defun(vm.init_env, "%%make-environment", vm.jswrap(vm.make_env));
+    vm.defun(vm.init_env, "%%unwrap", vm.jswrap(vm.unwrap));
+    vm.defun(vm.init_env, "%%vau", vm.Vau);
+    vm.defun(vm.init_env, "%%wrap", vm.jswrap(vm.wrap));
     // Evaluation
-    vm.defun(init_env, "%%def", vm.Def);
-    vm.defun(init_env, "%%dynamic-bind", vm.DynamicBind);
-    vm.defun(init_env, "%%eval", vm.Eval);
-    vm.defun(init_env, "%%if", vm.If);
-    vm.defun(init_env, "%%loop", vm.Loop);
-    vm.defun(init_env, "%%progn", vm.Progn);
-    vm.defun(init_env, "%%raise", vm.Raise);
-    vm.defun(init_env, "%%rescue", vm.Rescue);
-    vm.defun(init_env, "%%setq", vm.Setq);
+    vm.defun(vm.init_env, "%%def", vm.Def);
+    vm.defun(vm.init_env, "%%dynamic-bind", vm.DynamicBind);
+    vm.defun(vm.init_env, "%%eval", vm.Eval);
+    vm.defun(vm.init_env, "%%if", vm.If);
+    vm.defun(vm.init_env, "%%loop", vm.Loop);
+    vm.defun(vm.init_env, "%%progn", vm.Progn);
+    vm.defun(vm.init_env, "%%raise", vm.Raise);
+    vm.defun(vm.init_env, "%%rescue", vm.Rescue);
+    vm.defun(vm.init_env, "%%setq", vm.Setq);
     // Continuations
-    vm.defun(init_env, "%%push-prompt", vm.PushPrompt);
-    vm.defun(init_env, "%%push-prompt-subcont", vm.PushPromptSubcont);
-    vm.defun(init_env, "%%push-subcont", vm.PushSubcont);
-    vm.defun(init_env, "%%take-subcont", vm.TakeSubcont);
+    vm.defun(vm.init_env, "%%push-prompt", vm.PushPrompt);
+    vm.defun(vm.init_env, "%%push-prompt-subcont", vm.PushPromptSubcont);
+    vm.defun(vm.init_env, "%%push-subcont", vm.PushSubcont);
+    vm.defun(vm.init_env, "%%take-subcont", vm.TakeSubcont);
     // Object system
-    vm.defun(init_env, "%%class-of", vm.jswrap(vm.class_of));
-    vm.defun(init_env, "%%make-class", vm.jswrap(vm.make_class));
-    vm.defun(init_env, "%%make-instance", vm.jswrap(vm.make_instance));
-    vm.defun(init_env, "%%put-method", vm.jswrap(vm.put_method));
-    vm.defun(init_env, "%%send-message", vm.jswrap(vm.send_message));
-    vm.defun(init_env, "%%set-slot-value", vm.jswrap(vm.set_slot_value));
-    vm.defun(init_env, "%%slot-bound?", vm.jswrap(vm.slot_bound_p));
-    vm.defun(init_env, "%%slot-value", vm.jswrap(vm.slot_value));
+    vm.defun(vm.init_env, "%%class-of", vm.jswrap(vm.class_of));
+    vm.defun(vm.init_env, "%%make-class", vm.jswrap(vm.make_class));
+    vm.defun(vm.init_env, "%%make-instance", vm.jswrap(vm.make_instance));
+    vm.defun(vm.init_env, "%%put-method", vm.jswrap(vm.put_method));
+    vm.defun(vm.init_env, "%%send-message", vm.jswrap(vm.send_message));
+    vm.defun(vm.init_env, "%%set-slot-value", vm.jswrap(vm.set_slot_value));
+    vm.defun(vm.init_env, "%%slot-bound?", vm.jswrap(vm.slot_bound_p));
+    vm.defun(vm.init_env, "%%slot-value", vm.jswrap(vm.slot_value));
     // JSNI
-    vm.defun(init_env, "%%js-apply", vm.jswrap(vm.js_apply));
-    vm.defun(init_env, "%%js-binop", vm.jswrap(vm.js_binop));
-    vm.defun(init_env, "%%js-function", vm.jswrap(vm.js_function));
-    vm.defun(init_env, "%%js-get", vm.jswrap(vm.js_get));
-    vm.defun(init_env, "%%js-global", vm.jswrap(vm.js_global));
-    vm.defun(init_env, "%%js-new", vm.jswrap(vm.js_new));
-    vm.defun(init_env, "%%js-set", vm.jswrap(vm.js_set));
-    vm.defun(init_env, "%%own-property?", vm.jswrap(vm.has_own_property));
+    vm.defun(vm.init_env, "%%js-apply", vm.jswrap(vm.js_apply));
+    vm.defun(vm.init_env, "%%js-binop", vm.jswrap(vm.js_binop));
+    vm.defun(vm.init_env, "%%js-function", vm.jswrap(vm.js_function));
+    vm.defun(vm.init_env, "%%js-get", vm.jswrap(vm.js_get));
+    vm.defun(vm.init_env, "%%js-global", vm.jswrap(vm.js_global));
+    vm.defun(vm.init_env, "%%js-new", vm.jswrap(vm.js_new));
+    vm.defun(vm.init_env, "%%js-set", vm.jswrap(vm.js_set));
+    vm.defun(vm.init_env, "%%own-property?", vm.jswrap(vm.has_own_property));
     // Misc
-    vm.defun(init_env, "%%eq", vm.jswrap(function(a, b) { return a === b; }));
-    vm.defun(init_env, "%%panic", vm.jswrap(vm.panic));
-    vm.defun(init_env, "%%print", vm.jswrap(console.log));
+    vm.defun(vm.init_env, "%%eq", vm.jswrap(function(a, b) { return a === b; }));
+    vm.defun(vm.init_env, "%%panic", vm.jswrap(vm.panic));
+    vm.defun(vm.init_env, "%%print", vm.jswrap(console.log));
     // List optims
-    vm.defun(init_env, "%%list*", vm.jswrap(vm.list_star));
-    vm.defun(init_env, "%%list-to-array", vm.jswrap(vm.list_to_array));
-    vm.defun(init_env, "%%plist-to-js-object", vm.jswrap(vm.plist_to_js_object));
-    vm.defun(init_env, "%%reverse-list", vm.jswrap(vm.reverse_list));
+    vm.defun(vm.init_env, "%%list*", vm.jswrap(vm.list_star));
+    vm.defun(vm.init_env, "%%list-to-array", vm.jswrap(vm.list_to_array));
+    vm.defun(vm.init_env, "%%plist-to-js-object", vm.jswrap(vm.plist_to_js_object));
+    vm.defun(vm.init_env, "%%reverse-list", vm.jswrap(vm.reverse_list));
     // Temporary, till we find a better place
-    vm.defun(init_env, "%%assert", vm.jswrap(vm.assert));
-    vm.defun(init_env, "%%parse-bytecode", vm.jswrap(vm.parse_bytecode));
-    return init_env;
+    vm.defun(vm.init_env, "%%assert", vm.jswrap(vm.assert));
+    vm.defun(vm.init_env, "%%parse-bytecode", vm.jswrap(vm.parse_bytecode));
+    return vm.init_env;
 };
 vm.eval = function(x, e) {
     return vm.evaluate(e, x); // change to x,e
