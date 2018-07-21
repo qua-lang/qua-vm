@@ -485,6 +485,7 @@
 		   (lambda ()
 		     (let (((the string x) (cons 1 2))))))
 
+;; Can use with SETQ, including parallely
 (let ((x #void) (y #void))
   (setq ((the string x) (the number y))
 	(list "foo" 12))
