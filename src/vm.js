@@ -105,50 +105,51 @@ vm.eval_args = function(e, todo, done) {
 		      });
 };
 /* Built-in combiners */
-vm.Prim = function Prim(fn) {
+vm.Prim = function Prim(name, fn) {
+    this.name = name;
     this.qua_combine = fn;
 };
-vm.prim = function(fn) { return new vm.Prim(fn); }
-vm.Vau = vm.prim(function(self, e, o) {
+vm.prim = function(name, fn) { return new vm.Prim(name, fn); }
+vm.Vau = vm.prim("%%vau", function(self, e, o) {
     var p = vm.elt(o, 0);
     var ep = vm.elt(o, 1);
     var x = vm.elt(o, 2);
     return new vm.Fexpr(p, ep, x, e);
 });
-vm.Def = vm.prim(function (self, e, o) {
+vm.Def = vm.prim("%%def", function (self, e, o) {
     var lhs = vm.elt(o, 0);
     var rhs = vm.elt(o, 1);
     return vm.monadic(function() { return vm.evaluate(e, rhs); },
                       function(val) { return vm.bind(e, lhs, val, vm.do_def); },
 		      dbg_info(e, self));
 });
-vm.Setq = vm.prim(function (self, e, o) {
+vm.Setq = vm.prim("%%setq", function (self, e, o) {
     var lhs = vm.elt(o, 0);
     var rhs = vm.elt(o, 1);
     return vm.monadic(function() { return vm.evaluate(e, rhs); },
                       function(val) { return vm.bind(e, lhs, val, vm.do_setq); },
 		      dbg_info(e, self));
 });
-vm.Eval = vm.wrap(vm.prim(function(self, e, o) {
+vm.Eval = vm.wrap(vm.prim("%%eval", function(self, e, o) {
     var x = vm.elt(o, 0);
     var e = vm.elt(o, 1);
     return vm.evaluate(e, x);
 }));
-vm.If = vm.prim(function(self, e, o) {
+vm.If = vm.prim("%%if", function(self, e, o) {
     return vm.monadic(function() { return vm.evaluate(e, vm.elt(o, 0)); },
                       function(test_result) {
                           return vm.evaluate(e, test_result ? vm.elt(o, 1) : vm.elt(o, 2));
                       },
 		      dbg_info(e, self));
 });
-vm.Progn = vm.prim(function(self, e, o) {
+vm.Progn = vm.prim("%%progn", function(self, e, o) {
     if (vm.is_nil(o)) return vm.VOID; else return vm.progn(e, o, dbg_info(e, self));
 });
 vm.progn = function(e, xs, dbg_info) {
     return vm.monadic(function() { return vm.evaluate(e, vm.car(xs)); },
                       function(res) {
                           var cdr = vm.cdr(xs);
-                          if (vm.is_nil(cdr)) return res; else return vm.progn(e, cdr);
+                          if (vm.is_nil(cdr)) return res; else return vm.progn(e, cdr, dbg_info);
                       },
 		      dbg_info);
 };
@@ -292,7 +293,7 @@ vm.monadic = function(a, b, dbg_info, k, f) {
 //
 // Push a prompt and call the body thunk within this delimited
 // context.
-vm.PushPrompt = vm.wrap(vm.prim(function do_push_prompt(self, e, o, k, f) {
+vm.PushPrompt = vm.wrap(vm.prim("%%push-prompt", function do_push_prompt(self, e, o, k, f) {
     var prompt = vm.elt(o, 0);
     var body_thunk = vm.elt(o, 1);
     if (k instanceof StackFrame) {
@@ -326,7 +327,7 @@ vm.PushPrompt = vm.wrap(vm.prim(function do_push_prompt(self, e, o, k, f) {
 // %%TAKE-SUBCONT prompt handler
 //
 // Abort up to prompt and call handler with captured continuation.
-vm.TakeSubcont = vm.wrap(vm.prim(function(self, e, o, k, f) {
+vm.TakeSubcont = vm.wrap(vm.prim("%%take-subcont", function(self, e, o, k, f) {
     var prompt = vm.elt(o, 0);
     var handler = vm.elt(o, 1);
     // Inject a suspension that will lead to the call of the
@@ -352,7 +353,7 @@ vm.TakeSubcont = vm.wrap(vm.prim(function(self, e, o, k, f) {
 //
 // Compose a delimited continuation onto the current stack and when
 // done, call user-supplied thunk inside new context.
-vm.PushSubcont = vm.wrap(vm.prim(function do_push_subcont(self, e, o, k, f) {
+vm.PushSubcont = vm.wrap(vm.prim("%%push-subcont", function do_push_subcont(self, e, o, k, f) {
     var thek = vm.elt(o, 0);
     var thef = vm.elt(o, 1);
     if (k instanceof StackFrame) {
@@ -382,7 +383,7 @@ vm.PushSubcont = vm.wrap(vm.prim(function do_push_subcont(self, e, o, k, f) {
 // Manually fused version of pushing a prompt and continuation in
 // one fell swoop, to work around stack overflow issue for
 // server-type apps, see Oleg's paper.
-vm.PushPromptSubcont = vm.wrap(vm.prim(function do_push_prompt_subcont(self, e, o, k, f) {
+vm.PushPromptSubcont = vm.wrap(vm.prim("%%push-prompt-subcont", function do_push_prompt_subcont(self, e, o, k, f) {
     var prompt = vm.elt(o, 0);
     var thek = vm.elt(o, 1);
     var thef = vm.elt(o, 2);
@@ -413,7 +414,7 @@ vm.PushPromptSubcont = vm.wrap(vm.prim(function do_push_prompt_subcont(self, e, 
 // %%LOOP thunk
 //
 // Call thunk repeatedly.
-vm.Loop = vm.wrap(vm.prim(function do_loop(self, e, o, k, f) {
+vm.Loop = vm.wrap(vm.prim("%%loop", function do_loop(self, e, o, k, f) {
     var body = vm.elt(o, 0);
     var first = true; // only resume once
     while (true) {
@@ -444,7 +445,7 @@ vm.Raise = vm.jswrap(function(err) { throw err; });
 // Call HANDLER-FUN if a JS exception is thrown during BODY-THUNK
 // (except VM panics, let those through so that user can't
 // interfere with panicking).
-vm.Rescue = vm.wrap(vm.prim(function do_rescue(self, e, o, k, f) {
+vm.Rescue = vm.wrap(vm.prim("%%rescue", function do_rescue(self, e, o, k, f) {
     var handler = vm.elt(o, 0);
     var body = vm.elt(o, 1);
     try {
@@ -479,7 +480,7 @@ vm.Rescue = vm.wrap(vm.prim(function do_rescue(self, e, o, k, f) {
 // execution of a body thunk.  For now, any standard object with a
 // VAL slot can be used as a dynamic variable, this will probably
 // change.
-vm.DynamicBind = vm.wrap(vm.prim(function dynamic_bind(self, e, o, k, f) {
+vm.DynamicBind = vm.wrap(vm.prim("%%dynamic-bind", function dynamic_bind(self, e, o, k, f) {
     var dynvar = vm.elt(o, 0);
     var val = vm.elt(o, 1);
     var thunk = vm.elt(o, 2);

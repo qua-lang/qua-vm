@@ -938,6 +938,8 @@
      (block continue
        (print "Condition: ")
        (print condition)
+       (print "Stack: ")
+       (print-stacktrace)
        (let ((restarts (compute-restarts condition)))
          (if (> (list-length restarts) 0)
              (progn
