@@ -917,7 +917,8 @@ vm.Sym.prototype.qua_evaluate = function(self, e) {
 };
 vm.Cons.prototype.qua_evaluate = function(self, e) {
     return vm.monadic(function() { return vm.eval_operator(e, vm.car(self)); },
-                      function(cmb) { return vm.combine(e, cmb, vm.cdr(self)); });
+                      function(cmb) { return vm.combine(e, cmb, vm.cdr(self)); },
+		      dbg_info(e, self));
 };
 vm.eval_operator = function(e, op) {
     if (op instanceof vm.Sym) {
@@ -951,16 +952,22 @@ vm.Fexpr.prototype.qua_combine = function(self, e, o) {
     return vm.monadic(function() { return vm.bind(xe, self.p, o); },
                       function() {
                           return vm.monadic(function() { return vm.bind(xe, self.ep, e); },
-                                            function() { return vm.evaluate(xe, self.x); }); });
+                                            function() { return vm.evaluate(xe, self.x); },
+					    dbg_info(e, self));
+		      },
+		      dbg_info(e, self));
 };
 vm.Function.prototype.qua_combine = function(self, e, o) {
     return vm.monadic(function() { return vm.eval_args(e, o, vm.NIL); },
-                      function(args) { return vm.combine(e, self.cmb, args); });
+                      function(args) { return vm.combine(e, self.cmb, args); },
+		      dbg_info(e, self));
 };
 vm.eval_args = function(e, todo, done) {
     if (vm.is_nil(todo)) { return vm.reverse_list(done); }
     return vm.monadic(function() { return vm.evaluate(e, vm.car(todo)); },
-                      function(arg) { return vm.eval_args(e, vm.cdr(todo), vm.cons(arg, done)); });
+                      function(arg) {
+			  return vm.eval_args(e, vm.cdr(todo), vm.cons(arg, done));
+		      });
 };
 /* Built-in combiners */
 vm.Prim = function Prim(fn) {
@@ -977,13 +984,15 @@ vm.Def = vm.prim(function (self, e, o) {
     var lhs = vm.elt(o, 0);
     var rhs = vm.elt(o, 1);
     return vm.monadic(function() { return vm.evaluate(e, rhs); },
-                      function(val) { return vm.bind(e, lhs, val, vm.do_def); });
+                      function(val) { return vm.bind(e, lhs, val, vm.do_def); },
+		      dbg_info(e, self));
 });
 vm.Setq = vm.prim(function (self, e, o) {
     var lhs = vm.elt(o, 0);
     var rhs = vm.elt(o, 1);
     return vm.monadic(function() { return vm.evaluate(e, rhs); },
-                      function(val) { return vm.bind(e, lhs, val, vm.do_setq); });
+                      function(val) { return vm.bind(e, lhs, val, vm.do_setq); },
+		      dbg_info(e, self));
 });
 vm.Eval = vm.wrap(vm.prim(function(self, e, o) {
     var x = vm.elt(o, 0);
@@ -994,17 +1003,19 @@ vm.If = vm.prim(function(self, e, o) {
     return vm.monadic(function() { return vm.evaluate(e, vm.elt(o, 0)); },
                       function(test_result) {
                           return vm.evaluate(e, test_result ? vm.elt(o, 1) : vm.elt(o, 2));
-                      });
+                      },
+		      dbg_info(e, self));
 });
 vm.Progn = vm.prim(function(self, e, o) {
-    if (vm.is_nil(o)) return vm.VOID; else return vm.progn(e, o);
+    if (vm.is_nil(o)) return vm.VOID; else return vm.progn(e, o, dbg_info(e, self));
 });
-vm.progn = function(e, xs) {
+vm.progn = function(e, xs, dbg_info) {
     return vm.monadic(function() { return vm.evaluate(e, vm.car(xs)); },
                       function(res) {
                           var cdr = vm.cdr(xs);
                           if (vm.is_nil(cdr)) return res; else return vm.progn(e, cdr);
-                      });
+                      },
+		      dbg_info);
 };
 /* Operator that calls JS function to do work */
 vm.JSOperator = function(js_fn) { this.js_fn = js_fn; };
@@ -1025,12 +1036,19 @@ vm.jswrap = function(js_fn) {
 // by each distinct language primitive, and an inner suspended stack
 // frame.  The innermost stack frame is always the one created by the
 // %%TAKE-SUBCONT expression that effected the continuation capture.
-function StackFrame(work_fun, inner) {
+function StackFrame(work_fun, inner, dbg_info) {
     // primitive-specific JS function that will be called to resume this frame
     this.work_fun = work_fun;
     // next stack frame or null for innermost %%TAKE-SUBCONT frame
     this.inner = inner;
+    // attach some debugging info to this frame (not needed operationally)
+    this.dbg_info = dbg_info;
 };
+function DbgInfo(env, expr) {
+    this.env = env;   // lexical environment of stack frame
+    this.expr = expr; // source form
+};
+function dbg_info(env, expr) { return new DbgInfo(env, expr); }
 // A suspension is a helper object created for the capture of a
 // continuation and passed from the inside out.  A %%TAKE-SUBCONT
 // call will return a fresh suspension, and the outer caller will
@@ -1057,8 +1075,8 @@ function Suspension(prompt, handler) {
 // During continuation capture, destructively push a new outer
 // stack frame with a primitive-specific work function onto a
 // suspension's continuation.
-function suspendFrame(sus, work_fun) {
-    sus.k = new StackFrame(work_fun, sus.k);
+function suspendFrame(sus, work_fun, dbg_info) {
+    sus.k = new StackFrame(work_fun, sus.k, dbg_info);
 };
 // During continuation resumption, call the primitive-specific
 // work function of the outermost stack frame with the next inner
@@ -1091,7 +1109,7 @@ function resumeFrame(k, f) {
 // F (stimulus function) which are only relevant and passed in if
 // we are resuming a continuation.  (If we are not resuming they
 // are undefined.)
-vm.monadic = function(a, b, k, f) {
+vm.monadic = function(a, b, dbg_info, k, f) {
     // Caller passed in continuation?  This means we are resuming.
     // In other words, a previous call to A() led to a suspension
     // which we returned, and now the caller is passing in the
@@ -1123,9 +1141,9 @@ vm.monadic = function(a, b, k, f) {
 	// call to vm.monadic when the captured continuation is
 	// resumed at a future point.
 	var work_fun = function(k, f) {
-	    return vm.monadic(a, b, k, f);
+	    return vm.monadic(a, b, dbg_info, k, f);
 	};
-        suspendFrame(val, work_fun);
+        suspendFrame(val, work_fun, dbg_info);
         // Pass suspension back to caller.
         return val;
     } else {
@@ -1158,9 +1176,13 @@ vm.PushPrompt = vm.wrap(vm.prim(function do_push_prompt(self, e, o, k, f) {
             var handler = val.handler;
             return vm.combine(e, handler, vm.cons(continuation, vm.NIL));
         } else {
-            suspendFrame(val, function(k, f) {
-		return do_push_prompt(self, e, o, k, f);
-	    });
+            suspendFrame(
+		val,
+		function(k, f) {
+		    return do_push_prompt(self, e, o, k, f);
+		},
+		dbg_info(e, self)
+	    );
             return val;
         }
     }
@@ -1180,11 +1202,15 @@ vm.TakeSubcont = vm.wrap(vm.prim(function(self, e, o, k, f) {
     // thereby completing resumption and entering back into normal
     // evaluation.
     var sus = new Suspension(prompt, handler);
-    suspendFrame(sus, function(k, f) {
-	// As final step of continuation resumption, call
-	// user-supplied stimulus function in innermost context.
-	return vm.combine(e, f, vm.NIL);
-    });
+    suspendFrame(
+	sus,
+	function(k, f) {
+	    // As final step of continuation resumption, call
+	    // user-supplied stimulus function in innermost context.
+	    return vm.combine(e, f, vm.NIL);
+	},
+	dbg_info(e, self)
+    );
     return sus;
 }));
 // %%PUSH-SUBCONT k f
@@ -1205,9 +1231,13 @@ vm.PushSubcont = vm.wrap(vm.prim(function do_push_subcont(self, e, o, k, f) {
         var val = resumeFrame(thek, thef);
     }
     if (val instanceof Suspension) {
-        suspendFrame(val, function(k, f) {
-	    return do_push_subcont(self, e, o, k, f);
-	});
+        suspendFrame(
+	    val,
+	    function(k, f) {
+		return do_push_subcont(self, e, o, k, f);
+	    },
+	    dbg_info(e, self)
+	);
         return val;
     }
     return val;
@@ -1232,9 +1262,13 @@ vm.PushPromptSubcont = vm.wrap(vm.prim(function do_push_prompt_subcont(self, e, 
             var handler = val.handler;
             return vm.combine(e, handler, vm.cons(continuation, vm.NIL));
         } else {
-            suspendFrame(val, function(k, f) {
-		return do_push_prompt_subcont(self, e, o, k, f);
-	    });
+            suspendFrame(
+		val,
+		function(k, f) {
+		    return do_push_prompt_subcont(self, e, o, k, f);
+		},
+		dbg_info(e, self)
+	    );
             return val;
         }
     }
@@ -1255,9 +1289,13 @@ vm.Loop = vm.wrap(vm.prim(function do_loop(self, e, o, k, f) {
         }
         first = false;
         if (val instanceof Suspension) {
-            suspendFrame(val, function(k, f) {
-		return do_loop(self, e, o, k, f);
-	    });
+            suspendFrame(
+		val,
+		function(k, f) {
+		    return do_loop(self, e, o, k, f);
+		},
+		dbg_info(e, self)
+	    );
             return val;
         }
     }
@@ -1288,9 +1326,13 @@ vm.Rescue = vm.wrap(vm.prim(function do_rescue(self, e, o, k, f) {
         }
     }
     if (val instanceof Suspension) {
-        suspendFrame(val, function(k, f) {
-	    return do_rescue(self, e, o, k, f);
-	});
+        suspendFrame(
+	    val,
+	    function(k, f) {
+		return do_rescue(self, e, o, k, f);
+	    },
+	    dbg_info(e, self)
+	);
         return val;
     }
     return val;
@@ -1315,9 +1357,13 @@ vm.DynamicBind = vm.wrap(vm.prim(function dynamic_bind(self, e, o, k, f) {
             var res = vm.combine(e, thunk, vm.NIL);
         }
         if (res instanceof Suspension) {
-            suspendFrame(res, function(k, f) {
-		return dynamic_bind(self, e, o, k, f);
-	    });
+            suspendFrame(
+		res,
+		function(k, f) {
+		    return dynamic_bind(self, e, o, k, f);
+		},
+		dbg_info(e, self)
+	    );
             return res;
         } else {
             return res;
@@ -1380,14 +1426,16 @@ vm.Cons.prototype.qua_bind = function(self, e, rhs, doit) {
 			      } else {
 				  return vm.cons_bind(e, self, rhs, doit);
 			      }
-			  });
+			  },
+			  dbg_info(e, self));
     } else {
 	return vm.cons_bind(e, self, rhs, doit);
     }
 };
 vm.cons_bind = function(e, self, rhs, doit) {
     return vm.monadic(function() { return vm.bind(e, vm.car(self), vm.car(rhs), doit); },
-		      function() { return vm.bind(e, vm.cdr(self), vm.cdr(rhs), doit); });
+		      function() { return vm.bind(e, vm.cdr(self), vm.cdr(rhs), doit); },
+		      dbg_info(e, self));
 };
 vm.Nil.prototype.qua_bind = function(self, e, rhs, doit) {
     if (!vm.is_nil(rhs)) return vm.error("NIL expected, but got: " + JSON.stringify(rhs), e);
@@ -1870,5 +1918,5 @@ function objEquiv(a, b, opts) {
 }
 
 },{"./lib/is_arguments.js":3,"./lib/keys.js":4}],"qua-user-bytecode":[function(require,module,exports){
-module.exports=[null,["def",["qua-function","%deep-equal"],["node:require",["wat-string","deep-equal"]]],["deffexpr","%assert",["expr"],"env",["unless",["eval","expr","env"],["print",["wat-string","assertion failed"]],["print","expr"],["%%panic",["wat-string","assertion failed"]]]],["defun",["qua-function","%expect"],["expected","actual"],["%assert",["%deep-equal","expected","actual"]]],null,["%assert",["%deep-equal",1,["car",["cons",1,2]]]],["%assert",["%deep-equal",2,["cdr",["cons",1,2]]]],["%assert",["%deep-equal",1,["car",["list",1,2,3]]]],["%assert",["%deep-equal",["list",2,3],["cdr",["list",1,2,3]]]],["%assert",["%deep-equal",1,["car",["list*",1,2,3]]]],["%assert",["%deep-equal",["cons",2,3],["cdr",["list*",1,2,3]]]],["%assert",["symbol?",["quote","foo"]]],["%assert",["symbol?",["qua-keyword","foo"]]],null,["def","e1",["make-environment"]],["eval",["list",["qua-function","def"],["quote","x"],1],"e1"],["%assert",["%deep-equal",1,["eval",["quote","x"],"e1"]]],["%assert",["%deep-equal","#void",["progn"]]],["%assert",["%deep-equal",1,["progn",1]]],["%assert",["%deep-equal",2,["progn",1,2]]],null,["def","e2",["make-environment"]],["def",["qua-function","fun2"],["wrap",["vau",["p"],"#ign","p"]]],["eval",["list",["qua-function","def"],["quote","x"],2],"e2"],["eval",["list",["qua-function","def"],["quote",["qua-function","fun2"]],["qua-function","fun2"]],"e2"],["%assert",["%deep-equal",2,["eval",["list",["qua-function","fun2"],["quote","x"]],"e2"]]],null,["%assert",["%deep-equal",["quote","foo"],["quote","foo"]]],["%assert",["%deep-equal",["quote",["foo","bar"]],["quote",["foo","bar"]]]],null,["def",["qua-function","lam1"],["lambda",[],10,11,12]],["def",["qua-function","lam2"],["lambda",[]]],["%assert",["%deep-equal",12,["lam1"]]],["%assert",["%deep-equal","#void",["lam2"]]],["defun","lam3",["x"],1,2,3,"x"],["%assert",["%deep-equal",4,["lam3",4]]],null,["%assert",["%deep-equal",["list",1,2,3],["apply",["qua-function","list"],["list",1,2,3]]]],null,["%assert",["%deep-equal",["list",1,1,1],["map-list",["lambda",["#ign"],1],["list",1,2,3]]]],null,["defgeneric","describe-yourself",["self"]],["defmethod","describe-yourself",[["the","number","self"]],["wat-string","a number"]],["defmethod","describe-yourself",[["the","boolean","self"]],["wat-string","a boolean"]],["defmethod","describe-yourself",[["the","symbol","self"]],["wat-string","a symbol"]],["defmethod","describe-yourself",[["the","object","self"]],["wat-string","any other object"]],["%assert",["%deep-equal",["wat-string","a number"],["describe-yourself",33]]],["%assert",["%deep-equal",["wat-string","a boolean"],["describe-yourself",true]]],["%assert",["%deep-equal",["wat-string","a symbol"],["describe-yourself",["quote","foo"]]]],["%assert",["%deep-equal",["wat-string","any other object"],["describe-yourself",["list",1,2]]]],null,["defun","fun-with-keywords",[["qua-keyword","x"],"x-param",["qua-keyword","y"],"y-param"],["list","x-param","y-param"]],["%assert",["%deep-equal",["list",2,4],["fun-with-keywords",["qua-keyword","x"],2,["qua-keyword","y"],4]]],null,["defstruct","my-class"],["defgeneric","my-generic",["self"]],["defmethod","my-generic",[["the","object","self"]],["wat-string","wow!"]],["def","obj1",["make-instance",["quote","my-class"]]],["%assert",["%deep-equal",["wat-string","wow!"],["my-generic","obj1"]]],["defmethod","my-generic",[["the","my-class","self"]],["wat-string","wowzers!"]],["%assert",["%deep-equal",["wat-string","wowzers!"],["my-generic","obj1"]]],null,["defstruct","class-with-slots","x","y"],["def","object-with-slots",["make-instance",["quote","class-with-slots"],["qua-keyword","x"],2,["qua-keyword","y"],4]],["%assert",["%deep-equal",2,["slot-value","object-with-slots",["quote","x"]]]],["%assert",["%deep-equal",4,["slot-value","object-with-slots",["quote","y"]]]],["%assert",["slot-bound?","object-with-slots",["quote","x"]]],["%assert",["slot-bound?","object-with-slots",["quote","y"]]],["%assert",["not",["slot-bound?","object-with-slots",["quote","z"]]]],["setf",["slot-value","object-with-slots",["quote","x"]],6],["setf",["slot-value","object-with-slots",["quote","y"]],8],["%assert",["%deep-equal",6,["slot-value","object-with-slots",["quote","x"]]]],["%assert",["%deep-equal",8,["slot-value","object-with-slots",["quote","y"]]]],null,["let",[["x",1]],["let",[["x",3]],["setq","x",2],["%assert",["%deep-equal",2,"x"]]],["%assert",["%deep-equal",1,"x"]],["let",[],["setq","x",2],["%assert",["%deep-equal",2,"x"]]],["%assert",["%deep-equal",2,"x"]]],["let",[["x","#void"]],["let",[["y","#void"]],["let",[["z","#void"]],["setq",["x","y",".","z"],["list",1,2,3,4]],["%expect",1,"x"],["%expect",2,"y"],["%expect",["quote",[3,4]],"z"]]]],null,["let",[["foo",1]],["defun","foo",[],"foo"],["%assert",["%deep-equal",["foo"],1]],["def","env",["the-environment"]],["js-set",["qua-function","foo"],["wat-string","qua_setter"],["lambda",["new-val"],["setq","foo","new-val"]]],["setf",["foo"],2],["%assert",["%deep-equal",["foo"],2]]],["let",[["x",12]],["%expect",12,"x"],["setf","x",14],["%expect",14,"x"],["incf","x"],["%expect",15,"x"],["incf","x",2],["%expect",17,"x"],["decf","x"],["%expect",16,"x"],["decf","x",2],["%expect",14,"x"]],null,["let",[["box",["make-box",12]]],["%expect",12,["box-value","box"]],["setf",["box-value","box"],14],["%expect",14,["box-value","box"]],["incf",["box-value","box"]],["%expect",15,["box-value","box"]],["incf",["box-value","box"],2],["%expect",17,["box-value","box"]],["decf",["box-value","box"]],["%expect",16,["box-value","box"]],["decf",["box-value","box"],2],["%expect",14,["box-value","box"]]],null,["%expect",3,["block","#ign",1,2,3]],["%expect",2,["block","b",1,["return-from","b",2],3]],["%expect","#void",["cond"]],["%expect",1,["cond",[["%deep-equal",1,1],1]]],["%expect","#void",["cond",[false,1]]],["%expect",2,["cond",[false,1],[true,2],[true,3]]],["%expect",true,["and"]],["%expect",true,["and",true]],["%expect",false,["and",false]],["%expect",true,["and",true,true,true]],["%expect",false,["and",true,true,true,false]],["%expect",false,["or"]],["%expect",true,["or",true]],["%expect",false,["or",false]],["%expect",false,["or",false,false,false]],["%expect",true,["or",false,false,false,true]],["%expect","#void",["case",12]],["%expect",1,["case",1,[1,1],[2,2],[3,3]]],["%expect",3,["case",3,[1,1],[2,2],[3,3]]],["%expect","#void",["case",4,[1,1],[2,2],[3,3]]],["%expect",1,["call-with-escape",["lambda",["#ign"],1]]],["%expect",2,["call-with-escape",["lambda",["escape"],1,["return-from","escape",2],3]]],["%expect","#void",["call-with-escape",["lambda",["escape"],1,["return-from","escape"],3]]],["%expect","#void",["block","x"]],["%expect",1,["block","x",1]],["%expect",2,["block","x",1,["return-from","x",2],3]],["%expect","#void",["block","x",1,["return-from","x"],3]],["%expect",1,["unwind-protect",1]],["%expect",1,["unwind-protect",1,2]],["%expect",1,["unwind-protect",1,2,3]],["let",[["box",["make-box",false]]],["%expect",1,["unwind-protect",1,["setf",["box-value","box"],true]]],["%expect",true,["box-value","box"]]],["let",[["cell",false]],["block","exit",["unwind-protect",["return-from","exit"],["setf","cell",true]],["%expect",true,"cell"]]],["%expect","#void",["prog1"]],["%expect",1,["prog1",1,2,3]],["%expect",2,["prog2",1,2,3]],["%expect","#void",["prog2",1]],["%expect",12,["flet",[["bar",[],3],["foo",[],4]],["*",["bar"],["foo"]]]],["%expect",12,["labels",[["bar",["x"],["*","x",["foo"]]],["foo",[],4]],["bar",3]]],null,["defdynamic","*my-dynamic*",1],["progn",["%expect",1,["dynamic","*my-dynamic*"]],["dynamic-let",[["*my-dynamic*",2]],["%expect",2,["dynamic","*my-dynamic*"]]],["%expect",1,["dynamic","*my-dynamic*"]]],["progn",["%expect",1,["dynamic","*my-dynamic*"]],["block","exc",["dynamic-let",[["*my-dynamic*",2]],["%expect",2,["dynamic","*my-dynamic*"]],["return-from","exc"]]],["%expect",1,["dynamic","*my-dynamic*"]]],null,["let",[["obj",["js-object",["qua-keyword","message"],["wat-string","hello"],["qua-keyword","sent"],["not",true]]]],["%assert",["%deep-equal",["wat-string","hello"],[["js-getter",["wat-string","message"]],"obj"]]],["%assert",["%deep-equal",false,[["js-getter",["wat-string","sent"]],"obj"]]],["%assert",["own-property?","obj",["wat-string","message"]]],["%assert",["own-property?","obj",["wat-string","sent"]]],["%assert",["not",["own-property?","obj",["wat-string","xyz"]]]]],null,["%assert",["%deep-equal",["wat-string","String"],["%%js-get",["%%js-get",["wat-string","foo"],["wat-string","constructor"]],["wat-string","name"]]]],["%assert",["%deep-equal",["wat-string","String"],[["js-getter",["wat-string","name"]],[["js-getter",["wat-string","constructor"]],["wat-string","foo"]]]]],null,["%assert",["%deep-equal",["wat-string","foo"],[["js-getter",["wat-string","name"]],["quote","foo"]]]],["%assert",["%deep-equal",["wat-string","variable"],[["js-getter",["wat-string","ns"]],["quote","foo"]]]],["%assert",["%deep-equal",["wat-string","function"],[["js-getter",["wat-string","ns"]],["quote",["qua-function","foo"]]]]],null,["let",[["obj",["create-js-object"]]],["setf",[["js-getter",["wat-string","message"]],"obj"],["wat-string","foo"]],["%assert",["%deep-equal",["wat-string","foo"],[["js-getter",["wat-string","message"]],"obj"]]]],null,["%assert",["%deep-equal",["wat-string","12"],[["js-invoker",["wat-string","toString"]],12]]],null,["%expect",2,["js-get",["js-array",1,2,3],1]],null,["%expect",["wat-string","foobar"],["+",["wat-string","foo"],["wat-string","ba"],["wat-string","r"]]],["%expect",1,["+",1]],["%expect",6,["+",2,2,2]],["%expect",3,["*",3]],["%expect",24,["*",4,3,2]],["%expect",-4,["-",4]],["%expect",4,["-",8,2,2]],["%expect",0.25,["/",4]],["%expect",1,["/",12,4,3]],["%assert",["<",1,2,3,4,5]],["%assert",["not",["<",1,2,3,4,5,-1]]],["%assert",[">",5,4,3,2,1]],["%assert",["not",[">",5,4,3,2,1,6]]],["%assert",["===",1,1,1]],["%assert",["not",["===",1,1,1,2]]],null,["%expect",0,["list-length",["list"]]],["%expect",4,["list-length",["list",1,2,3,4]]],["%expect",3,["list-elt",["list",1,2,3,4],2]],["%expect",["quote",["#void","#void"]],["filter-list",["qua-function","void?"],["quote",[1,"#void",2,"#void"]]]],["%expect",["quote",[1,2,3,4]],["append-lists",["quote",[1,2]],["quote",[3,4]]]],null,["%assert",["type?",["make-instance",["quote","simple-error"]],["quote","object"]]],["%assert",["not",["type?",["make-instance",["quote","object"]],["quote","simple-error"]]]],["%assert",["type?",12,["quote","number"]]],["%assert",["type?",12,["quote","object"]]],["%assert",["eq",["class-of",["class","object"]],["class","structure-class"]]],null,["flet",[["test-for-each",["coll"],["let",[["sum",0]],["for-each",["lambda",["elt"],["incf","sum","elt"]],"coll"],["%expect",6,"sum"]]]],["test-for-each",["list",1,2,3]],["test-for-each",["js-array",1,2,3]]],["%expect",["list",2,4,6],["map",["lambda",["x"],["*","x",2]],["list",1,2,3]]],["%expect",["js-array",2,4,6],["map",["lambda",["x"],["*","x",2]],["js-array",1,2,3]]],["%expect",[],["map",["lambda",["x"],["*","x",2]],[]]],["%expect",["js-array"],["map",["lambda",["x"],["*","x",2]],["js-array"]]],null,null,null,["deffexpr","defclass",["name","#ign","#ign",[["qua-keyword","metaclass"],"metaclass-name"]],"env",["let*",[["class-name",["symbol-name","name"]],["class",["make-class",["find-class","metaclass-name"],"class-name"]]],["eval",["list",["qua-function","def"],["to-type-sym","name"],"class"],"env"]]],["defstruct","my-metaclass"],["defmethod","compute-effective-method",[["the","my-metaclass","class"],"receiver","message","arguments"],["lambda",["self",".","#ign"],["wat-string","foo!"]]],["defclass","my-class-with-custom-metaclass",[],[],[["qua-keyword","metaclass"],"my-metaclass"]],["defgeneric","my-custom-generic-1",["self"]],["defgeneric","my-custom-generic-2",["self"]],null,["let",[["obj",["make-instance",["quote","my-class-with-custom-metaclass"]]]],["%expect",["wat-string","foo!"],["my-custom-generic-1","obj"]],["%expect",["wat-string","foo!"],["my-custom-generic-2","obj"]]],null,["defstruct","condition-not-signaled","condition-type"],["defun","condition-not-signaled",["condition-type"],["make-instance",["quote","condition-not-signaled"],["qua-keyword","condition-type"],"condition-type"]],["defun","%expect-condition",["condition-type",["qua-function","thunk"]],["block","ok",["handler-bind",[["object",["lambda",["condition"],["if",["type?","condition","condition-type"],["return-from","ok"],["error",["condition-not-signaled","condition-type"]]]]]],["thunk"]]]],["%expect-condition",["quote","condition-not-signaled"],["lambda",[],["%expect-condition",["quote","simple-error"],["progn"]]]],["%expect-condition",["quote","condition-not-signaled"],["lambda",[],["%expect-condition",["quote","condition-not-signaled"],["lambda",[],["%expect-condition",["quote","simple-error"],["simple-error",["wat-string","bla"]]]]]]],["%expect-condition",["quote","restart-not-found"],["lambda",[],["invoke-restart",["quote","foo"]]]],["%expect-condition",["quote","restart-not-found"],["lambda",[],["invoke-restart",12]]],["%expect",3,["block","ok",["restart-bind",[["foo",["lambda",["x","y"],["return-from","ok",["+","x","y"]]]]],["the","restart-handler",["find-restart",["quote","foo"]]],["the","void",["find-restart",["quote","bar"]]],["invoke-restart",["quote","foo"],1,2]]]],["%expect",127,["restart-bind",[["make-number-cool",["lambda",["n"],["+","n",100]],["qua-keyword","interactive-function"],["lambda",[],["list",27]]]],["invoke-restart-interactively",["quote","make-number-cool"]]]],["%expect",["quote",[]],["restart-bind",[["restart-with-no-interactive-function",["lambda","args","args"]]],["invoke-restart-interactively",["quote","restart-with-no-interactive-function"]]]],["%expect",1000,["block","ok",["restart-bind",[["foo",["lambda",["x","y"],["return-from","ok",["+","x","y"]]]]],["restart-bind",[["foo",["lambda",["x","y"],["return-from","ok",1000]]]],["invoke-restart",["quote","foo"],1,2]]]]],["%expect",1000,["block","ok",["let",[["condition",["make-instance",["quote","simple-error"]]]],["restart-bind",[["foo",["lambda",["x","y"],["return-from","ok",["+","x","y"]]],["qua-keyword","associated-condition"],"condition"]],["restart-bind",[["foo",["lambda",["x","y"],["return-from","ok",1000]]]],["let",[["restart",["find-restart",["quote","foo"],"condition"]]],["invoke-restart","restart",1,2]]]]]]],["%expect",3,["block","ok",["let",[["condition-1",["make-instance",["quote","simple-error"]]],["condition-2",["make-instance",["quote","simple-error"]]]],["restart-bind",[["foo",["lambda",["x","y"],["return-from","ok",["+","x","y"]]],["qua-keyword","associated-condition"],"condition-1"]],["restart-bind",[["foo",["lambda",["x","y"],["return-from","ok",1000]],["qua-keyword","associated-condition"],"condition-2"]],["let",[["restart",["find-restart",["quote","foo"],"condition-1"]]],["invoke-restart","restart",1,2]]]]]]],["%expect",1000,["block","ok",["let",[["condition-1",["make-instance",["quote","simple-error"]]],["condition-2",["make-instance",["quote","simple-error"]]]],["restart-bind",[["foo",["lambda",["x","y"],["return-from","ok",["+","x","y"]]],["qua-keyword","associated-condition"],"condition-1"]],["restart-bind",[["foo",["lambda",["x","y"],["return-from","ok",1000]],["qua-keyword","associated-condition"],"condition-2"]],["let",[["restart",["find-restart",["quote","foo"],"condition-2"]]],["invoke-restart","restart",1,2]]]]]]],null,["%expect","#void",["typecase",true]],["%expect",2,["typecase",true,["number",1],["boolean",2]]],["%expect",1,["typecase",10,["number",1],["boolean",2]]],["%expect","#void",["typecase",["wat-string","foo"],["number",1],["boolean",2]]],["%expect",["wat-string","default"],["typecase",["quote","whatever"],[true,["wat-string","default"]]]],["%expect",1,["typecase",["quote","whatever"],["symbol",1],[true,["wat-string","default"]]]],["%expect",["wat-string","default"],["typecase",["quote","whatever"],["number",1],[true,["wat-string","default"]]]],["%expect",4,["the","object",["+",2,2]]],["%expect",4,["the","number",["+",2,2]]],["%expect-condition",["quote","type-mismatch-error"],["lambda",[],["the","string",12]]],null,["let",[[["the","cons","x"],["cons",1,2]]],["%expect",["cons",1,2],"x"]],["%expect-condition",["quote","type-mismatch-error"],["lambda",[],["let",[[["the","string","x"],["cons",1,2]]]]]],["let",[["x","#void"],["y","#void"]],["setq",[["the","string","x"],["the","number","y"]],["list",["wat-string","foo"],12]],["%expect",["wat-string","foo"],"x"],["%expect",12,"y"]],["print",["wat-string","OK"]],null,null]
+module.exports=[null,["def",["qua-function","%deep-equal"],["node:require",["wat-string","deep-equal"]]],["deffexpr","%assert",["expr"],"env",["unless",["eval","expr","env"],["print",["wat-string","assertion failed"]],["print","expr"],["%%panic",["wat-string","assertion failed"]]]],["defun",["qua-function","%expect"],["expected","actual"],["%assert",["%deep-equal","expected","actual"]]],null,["%assert",["%deep-equal",1,["car",["cons",1,2]]]],["%assert",["%deep-equal",2,["cdr",["cons",1,2]]]],["%assert",["%deep-equal",1,["car",["list",1,2,3]]]],["%assert",["%deep-equal",["list",2,3],["cdr",["list",1,2,3]]]],["%assert",["%deep-equal",1,["car",["list*",1,2,3]]]],["%assert",["%deep-equal",["cons",2,3],["cdr",["list*",1,2,3]]]],["%assert",["symbol?",["quote","foo"]]],["%assert",["symbol?",["qua-keyword","foo"]]],null,["def","e1",["make-environment"]],["eval",["list",["qua-function","def"],["quote","x"],1],"e1"],["%assert",["%deep-equal",1,["eval",["quote","x"],"e1"]]],["%assert",["%deep-equal","#void",["progn"]]],["%assert",["%deep-equal",1,["progn",1]]],["%assert",["%deep-equal",2,["progn",1,2]]],null,["def","e2",["make-environment"]],["def",["qua-function","fun2"],["wrap",["vau",["p"],"#ign","p"]]],["eval",["list",["qua-function","def"],["quote","x"],2],"e2"],["eval",["list",["qua-function","def"],["quote",["qua-function","fun2"]],["qua-function","fun2"]],"e2"],["%assert",["%deep-equal",2,["eval",["list",["qua-function","fun2"],["quote","x"]],"e2"]]],null,["%assert",["%deep-equal",["quote","foo"],["quote","foo"]]],["%assert",["%deep-equal",["quote",["foo","bar"]],["quote",["foo","bar"]]]],null,["def",["qua-function","lam1"],["lambda",[],10,11,12]],["def",["qua-function","lam2"],["lambda",[]]],["%assert",["%deep-equal",12,["lam1"]]],["%assert",["%deep-equal","#void",["lam2"]]],["defun","lam3",["x"],1,2,3,"x"],["%assert",["%deep-equal",4,["lam3",4]]],null,["%assert",["%deep-equal",["list",1,2,3],["apply",["qua-function","list"],["list",1,2,3]]]],null,["%assert",["%deep-equal",["list",1,1,1],["map-list",["lambda",["#ign"],1],["list",1,2,3]]]],null,["defgeneric","describe-yourself",["self"]],["defmethod","describe-yourself",[["the","number","self"]],["wat-string","a number"]],["defmethod","describe-yourself",[["the","boolean","self"]],["wat-string","a boolean"]],["defmethod","describe-yourself",[["the","symbol","self"]],["wat-string","a symbol"]],["defmethod","describe-yourself",[["the","object","self"]],["wat-string","any other object"]],["%assert",["%deep-equal",["wat-string","a number"],["describe-yourself",33]]],["%assert",["%deep-equal",["wat-string","a boolean"],["describe-yourself",true]]],["%assert",["%deep-equal",["wat-string","a symbol"],["describe-yourself",["quote","foo"]]]],["%assert",["%deep-equal",["wat-string","any other object"],["describe-yourself",["list",1,2]]]],null,["defun","fun-with-keywords",[["qua-keyword","x"],"x-param",["qua-keyword","y"],"y-param"],["list","x-param","y-param"]],["%assert",["%deep-equal",["list",2,4],["fun-with-keywords",["qua-keyword","x"],2,["qua-keyword","y"],4]]],null,["defstruct","my-class"],["defgeneric","my-generic",["self"]],["defmethod","my-generic",[["the","object","self"]],["wat-string","wow!"]],["def","obj1",["make-instance",["quote","my-class"]]],["%assert",["%deep-equal",["wat-string","wow!"],["my-generic","obj1"]]],["defmethod","my-generic",[["the","my-class","self"]],["wat-string","wowzers!"]],["%assert",["%deep-equal",["wat-string","wowzers!"],["my-generic","obj1"]]],null,["defstruct","class-with-slots","x","y"],["def","object-with-slots",["make-instance",["quote","class-with-slots"],["qua-keyword","x"],2,["qua-keyword","y"],4]],["%assert",["%deep-equal",2,["slot-value","object-with-slots",["quote","x"]]]],["%assert",["%deep-equal",4,["slot-value","object-with-slots",["quote","y"]]]],["%assert",["slot-bound?","object-with-slots",["quote","x"]]],["%assert",["slot-bound?","object-with-slots",["quote","y"]]],["%assert",["not",["slot-bound?","object-with-slots",["quote","z"]]]],["setf",["slot-value","object-with-slots",["quote","x"]],6],["setf",["slot-value","object-with-slots",["quote","y"]],8],["%assert",["%deep-equal",6,["slot-value","object-with-slots",["quote","x"]]]],["%assert",["%deep-equal",8,["slot-value","object-with-slots",["quote","y"]]]],null,["let",[["x",1]],["let",[["x",3]],["setq","x",2],["%assert",["%deep-equal",2,"x"]]],["%assert",["%deep-equal",1,"x"]],["let",[],["setq","x",2],["%assert",["%deep-equal",2,"x"]]],["%assert",["%deep-equal",2,"x"]]],["let",[["x","#void"]],["let",[["y","#void"]],["let",[["z","#void"]],["setq",["x","y",".","z"],["list",1,2,3,4]],["%expect",1,"x"],["%expect",2,"y"],["%expect",["quote",[3,4]],"z"]]]],null,["let",[["foo",1]],["defun","foo",[],"foo"],["%assert",["%deep-equal",["foo"],1]],["def","env",["the-environment"]],["js-set",["qua-function","foo"],["wat-string","qua_setter"],["lambda",["new-val"],["setq","foo","new-val"]]],["setf",["foo"],2],["%assert",["%deep-equal",["foo"],2]]],["let",[["x",12]],["%expect",12,"x"],["setf","x",14],["%expect",14,"x"],["incf","x"],["%expect",15,"x"],["incf","x",2],["%expect",17,"x"],["decf","x"],["%expect",16,"x"],["decf","x",2],["%expect",14,"x"]],null,["let",[["box",["make-box",12]]],["%expect",12,["box-value","box"]],["setf",["box-value","box"],14],["%expect",14,["box-value","box"]],["incf",["box-value","box"]],["%expect",15,["box-value","box"]],["incf",["box-value","box"],2],["%expect",17,["box-value","box"]],["decf",["box-value","box"]],["%expect",16,["box-value","box"]],["decf",["box-value","box"],2],["%expect",14,["box-value","box"]]],null,["%expect",3,["block","#ign",1,2,3]],["%expect",2,["block","b",1,["return-from","b",2],3]],["%expect","#void",["cond"]],["%expect",1,["cond",[["%deep-equal",1,1],1]]],["%expect","#void",["cond",[false,1]]],["%expect",2,["cond",[false,1],[true,2],[true,3]]],["%expect",true,["and"]],["%expect",true,["and",true]],["%expect",false,["and",false]],["%expect",true,["and",true,true,true]],["%expect",false,["and",true,true,true,false]],["%expect",false,["or"]],["%expect",true,["or",true]],["%expect",false,["or",false]],["%expect",false,["or",false,false,false]],["%expect",true,["or",false,false,false,true]],["%expect","#void",["case",12]],["%expect",1,["case",1,[1,1],[2,2],[3,3]]],["%expect",3,["case",3,[1,1],[2,2],[3,3]]],["%expect","#void",["case",4,[1,1],[2,2],[3,3]]],["%expect",1,["call-with-escape",["lambda",["#ign"],1]]],["%expect",2,["call-with-escape",["lambda",["escape"],1,["return-from","escape",2],3]]],["%expect","#void",["call-with-escape",["lambda",["escape"],1,["return-from","escape"],3]]],["%expect","#void",["block","x"]],["%expect",1,["block","x",1]],["%expect",2,["block","x",1,["return-from","x",2],3]],["%expect","#void",["block","x",1,["return-from","x"],3]],["%expect",1,["unwind-protect",1]],["%expect",1,["unwind-protect",1,2]],["%expect",1,["unwind-protect",1,2,3]],["let",[["box",["make-box",false]]],["%expect",1,["unwind-protect",1,["setf",["box-value","box"],true]]],["%expect",true,["box-value","box"]]],["let",[["cell",false]],["block","exit",["unwind-protect",["return-from","exit"],["setf","cell",true]],["%expect",true,"cell"]]],["%expect","#void",["prog1"]],["%expect",1,["prog1",1,2,3]],["%expect",2,["prog2",1,2,3]],["%expect","#void",["prog2",1]],["%expect",12,["flet",[["bar",[],3],["foo",[],4]],["*",["bar"],["foo"]]]],["%expect",12,["labels",[["bar",["x"],["*","x",["foo"]]],["foo",[],4]],["bar",3]]],null,["defdynamic","*my-dynamic*",1],["progn",["%expect",1,["dynamic","*my-dynamic*"]],["dynamic-let",[["*my-dynamic*",2]],["%expect",2,["dynamic","*my-dynamic*"]]],["%expect",1,["dynamic","*my-dynamic*"]]],["progn",["%expect",1,["dynamic","*my-dynamic*"]],["block","exc",["dynamic-let",[["*my-dynamic*",2]],["%expect",2,["dynamic","*my-dynamic*"]],["return-from","exc"]]],["%expect",1,["dynamic","*my-dynamic*"]]],null,["let",[["obj",["js-object",["qua-keyword","message"],["wat-string","hello"],["qua-keyword","sent"],["not",true]]]],["%assert",["%deep-equal",["wat-string","hello"],[["js-getter",["wat-string","message"]],"obj"]]],["%assert",["%deep-equal",false,[["js-getter",["wat-string","sent"]],"obj"]]],["%assert",["own-property?","obj",["wat-string","message"]]],["%assert",["own-property?","obj",["wat-string","sent"]]],["%assert",["not",["own-property?","obj",["wat-string","xyz"]]]]],null,["%assert",["%deep-equal",["wat-string","String"],["%%js-get",["%%js-get",["wat-string","foo"],["wat-string","constructor"]],["wat-string","name"]]]],["%assert",["%deep-equal",["wat-string","String"],[["js-getter",["wat-string","name"]],[["js-getter",["wat-string","constructor"]],["wat-string","foo"]]]]],null,["%assert",["%deep-equal",["wat-string","foo"],[["js-getter",["wat-string","name"]],["quote","foo"]]]],["%assert",["%deep-equal",["wat-string","variable"],[["js-getter",["wat-string","ns"]],["quote","foo"]]]],["%assert",["%deep-equal",["wat-string","function"],[["js-getter",["wat-string","ns"]],["quote",["qua-function","foo"]]]]],null,["let",[["obj",["create-js-object"]]],["setf",[["js-getter",["wat-string","message"]],"obj"],["wat-string","foo"]],["%assert",["%deep-equal",["wat-string","foo"],[["js-getter",["wat-string","message"]],"obj"]]]],null,["%assert",["%deep-equal",["wat-string","12"],[["js-invoker",["wat-string","toString"]],12]]],null,["%expect",2,["js-get",["js-array",1,2,3],1]],null,["%expect",["wat-string","foobar"],["+",["wat-string","foo"],["wat-string","ba"],["wat-string","r"]]],["%expect",1,["+",1]],["%expect",6,["+",2,2,2]],["%expect",3,["*",3]],["%expect",24,["*",4,3,2]],["%expect",-4,["-",4]],["%expect",4,["-",8,2,2]],["%expect",0.25,["/",4]],["%expect",1,["/",12,4,3]],["%assert",["<",1,2,3,4,5]],["%assert",["not",["<",1,2,3,4,5,-1]]],["%assert",[">",5,4,3,2,1]],["%assert",["not",[">",5,4,3,2,1,6]]],["%assert",["===",1,1,1]],["%assert",["not",["===",1,1,1,2]]],null,["%expect",0,["list-length",["list"]]],["%expect",4,["list-length",["list",1,2,3,4]]],["%expect",3,["list-elt",["list",1,2,3,4],2]],["%expect",["quote",["#void","#void"]],["filter-list",["qua-function","void?"],["quote",[1,"#void",2,"#void"]]]],["%expect",["quote",[1,2,3,4]],["append-lists",["quote",[1,2]],["quote",[3,4]]]],null,["%assert",["type?",["make-instance",["quote","simple-error"]],["quote","object"]]],["%assert",["not",["type?",["make-instance",["quote","object"]],["quote","simple-error"]]]],["%assert",["type?",12,["quote","number"]]],["%assert",["type?",12,["quote","object"]]],["%assert",["eq",["class-of",["class","object"]],["class","structure-class"]]],null,["flet",[["test-for-each",["coll"],["let",[["sum",0]],["for-each",["lambda",["elt"],["incf","sum","elt"]],"coll"],["%expect",6,"sum"]]]],["test-for-each",["list",1,2,3]],["test-for-each",["js-array",1,2,3]]],["%expect",["list",2,4,6],["map",["lambda",["x"],["*","x",2]],["list",1,2,3]]],["%expect",["js-array",2,4,6],["map",["lambda",["x"],["*","x",2]],["js-array",1,2,3]]],["%expect",[],["map",["lambda",["x"],["*","x",2]],[]]],["%expect",["js-array"],["map",["lambda",["x"],["*","x",2]],["js-array"]]],null,null,null,["deffexpr","defclass",["name","#ign","#ign",[["qua-keyword","metaclass"],"metaclass-name"]],"env",["let*",[["class-name",["symbol-name","name"]],["class",["make-class",["find-class","metaclass-name"],"class-name"]]],["eval",["list",["qua-function","def"],["to-type-sym","name"],"class"],"env"]]],["defstruct","my-metaclass"],["defmethod","compute-effective-method",[["the","my-metaclass","class"],"receiver","message","arguments"],["lambda",["self",".","#ign"],["wat-string","foo!"]]],["defclass","my-class-with-custom-metaclass",[],[],[["qua-keyword","metaclass"],"my-metaclass"]],["defgeneric","my-custom-generic-1",["self"]],["defgeneric","my-custom-generic-2",["self"]],null,["let",[["obj",["make-instance",["quote","my-class-with-custom-metaclass"]]]],["%expect",["wat-string","foo!"],["my-custom-generic-1","obj"]],["%expect",["wat-string","foo!"],["my-custom-generic-2","obj"]]],null,["defstruct","condition-not-signaled","condition-type"],["defun","condition-not-signaled",["condition-type"],["make-instance",["quote","condition-not-signaled"],["qua-keyword","condition-type"],"condition-type"]],["defun","%expect-condition",["condition-type",["qua-function","thunk"]],["block","ok",["handler-bind",[["object",["lambda",["condition"],["if",["type?","condition","condition-type"],["return-from","ok"],["error",["condition-not-signaled","condition-type"]]]]]],["thunk"]]]],["%expect-condition",["quote","condition-not-signaled"],["lambda",[],["%expect-condition",["quote","simple-error"],["progn"]]]],["%expect-condition",["quote","condition-not-signaled"],["lambda",[],["%expect-condition",["quote","condition-not-signaled"],["lambda",[],["%expect-condition",["quote","simple-error"],["simple-error",["wat-string","bla"]]]]]]],["%expect-condition",["quote","restart-not-found"],["lambda",[],["invoke-restart",["quote","foo"]]]],["%expect-condition",["quote","restart-not-found"],["lambda",[],["invoke-restart",12]]],["%expect",3,["block","ok",["restart-bind",[["foo",["lambda",["x","y"],["return-from","ok",["+","x","y"]]]]],["the","restart-handler",["find-restart",["quote","foo"]]],["the","void",["find-restart",["quote","bar"]]],["invoke-restart",["quote","foo"],1,2]]]],["%expect",127,["restart-bind",[["make-number-cool",["lambda",["n"],["+","n",100]],["qua-keyword","interactive-function"],["lambda",[],["list",27]]]],["invoke-restart-interactively",["quote","make-number-cool"]]]],["%expect",["quote",[]],["restart-bind",[["restart-with-no-interactive-function",["lambda","args","args"]]],["invoke-restart-interactively",["quote","restart-with-no-interactive-function"]]]],["%expect",1000,["block","ok",["restart-bind",[["foo",["lambda",["x","y"],["return-from","ok",["+","x","y"]]]]],["restart-bind",[["foo",["lambda",["x","y"],["return-from","ok",1000]]]],["invoke-restart",["quote","foo"],1,2]]]]],["%expect",1000,["block","ok",["let",[["condition",["make-instance",["quote","simple-error"]]]],["restart-bind",[["foo",["lambda",["x","y"],["return-from","ok",["+","x","y"]]],["qua-keyword","associated-condition"],"condition"]],["restart-bind",[["foo",["lambda",["x","y"],["return-from","ok",1000]]]],["let",[["restart",["find-restart",["quote","foo"],"condition"]]],["invoke-restart","restart",1,2]]]]]]],["%expect",3,["block","ok",["let",[["condition-1",["make-instance",["quote","simple-error"]]],["condition-2",["make-instance",["quote","simple-error"]]]],["restart-bind",[["foo",["lambda",["x","y"],["return-from","ok",["+","x","y"]]],["qua-keyword","associated-condition"],"condition-1"]],["restart-bind",[["foo",["lambda",["x","y"],["return-from","ok",1000]],["qua-keyword","associated-condition"],"condition-2"]],["let",[["restart",["find-restart",["quote","foo"],"condition-1"]]],["invoke-restart","restart",1,2]]]]]]],["%expect",1000,["block","ok",["let",[["condition-1",["make-instance",["quote","simple-error"]]],["condition-2",["make-instance",["quote","simple-error"]]]],["restart-bind",[["foo",["lambda",["x","y"],["return-from","ok",["+","x","y"]]],["qua-keyword","associated-condition"],"condition-1"]],["restart-bind",[["foo",["lambda",["x","y"],["return-from","ok",1000]],["qua-keyword","associated-condition"],"condition-2"]],["let",[["restart",["find-restart",["quote","foo"],"condition-2"]]],["invoke-restart","restart",1,2]]]]]]],null,["%expect","#void",["typecase",true]],["%expect",2,["typecase",true,["number",1],["boolean",2]]],["%expect",1,["typecase",10,["number",1],["boolean",2]]],["%expect","#void",["typecase",["wat-string","foo"],["number",1],["boolean",2]]],["%expect",["wat-string","default"],["typecase",["quote","whatever"],[true,["wat-string","default"]]]],["%expect",1,["typecase",["quote","whatever"],["symbol",1],[true,["wat-string","default"]]]],["%expect",["wat-string","default"],["typecase",["quote","whatever"],["number",1],[true,["wat-string","default"]]]],["%expect",4,["the","object",["+",2,2]]],["%expect",4,["the","number",["+",2,2]]],["%expect-condition",["quote","type-mismatch-error"],["lambda",[],["the","string",12]]],null,["let",[[["the","cons","x"],["cons",1,2]]],["%expect",["cons",1,2],"x"]],["%expect-condition",["quote","type-mismatch-error"],["lambda",[],["let",[[["the","string","x"],["cons",1,2]]]]]],null,["let",[["x","#void"],["y","#void"]],["setq",[["the","string","x"],["the","number","y"]],["list",["wat-string","foo"],12]],["%expect",["wat-string","foo"],"x"],["%expect",12,"y"]],["print",["wat-string","OK"]],null,null]
 },{}]},{},[1]);

@@ -884,7 +884,8 @@ vm.Sym.prototype.qua_evaluate = function(self, e) {
 };
 vm.Cons.prototype.qua_evaluate = function(self, e) {
     return vm.monadic(function() { return vm.eval_operator(e, vm.car(self)); },
-                      function(cmb) { return vm.combine(e, cmb, vm.cdr(self)); });
+                      function(cmb) { return vm.combine(e, cmb, vm.cdr(self)); },
+		      dbg_info(e, self));
 };
 vm.eval_operator = function(e, op) {
     if (op instanceof vm.Sym) {
@@ -918,16 +919,22 @@ vm.Fexpr.prototype.qua_combine = function(self, e, o) {
     return vm.monadic(function() { return vm.bind(xe, self.p, o); },
                       function() {
                           return vm.monadic(function() { return vm.bind(xe, self.ep, e); },
-                                            function() { return vm.evaluate(xe, self.x); }); });
+                                            function() { return vm.evaluate(xe, self.x); },
+					    dbg_info(e, self));
+		      },
+		      dbg_info(e, self));
 };
 vm.Function.prototype.qua_combine = function(self, e, o) {
     return vm.monadic(function() { return vm.eval_args(e, o, vm.NIL); },
-                      function(args) { return vm.combine(e, self.cmb, args); });
+                      function(args) { return vm.combine(e, self.cmb, args); },
+		      dbg_info(e, self));
 };
 vm.eval_args = function(e, todo, done) {
     if (vm.is_nil(todo)) { return vm.reverse_list(done); }
     return vm.monadic(function() { return vm.evaluate(e, vm.car(todo)); },
-                      function(arg) { return vm.eval_args(e, vm.cdr(todo), vm.cons(arg, done)); });
+                      function(arg) {
+			  return vm.eval_args(e, vm.cdr(todo), vm.cons(arg, done));
+		      });
 };
 /* Built-in combiners */
 vm.Prim = function Prim(fn) {
@@ -944,13 +951,15 @@ vm.Def = vm.prim(function (self, e, o) {
     var lhs = vm.elt(o, 0);
     var rhs = vm.elt(o, 1);
     return vm.monadic(function() { return vm.evaluate(e, rhs); },
-                      function(val) { return vm.bind(e, lhs, val, vm.do_def); });
+                      function(val) { return vm.bind(e, lhs, val, vm.do_def); },
+		      dbg_info(e, self));
 });
 vm.Setq = vm.prim(function (self, e, o) {
     var lhs = vm.elt(o, 0);
     var rhs = vm.elt(o, 1);
     return vm.monadic(function() { return vm.evaluate(e, rhs); },
-                      function(val) { return vm.bind(e, lhs, val, vm.do_setq); });
+                      function(val) { return vm.bind(e, lhs, val, vm.do_setq); },
+		      dbg_info(e, self));
 });
 vm.Eval = vm.wrap(vm.prim(function(self, e, o) {
     var x = vm.elt(o, 0);
@@ -961,17 +970,19 @@ vm.If = vm.prim(function(self, e, o) {
     return vm.monadic(function() { return vm.evaluate(e, vm.elt(o, 0)); },
                       function(test_result) {
                           return vm.evaluate(e, test_result ? vm.elt(o, 1) : vm.elt(o, 2));
-                      });
+                      },
+		      dbg_info(e, self));
 });
 vm.Progn = vm.prim(function(self, e, o) {
-    if (vm.is_nil(o)) return vm.VOID; else return vm.progn(e, o);
+    if (vm.is_nil(o)) return vm.VOID; else return vm.progn(e, o, dbg_info(e, self));
 });
-vm.progn = function(e, xs) {
+vm.progn = function(e, xs, dbg_info) {
     return vm.monadic(function() { return vm.evaluate(e, vm.car(xs)); },
                       function(res) {
                           var cdr = vm.cdr(xs);
                           if (vm.is_nil(cdr)) return res; else return vm.progn(e, cdr);
-                      });
+                      },
+		      dbg_info);
 };
 /* Operator that calls JS function to do work */
 vm.JSOperator = function(js_fn) { this.js_fn = js_fn; };
@@ -992,12 +1003,19 @@ vm.jswrap = function(js_fn) {
 // by each distinct language primitive, and an inner suspended stack
 // frame.  The innermost stack frame is always the one created by the
 // %%TAKE-SUBCONT expression that effected the continuation capture.
-function StackFrame(work_fun, inner) {
+function StackFrame(work_fun, inner, dbg_info) {
     // primitive-specific JS function that will be called to resume this frame
     this.work_fun = work_fun;
     // next stack frame or null for innermost %%TAKE-SUBCONT frame
     this.inner = inner;
+    // attach some debugging info to this frame (not needed operationally)
+    this.dbg_info = dbg_info;
 };
+function DbgInfo(env, expr) {
+    this.env = env;   // lexical environment of stack frame
+    this.expr = expr; // source form
+};
+function dbg_info(env, expr) { return new DbgInfo(env, expr); }
 // A suspension is a helper object created for the capture of a
 // continuation and passed from the inside out.  A %%TAKE-SUBCONT
 // call will return a fresh suspension, and the outer caller will
@@ -1024,8 +1042,8 @@ function Suspension(prompt, handler) {
 // During continuation capture, destructively push a new outer
 // stack frame with a primitive-specific work function onto a
 // suspension's continuation.
-function suspendFrame(sus, work_fun) {
-    sus.k = new StackFrame(work_fun, sus.k);
+function suspendFrame(sus, work_fun, dbg_info) {
+    sus.k = new StackFrame(work_fun, sus.k, dbg_info);
 };
 // During continuation resumption, call the primitive-specific
 // work function of the outermost stack frame with the next inner
@@ -1058,7 +1076,7 @@ function resumeFrame(k, f) {
 // F (stimulus function) which are only relevant and passed in if
 // we are resuming a continuation.  (If we are not resuming they
 // are undefined.)
-vm.monadic = function(a, b, k, f) {
+vm.monadic = function(a, b, dbg_info, k, f) {
     // Caller passed in continuation?  This means we are resuming.
     // In other words, a previous call to A() led to a suspension
     // which we returned, and now the caller is passing in the
@@ -1090,9 +1108,9 @@ vm.monadic = function(a, b, k, f) {
 	// call to vm.monadic when the captured continuation is
 	// resumed at a future point.
 	var work_fun = function(k, f) {
-	    return vm.monadic(a, b, k, f);
+	    return vm.monadic(a, b, dbg_info, k, f);
 	};
-        suspendFrame(val, work_fun);
+        suspendFrame(val, work_fun, dbg_info);
         // Pass suspension back to caller.
         return val;
     } else {
@@ -1125,9 +1143,13 @@ vm.PushPrompt = vm.wrap(vm.prim(function do_push_prompt(self, e, o, k, f) {
             var handler = val.handler;
             return vm.combine(e, handler, vm.cons(continuation, vm.NIL));
         } else {
-            suspendFrame(val, function(k, f) {
-		return do_push_prompt(self, e, o, k, f);
-	    });
+            suspendFrame(
+		val,
+		function(k, f) {
+		    return do_push_prompt(self, e, o, k, f);
+		},
+		dbg_info(e, self)
+	    );
             return val;
         }
     }
@@ -1147,11 +1169,15 @@ vm.TakeSubcont = vm.wrap(vm.prim(function(self, e, o, k, f) {
     // thereby completing resumption and entering back into normal
     // evaluation.
     var sus = new Suspension(prompt, handler);
-    suspendFrame(sus, function(k, f) {
-	// As final step of continuation resumption, call
-	// user-supplied stimulus function in innermost context.
-	return vm.combine(e, f, vm.NIL);
-    });
+    suspendFrame(
+	sus,
+	function(k, f) {
+	    // As final step of continuation resumption, call
+	    // user-supplied stimulus function in innermost context.
+	    return vm.combine(e, f, vm.NIL);
+	},
+	dbg_info(e, self)
+    );
     return sus;
 }));
 // %%PUSH-SUBCONT k f
@@ -1172,9 +1198,13 @@ vm.PushSubcont = vm.wrap(vm.prim(function do_push_subcont(self, e, o, k, f) {
         var val = resumeFrame(thek, thef);
     }
     if (val instanceof Suspension) {
-        suspendFrame(val, function(k, f) {
-	    return do_push_subcont(self, e, o, k, f);
-	});
+        suspendFrame(
+	    val,
+	    function(k, f) {
+		return do_push_subcont(self, e, o, k, f);
+	    },
+	    dbg_info(e, self)
+	);
         return val;
     }
     return val;
@@ -1199,9 +1229,13 @@ vm.PushPromptSubcont = vm.wrap(vm.prim(function do_push_prompt_subcont(self, e, 
             var handler = val.handler;
             return vm.combine(e, handler, vm.cons(continuation, vm.NIL));
         } else {
-            suspendFrame(val, function(k, f) {
-		return do_push_prompt_subcont(self, e, o, k, f);
-	    });
+            suspendFrame(
+		val,
+		function(k, f) {
+		    return do_push_prompt_subcont(self, e, o, k, f);
+		},
+		dbg_info(e, self)
+	    );
             return val;
         }
     }
@@ -1222,9 +1256,13 @@ vm.Loop = vm.wrap(vm.prim(function do_loop(self, e, o, k, f) {
         }
         first = false;
         if (val instanceof Suspension) {
-            suspendFrame(val, function(k, f) {
-		return do_loop(self, e, o, k, f);
-	    });
+            suspendFrame(
+		val,
+		function(k, f) {
+		    return do_loop(self, e, o, k, f);
+		},
+		dbg_info(e, self)
+	    );
             return val;
         }
     }
@@ -1255,9 +1293,13 @@ vm.Rescue = vm.wrap(vm.prim(function do_rescue(self, e, o, k, f) {
         }
     }
     if (val instanceof Suspension) {
-        suspendFrame(val, function(k, f) {
-	    return do_rescue(self, e, o, k, f);
-	});
+        suspendFrame(
+	    val,
+	    function(k, f) {
+		return do_rescue(self, e, o, k, f);
+	    },
+	    dbg_info(e, self)
+	);
         return val;
     }
     return val;
@@ -1282,9 +1324,13 @@ vm.DynamicBind = vm.wrap(vm.prim(function dynamic_bind(self, e, o, k, f) {
             var res = vm.combine(e, thunk, vm.NIL);
         }
         if (res instanceof Suspension) {
-            suspendFrame(res, function(k, f) {
-		return dynamic_bind(self, e, o, k, f);
-	    });
+            suspendFrame(
+		res,
+		function(k, f) {
+		    return dynamic_bind(self, e, o, k, f);
+		},
+		dbg_info(e, self)
+	    );
             return res;
         } else {
             return res;
@@ -1347,14 +1393,16 @@ vm.Cons.prototype.qua_bind = function(self, e, rhs, doit) {
 			      } else {
 				  return vm.cons_bind(e, self, rhs, doit);
 			      }
-			  });
+			  },
+			  dbg_info(e, self));
     } else {
 	return vm.cons_bind(e, self, rhs, doit);
     }
 };
 vm.cons_bind = function(e, self, rhs, doit) {
     return vm.monadic(function() { return vm.bind(e, vm.car(self), vm.car(rhs), doit); },
-		      function() { return vm.bind(e, vm.cdr(self), vm.cdr(rhs), doit); });
+		      function() { return vm.bind(e, vm.cdr(self), vm.cdr(rhs), doit); },
+		      dbg_info(e, self));
 };
 vm.Nil.prototype.qua_bind = function(self, e, rhs, doit) {
     if (!vm.is_nil(rhs)) return vm.error("NIL expected, but got: " + JSON.stringify(rhs), e);
