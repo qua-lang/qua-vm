@@ -945,7 +945,7 @@
          (if (> (list-length restarts) 0)
              (progn
                (print "Restarts:")
-               (let ((i 1))
+               (let ((i 0))
                  (list-for-each (lambda (restart)
                                   (print (+ i ": " (symbol-name (slot-value restart 'restart-name))))
                                   (incf i))
