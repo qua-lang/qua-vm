@@ -1,3 +1,4 @@
+;; -*- Mode: Lisp; Syntax: ANSI-Common-Lisp -*-
 ;;;;; QUA
 
 ;; The forms in this file get evaluated immediately after VM startup,
@@ -914,9 +915,9 @@
 
 ;; Wrapped around all user code.  Provides useful handler bindings,
 ;; prompts, and other dynamic stuff.
-(defun push-userspace* (#'thunk)
+(defun push-userspace* (#'user-thunk)
   (push-prompt +user-prompt+
-    (thunk)))
+    (user-thunk)))
 
 (defmacro push-userspace body
   (list #'push-userspace* (list* #'lambda () body)))
@@ -961,10 +962,11 @@
 
 (defun print-stacktrace ()
   (labels ((print-frame (k)
-             (log (.dbg_info k))
-	     (when (.inner k)
-	       (print-frame (.inner k)))))
-    (take-subcont +user-prompt+ k
-      (print-frame k)
-      (push-prompt +user-prompt+
-	(push-subcont k)))))
+       			(when (.dbg_info k)
+			  (log (.expr (.dbg_info k))))
+			(when (.inner k)
+			  (print-frame (.inner k)))))
+	  (take-subcont +user-prompt+ k
+			(print-frame k)
+			(push-prompt +user-prompt+
+				     (push-subcont k)))))

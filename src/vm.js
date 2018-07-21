@@ -88,7 +88,7 @@ vm.Fexpr.prototype.qua_combine = function(self, e, o) {
                       function() {
                           return vm.monadic(function() { return vm.bind(xe, self.ep, e); },
                                             function() { return vm.evaluate(xe, self.x); },
-					    dbg_info(e, self));
+					    dbg_info(e, self.x));
 		      },
 		      dbg_info(e, self));
 };
@@ -143,15 +143,15 @@ vm.If = vm.prim("%%if", function(self, e, o) {
 		      dbg_info(e, self));
 });
 vm.Progn = vm.prim("%%progn", function(self, e, o) {
-    if (vm.is_nil(o)) return vm.VOID; else return vm.progn(e, o, dbg_info(e, self));
+    if (vm.is_nil(o)) return vm.VOID; else return vm.progn(e, o);
 });
-vm.progn = function(e, xs, dbg_info) {
+vm.progn = function(e, xs) {
     return vm.monadic(function() { return vm.evaluate(e, vm.car(xs)); },
                       function(res) {
                           var cdr = vm.cdr(xs);
-                          if (vm.is_nil(cdr)) return res; else return vm.progn(e, cdr, dbg_info);
+                          if (vm.is_nil(cdr)) return res; else return vm.progn(e, cdr);
                       },
-		      dbg_info);
+		      dbg_info(e, vm.car(xs)));
 };
 /* Operator that calls JS function to do work */
 vm.JSOperator = function(js_fn) { this.js_fn = js_fn; };
