@@ -1,7 +1,7 @@
 module.exports = function(vm, init_env) {
     vm.PRINT_ESCAPE = vm.make_dynamic(true);
     vm.unreadable_object_to_string = function(object) {
-        return "#[" + vm.class_of(object).name + " " + object + "]";
+        return "#[" + vm.class_of(object).class_name + " " + object + "]";
     };
     vm.object_to_string = function(object) {
         switch(typeof(object)) {
@@ -22,10 +22,10 @@ module.exports = function(vm, init_env) {
         }
     };
     vm.Sym.prototype.qua_to_string = function(sym) {
-        if (sym.ns === vm.VAR_NS) {
-            return sym.name;
-        } else {
-            return vm.sym_key(sym);
+        switch(sym.ns) {
+        case vm.VAR_NS: return sym.name;
+        case vm.FUN_NS: return "#'" + sym.name;
+        default: return vm.sym_key(sym);
         }
     };
     vm.Prim.prototype.qua_to_string = function(prim) {

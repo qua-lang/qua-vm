@@ -1004,7 +1004,7 @@
 (defun print-stacktrace ()
   (labels ((print-frame (k)
        			(when (.dbg_info k)
-			  (print (.expr (.dbg_info k))))
+			  (prin1 (.expr (.dbg_info k))))
 			(when (.inner k)
 			  (print-frame (.inner k)))))
 	  (take-subcont +user-prompt+ k

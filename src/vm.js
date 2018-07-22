@@ -842,6 +842,7 @@ vm.init = function() {
     function define_builtin_type(type, name) {
 	type.qua_isa = vm.STR_CLS;
 	type.name = name;
+        type.class_name = name;
 	type.methods = Object.create(null);
 	type.prototype.qua_isa = type;
 	vm.deftype(vm.init_env, type, name);
