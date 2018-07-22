@@ -1,0 +1,22 @@
+Why?
+
+> (defun foo (x))
+#[function [object Object]]
+> (foo)
+Nil {}
+
+Welcome to the debugger!
+Condition: 
+type error: [object Object] should be function Cons(car, cdr) {
+    this.car = car;
+    this.cdr = cdr;
+} but is [object Object]
+Stack: 
+Nil {}
+
+Welcome to the debugger!
+Condition: 
+type error: [object Object] should be function Cons(car, cdr) {
+    this.car = car;
+    this.cdr = cdr;
+} but is [object Object]
