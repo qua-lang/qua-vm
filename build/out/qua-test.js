@@ -789,7 +789,9 @@ qua.vm = function() {
 module.exports = function(vm, init_env) {
     vm.PRINT_ESCAPE = vm.make_dynamic(true);
     vm.unreadable_object_to_string = function(object) {
-        return "#[" + vm.class_of(object).class_name + " " + object + "]";
+        var c = vm.class_of(object);
+        var class_name = c.class_name || c.name; // FIXME: why?
+        return "#[" + class_name + " " + object + "]";
     };
     vm.object_to_string = function(object) {
         switch(typeof(object)) {
