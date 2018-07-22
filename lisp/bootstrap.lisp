@@ -934,8 +934,19 @@
     (if (void? stream)
         (%%print object)
       (progn
-        (write object stream)
-        (write-string-to-stream stream "\n")))))
+        (dynamic-let ((*print-escape* #f))
+          (write object stream)
+          (write-string-to-stream stream "\n"))))))
+
+;; Probably wrong name
+(defun prin1 (object . opt-stream)
+  (let* ((stream (optional opt-stream (dynamic *standard-output*))))
+    (if (void? stream)
+        (%%print object)
+      (progn
+        (dynamic-let ((*print-escape* #t))
+          (write object stream)
+          (write-string-to-stream stream "\n"))))))
 
 ;;;; Userspace
 

@@ -13,4 +13,4 @@
                                   (print "Aborting")
                                   (return-from abort))))
             (push-userspace
-              (print (eval (list* #'progn (read)) env)))))))))
+              (prin1 (eval (list* #'progn (read)) env)))))))))
