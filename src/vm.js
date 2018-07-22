@@ -471,12 +471,15 @@ vm.Rescue = vm.wrap(vm.prim("%%rescue", function do_rescue(self, e, o, k, f) {
     return val;
 }));
 /* Dynamic Variables */
+vm.DV = function DV(value) { this.val = value; }
+vm.make_dynamic = function(initial_value) {
+    return new vm.DV(initial_value);
+};
+vm.dynamic = function(dv) { return vm.assert_type(dv, vm.DV).val; };
 // %%DYNAMIC-BIND dynvar new-val body-thunk
 //
 // Bind a single dynamic variable to a new value during the
-// execution of a body thunk.  For now, any standard object with a
-// VAL slot can be used as a dynamic variable, this will probably
-// change.
+// execution of a body thunk.
 vm.DynamicBind = vm.wrap(vm.prim("%%dynamic-bind", function dynamic_bind(self, e, o, k, f) {
     var dynvar = vm.elt(o, 0);
     var val = vm.elt(o, 1);
@@ -844,6 +847,7 @@ vm.init = function() {
 	vm.deftype(vm.init_env, type, name);
     }
     define_builtin_type(vm.Cons, "cons");
+    define_builtin_type(vm.DV, "dynamic");
     define_builtin_type(vm.Env, "environment");
     define_builtin_type(vm.Fexpr, "fexpr");
     define_builtin_type(vm.Function, "function");
@@ -883,7 +887,6 @@ vm.init = function() {
     vm.defun(vm.init_env, "%%wrap", vm.jswrap(vm.wrap));
     // Evaluation
     vm.defun(vm.init_env, "%%def", vm.Def);
-    vm.defun(vm.init_env, "%%dynamic-bind", vm.DynamicBind);
     vm.defun(vm.init_env, "%%eval", vm.Eval);
     vm.defun(vm.init_env, "%%if", vm.If);
     vm.defun(vm.init_env, "%%loop", vm.Loop);
@@ -891,6 +894,10 @@ vm.init = function() {
     vm.defun(vm.init_env, "%%raise", vm.Raise);
     vm.defun(vm.init_env, "%%rescue", vm.Rescue);
     vm.defun(vm.init_env, "%%setq", vm.Setq);
+    // Dynamic variables
+    vm.defun(vm.init_env, "%%dynamic", vm.jswrap(vm.dynamic));
+    vm.defun(vm.init_env, "%%dynamic-bind", vm.DynamicBind);
+    vm.defun(vm.init_env, "%%make-dynamic", vm.jswrap(vm.make_dynamic));
     // Continuations
     vm.defun(vm.init_env, "%%push-prompt", vm.PushPrompt);
     vm.defun(vm.init_env, "%%push-prompt-subcont", vm.PushPromptSubcont);

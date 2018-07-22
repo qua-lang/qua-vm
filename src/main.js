@@ -24,6 +24,7 @@ qua.vm = function() {
     // architecture we're building for with some Browserify magic in
     // `package.json'.
     require("./read")(vm, boot_env);  // S-Expression Parser
+    require("./print")(vm, boot_env); // (Not Yet) Pretty Printer
     require("./arch")(vm, boot_env);  // Architecture-Specific Code
     
     // Finally, we run the Lisp boot bytecode, i.e. the Lisp code from the

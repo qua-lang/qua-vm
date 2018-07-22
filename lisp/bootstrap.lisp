@@ -12,11 +12,13 @@
 (def #'cdr #'%%cdr) ; Access second element of pair.
 (def #'cons #'%%cons) ; Construct a new pair.
 (def #'defconstant #'def) ; One man's constant ...
-(def #'dynamic-bind #'%%dynamic-bind) ; Bind a single dynamic variable.  
+(def #'dynamic #'%%dynamic) ; Access the value of a dynamic variable.
+(def #'dynamic-bind #'%%dynamic-bind) ; Bind a single dynamic variable.
 (def #'eq #'%%eq) ; Compare two values for pointer equality.
 (def #'eql #'eq)  ; Value equality for booleans, numbers, strings; pointer else.
 (def #'eval #'%%eval) ; Evaluate an expression in an environment.
 (def #'if #'%%if) ; Evaluate either of two expressions depending on a test.
+(def #'make-dynamic #'%%make-dynamic) ; Create a new dynamic variable.
 (def #'make-environment #'%%make-environment) ; Create new lexical environment.
 (def #'progn #'%%progn) ; Evaluate expressions in order.
 (def #'setq #'%%setq) ; Update existing bindings in current or ancestor environment.
@@ -410,9 +412,7 @@
 ;;;; Dynamic variables
 
 (defmacro defdynamic (name . opt-val)
-  (list #'def name (list #'make-box (optional opt-val))))
-
-(def #'dynamic #'box-value)
+  (list #'def name (list #'make-dynamic (optional opt-val))))
 
 ; Parallel dynamic binding: first evaluate all right hand side value
 ; expressions, then bind all dynamic variables.
@@ -909,48 +909,11 @@
 (defdynamic *standard-input*)
 (defdynamic *standard-output*)
 
-(defgeneric print-object (self stream))
-(defmethod print-object ((self object) stream)
-  (let ((class-name (.name (class-of self))))
-    (write-string-to-stream stream (+ "#[" class-name " " self "]"))))
-(defmethod print-object ((self primitive) stream)
-  (let ((class-name (.name (class-of self))))
-    (write-string-to-stream stream (+ "#[primitive " (.name self) "]"))))
-(defmethod print-object ((self string) stream)
-  (write-string-to-stream stream self))
-(defmethod print-object ((self number) stream)
-  (write-string-to-stream stream ($String self)))
-(defmethod print-object ((self boolean) stream)
-  (write-string-to-stream stream (if self "#t" "#f")))
-(defmethod print-object ((self nil) stream)
-  (write-string-to-stream stream "#nil"))
-(defmethod print-object ((self ign) stream)
-  (write-string-to-stream stream "#ign"))
-(defmethod print-object ((self void) stream)
-  (write-string-to-stream stream "#void"))
-(defmethod print-object ((self js-null) stream)
-  (write-string-to-stream stream "#null"))
-(defmethod print-object ((self js-undefined) stream)
-  (write-string-to-stream stream "#undefined"))
-
-(defmethod print-object ((self cons) stream)
-  (labels ((print-cons (c)
-             (typecase (cdr c)
-               (nil
-                (print-object (car c) stream))
-               (cons
-                (print-object (car c) stream)
-                (write-string-to-stream stream " ")
-                (print-cons (cdr c)))
-               (#t
-                (print-object (car c) stream)
-                (write-string-to-stream stream " . ")
-                (print-object (cdr c) stream)))))
-    (write-string-to-stream stream "(")
-    (print-cons self)
-    (write-string-to-stream stream ")")))
-(defmethod print-object ((self symbol) stream)
-  (write-string-to-stream stream (.name self)))
+;; This should really be a generic function to which all classes can
+;; add their custom printing methods, but I think Qua is currently too
+;; slow to implement the printing inner loop.
+(defun print-object (self stream)
+  (write-string-to-stream stream (%%object-to-string self)))
 
 ;; Unlike CL this returns a list of forms...
 (defun read opt-stream
