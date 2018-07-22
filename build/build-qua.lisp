@@ -12,6 +12,9 @@
 (write-bytecode-file (js-array)
 		     "build/out/prod-browser.json")
 
+(write-bytecode-file (js-array "lisp/repl.lisp")
+		     "build/out/repl-browser.json")
+
 (write-bytecode-file (js-array "test/lisp/test.lisp" "test/lisp/test-browser.lisp")
 		     "build/out/test-browser.json")
 
@@ -28,6 +31,10 @@
 
 (build-browser-image "./build/out/prod-browser.json"
 		     "build/out/qua.js"
+		     #f)
+
+(build-browser-image "./build/out/repl-browser.json"
+		     "build/out/qua-repl.js"
 		     #f)
 
 (build-browser-image "./build/out/test-browser.json"

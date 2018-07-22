@@ -2,12 +2,11 @@
 
 (def #'node:require #'%%require)
 
-;; Standard input stream
 (defstruct node-input-stream)
+(defstruct node-output-stream)
+
 (defmethod read-string-from-stream ((stream node-input-stream))
   (%%read-line))
-
-(defstruct node-output-stream)
 (defmethod write-string-to-stream ((stream node-output-stream) string)
   (%%print string))
 
