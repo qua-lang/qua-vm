@@ -5,10 +5,12 @@
 (defstruct node-input-stream)
 (defstruct node-output-stream)
 
+(defconstant +node-stdout+ (.stdout $process))
+
 (defmethod read-string-from-stream ((stream node-input-stream))
   (%%read-line))
 (defmethod write-string-to-stream ((stream node-output-stream) string)
-  (%%print string))
+  (@write +node-stdout+ string))
 
 (defun %arch-standard-input ()
   (make-instance 'node-input-stream))

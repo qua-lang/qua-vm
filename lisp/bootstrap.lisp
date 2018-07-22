@@ -933,17 +933,44 @@
 (defmethod print-object ((self js-undefined) stream)
   (write-string-to-stream stream "#undefined"))
 
+(defmethod print-object ((self cons) stream)
+  (labels ((print-cons (c)
+             (typecase (cdr c)
+               (nil
+                (print-object (car c) stream))
+               (cons
+                (print-object (car c) stream)
+                (write-string-to-stream stream " ")
+                (print-cons (cdr c)))
+               (#t
+                (print-object (car c) stream)
+                (write-string-to-stream stream " . ")
+                (print-object (cdr c) stream)))))
+    (write-string-to-stream stream "(")
+    (print-cons self)
+    (write-string-to-stream stream ")")))
+(defmethod print-object ((self symbol) stream)
+  (write-string-to-stream stream (.name self)))
+
 ;; Unlike CL this returns a list of forms...
 (defun read opt-stream
   (let* ((stream (optional opt-stream (dynamic *standard-input*)))
 	 (string (read-string-from-stream stream)))
      (%%parse-forms string)))
  
-(defun print (object . opt-stream)
+(defun write (object . opt-stream)
   (let* ((stream (optional opt-stream (dynamic *standard-output*))))
     (if (void? stream)
         (%%print object)
       (print-object object stream))))
+
+(defun print (object . opt-stream)
+  (let* ((stream (optional opt-stream (dynamic *standard-output*))))
+    (if (void? stream)
+        (%%print object)
+      (progn
+        (write object stream)
+        (write-string-to-stream stream "\n")))))
 
 ;;;; Userspace
 
