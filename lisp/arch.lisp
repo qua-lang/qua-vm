@@ -3,13 +3,18 @@
 (def #'node:require #'%%require)
 
 ;; Standard input stream
-(defstruct read-line-input-stream)
-(defmethod read-string-from-stream ((stream read-line-input-stream))
+(defstruct node-input-stream)
+(defmethod read-string-from-stream ((stream node-input-stream))
   (%%read-line))
+
+(defstruct node-output-stream)
+(defmethod write-string-to-stream ((stream node-output-stream) string)
+  (%%print string))
+
 (defun %arch-standard-input ()
-  (make-instance 'read-line-input-stream))
+  (make-instance 'node-input-stream))
 (defun %arch-standard-output ()
-  #void)
+  (make-instance 'node-output-stream))
 
 (defconstant node:path (node:require "path"))
 (def #'node:dirname (.dirname node:path))
