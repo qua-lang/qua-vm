@@ -44,7 +44,7 @@
 (def #'plist-to-js-object #'%%plist-to-js-object)
 (def #'reverse-list #'%%reverse-list)
 ;; Printing
-;(def *print-escape* %%*print-escape*)
+(def *print-escape* %%*print-escape*)
 
 ;;;; Basics
 
