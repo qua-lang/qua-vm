@@ -61,10 +61,10 @@
 
 ;;;; Objects
 (defgeneric describe-yourself (self))
-(defmethod describe-yourself ((the number self)) "a number")
-(defmethod describe-yourself ((the boolean self)) "a boolean")
-(defmethod describe-yourself ((the symbol self)) "a symbol")
-(defmethod describe-yourself ((the object self)) "any other object")
+(defmethod describe-yourself ((self number)) "a number")
+(defmethod describe-yourself ((self boolean)) "a boolean")
+(defmethod describe-yourself ((self symbol)) "a symbol")
+(defmethod describe-yourself ((self object)) "any other object")
 (%assert (%deep-equal "a number" (describe-yourself 33)))
 (%assert (%deep-equal "a boolean" (describe-yourself #t)))
 (%assert (%deep-equal "a symbol" (describe-yourself 'foo)))
@@ -80,11 +80,11 @@
 ;;;; Basic classes
 (defstruct my-class)
 (defgeneric my-generic (self))
-(defmethod my-generic ((the object self))
+(defmethod my-generic ((self object))
   "wow!")
 (def obj1 (make-instance 'my-class))
 (%assert (%deep-equal "wow!" (my-generic obj1)))
-(defmethod my-generic ((the my-class self))
+(defmethod my-generic ((self my-class))
   "wowzers!")
 (%assert (%deep-equal "wowzers!" (my-generic obj1)))
 
@@ -331,10 +331,10 @@
 
 (defstruct my-metaclass)
 
-(defmethod compute-effective-method ((the my-metaclass class)
-				     receiver
-				     message
-				     arguments)
+(defmethod compute-method ((class my-metaclass)
+			   receiver
+			   message
+			   arguments)
   (lambda (self . #ign)
     "foo!"))
 
@@ -476,20 +476,5 @@
 (%expect 4 (the number (+ 2 2)))
 (%expect-condition 'type-mismatch-error
 		   (lambda () (the string 12)))
-
-;;;; Matchers
-(let (((the cons x) (cons 1 2)))
-  (%expect (cons 1 2) x))
-
-(%expect-condition 'type-mismatch-error
-		   (lambda ()
-		     (let (((the string x) (cons 1 2))))))
-
-;; Can use with SETQ, including parallely
-(let ((x #void) (y #void))
-  (setq ((the string x) (the number y))
-	(list "foo" 12))
-  (%expect "foo" x)
-  (%expect 12 y))
 
 (print "OK")

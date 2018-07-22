@@ -22,7 +22,6 @@
 (def #'progn #'%%progn) ; Evaluate expressions in order.
 (def #'setq #'%%setq) ; Update existing bindings in current or ancestor environment.
 (def #'to-fun-sym #'%%to-fun-sym) ; Turn any symbol into a function namespaced one.
-(def #'to-matcher-sym #'%%to-matcher-sym) ; Turn any symbol into a matcher namespaced one.
 (def #'to-type-sym #'%%to-type-sym) ; Turn any symbol into a type namespaced one.
 (def #'unwrap #'%%unwrap) ; Extract fexpr underlying a function.
 (def #'wrap #'%%wrap) ; Construct a function out of a fexpr.
@@ -267,7 +266,7 @@
                    (send-message (car arguments) (symbol-name name) arguments))))
     (eval (list #'def (to-fun-sym name) generic) env)))
 
-(deffexpr defmethod (name ((#ign class-spec self) . arguments) . body) env
+(deffexpr defmethod (name ((self class-spec) . arguments) . body) env
   (let ((class (find-class class-spec))
         (method (eval (list* #'lambda (list* self arguments) body) env)))
     (%%put-method class (symbol-name name) method)))
@@ -296,7 +295,7 @@
       (void? (slot-value obj slot-name))
       #t))
 
-(defgeneric compute-effective-method (class receiver message arguments))
+(defgeneric compute-method (class receiver message arguments))
 
 ;;;; Simple control
 
@@ -527,7 +526,7 @@
 ;;;; Typechecks
 
 (defgeneric type? (obj type-spec))
-(defmethod type? ((the object obj) type-spec)
+(defmethod type? ((obj object) type-spec)
   (default-type? obj type-spec))
 
 (defun default-type? (obj type-spec)
@@ -557,16 +556,6 @@
       (error (make-instance 'type-mismatch-error
                             :type-spec type-spec
 			    :obj evaluated-obj)))))
-
-(deffexpr the-matcher ((type-spec var) rhs #'doit) env
-  (if (type? rhs type-spec)
-      (doit env var rhs)
-    (error (make-instance 'type-mismatch-error
-                          :type-spec type-spec
-			  :obj rhs))))
-
-(eval (list #'def (to-matcher-sym 'the) #'the-matcher)
-      (the-environment))
 
 ;;;; Conditions
 
@@ -630,8 +619,10 @@
   condition-type
   handler-function)
 
-(defun make-condition-handler ((the symbol condition-type)
-			       (the function handler-function))
+(defun make-condition-handler (condition-type
+			       handler-function)
+  (the symbol condition-type)
+  (the function handler-function)
   (make-instance 'condition-handler
 		 :condition-type condition-type
 		 :handler-function handler-function))
@@ -642,10 +633,13 @@
   associated-condition
   interactive-function)
 
-(defun make-restart-handler ((the symbol restart-name)
-			     (the function handler-function)
-			     (the function interactive-function)
+(defun make-restart-handler (restart-name
+			     handler-function
+			     interactive-function
 			     associated-condition)
+  (the symbol restart-name)
+  (the function handler-function)
+  (the function interactive-function)
   (make-instance 'restart-handler
 		 :restart-name restart-name
 		 :handler-function handler-function
@@ -670,7 +664,7 @@
 ;; handler-spec ::= (condition-class-name handler-function-form)
 (def #'handler-bind
   (make-handler-bind-operator
-   (lambda (((the symbol class-name) function-form) env)
+   (lambda ((class-name function-form) env)
      (make-condition-handler
       class-name
       (eval function-form env)))
@@ -681,7 +675,7 @@
 ;;             :associated-condition associated-condition
 (def #'restart-bind
   (make-handler-bind-operator
-   (lambda (((the symbol restart-name) function-form . keywords) env)
+   (lambda ((restart-name function-form . keywords) env)
      ;; gross
      (let* ((dict (plist-to-js-object keywords))
 	    (interactive-function
@@ -758,7 +752,8 @@
                        (slot-value dynamic-frame 'handlers))
         (find-applicable-handler condition (slot-value dynamic-frame 'parent) payload))))
 
-(defun find-restart ((the symbol restart-name) . opt-condition)
+(defun find-restart (restart-name . opt-condition)
+  (the symbol restart-name)
   (let* ((associated-condition (optional opt-condition))
 	 (handler-and-frame (find-applicable-handler
 			     restart-name
@@ -771,11 +766,11 @@
     
 (defgeneric condition-applicable? (handler condition payload))
 
-(defmethod condition-applicable? ((the condition-handler handler) condition #ign)
+(defmethod condition-applicable? ((handler condition-handler) condition #ign)
   (type? condition (slot-value handler 'condition-type)))
 
-(defmethod condition-applicable? ((the restart-handler handler)
-				  (the symbol restart-name)
+(defmethod condition-applicable? ((handler restart-handler)
+				  restart-name
 				  associated-condition)
   (and (eql (symbol-name restart-name)
 	    (symbol-name (slot-value handler 'restart-name)))
@@ -785,12 +780,12 @@
 
 (defgeneric call-condition-handler (handler handler-frame arguments))
 
-(defmethod call-condition-handler ((the condition-handler handler) handler-frame arguments)
+(defmethod call-condition-handler ((handler condition-handler) handler-frame arguments)
   ;; Condition firewall
   (dynamic-let ((*condition-handler-frame* (slot-value handler-frame 'parent)))
     (apply-handler-function handler arguments)))
 
-(defmethod call-condition-handler ((the restart-handler handler) handler-frame arguments)
+(defmethod call-condition-handler ((handler restart-handler) handler-frame arguments)
   (apply-handler-function handler arguments))
 
 (defun compute-restarts opt-condition
@@ -858,50 +853,50 @@
     (finish-clone result)))
 
 ;; Implement sequence protocol for lists
-(defmethod start-iteration ((the cons self))
+(defmethod start-iteration ((self cons))
   self)
-(defmethod more? ((the cons self) state)
+(defmethod more? ((self cons) state)
   (cons? state))
-(defmethod current ((the cons self) state)
+(defmethod current ((self cons) state)
   (car state))
-(defmethod advance ((the cons self) state)
+(defmethod advance ((self cons) state)
   (cdr state))
-(defmethod empty-clone ((the cons self))
+(defmethod empty-clone ((self cons))
   #nil)
-(defmethod add-for-iteration ((the cons self) elt)
+(defmethod add-for-iteration ((self cons) elt)
   (cons elt self))
-(defmethod finish-clone ((the cons self))
+(defmethod finish-clone ((self cons))
   (reverse-list self))
 
-(defmethod start-iteration ((the nil self))
+(defmethod start-iteration ((self nil))
   #nil)
-(defmethod more? ((the nil self) state)
+(defmethod more? ((self nil) state)
   #f)
-(defmethod current ((the nil self) state)
+(defmethod current ((self nil) state)
   (simple-error "At end"))
-(defmethod advance ((the nil self) state)
+(defmethod advance ((self nil) state)
   (simple-error "Can't advance past end"))
-(defmethod empty-clone ((the nil self))
+(defmethod empty-clone ((self nil))
   #nil)
-(defmethod add-for-iteration ((the nil self) elt)
+(defmethod add-for-iteration ((self nil) elt)
   (cons elt self))
-(defmethod finish-clone ((the nil self))
+(defmethod finish-clone ((self nil))
   #nil)
 
 ;; Implement sequence protocol for JS arrays
-(defmethod start-iteration ((the js-array self))
+(defmethod start-iteration ((self js-array))
   0)
-(defmethod more? ((the js-array self) state)
+(defmethod more? ((self js-array) state)
   (lt state (.length self)))
-(defmethod current ((the js-array self) state)
+(defmethod current ((self js-array) state)
   (js-get self state))
-(defmethod advance ((the js-array self) state)
+(defmethod advance ((self js-array) state)
   (+ state 1))
-(defmethod empty-clone ((the js-array self))
+(defmethod empty-clone ((self js-array))
   (js-array))
-(defmethod add-for-iteration ((the js-array self) elt)
+(defmethod add-for-iteration ((self js-array) elt)
   (@push self elt) self)
-(defmethod finish-clone ((the js-array self))
+(defmethod finish-clone ((self js-array))
   self)
 
 ;;;; Userspace
