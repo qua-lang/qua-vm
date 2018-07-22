@@ -1,11 +1,16 @@
 var jsparse = require("jsparse");
 module.exports = function(vm, init_env) {
+    function parse_forms(string) {
+	// HACKCKCKCKCK
+	return vm.parse_bytecode(parse_sexp(string));
+    }
     vm.parse_sexp = parse_sexp;
     vm.read = function() {
         return vm.parse_bytecode([vm.sym("%%progn")].concat(parse_sexp(vm.read_line())));
     };
     vm.defun(init_env, "%%read", vm.jswrap(vm.read));
     vm.defun(init_env, "%%parse-sexp", vm.jswrap(parse_sexp));
+    vm.defun(init_env, "%%parse-forms", vm.jswrap(parse_forms));
 };
 module.exports.parse_sexp = parse_sexp;
 

@@ -899,6 +899,23 @@
 (defmethod finish-clone ((self js-array))
   self)
 
+;;;; Streams
+
+;;; Read as many characters as possible from a character stream.
+(defgeneric read-string-from-stream (stream))
+
+;;; Write a string to a character stream.
+(defgeneric write-string-to-stream (stream))
+
+(defdynamic *standard-input*)
+(defdynamic *standard-output*)
+
+;; Unlike CL this returns a list of forms...
+(defun read opt-input-stream
+  (let* ((input-stream (optional opt-input-stream (dynamic *standard-input*)))
+	 (string (read-string-from-stream input-stream)))
+    (%%parse-forms string)))
+
 ;;;; Userspace
 
 ;; Delimits all user interactions, so that stack traces can be taken.
@@ -908,7 +925,9 @@
 ;; prompts, and other dynamic stuff.
 (defun push-userspace* (#'user-thunk)
   (push-prompt +user-prompt+
-    (user-thunk)))
+    (dynamic-let ((*standard-input* (%arch-standard-input))
+                  (*standard-output* (%arch-standard-output)))
+      (user-thunk))))
 
 (defmacro push-userspace body
   (list #'push-userspace* (list* #'lambda () body)))
@@ -942,8 +961,7 @@
                                   (incf i))
                                 restarts)
                  (print "Enter a restart number:")
-                 (let* ((s (%%read-line))
-                        (n ($Number s)))
+                 (let* ((n (car (read))))
                    (if ($isNaN n)
                        (progn
                          (print "You didn't enter a number. Please try again.")

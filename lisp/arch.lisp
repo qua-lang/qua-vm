@@ -2,6 +2,15 @@
 
 (def #'node:require #'%%require)
 
+;; Standard input stream
+(defstruct read-line-input-stream)
+(defmethod read-string-from-stream ((stream read-line-input-stream))
+  (%%read-line))
+(defun %arch-standard-input ()
+  (make-instance 'read-line-input-stream))
+(defun %arch-standard-output ()
+  #void)
+
 (defconstant node:path (node:require "path"))
 (def #'node:dirname (.dirname node:path))
 (def #'node:join-paths (.join node:path))

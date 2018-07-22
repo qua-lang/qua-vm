@@ -1,5 +1,3 @@
-(def #'read #'%%read)
-
 (print "Welcome to Qua! Type ^C to exit.")
 
 ;;;; Main
@@ -15,4 +13,4 @@
                                   (print "Aborting")
                                   (return-from abort))))
             (push-userspace
-              (print (eval (read) env)))))))))
+              (print (eval (list* #'progn (read)) env)))))))))
