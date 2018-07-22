@@ -1691,6 +1691,7 @@ vm.init = function() {
     define_builtin_type(vm.Sym, "symbol");
     define_builtin_type(vm.Tag, "%%tag");
     define_builtin_type(vm.Void, "void");
+    define_builtin_type(StackFrame, "continuation");
     // Synthetic/virtual classes given to JS built-in objects, so we
     // can define methods on them.
     function define_js_type(name) {
