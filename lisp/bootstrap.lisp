@@ -911,7 +911,27 @@
 
 (defgeneric print-object (self stream))
 (defmethod print-object ((self object) stream)
-  (write-string-to-stream stream (@toString self)))
+  (let ((class-name (.name (class-of self))))
+    (write-string-to-stream stream (+ "#[" class-name " " self "]"))))
+(defmethod print-object ((self primitive) stream)
+  (let ((class-name (.name (class-of self))))
+    (write-string-to-stream stream (+ "#[primitive " (.name self) "]"))))
+(defmethod print-object ((self string) stream)
+  (write-string-to-stream stream self))
+(defmethod print-object ((self number) stream)
+  (write-string-to-stream stream ($String self)))
+(defmethod print-object ((self boolean) stream)
+  (write-string-to-stream stream (if self "#t" "#f")))
+(defmethod print-object ((self nil) stream)
+  (write-string-to-stream stream "#nil"))
+(defmethod print-object ((self ign) stream)
+  (write-string-to-stream stream "#ign"))
+(defmethod print-object ((self void) stream)
+  (write-string-to-stream stream "#void"))
+(defmethod print-object ((self js-null) stream)
+  (write-string-to-stream stream "#null"))
+(defmethod print-object ((self js-undefined) stream)
+  (write-string-to-stream stream "#undefined"))
 
 ;; Unlike CL this returns a list of forms...
 (defun read opt-stream
