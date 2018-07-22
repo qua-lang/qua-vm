@@ -18,7 +18,6 @@
 (def #'eval #'%%eval) ; Evaluate an expression in an environment.
 (def #'if #'%%if) ; Evaluate either of two expressions depending on a test.
 (def #'make-environment #'%%make-environment) ; Create new lexical environment.
-(def #'print #'%%print) ; Print line.
 (def #'progn #'%%progn) ; Evaluate expressions in order.
 (def #'setq #'%%setq) ; Update existing bindings in current or ancestor environment.
 (def #'to-fun-sym #'%%to-fun-sym) ; Turn any symbol into a function namespaced one.
@@ -700,7 +699,7 @@
 
 (defun warn (condition)
   (signal condition)
-  (print "Warning:" condition))
+  (print condition))
 
 ;; Additionally to explicit use from Lisp, ERROR gets called by the VM
 ;; if a JS exception (that's not a block tag for a nonlocal control
@@ -905,16 +904,26 @@
 (defgeneric read-string-from-stream (stream))
 
 ;;; Write a string to a character stream.
-(defgeneric write-string-to-stream (stream))
+(defgeneric write-string-to-stream (stream string))
 
 (defdynamic *standard-input*)
 (defdynamic *standard-output*)
 
+(defgeneric print-object (self stream))
+(defmethod print-object ((self object) stream)
+  (write-string-to-stream stream (@toString self)))
+
 ;; Unlike CL this returns a list of forms...
-(defun read opt-input-stream
-  (let* ((input-stream (optional opt-input-stream (dynamic *standard-input*)))
-	 (string (read-string-from-stream input-stream)))
-    (%%parse-forms string)))
+(defun read opt-stream
+  (let* ((stream (optional opt-stream (dynamic *standard-input*)))
+	 (string (read-string-from-stream stream)))
+     (%%parse-forms string)))
+ 
+(defun print (object . opt-stream)
+  (let* ((stream (optional opt-stream (dynamic *standard-output*))))
+    (if (void? stream)
+        (%%print object)
+      (print-object object stream))))
 
 ;;;; Userspace
 
@@ -972,7 +981,7 @@
 (defun print-stacktrace ()
   (labels ((print-frame (k)
        			(when (.dbg_info k)
-			  (log (.expr (.dbg_info k))))
+			  (print (.expr (.dbg_info k))))
 			(when (.inner k)
 			  (print-frame (.inner k)))))
 	  (take-subcont +user-prompt+ k

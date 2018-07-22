@@ -2,8 +2,8 @@
 (def #'%deep-equal (node:require "deep-equal"))
 (deffexpr %assert (expr) env
   (unless (eval expr env)
-    (print "assertion failed")
-    (print expr)
+    (log "assertion failed")
+    (log expr)
     (%%panic "assertion failed")))
 (defun #'%expect (expected actual) (%assert (%deep-equal expected actual)))
 
@@ -477,4 +477,4 @@
 (%expect-condition 'type-mismatch-error
 		   (lambda () (the string 12)))
 
-(print "OK")
+(log "OK")
