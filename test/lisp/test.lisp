@@ -251,7 +251,7 @@
 (%assert (%deep-equal "variable" (.ns 'foo)))
 (%assert (%deep-equal "function" (.ns '#'foo)))
 ;; Can set slots
-(let ((obj (create-js-object)))
+(let ((obj (js-object)))
   (setf (.message obj) "foo")
   (%assert (%deep-equal "foo" (.message obj))))
 

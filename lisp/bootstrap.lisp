@@ -1,4 +1,3 @@
-;; -*- Mode: Lisp; Syntax: ANSI-Common-Lisp -*-
 ;;;;; QUA
 
 ;; The forms in this file get evaluated immediately after VM startup,
@@ -447,9 +446,6 @@
   (lambda (this . arguments)
     (let ((js-fun (js-get this method-name)))
       (js-apply js-fun this (list-to-js-array arguments)))))
-
-(defun create-js-object opt-proto
-  (@create $Object (optional opt-proto #null)))
 
 (defun js-object plist (plist-to-js-object plist))
 

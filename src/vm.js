@@ -865,15 +865,16 @@ vm.init = function() {
 	vm.deftype(vm.init_env, type, name);
     }
     define_builtin_type(vm.Cons, "cons");
-    define_builtin_type(vm.Nil, "nil");
-    define_builtin_type(vm.Sym, "symbol");
-    define_builtin_type(vm.Ign, "ign");
-    define_builtin_type(vm.Void, "void");
+    define_builtin_type(vm.Env, "environment");
     define_builtin_type(vm.Fexpr, "fexpr");
     define_builtin_type(vm.Function, "function");
+    define_builtin_type(vm.Ign, "ign");
     define_builtin_type(vm.JSOperator, "js-operator");
+    define_builtin_type(vm.Nil, "nil");
     define_builtin_type(vm.Prim, "primitive");
+    define_builtin_type(vm.Sym, "symbol");
     define_builtin_type(vm.Tag, "%%tag");
+    define_builtin_type(vm.Void, "void");
     // Synthetic/virtual classes given to JS built-in objects, so we
     // can define methods on them.
     function define_js_type(name) {
