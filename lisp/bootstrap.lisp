@@ -43,6 +43,8 @@
 (def #'list-to-js-array #'%%list-to-array)
 (def #'plist-to-js-object #'%%plist-to-js-object)
 (def #'reverse-list #'%%reverse-list)
+;; Printing
+;(def *print-escape* %%*print-escape*)
 
 ;;;; Basics
 
