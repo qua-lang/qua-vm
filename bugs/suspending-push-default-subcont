@@ -1,0 +1,6 @@
+Why does
+(push-default-subcont (take-default-subcont k (print k)))
+suspend and quit the REPL?
+
+Note it should say push-default-prompt not -subcont.
+(push-default-prompt (take-default-subcont k (print k)))
