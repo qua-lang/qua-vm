@@ -32,7 +32,7 @@
 
 ;; Loads a file into the current or specified environment.
 (defun/env load (path . opt-env) denv
-  (user-eval (read-file path) (optional opt-env denv)))
+  (eval (read-file path) (optional opt-env denv)))
 
 ;; Loads all components of a system into the current or specified
 ;; environment.

@@ -900,7 +900,7 @@
 (defmethod finish-clone ((self js-array))
   self)
 
-;;;; Streams
+;;;; Streams (very unstable API)
 
 ;;; Read as many characters as possible from a character stream.
 (defgeneric read-string-from-stream (stream))
@@ -963,9 +963,6 @@
 
 (defmacro push-userspace body
   (list #'push-userspace* (list* #'lambda () body)))
-
-(defun user-eval (expr env)
-  (push-userspace (eval expr env)))
 
 ;;;; Interaction
 
