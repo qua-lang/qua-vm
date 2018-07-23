@@ -2,15 +2,20 @@
 
 (def #'node:require $require)
 
-(defstruct browser-input-stream)
-(defstruct browser-output-stream)
+(defstruct browser-stream
+  id)
+ 
+(def -browser-stream-counter- 0)
+ 
+(defun make-browser-stream ()
+  (make-instance 'browser-stream :id (incf -browser-stream-counter-)))
 
-(defmethod read-string-from-stream ((stream browser-input-stream))
-  ($prompt "LISP input:" ))
-(defmethod write-string-to-stream ((stream browser-output-stream) string)
-  (log string))
+(defmethod read-string-from-stream ((stream browser-stream))
+  ($prompt (.id stream )))
+(defmethod write-string-to-stream ((stream browser-stream) string)
+  (log (%%object-to-string string)))
 
-(defun %arch-standard-input ()
-  (make-instance 'browser-input-stream))
-(defun %arch-standard-output ()
-  (make-instance 'browser-output-stream))
+(defconstant +default-browser-stream+ (make-browser-stream))
+  
+(defun %arch-standard-input () +default-browser-stream+)
+(defun %arch-standard-output () +default-browser-stream+)
