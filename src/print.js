@@ -45,6 +45,6 @@ module.exports = function(vm, init_env) {
             return vm.object_to_string(vm.car(c)) + " . " + vm.object_to_string(vm.cdr(c));
         }
     };
-    vm.def(vm.init_env, vm.sym("%%*print-escape*"), vm.PRINT_ESCAPE);
+    vm.def(vm.init_env, "%%*print-escape*", vm.PRINT_ESCAPE);
     vm.defun(vm.init_env, "%%object-to-string", vm.jswrap(vm.object_to_string));
 };

@@ -805,9 +805,9 @@ vm.js_new = function(ctor) {
 // Writes a JS property, implementation of `(setf (.property_name ...) ...)'.
 vm.js_set = function(obj, name, val) { return obj[name] = val; };
 /* API */
-vm.def = vm.bind;
-vm.defun = function(e, name, cmb) { vm.assert(cmb); vm.def(e, vm.fun_sym(name), cmb); };
-vm.deftype = function(e, type, name) { vm.assert(type); vm.def(e, vm.type_sym(name), type); };
+vm.def = function(e, name, cmb) { vm.bind(e, vm.sym(name), cmb); };
+vm.defun = function(e, name, cmb) { vm.assert(cmb); vm.bind(e, vm.fun_sym(name), cmb); };
+vm.deftype = function(e, type, name) { vm.assert(type); vm.bind(e, vm.type_sym(name), type); };
 // Populates a fresh init environment with the VM primitives.
 vm.init = function() {
     vm.init_env = vm.make_env();
