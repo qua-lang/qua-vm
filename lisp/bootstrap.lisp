@@ -922,7 +922,7 @@
   (let* ((stream (optional opt-stream (dynamic *standard-input*)))
 	 (string (read-string-from-stream stream)))
      (%%parse-forms string)))
- 
+
 (defun write (object . opt-stream)
   (let* ((stream (optional opt-stream (dynamic *standard-output*))))
     (if (void? stream)

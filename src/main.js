@@ -1,47 +1,50 @@
-// This is the main file, that pulls together all components and
+// This is the main Qua file, that pulls together all components and
 // creates a user environment in which Qua code can be evaluated.
 var qua = module.exports;
 
 // The boot bytecode is the precompiled version of the
-// `bootstrap.lisp' file.  Using some Browserify magic in
-// `package.json', this gets replaced with `bootstrap-browser.json' if
-// we're doing a browser build.
+// `bootstrap.lisp' file plus either `arch.lisp' or
+// `arch-browser.lisp' depending on whether we run in Node or are
+// doing a browser build.
 var boot_bytecode = require("../build/out/bootstrap.json");
 
 qua.vm = function() {
     // VM initialization: The `vm.init' function from the file `vm.js'
     // performs the major part of initialization: it populates a fresh
-    // environment, called the boot environment, with primitive bindings.
-    var vm = require("./vm");
-    var boot_env = vm.init();
+    // environment, called the init environment, with primitive bindings.
+    var vm = require("./vm.js");
+    vm.init();
     
     // Once that is done, we run some "plug-in" files, each of which
-    // receives the VM module, and the created boot environment, and can
+    // receives the VM module, and the created init environment, and can
     // add new primitive functionality to both.  Most of these are
     // plug-ins simply to keep the `vm.js' file a bit leaner and more
     // readable.  The only files where this is really required are the
     // `arch.js'/`arch-browser.js' files that get used depending on what
     // architecture we're building for with some Browserify magic in
     // `package.json'.
-    require("./read")(vm, boot_env);  // S-Expression Parser
-    require("./print")(vm, boot_env); // (Not Yet) Pretty Printer
-    require("./arch")(vm, boot_env);  // Architecture-Specific Code
+    require("./read.js")(vm, vm.init_env);  // S-Expression Parser
+    require("./print.js")(vm, vm.init_env); // (Not Yet) Pretty Printer
+    require("./arch.js")(vm, vm.init_env);  // Architecture-Specific Code
     
-    // Finally, we run the Lisp boot bytecode, i.e. the Lisp code from the
-    // file `bootstrap.lisp'.
+    // Add some convenient API functions
+    vm.eval_sexp = function(x, e) {
+        return vm.evaluate(e ? e : vm.init_env, x);
+    };
+    vm.eval_string = function(s, e) {
+        return vm.eval_sexp(vm.parse_forms_progn(s), e);
+    };
+    vm.eval_bytecode = function(c, e) {
+        return vm.eval_sexp(vm.parse_bytecode(c), e);
+    };
+
+    // Finally, we run the Lisp boot bytecode, i.e. the preparsed Lisp
+    // code from the file `bootstrap.lisp', that sets up the
+    // user-level language.
     vm.time("run boot bytecode",
             function() {
-		vm.eval(vm.parse_bytecode([vm.sym("%%progn")].concat(boot_bytecode)), boot_env);
+		vm.eval_bytecode(boot_bytecode);
 	    });
     
-    return {
-	"vm": vm,
-	"boot_env": boot_env,
-        "eval": function(expr) {
-	    if (typeof(expr) === "string") {
-		expr = vm.parse_sexp(expr);
-	    }
-	    return vm.eval(vm.parse_bytecode([vm.sym("%%progn")].concat(expr)), boot_env);
-	}
-    };
+    return vm;
 };

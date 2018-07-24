@@ -1,13 +1,42 @@
 var jsparse = require("jsparse");
 module.exports = function(vm, init_env) {
-    function parse_forms(string) {
-	// HACKCKCKCKCK
+    vm.parse_bytecode = function(obj) {
+        switch(Object.prototype.toString.call(obj)) {
+        case "[object String]": 
+            switch(obj) {
+            case "#ign": return vm.IGN;
+            case "#void": return vm.VOID;
+            default: return vm.sym(obj);
+            }
+        case "[object Array]": return vm.parse_bytecode_array(obj);
+        default: return obj;
+        }
+    };
+    vm.parse_bytecode_array = function(arr) {
+        if ((arr.length == 2) && arr[0] === "wat-string") { return arr[1]; }
+        if ((arr.length == 2) && arr[0] === "qua-function") { return vm.fun_sym(arr[1]); }
+        if ((arr.length == 2) && arr[0] === "qua-keyword") { return vm.keyword(arr[1]); }
+        var i = arr.indexOf(".");
+        if (i === -1) return vm.array_to_list(arr.map(vm.parse_bytecode));
+        else { var front = arr.slice(0, i);
+               return vm.array_to_list(front.map(vm.parse_bytecode), vm.parse_bytecode(arr[i + 1])); }
+    };
+    vm.parse_forms = function (string) {
 	return vm.parse_bytecode(parse_sexp(string));
-    }
-    vm.parse_sexp = parse_sexp;
-    vm.defun(init_env, "%%parse-forms", vm.jswrap(parse_forms));
+    };
+    vm.parse_forms_progn = function (string) {
+        return vm.parse_bytecode(parse_sexp_progn(string));
+    };
+    vm.defun(init_env, "%%parse-forms", vm.jswrap(vm.parse_forms));
 };
+
 module.exports.parse_sexp = parse_sexp;
+
+module.exports.parse_sexp_progn = parse_sexp_progn;
+
+function parse_sexp_progn(string) {
+    return ["%%progn"].concat(parse_sexp(string));
+}
 
 var ps = jsparse.ps; var choice = jsparse.choice; var range = jsparse.range; var action = jsparse.action; var sequence = jsparse.sequence; var join = jsparse.join; var join_action = jsparse.join_action; var negate = jsparse.negate; var repeat0 = jsparse.repeat0; var optional = jsparse.optional; var repeat1 = jsparse.repeat1; var wsequence = jsparse.wsequence; var whitespace = jsparse.whitespace; var ch = jsparse.ch; var butnot = jsparse.butnot;
 

@@ -6,7 +6,9 @@
 </head>
 <body>
   <script type="text/javascript">
-    qua.vm().eval(require("qua-user-bytecode"));
+    // Load the bytecode bundled along with the Qua VM inside the file
+    // qua-test.js in the build process.
+    qua.vm().eval_bytecode(require("qua-user-bytecode"));
   </script>
 </body>
 </html>
