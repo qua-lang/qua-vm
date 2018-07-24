@@ -621,8 +621,7 @@
   condition-type
   handler-function)
 
-(defun make-condition-handler (condition-type
-			       handler-function)
+(defun make-condition-handler (condition-type handler-function)
   (the symbol condition-type)
   (the function handler-function)
   (make-instance 'condition-handler
