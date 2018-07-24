@@ -28,7 +28,7 @@
 (defun read-file-as-string (path) (node:read-file-sync path "utf8"))
 
 (defun read-file (path)
-  (list* #'progn (%%parse-bytecode (%%parse-sexp (read-file-as-string path)))))
+  (list* #'progn (%%parse-forms (read-file-as-string path))))
 
 ;; Loads a file into the current or specified environment.
 (defun/env load (path . opt-env) denv

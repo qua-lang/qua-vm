@@ -852,7 +852,7 @@ vm.init = function() {
     define_builtin_type(vm.Env, "environment");
     define_builtin_type(vm.Fexpr, "fexpr");
     define_builtin_type(vm.Function, "function");
-    define_builtin_type(vm.Ign, "ign");
+    define_builtin_type(vm.Ign, "ignore");
     define_builtin_type(vm.JSOperator, "js-operator");
     define_builtin_type(vm.Nil, "nil");
     define_builtin_type(vm.Prim, "primitive");
@@ -923,6 +923,7 @@ vm.init = function() {
     vm.defun(vm.init_env, "%%js-set", vm.jswrap(vm.js_set));
     vm.defun(vm.init_env, "%%own-property?", vm.jswrap(vm.has_own_property));
     // Misc
+    vm.defun(vm.init_env, "%%assert", vm.jswrap(vm.assert));
     vm.defun(vm.init_env, "%%eq", vm.jswrap(function(a, b) { return a === b; }));
     vm.defun(vm.init_env, "%%panic", vm.jswrap(vm.panic));
     vm.defun(vm.init_env, "%%print", vm.jswrap(console.log));
@@ -931,9 +932,6 @@ vm.init = function() {
     vm.defun(vm.init_env, "%%list-to-array", vm.jswrap(vm.list_to_array));
     vm.defun(vm.init_env, "%%plist-to-js-object", vm.jswrap(vm.plist_to_js_object));
     vm.defun(vm.init_env, "%%reverse-list", vm.jswrap(vm.reverse_list));
-    // Temporary, till we find a better place
-    vm.defun(vm.init_env, "%%assert", vm.jswrap(vm.assert));
-    vm.defun(vm.init_env, "%%parse-bytecode", vm.jswrap(vm.parse_bytecode));
     return vm.init_env;
 };
 vm.eval = function(x, e) {

@@ -31,7 +31,7 @@
   (take-subcont +user-prompt+ k
     (def elem (get-element-by-id (repl-element-id repl-id)))
     (setf (.qua-continuation elem) k)))
-    
+
 (defun ensure-repl (repl-id)
   (def elem (get-element-by-id (repl-element-id repl-id)))
   (when (eql 0 (.length (.children elem)))
@@ -42,9 +42,9 @@
     (@addEventListener button "click"
                        (js-lambda #ign
                          (push-prompt-subcont +user-prompt+ (.qua-continuation elem)
-                                              (prog1 (.value input)
-                                                (setf (.value input) "")
-                                                (@focus input)))))
+                           (prog1 (.value input)
+                             (setf (.value input) "")
+                             (@focus input)))))
     (@appendChild button (create-text-node "eval"))
     (@appendChild elem button)))
 
