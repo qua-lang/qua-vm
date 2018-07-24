@@ -1,8 +1,7 @@
-(print "Welcome to Qua! Type ^C to exit.")
-
 ;;;; Main
 
 (push-userspace
+  (print "Welcome to Qua!")
   (let ((env (the-environment)))
     (block quit
       (restart-bind ((quit (lambda ()
@@ -13,4 +12,6 @@
             (restart-bind ((abort (lambda ()
                                     (print "Aborting")
                                     (return-from abort))))
-              (prin1 (eval (list* #'progn (read)) env)))))))))
+                          (let ((forms (read)))
+                            (print forms)
+                            (prin1 (eval (list* #'progn forms) env))))))))))

@@ -942,7 +942,8 @@
 (defun prin1 (object . opt-stream)
   (let* ((stream (optional opt-stream (dynamic *standard-output*))))
     (if (void? stream)
-        (%%print object)
+        (progn (%%print "you have no stdout")
+               (%%print object))
       (progn
         (dynamic-let ((*print-escape* #t))
           (write object stream)
@@ -1005,6 +1006,5 @@
 			(when (.inner k)
 			  (print-frame (.inner k)))))
 	  (take-subcont +user-prompt+ k
-			(print-frame k)
-			(push-prompt +user-prompt+
-				     (push-subcont k)))))
+			(push-prompt-subcont +user-prompt+ k
+                                             (print-frame k)))))
