@@ -1722,9 +1722,9 @@ vm.js_new = function(ctor) {
 // Writes a JS property, implementation of `(setf (.property_name ...) ...)'.
 vm.js_set = function(obj, name, val) { return obj[name] = val; };
 /* API */
-vm.def = function(e, name, cmb) { vm.bind(e, vm.sym(name), cmb); };
+vm.def = function(e, name, val) { vm.bind(e, vm.sym(name), val); };
 vm.defun = function(e, name, cmb) { vm.assert(cmb); vm.bind(e, vm.fun_sym(name), cmb); };
-vm.deftype = function(e, type, name) { vm.assert(type); vm.bind(e, vm.type_sym(name), type); };
+vm.deftype = function(e, name, type) { vm.assert(type); vm.bind(e, vm.type_sym(name), type); };
 // Populates a fresh init environment with the VM primitives.
 vm.init = function() {
     vm.init_env = vm.make_env();
@@ -1732,8 +1732,8 @@ vm.init = function() {
     vm.STR_CLS = vm.make_class(null, "structure-class");
     vm.STR_CLS.qua_isa = vm.STR_CLS;
     vm.OBJ = vm.make_class(vm.STR_CLS, "object");
-    vm.deftype(vm.init_env, vm.OBJ, "object");
-    vm.deftype(vm.init_env, vm.STR_CLS, "structure-class");
+    vm.deftype(vm.init_env, "object", vm.OBJ);
+    vm.deftype(vm.init_env, "structure-class", vm.STR_CLS);
     // Bless built-in types as Lisp types
     function define_builtin_type(type, name) {
 	type.qua_isa = vm.STR_CLS;
@@ -1741,7 +1741,7 @@ vm.init = function() {
         type.class_name = name;
 	type.methods = Object.create(null);
 	type.prototype.qua_isa = type;
-	vm.deftype(vm.init_env, type, name);
+	vm.deftype(vm.init_env, name, type);
     }
     define_builtin_type(vm.Cons, "cons");
     define_builtin_type(vm.DV, "dynamic");
@@ -1760,7 +1760,7 @@ vm.init = function() {
     // can define methods on them.
     function define_js_type(name) {
 	var c = vm.make_class(vm.STR_CLS, name);
-	vm.deftype(vm.init_env, c, name);
+	vm.deftype(vm.init_env, name, c);
 	return c;
     }
     vm.JSObject = define_js_type("js-object");
