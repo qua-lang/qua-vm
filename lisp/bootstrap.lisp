@@ -20,6 +20,7 @@
 (def #'if #'%%if) ; Evaluate either of two expressions depending on a test.
 (def #'make-dynamic #'%%make-dynamic) ; Create a new dynamic variable.
 (def #'make-environment #'%%make-environment) ; Create new lexical environment.
+(def #'panic #'%%panic) ; Exit VM unconditionally, w/out running intervening handlers.
 (def #'progn #'%%progn) ; Evaluate expressions in order.
 (def #'setq #'%%setq) ; Update existing bindings in current or ancestor environment.
 (def #'to-fun-sym #'%%to-fun-sym) ; Turn any symbol into a function namespaced one.
@@ -996,7 +997,7 @@
                          (print "You didn't enter a number. Please try again.")
                          (return-from continue))
                      (invoke-restart-interactively (list-elt restarts n))))))
-           (%%panic condition))))))
+           (panic condition))))))
 
 (defun print-stacktrace ()
   (labels ((print-frame (k)

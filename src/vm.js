@@ -902,7 +902,6 @@ vm.init = function() {
     vm.defun(vm.init_env, "%%js-set", vm.jswrap(vm.js_set));
     vm.defun(vm.init_env, "%%own-property?", vm.jswrap(vm.has_own_property));
     // Misc
-    vm.defun(vm.init_env, "%%assert", vm.jswrap(vm.assert));
     vm.defun(vm.init_env, "%%eq", vm.jswrap(function(a, b) { return a === b; }));
     vm.defun(vm.init_env, "%%panic", vm.jswrap(vm.panic));
     vm.defun(vm.init_env, "%%print", vm.jswrap(console.log));
