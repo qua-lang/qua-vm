@@ -965,6 +965,9 @@
 (defmacro push-userspace body
   (list #'push-userspace* (list* #'lambda () body)))
 
+(defmacro js-callback (params . body)
+  (list #'js-lambda params (list* #'push-userspace body)))
+
 ;;;; Interaction
 
 (defun log args
