@@ -7,4 +7,4 @@ require("./bytefile.js").write_bytecode_file(["lisp/bootstrap.lisp", "lisp/arch.
 					  "build/out/bootstrap.json");
 
 // Run build script written in Lisp that does actual build steps
-require("../src/main.js").vm().eval_string("(load \"build/build-qua.lisp\")");
+require("../src/main.js").vm().eval_string("(load \"build/build.lisp\")");
