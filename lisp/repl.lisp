@@ -13,5 +13,4 @@
                                     (print "Aborting")
                                     (return-from abort))))
                           (let ((forms (read)))
-                            (print forms)
                             (prin1 (eval (list* #'progn forms) env))))))))))

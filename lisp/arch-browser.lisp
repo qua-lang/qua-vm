@@ -27,13 +27,18 @@
   (make-instance 'browser-stream :id (incf -browser-stream-counter-)))
 
 (defmethod read-string-from-stream ((stream browser-stream))
-  (take-subcont +user-prompt+ k))
-(defmethod write-string-to-stream ((stream browser-stream) string))
-
+  (take-subcont +user-prompt+ k
+                (setq -the-continuation- k)))
+(defmethod write-string-to-stream ((stream browser-stream) string)
+  (@_insertText -the-buffer- string))
+  
 ;;;; Ymacs mode
 
-;;; Disable if Ymacs is not defined... but then printing will not
-;;; work, so should probably WARN.
+;;; FIXME: Disable if Ymacs is not defined... but then printing will
+;;; not work, so should probably WARN.
+(def -the-continuation- #void)
+(def -the-buffer- #void)
+
 (when $Ymacs
   ($DEFINE_SINGLETON "Qua_Keymap_REPL" $Ymacs_Keymap
                      (js-lambda (#ign D P . #ign)
@@ -52,12 +57,18 @@
                 (js-object
                  :qua_repl_enter
                  ($Ymacs_Interactive
-                  (js-lambda #ign
-                   ($alert "foo")))))
+                  (js-lambda (this . #ign)
+                             (let* ((pos (@point this))
+                                    (rc (._rowcol this))
+                                    (line (js-get (.code this) (.row rc))))
+                               (@cmd this "insert" "\n")
+                               (push-prompt-subcont +user-prompt+ -the-continuation-
+                                                    line))))))
 
   (def repl-buffer (js-new $Ymacs_Buffer (js-object :name "Qua REPL")))
   (@setCode repl-buffer "")
   (@cmd repl-buffer "qua_repl_mode")
+  (def -the-buffer- repl-buffer)
   (def ymacs (js-new $Ymacs (js-object :buffers (js-array repl-buffer))))
   (@setColorTheme ymacs (js-array "dark" "y"))
   (def dialog (js-new $DlDialog (js-object :title "Qua REPL" :resizable #t)))
