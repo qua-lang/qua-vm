@@ -2,28 +2,6 @@
 
 (def #'node:require $require)
 
-;;;; Browser streams
-
-(defstruct browser-stream
-  id)
- 
-(def -browser-stream-counter- -1)
- 
-(defun make-browser-stream ()
-  (make-instance 'browser-stream :id (incf -browser-stream-counter-)))
-
-(defmethod read-string-from-stream ((stream browser-stream))
-  (repl-read-string (.id stream)))
-(defmethod write-string-to-stream ((stream browser-stream) string)
-  (repl-write-string (.id stream) string))
-
-;;;; stdin/stdout
-
-(defconstant +default-browser-stream+ (make-browser-stream))
-  
-(defun %arch-standard-input () +default-browser-stream+)
-(defun %arch-standard-output () +default-browser-stream+)
-
 ;;;; DOM
 
 (defun get-element-by-id (id)
@@ -38,42 +16,39 @@
   (the string text)
   (@createTextNode $document text))
 
-;;;; REPLs
+;;;; Browser streams
 
-(defun repl-read-string (repl-id)
-  (ensure-repl repl-id)
-  (take-subcont +user-prompt+ k
-    (def elem (get-element-by-id (repl-element-id repl-id)))
-    (setf (.qua-continuation elem) k)))
+(defstruct browser-stream
+  id)
+ 
+(def -browser-stream-counter- -1)
+ 
+(defun make-browser-stream ()
+  (make-instance 'browser-stream :id (incf -browser-stream-counter-)))
 
-(defun ensure-repl (repl-id)
-  (def elem (get-element-by-id (repl-element-id repl-id)))
-  (when (eql 0 (.length (.children elem)))
-    (def printout (create-element "div"))
-    (@setAttribute printout "id" (printout-element-id repl-id))
-    (@appendChild elem printout)
-    (def input (create-element "input"))
-    (@appendChild elem input)
-    (def button (create-element "button"))
-    (@addEventListener button "click"
-                       (js-lambda #ign
-                         (push-prompt-subcont +user-prompt+ (.qua-continuation elem)
-                           (prog1 (.value input)
-                             (setf (.value input) "")
-                             (@focus input)))))
-    (@appendChild button (create-text-node "eval"))
-    (@appendChild elem button)))
+(defmethod read-string-from-stream ((stream browser-stream))
+  (take-subcont +user-prompt+ k))
+(defmethod write-string-to-stream ((stream browser-stream) string))
 
-(defun repl-write-string (repl-id string)
-  (ensure-repl repl-id)
-  (let ((printout (get-element-by-id (printout-element-id repl-id))))
-    (when printout
-      (let ((line (create-element "div"))
-            (text (create-text-node string)))
-        (@appendChild line text)
-        (@appendChild printout line)))))
+;;;; Ymacs mode
 
-(defun repl-element-id (repl-id)
-  (+ "qua-repl-" repl-id))
-(defun printout-element-id (repl-id)
-  (+ (repl-element-id repl-id) "-printout"))
+(when $Ymacs
+  ($DEFINE_SINGLETON "Qua_Keymap_REPL" $Ymacs_Keymap
+                     (js-lambda (#ign D P . #ign)
+                                (setf (.KEYS D)
+                                      (js-object
+                                       :ENTER "qua_repl_enter"))))
+  
+  (@newMode $Ymacs_Buffer "qua_repl_mode"
+            (js-lambda (this . #ign)
+                       (let ((keymap ($Qua_Keymap_REPL)))
+                         (@pushKeymap this keymap)
+                         (js-lambda (this . #ign)
+                                    (@popKeymap this keymap))))))
+
+;;;; stdin/stdout
+
+(defconstant +default-browser-stream+ (make-browser-stream))
+  
+(defun %arch-standard-input () +default-browser-stream+)
+(defun %arch-standard-output () +default-browser-stream+)

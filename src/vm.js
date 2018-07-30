@@ -762,13 +762,13 @@ vm.time = function(name, fun) {
     console.log(name + ": "  + time + "ms");
 };
 /* JS Native Interface */
-// Returns a JS function that calls the given Lisp operator with
-// the arguments passed to the function.
+// Returns a JS function that, when called, calls the given Lisp
+// operator with `this' and the arguments passed to the function.
 vm.js_function = function(cmb) {
     return function() {
         var args = vm.array_to_list(Array.prototype.slice.call(arguments));
-        return vm.combine(vm.make_env(), cmb, args);
-    }
+        return vm.combine(vm.make_env(), cmb, vm.cons(this, args));
+    };
 };
 // Detect JS built-in types and make them appear to object system
 // as objects with (pseudo) Lisp classes.
