@@ -1,0 +1,7 @@
+JS-LAMBDA and JS-CALLBACK should both surround their body with a
+CONTINUATION-BARRIER (tbd) expression, so that captures that attempt
+to escape cause a JS exception.
+
+In the case of JS-LAMBDA because the outer JS code doesn't know about
+suspensions; in the case of JS-CALLBACK, because an escape might
+otherwise go undetected.
