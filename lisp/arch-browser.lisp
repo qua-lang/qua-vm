@@ -44,7 +44,17 @@
                        (let ((keymap ($Qua_Keymap_REPL)))
                          (@pushKeymap this keymap)
                          (js-lambda (this . #ign)
-                                    (@popKeymap this keymap))))))
+                                    (@popKeymap this keymap)))))
+
+  (def repl-buffer (js-new $Ymacs_Buffer (js-object :name "Qua REPL")))
+  (def ymacs (js-new $Ymacs (js-object :buffers (js-array repl-buffer))))
+  (def dialog (js-new $DlDialog (js-object :title "Qua REPL" :resizable #t)))
+  (def layout (js-new $DlLayout (js-object :parent dialog)))
+  (@packWidget layout ymacs (js-object :pos "bottom" :fill "*"))
+  (setf (._focusedWidget dialog) ymacs)
+  (@setSize dialog (js-object :x 1024 :y 768))
+  (@show dialog #t)
+  (@maximize dialog #t))
 
 ;;;; stdin/stdout
 
