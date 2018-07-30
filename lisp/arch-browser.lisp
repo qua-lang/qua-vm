@@ -32,6 +32,8 @@
 
 ;;;; Ymacs mode
 
+;;; Disable if Ymacs is not defined... but then printing will not
+;;; work, so should probably WARN.
 (when $Ymacs
   ($DEFINE_SINGLETON "Qua_Keymap_REPL" $Ymacs_Keymap
                      (js-lambda (#ign D P . #ign)
@@ -57,6 +59,7 @@
   (@setCode repl-buffer "")
   (@cmd repl-buffer "qua_repl_mode")
   (def ymacs (js-new $Ymacs (js-object :buffers (js-array repl-buffer))))
+  (@setColorTheme ymacs (js-array "dark" "y"))
   (def dialog (js-new $DlDialog (js-object :title "Qua REPL" :resizable #t)))
   (def layout (js-new $DlLayout (js-object :parent dialog)))
   (@packWidget layout ymacs (js-object :pos "bottom" :fill "*"))
