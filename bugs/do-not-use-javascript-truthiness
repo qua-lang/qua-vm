@@ -1,0 +1,2 @@
+Currently, IF, WHEN, etc work like in JS.  Supporting the same
+semantics in any other implementation language would be a horror.
