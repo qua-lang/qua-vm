@@ -46,7 +46,16 @@
                          (js-lambda (this . #ign)
                                     (@popKeymap this keymap)))))
 
+  (@newCommands $Ymacs_Buffer
+                (js-object
+                 :qua_repl_enter
+                 ($Ymacs_Interactive
+                  (js-lambda #ign
+                   ($alert "foo")))))
+
   (def repl-buffer (js-new $Ymacs_Buffer (js-object :name "Qua REPL")))
+  (@setCode repl-buffer "")
+  (@cmd repl-buffer "qua_repl_mode")
   (def ymacs (js-new $Ymacs (js-object :buffers (js-array repl-buffer))))
   (def dialog (js-new $DlDialog (js-object :title "Qua REPL" :resizable #t)))
   (def layout (js-new $DlLayout (js-object :parent dialog)))
