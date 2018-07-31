@@ -1835,5 +1835,5 @@ vm.init = function() {
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],"qua-user-bytecode":[function(require,module,exports){
-module.exports=["%%progn",null,["push-userspace",["print",["wat-string","Welcome to Qua!"]],["let",[["env",["the-environment"]]],["block","quit",["restart-bind",[["quit",["lambda",[],["print",["wat-string","Goodbye!"]],["return-from","quit"]]]],["loop",["block","abort",["restart-bind",[["abort",["lambda",[],["print",["wat-string","Aborting"]],["return-from","abort"]]]],["let",[["forms",["read"]]],["prin1",["eval",["list*",["qua-function","progn"],"forms"],"env"]]]]]]]]]],null]
+module.exports=["%%progn",null,["push-userspace",["print",["wat-string","Welcome to Qua!"]],["print",["wat-string","Press ENTER to evaluate the current line in Qua."]],["let",[["env",["the-environment"]]],["block","quit",["restart-bind",[["quit",["lambda",[],["print",["wat-string","Goodbye!"]],["return-from","quit"]]]],["loop",["block","abort",["restart-bind",[["abort",["lambda",[],["print",["wat-string","Aborting"]],["return-from","abort"]]]],["let",[["forms",["read"]]],["prin1",["eval",["list*",["qua-function","progn"],"forms"],"env"]]]]]]]]]],null]
 },{}]},{},[1]);

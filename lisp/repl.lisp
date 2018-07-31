@@ -2,6 +2,7 @@
 
 (push-userspace
   (print "Welcome to Qua!")
+  (print "Press ENTER to evaluate the current line in Qua.")
   (let ((env (the-environment)))
     (block quit
       (restart-bind ((quit (lambda ()
