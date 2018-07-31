@@ -595,6 +595,8 @@ vm.put_method = function(c, name, method) {
     c.methods[name] = method;
 };
 vm.send_message = function(rcv, msg, args) { // args has to include rcv as first elt
+    // The use of vm.monadic here is probably a hint that this should
+    // be implemented in Lisp.
     return vm.monadic(
 	function() {
 	    var c = vm.class_of(rcv);

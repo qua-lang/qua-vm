@@ -854,8 +854,6 @@
     (finish-clone result)))
 
 (defun subseq (seq start . opt-end)
-  (when (not (eql start 0))
-    (simple-error "Start other than 0 not implemented yet"))
   (let ((end (optional opt-end))
         (ct 0)
         (result (empty-clone seq))
@@ -991,6 +989,7 @@
 ;;;; Debugger
 
 (defun invoke-debugger (condition)
+  (def k (get-current-continuation))
   (print "")
   (print "Welcome to the debugger!")
   (loop
@@ -998,7 +997,7 @@
        (print "Condition: ")
        (print condition)
        (print "Stack: ")
-       (print-stacktrace (get-stacktrace))
+       (print-stacktrace k)
        (let ((restarts (compute-restarts condition)))
          (if (> (list-length restarts) 0)
              (progn
@@ -1026,7 +1025,14 @@
            (return-from end list)
          (setq k (.inner k)))))))
 
-(defun print-stacktrace (stacktrace)
+(defun get-current-continuation ()
+  (take-subcont +user-prompt+ k
+                (push-prompt-subcont +user-prompt+ k
+                                     k)))
+
+(defun print-stacktrace (k)
   (for-each (lambda (frame)
-              (prin1 (.expr frame)))
-            stacktrace))
+              (if (.dbg_info frame)
+                  (prin1 (.expr (.dbg_info frame)))
+                (print "*** Dark stack frame ***")))
+            (subseq (continuation-to-list k) 0 10)))
