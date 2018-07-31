@@ -337,6 +337,16 @@
 (%expect (js-array 0 1 2 3 4)
          (subseq (js-array 0 1 2 3 4 5) 0 5))
 
+(%expect (list 2 3 4 5)
+         (subseq (list 0 1 2 3 4 5) 2))
+(%expect (js-array 2 3 4 5)
+         (subseq (js-array 0 1 2 3 4 5) 2))
+
+(%expect (list 3 4)
+         (subseq (list 0 1 2 3 4 5) 3 5))
+(%expect (js-array 3 4)
+         (subseq (js-array 0 1 2 3 4 5) 3 5))
+
 (%expect (list 0 1 2 3)
          (subseq (list 0 1 2 3) 0 5))
 (%expect (js-array 0 1 2 3)
