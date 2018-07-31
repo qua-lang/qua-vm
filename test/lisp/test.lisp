@@ -7,6 +7,19 @@
     (%%panic "assertion failed")))
 (defun #'%expect (expected actual) (%assert (%deep-equal expected actual)))
 
+(defstruct condition-not-signaled
+  condition-type)
+(defun condition-not-signaled (condition-type)
+  (make-instance 'condition-not-signaled :condition-type condition-type))
+(defun %expect-condition (condition-type #'thunk)
+  (block ok
+    (handler-bind ((object
+		    (lambda (condition)
+		      (if (type? condition condition-type)
+			  (return-from ok)
+			(error (condition-not-signaled condition-type))))))
+      (thunk))))
+
 ;;;; Forms
 (%assert (%deep-equal 1 (car (cons 1 2))))
 (%assert (%deep-equal 2 (cdr (cons 1 2))))
@@ -319,6 +332,28 @@
 (%expect (js-array)
          (map (lambda (x) (* x 2)) (js-array)))
 
+(%expect (list 0 1 2 3 4)
+         (subseq (list 0 1 2 3 4 5) 0 5))
+(%expect (js-array 0 1 2 3 4)
+         (subseq (js-array 0 1 2 3 4 5) 0 5))
+
+(%expect (list 0 1 2 3)
+         (subseq (list 0 1 2 3) 0 5))
+(%expect (js-array 0 1 2 3)
+         (subseq (js-array 0 1 2 3) 0 5))
+
+(%expect (list)
+         (subseq (list 0 1 2 3) 0 0))
+(%expect (js-array)
+         (subseq (js-array 0 1 2 3) 0 0))
+
+(%expect-condition
+ 'simple-error
+ (lambda () (subseq (list 0 1 2 3) 1 2)))
+(%expect-condition
+ 'simple-error
+ (lambda () (subseq (js-array 0 1 2 3) 1 2)))
+
 ;;;; Metaclasses
 
 ;;; Construct metaclass that for every message sent to instances
@@ -351,21 +386,6 @@
   (%expect "foo!" (my-custom-generic-2 obj)))
 
 ;;;; Conditions
-
-(defstruct condition-not-signaled
-  condition-type)
-
-(defun condition-not-signaled (condition-type)
-  (make-instance 'condition-not-signaled :condition-type condition-type))
-
-(defun %expect-condition (condition-type #'thunk)
-  (block ok
-    (handler-bind ((object
-		    (lambda (condition)
-		      (if (type? condition condition-type)
-			  (return-from ok)
-			(error (condition-not-signaled condition-type))))))
-      (thunk))))
 
 (%expect-condition
  'condition-not-signaled

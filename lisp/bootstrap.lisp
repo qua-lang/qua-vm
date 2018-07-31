@@ -853,6 +853,21 @@
       (setq state (advance seq state)))
     (finish-clone result)))
 
+(defun subseq (seq start . opt-end)
+  (when (not (eql start 0))
+    (simple-error "Start other than 0 not implemented yet"))
+  (let ((end (optional opt-end))
+        (ct 0)
+        (result (empty-clone seq))
+        (state (start-iteration seq)))
+    (while (and (more? seq state)
+                (or (void? end)
+                    (< ct end)))
+      (setq result (add-for-iteration result (current seq state)))
+      (setq state (advance seq state))
+      (incf ct))
+    (finish-clone result)))
+                
 ;; Implement sequence protocol for lists
 (defmethod start-iteration ((self cons))
   self)
@@ -983,7 +998,7 @@
        (print "Condition: ")
        (print condition)
        (print "Stack: ")
-       (print-stacktrace)
+       (print-stacktrace (get-stacktrace))
        (let ((restarts (compute-restarts condition)))
          (if (> (list-length restarts) 0)
              (progn
@@ -1002,12 +1017,16 @@
                      (invoke-restart-interactively (list-elt restarts n))))))
            (panic condition))))))
 
-(defun print-stacktrace ()
-  (labels ((print-frame (k)
-       			(when (.dbg_info k)
-			  (prin1 (.expr (.dbg_info k))))
-			(when (.inner k)
-			  (print-frame (.inner k)))))
-	  (take-subcont +user-prompt+ k
-			(push-prompt-subcont +user-prompt+ k
-                                             (print-frame k)))))
+(defun continuation-to-list (k)
+  (block end
+    (let ((list '()))
+      (loop
+       (setq list (cons k list))
+       (if (eq #null (.inner k))
+           (return-from end list)
+         (setq k (.inner k)))))))
+
+(defun print-stacktrace (stacktrace)
+  (for-each (lambda (frame)
+              (prin1 (.expr frame)))
+            stacktrace))
