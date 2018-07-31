@@ -1035,9 +1035,18 @@
                 (push-prompt-subcont +user-prompt+ k
                                      k)))
 
+;;; This is the operationally/empirically determined number of stack
+;;; frames we need to skip so that we can display the user expression
+;;; that signalled a condition.  If INVOKE-DEBUGGER or
+;;; GET-CURRENT-CONTINUATION or related functions are modified this
+;;; number must likely be adapted.
+(defconstant +qua-magic-frames+ 6)
+
 (defun print-stacktrace (k)
   (for-each (lambda (frame)
               (if (.dbg_info frame)
                   (prin1 (.expr (.dbg_info frame)))
                 (print "*** Dark stack frame ***")))
-            (subseq (continuation-to-list k) 0 10)))
+            (subseq (continuation-to-list k)
+                    +qua-magic-frames+
+                    (+ +qua-magic-frames+ 10))))
