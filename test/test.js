@@ -1,2 +1,2 @@
 #!/usr/bin/env node
-require("../src/main.js").vm().eval_string("(load \"test/lisp/test.lisp\") (load \"test/lisp/test-node.lisp\")");
+console.log(require("../src/main.js").vm().eval_string("(push-userspace (load \"test/lisp/test.lisp\") (load \"test/lisp/test-node.lisp\"))"));

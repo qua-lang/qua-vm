@@ -969,14 +969,11 @@
 
 ;; Wrapped around all user code.  Provides useful handler bindings,
 ;; prompts, and other dynamic stuff.
-(defun push-userspace* (#'user-thunk)
+(deffexpr push-userspace body env
   (push-prompt +user-prompt+
     (dynamic-let ((*standard-input* (%arch-standard-input))
                   (*standard-output* (%arch-standard-output)))
-      (user-thunk))))
-
-(defmacro push-userspace body
-  (list #'push-userspace* (list* #'lambda () body)))
+      (eval (list* #'progn body) env))))
 
 (defmacro js-callback (params . body)
   (list #'js-lambda params (list* #'push-userspace body)))
