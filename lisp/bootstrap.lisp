@@ -1046,7 +1046,7 @@
   (for-each (lambda (frame)
               (if (.dbg_info frame)
                   (prin1 (.expr (.dbg_info frame)))
-                (print "*** Dark stack frame ***")))
+                (print "* Mystery continuation (please report bug)")))
             (subseq (continuation-to-list k)
                     +qua-magic-frames+
                     (+ +qua-magic-frames+ 10))))

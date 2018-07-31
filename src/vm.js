@@ -99,7 +99,8 @@ vm.eval_args = function(e, todo, done) {
     return vm.monadic(function() { return vm.evaluate(e, vm.car(todo)); },
                       function(arg) {
 			  return vm.eval_args(e, vm.cdr(todo), vm.cons(arg, done));
-		      });
+		      },
+                      dbg_info(e, vm.car(todo)));
 };
 /* Built-in combiners */
 vm.Prim = function Prim(name, fn) {
@@ -175,6 +176,7 @@ function StackFrame(work_fun, inner, dbg_info) {
     // next stack frame or null for innermost %%TAKE-SUBCONT frame
     this.inner = inner;
     // attach some debugging info to this frame (not needed operationally)
+    vm.assert(dbg_info);
     this.dbg_info = dbg_info;
 };
 function DbgInfo(env, expr) {
