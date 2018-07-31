@@ -1,2 +1,2 @@
-Figure out a clear way to push userspace in the right place for REPL
-and qua-run.
+Figure out a clear way to push userspace in the right place for REPL,
+qua-run, and tests.
