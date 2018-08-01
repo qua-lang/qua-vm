@@ -13,7 +13,7 @@ module.exports = function(vm, init_env) {
         }
     };
     vm.parse_bytecode_array = function(arr) {
-        if ((arr.length == 2) && arr[0] === "wat-string") { return arr[1]; }
+        if ((arr.length == 2) && arr[0] === "qua-string") { return arr[1]; }
         if ((arr.length == 2) && arr[0] === "qua-function") { return vm.fun_sym(arr[1]); }
         if ((arr.length == 2) && arr[0] === "qua-keyword") { return vm.keyword(arr[1]); }
         var i = arr.indexOf(".");
@@ -55,9 +55,9 @@ var keyword_stx = action(sequence(":", id_stx), function(ast) {
         return ["qua-keyword", ast[1]];
     });
 function handle_identifier(str) {
-    if ((str[0] === ".") && (str.length > 1)) { return ["js-getter", ["wat-string", str.substring(1)]]; }
-    else if (str[0] === "@") { return ["js-invoker", ["wat-string", str.substring(1)]]; }
-    else if (str[0] === "$") { return ["js-global", ["wat-string", str.substring(1)]]; }
+    if ((str[0] === ".") && (str.length > 1)) { return ["js-getter", ["qua-string", str.substring(1)]]; }
+    else if (str[0] === "@") { return ["js-invoker", ["qua-string", str.substring(1)]]; }
+    else if (str[0] === "$") { return ["js-global", ["qua-string", str.substring(1)]]; }
     else if (str.startsWith("#'")) { return ["qua-function", str.substring(2)]; }
     else return str; }
 var escape_char = choice("\"", "\\", "n", "r", "t", "0");
@@ -71,7 +71,7 @@ var escape_sequence = action(sequence("\\", escape_char), function (ast) {
 var line_terminator = choice(ch("\r"), ch("\n"));
 var string_char = choice(escape_sequence, line_terminator, negate("\""));
 var string_stx = action(sequence("\"", join_action(repeat0(string_char), ""), "\""),
-                        function (ast) { return ["wat-string", ast[1]]; });
+                        function (ast) { return ["qua-string", ast[1]]; });
 var digits = join_action(repeat1(range("0", "9")), "");
 var number_stx =
     action(sequence(optional(choice("+", "-")), digits, optional(join_action(sequence(".", digits), ""))),
