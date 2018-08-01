@@ -1,3 +1,4 @@
+// The whole printing is stuff not very good indeed
 module.exports = function(vm, init_env) {
     vm.PRINT_ESCAPE = vm.make_dynamic(true);
     vm.unreadable_object_to_string = function(object) {

@@ -706,6 +706,11 @@ module.exports = function(vm, init_env) {
 },{}],5:[function(require,module,exports){
 // This is the main Qua file, that pulls together all components and
 // creates a user environment in which Qua code can be evaluated.
+//
+// The major weakness is that only a single Qua VM per JS process is
+// currently supported.  Changing this is simply a matter of
+// refactoring `vm.js' so that it does its thing within a function,
+// instead of globally.
 var qua = module.exports;
 
 // The boot bytecode is the precompiled version of the
@@ -756,6 +761,7 @@ qua.vm = function() {
 };
 
 },{"../build/out/bootstrap.json":2,"./arch.js":4,"./print.js":6,"./read.js":7,"./vm.js":8}],6:[function(require,module,exports){
+// The whole printing is stuff not very good indeed
 module.exports = function(vm, init_env) {
     vm.PRINT_ESCAPE = vm.make_dynamic(true);
     vm.unreadable_object_to_string = function(object) {

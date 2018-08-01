@@ -1,5 +1,10 @@
 // This is the main Qua file, that pulls together all components and
 // creates a user environment in which Qua code can be evaluated.
+//
+// The major weakness is that only a single Qua VM per JS process is
+// currently supported.  Changing this is simply a matter of
+// refactoring `vm.js' so that it does its thing within a function,
+// instead of globally.
 var qua = module.exports;
 
 // The boot bytecode is the precompiled version of the
