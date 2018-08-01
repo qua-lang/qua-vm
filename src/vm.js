@@ -740,7 +740,6 @@ vm.has_own_property = function(obj, name) {
 vm.assert_type = function(obj, type_spec) {
     if (vm.check_type(obj, type_spec)) return obj;
     else {
-	console.log(obj);
 	return vm.error("type error: " + obj + " should be " + type_spec + " but is " + obj);
     }
 };
