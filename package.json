@@ -1,5 +1,7 @@
 {
     "name": "qua",
+    "description": "The Qua Lisp virtual machine",
+    "version": "0.0.1",
     "preferGlobal": true,
     "bin": "./cmd/qua.js",
     "dependencies": {
