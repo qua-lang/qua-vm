@@ -749,6 +749,11 @@ qua.vm = function() {
         return vm.eval_sexp(vm.parse_bytecode(c), e);
     };
 
+    // Only userful in browsers; runs the bundled user bytecode
+    vm.eval_user_bytecode = function() {
+        return vm.eval_bytecode(require("qua-user-bytecode"));
+    };
+    
     // Finally, we run the Lisp boot bytecode, i.e. the preparsed Lisp
     // code from the file `bootstrap.lisp', that sets up the
     // user-level language.
@@ -760,7 +765,7 @@ qua.vm = function() {
     return vm;
 };
 
-},{"../build/out/bootstrap.json":2,"./arch.js":4,"./print.js":6,"./read.js":7,"./vm.js":8}],6:[function(require,module,exports){
+},{"../build/out/bootstrap.json":2,"./arch.js":4,"./print.js":6,"./read.js":7,"./vm.js":8,"qua-user-bytecode":"qua-user-bytecode"}],6:[function(require,module,exports){
 // The whole printing is stuff not very good indeed
 module.exports = function(vm, init_env) {
     vm.PRINT_ESCAPE = vm.make_dynamic(true);

@@ -43,6 +43,11 @@ qua.vm = function() {
         return vm.eval_sexp(vm.parse_bytecode(c), e);
     };
 
+    // Only userful in browsers; runs the bundled user bytecode
+    vm.eval_user_bytecode = function() {
+        return vm.eval_bytecode(require("qua-user-bytecode"));
+    };
+    
     // Finally, we run the Lisp boot bytecode, i.e. the preparsed Lisp
     // code from the file `bootstrap.lisp', that sets up the
     // user-level language.
