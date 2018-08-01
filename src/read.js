@@ -103,8 +103,22 @@ var ch = jsparse.ch;
 var butnot = jsparse.butnot;
 
 /* S-expr parser */
+
+// Remove comments; trim string (brute-force kludge)
+function prepare_string(s) {
+    var lines = s.split("\n"); // FIXME: support other line endings?
+    for (var i = 0; i < lines.length; i++) {
+        var line = lines[i];
+        var x = line.indexOf(";");
+        if (x !== -1) {
+            lines[i] = line.substring(0, x);
+        }
+    }
+    return lines.join("\n").trim(); // ahem
+}
+
 function parse_sexp(s) {
-    s = s.trim();
+    s = prepare_string(s);
     var res = program_stx(ps(s));
     if (res.remaining.index === s.length) return res.ast;
     else throw("parse error at " + res.remaining.index + " in " + s); }
@@ -159,8 +173,6 @@ var compound_stx = action(wsequence("(", repeat1(x_stx), optional(dot_stx), ")")
                               var end = ast[2] ? [".", ast[2]] : [];
                               return exprs.concat(end); });
 var quote_stx = action(sequence("'", x_stx), function(ast) { return ["quote", ast[1]]; });
-var cmt_stx = action(sequence(";", repeat0(negate(line_terminator)), optional(line_terminator)), nothing_action);
-function nothing_action(ast) { return null; } // HACK!
 var x_stx = whitespace(choice(ign_stx, void_stx, nil_stx, nil_stx_2, t_stx, f_stx, null_stx, undef_stx, number_stx,
-                              quote_stx, compound_stx, keyword_stx, id_stx, string_stx, cmt_stx));
+                              quote_stx, compound_stx, keyword_stx, id_stx, string_stx));
 var program_stx = repeat0(choice(x_stx));
