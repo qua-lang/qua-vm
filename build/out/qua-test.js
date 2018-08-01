@@ -841,8 +841,48 @@ module.exports = function(vm, init_env) {
 };
 
 },{}],9:[function(require,module,exports){
+/*
+  This whole parsing stuff is a mess haphazardly grown over the years,
+  and ripe to be replaced with a shiny platinum mechanism.
+
+  The way it works is that the initial stage of the parser,
+  `parse_sexp', turns Lisp syntax S-expression strings into a format
+  called bytecode, which is essentially one big honking JSON list
+  mirroring the original S-expression.
+
+  The second stage, `parse_bytecode', then turns such a JSON bytecode
+  object into forms (i.e. vm.Sym, vm.Cons, vm.Nil, etc) that can
+  actually be evaluated by the VM.
+
+  The bytecode format is roughly:
+
+  S-expression                Bytecode
+  --------------------------------------------------------------------
+  foo                         "foo"
+  #t                          true
+  (foo 1 (2))                 ["foo", 1, [2]]
+  "a string"                  ["qua-string", "a string"]
+  #'my-function-symbol        ["qua-function", "my-function-symbol"]
+  :the-keyword                ["qua-keyword", "the-keyword"]
+  (dotted list . end)         ["dotted", "list", ".", "end"]
+
+  Note that since we use JSON strings for symbols, we have to
+  specially encode strings as a list with "qua-string" as first
+  element (which is probably a layering violation).  Similar encodings
+  are used for function namespaced symbols and keyword symbols.
+  
+  Some objects like booleans, numbers, null, undefined can appear
+  as-is in the bytecode and there are some hacks to support that.
+  Further hacks make dotted lists possible, as well as the JS syntax
+  .property, @method, and $global.
+
+  A whole bytecode file is a single JSON list, usually a %%PROGN.
+*/
+
 var jsparse = require("jsparse");
+
 module.exports = function(vm, init_env) {
+    // Bytecode to forms
     vm.parse_bytecode = function(obj) {
         switch(Object.prototype.toString.call(obj)) {
         case "[object String]": 
@@ -860,28 +900,50 @@ module.exports = function(vm, init_env) {
         if ((arr.length == 2) && arr[0] === "qua-function") { return vm.fun_sym(arr[1]); }
         if ((arr.length == 2) && arr[0] === "qua-keyword") { return vm.keyword(arr[1]); }
         var i = arr.indexOf(".");
-        if (i === -1) return vm.array_to_list(arr.map(vm.parse_bytecode));
-        else { var front = arr.slice(0, i);
-               return vm.array_to_list(front.map(vm.parse_bytecode), vm.parse_bytecode(arr[i + 1])); }
+        if (i === -1) {
+            return vm.array_to_list(arr.map(vm.parse_bytecode));
+        } else {
+            var front = arr.slice(0, i);
+            return vm.array_to_list(front.map(vm.parse_bytecode),
+                                    vm.parse_bytecode(arr[i + 1]));
+        }
     };
+    // Strings to bytecode to forms
     vm.parse_forms = function (string) {
 	return vm.parse_bytecode(parse_sexp(string));
     };
     vm.parse_forms_progn = function (string) {
         return vm.parse_bytecode(parse_sexp_progn(string));
     };
+    // This is what we export to userland
     vm.defun(init_env, "%%parse-forms", vm.jswrap(vm.parse_forms));
 };
 
+// Need to export these so that the build process can construct
+// bootstrap bytecode file.
 module.exports.parse_sexp = parse_sexp;
-
 module.exports.parse_sexp_progn = parse_sexp_progn;
 
 function parse_sexp_progn(string) {
     return ["%%progn"].concat(parse_sexp(string));
 }
 
-var ps = jsparse.ps; var choice = jsparse.choice; var range = jsparse.range; var action = jsparse.action; var sequence = jsparse.sequence; var join = jsparse.join; var join_action = jsparse.join_action; var negate = jsparse.negate; var repeat0 = jsparse.repeat0; var optional = jsparse.optional; var repeat1 = jsparse.repeat1; var wsequence = jsparse.wsequence; var whitespace = jsparse.whitespace; var ch = jsparse.ch; var butnot = jsparse.butnot;
+// It begins...
+var ps = jsparse.ps;
+var choice = jsparse.choice;
+var range = jsparse.range;
+var action = jsparse.action;
+var sequence = jsparse.sequence;
+var join = jsparse.join;
+var join_action = jsparse.join_action;
+var negate = jsparse.negate;
+var repeat0 = jsparse.repeat0;
+var optional = jsparse.optional;
+var repeat1 = jsparse.repeat1;
+var wsequence = jsparse.wsequence;
+var whitespace = jsparse.whitespace;
+var ch = jsparse.ch;
+var butnot = jsparse.butnot;
 
 /* S-expr parser */
 function parse_sexp(s) {
