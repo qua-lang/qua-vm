@@ -14,4 +14,5 @@ console.log(vm.eval_bytecode(["push-userspace",
                                ["qua-string", __dirname + "/../build/browser-template.js"],
                                ["qua-string", "./" + filename + ".json"],
                                ["qua-string", bundlename],
-                               false]]));
+                               false],
+                              vm.VOID]));
