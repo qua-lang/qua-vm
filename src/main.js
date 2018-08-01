@@ -45,7 +45,7 @@ qua.vm = function() {
 
     // Only userful in browsers; runs the bundled user bytecode
     vm.eval_user_bytecode = function() {
-        return vm.eval_bytecode(require("qua-user-bytecode"));
+        return vm.eval_bytecode(["push-userspace", require("qua-user-bytecode")]);
     };
     
     // Finally, we run the Lisp boot bytecode, i.e. the preparsed Lisp

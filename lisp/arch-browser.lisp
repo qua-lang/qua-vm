@@ -27,10 +27,14 @@
   (make-instance 'browser-stream :id (incf -browser-stream-counter-)))
 
 (defmethod read-string-from-stream ((stream browser-stream))
-  (take-subcont +user-prompt+ k
-                (setq -the-continuation- k)))
+  (if $Ymacs
+      (take-subcont +user-prompt+ k
+                    (setq -the-continuation- k))
+    (the string ($prompt "LISP input"))))
 (defmethod write-string-to-stream ((stream browser-stream) string)
-  (@_insertText -the-buffer- string))
+  (if $Ymacs
+      (@_insertText -the-buffer- string)
+    (log string)))
   
 ;;;; Ymacs mode
 

@@ -559,6 +559,8 @@
                             :type-spec type-spec
 			    :obj evaluated-obj)))))
 
+;;; Here the main language is basically usable.
+
 ;;;; Conditions
 
 ;;; Condition handling and restart handling share some similarities

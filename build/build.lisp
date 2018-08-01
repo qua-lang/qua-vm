@@ -9,8 +9,8 @@
 ;;;; Build browser Browserify bundles
 
 (def #'browserify (node:require "browserify"))
-(defun build-browser-image (bytefile outfile test?)
-  (let ((b (browserify "./build/browser-template")))
+(defun build-browser-image (template bytefile outfile test?)
+  (let ((b (browserify template)))
     (@require b bytefile (js-object :expose "qua-user-bytecode"))
     (when test?
       (@require b "deep-equal"))
@@ -29,14 +29,17 @@
   (write-bytecode-file (js-array "test/lisp/test.lisp" "test/lisp/test-browser.lisp")
 		       "build/out/test-browser.json")
 
-  (build-browser-image "./build/out/prod-browser.json"
+  (build-browser-image "./build/browser-template.js"
+                       "./build/out/prod-browser.json"
 		       "build/out/qua.js"
 		       #f)
   
-  (build-browser-image "./build/out/repl-browser.json"
+  (build-browser-image"./build/browser-template.js"
+                      "./build/out/repl-browser.json"
 		       "build/out/qua-repl.js"
 		       #f)
   
-  (build-browser-image "./build/out/test-browser.json"
+  (build-browser-image "./build/browser-template.js"
+                       "./build/out/test-browser.json"
 		       "build/out/qua-test.js"
 		       #t))
