@@ -1,0 +1,2 @@
+Some macros like UNWIND-PROTECT that uses lambdas introduce new
+lexical contours where there shouldn't be any.
