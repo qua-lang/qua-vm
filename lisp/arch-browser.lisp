@@ -34,11 +34,12 @@
   
 ;;;; Ymacs mode
 
-;;; FIXME: Disable if Ymacs is not defined... but then printing will
-;;; not work, so should probably WARN.
 (def -the-continuation- #void)
 (def -the-buffer- #void)
 
+;;; FIXME: Disable if Ymacs is not defined... but then reading and
+;;; printing will not work, so should probably WARN, or offer
+;;; fallback.
 (when $Ymacs
   ($DEFINE_SINGLETON "Qua_Keymap_REPL" $Ymacs_Keymap
                      (js-lambda (#ign D P . #ign)
