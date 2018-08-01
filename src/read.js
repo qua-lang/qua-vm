@@ -104,6 +104,7 @@ var butnot = jsparse.butnot;
 
 /* S-expr parser */
 function parse_sexp(s) {
+    s = s.trim();
     var res = program_stx(ps(s));
     if (res.remaining.index === s.length) return res.ast;
     else throw("parse error at " + res.remaining.index + " in " + s); }
@@ -159,8 +160,7 @@ var compound_stx = action(wsequence("(", repeat1(x_stx), optional(dot_stx), ")")
                               return exprs.concat(end); });
 var quote_stx = action(sequence("'", x_stx), function(ast) { return ["quote", ast[1]]; });
 var cmt_stx = action(sequence(";", repeat0(negate(line_terminator)), optional(line_terminator)), nothing_action);
-var whitespace_stx = action(choice(" ", "\n", "\r", "\t"), nothing_action);
 function nothing_action(ast) { return null; } // HACK!
 var x_stx = whitespace(choice(ign_stx, void_stx, nil_stx, nil_stx_2, t_stx, f_stx, null_stx, undef_stx, number_stx,
                               quote_stx, compound_stx, keyword_stx, id_stx, string_stx, cmt_stx));
-var program_stx = whitespace(repeat0(choice(x_stx, whitespace_stx))); // HACK!
+var program_stx = repeat0(choice(x_stx));
