@@ -1,9 +1,13 @@
 {
-    "name": "qua",
+    "name": "qua-vm",
     "description": "The Qua Lisp virtual machine",
+    "author": "Manuel Simoni",
     "version": "0.0.1",
-    "preferGlobal": true,
-    "bin": "./cmd/qua.js",
+    "bin": {
+        "qua": "./cmd/qua.js",
+        "qua-run": "./cmd/qua-run.js",
+        "qua-bundle": "./cmd/qua-bundle.js"
+    },
     "dependencies": {
         "browserify": "^16.2.2",
         "deep-equal": "^1.0.1",
