@@ -350,18 +350,13 @@
 (defmacro prog2 (form . forms)
   (list #'progn form (list* #'prog1 forms)))
 
-(defun unwind-protect* (#'protected-thunk #'cleanup-thunk)
-  (prog1
-      (%%rescue (lambda (exc)
-                  (cleanup-thunk)
-                  (%%raise exc))
-                #'protected-thunk)
-    (cleanup-thunk)))
-
-(defmacro unwind-protect (protected-form . cleanup-forms)
-  (list #'unwind-protect*
-        (list #'lambda () protected-form)
-        (list* #'lambda () cleanup-forms)))
+(deffexpr unwind-protect (protected-form . cleanup-forms) env
+  (prog1 (%%rescue (lambda (exc)
+                     (eval (list* #'progn cleanup-forms) env)
+                     (%%raise exc))
+                   (lambda ()
+                     (eval protected-form env)))
+    (eval (list* #'progn cleanup-forms) env)))
 
 (deffexpr case (expr . clauses) env
   (let ((val (eval expr env)))
