@@ -4,7 +4,7 @@
 var vm = require("../src/main.js").vm();
 var filename = vm.assert_type(process.argv[2], "string");
 var bundlename = vm.assert_type(process.argv[3], "string");
-// We should really allow #!/usr/bin/env qua
+// We should really allow #!/usr/bin/env qua so we can get rid of this crap.
 console.log(vm.eval_bytecode(["push-userspace",
                               ["load", ["qua-string", __dirname + "/../build/build.lisp"]],
                               ["write-bytecode-file",
