@@ -304,7 +304,7 @@
 ;;;; Simple control
 
 (defmacro loop body
-  (list #'%%loop (list* #'lambda () body)))
+  (list #'%%loop (list* #'progn body)))
 
 (deffexpr while (test . body) env
   (let ((body (list* #'progn body)))

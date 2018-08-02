@@ -410,17 +410,17 @@ vm.PushPromptSubcont = vm.wrap(vm.prim("%%push-prompt-subcont", function do_push
     return val;
 }));
 /* Simple control */
-// %%LOOP thunk
+// %%LOOP body
 //
-// Call thunk repeatedly.
-vm.Loop = vm.wrap(vm.prim("%%loop", function do_loop(self, e, o, k, f) {
+// Evaluate the body expression repeatedly.
+vm.Loop = vm.prim("%%loop", function do_loop(self, e, o, k, f) {
     var body = vm.elt(o, 0);
     var first = true; // only resume once
     while (true) {
         if (first && (k instanceof StackFrame)) {
             var val = resumeFrame(k, f);
         } else {
-            var val = vm.combine(e, body, vm.NIL);
+            var val = vm.evaluate(e, body);
         }
         first = false;
         if (val instanceof Suspension) {
@@ -434,7 +434,7 @@ vm.Loop = vm.wrap(vm.prim("%%loop", function do_loop(self, e, o, k, f) {
             return val;
         }
     }
-}));
+});
 // %%RAISE obj
 //
 // Throw something as a JS exception.
