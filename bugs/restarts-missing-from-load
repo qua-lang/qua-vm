@@ -1,0 +1,2 @@
+The abort and quit restarts shouldn't only be available in the REPL,
+they should also be available for normal LOAD.
