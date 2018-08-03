@@ -13,4 +13,5 @@ module.exports = function(vm, init_env) {
     // FIXME: any uses of this outside of this file are probably broken
     vm.read_line = function() { return readline.question("> "); };
     vm.defun(init_env, "%%read-line", vm.jswrap(vm.read_line));
+    vm.defun(init_env, "%%dirname", vm.jswrap(function() { return __dirname; }));
 };
