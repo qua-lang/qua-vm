@@ -997,7 +997,6 @@
      (block continue
        (print "Condition: ")
        (print condition)
-       (log condition)
        (print "Stack: ")
        (print-stacktrace k)
        (let ((restarts (compute-restarts condition)))
