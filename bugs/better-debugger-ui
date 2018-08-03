@@ -1,0 +1,4 @@
+The debugger should have:
+- nested debug levels, like CL debuggers
+- allow evaluating arbitrary expressions, and not only restart numbers
+  (use :c <restart-number> to choose a restart)
