@@ -1,6 +1,10 @@
 ;; Node-specific Lisp code
 
-(def #'node:require #'%%require)
+(defun node:require (module)
+  ;; FIXME: Not sure if this is a good idea, but otherwise calling
+  ;; NODE:REQUIRE will try to resolve modules relative to the Qua
+  ;; installation, not the calling Qua code.
+  (%%require (@resolve #'%%require module (js-object :paths (js-array ".")))))
 
 (defstruct node-input-stream)
 (defstruct node-output-stream)
