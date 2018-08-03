@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -eux
+./scripts/build-and-test
+npm version patch
+npm publish
+
