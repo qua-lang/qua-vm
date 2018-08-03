@@ -833,6 +833,7 @@ module.exports = function(vm, init_env) {
         switch(sym.ns) {
         case vm.VAR_NS: return sym.name;
         case vm.FUN_NS: return "#'" + sym.name;
+        case vm.KWD_NS: return ":" + sym.name;
         default: return vm.sym_key(sym);
         }
     };
