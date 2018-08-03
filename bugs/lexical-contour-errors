@@ -1,2 +1,2 @@
-Some macros like UNWIND-PROTECT that uses lambdas introduce new
+Some macros like PUSH-PROMPT that use lambdas introduce new
 lexical contours where there shouldn't be any.
