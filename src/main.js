@@ -51,10 +51,7 @@ qua.vm = function() {
     // Finally, we run the Lisp boot bytecode, i.e. the preparsed Lisp
     // code from the file `bootstrap.lisp', that sets up the
     // user-level language.
-    vm.time("run boot bytecode",
-            function() {
-		vm.eval_bytecode(boot_bytecode);
-	    });
+    vm.eval_bytecode(boot_bytecode);
     
     return vm;
 };
