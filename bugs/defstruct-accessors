@@ -1,0 +1,3 @@
+(DEFSTRUCT MY-STRUCT PROP-1 PROP-2) should generate accessors
+(SETF-able generic functions that read/write slots) MY-STRUCT-PROP-1
+and MY-STRUCT-PROP-2.
