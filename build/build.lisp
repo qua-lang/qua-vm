@@ -3,12 +3,12 @@
 ;;;; Build browser bytecode files
 
 ;; FIXME: why does this need ".."?
-(def bytefile (node:require "../build/bytefile"))
+(def bytefile (node:require-vm-relative "../build/bytefile"))
 (def #'write-bytecode-file (.write_bytecode_file bytefile))
 
 ;;;; Build browser Browserify bundles
 
-(def #'browserify (node:require "browserify"))
+(def #'browserify (node:require-vm-relative "browserify"))
 (defun build-browser-image (template bytefile outfile test?)
   (let ((b (browserify template)))
     (@require b bytefile (js-object :expose "qua-user-bytecode"))
@@ -41,8 +41,8 @@
 		       #f)
 
   ;; The REPL bundle has the REPL bytecode.
-  (build-browser-image"./build/browser-template.js"
-                      "./build/out/repl-browser.json"
+  (build-browser-image "./build/browser-template.js"
+                       "./build/out/repl-browser.json"
 		       "build/out/qua-repl.js"
 		       #f)
 

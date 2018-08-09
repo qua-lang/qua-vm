@@ -1,5 +1,7 @@
 ;;;;; Browser-specific Lisp code
 
+;;; This code is not very well thought out.
+
 (def #'node:require $require)
 
 ;;;; DOM

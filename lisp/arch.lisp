@@ -1,10 +1,18 @@
-;; Node-specific Lisp code
+;;;;; Node-specific Lisp code
 
+;;; The quality of this code is a bit of a joke at the moment and
+;;; needs serious reconsideration and/or reorganization.
+
+;;; Require module relative to user code / current project.
 (defun node:require (module)
-  ;; FIXME: Not sure if this is a good idea, but otherwise calling
-  ;; NODE:REQUIRE will try to resolve modules relative to the Qua
-  ;; installation, not the calling Qua code.
   (%%require (@resolve #'%%require module (js-object :paths (js-array ".")))))
+
+;;; Require module relative to VM code.  Code that is called from user
+;;; commands (e.g. qua-bundle) must use this to access VM-local files
+;;; and modules.
+;;; TODO: remove hair
+(defun node:require-vm-relative (module)
+  (%%require module))
 
 (defstruct node-input-stream)
 (defstruct node-output-stream)
