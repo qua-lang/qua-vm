@@ -35,6 +35,7 @@
 
 (defconstant node:fs (node:require "fs"))
 (def #'node:read-file-sync (.readFileSync node:fs))
+(def #'node:write-file-sync (.writeFileSync node:fs))
 (def #'node:create-write-stream (.createWriteStream node:fs))
 
 (defun read-file-as-string (path) (node:read-file-sync path "utf8"))
