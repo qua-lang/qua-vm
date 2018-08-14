@@ -1,0 +1,2 @@
+If a keyword appears in operator position e.g. (:foo 1 2) it gets
+looked up as a function.
