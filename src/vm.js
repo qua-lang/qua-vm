@@ -472,6 +472,20 @@ vm.Rescue = vm.wrap(vm.prim("%%rescue", function do_rescue(self, e, o, k, f) {
     }
     return val;
 }));
+/* Continuation Barriers */
+// %%CONTINUATION-BARRIER expr
+//
+// Evaluate an expression and prevent it from capturing continuations
+// to prompts outside of the barrier.
+vm.ContinuationBarrier = vm.prim("%%continuation-barrier", function(self, e, o, k, f) {
+    var x = vm.elt(o, 0);
+    var res = vm.evaluate(e, x);
+    if (res instanceof Suspension) {
+        vm.panic("continuation barrier breach");
+    } else {
+        return res;
+    }
+});
 /* Dynamic Variables */
 vm.DV = function DV(value) { this.val = value; }
 vm.make_dynamic = function(initial_value) {
@@ -886,6 +900,7 @@ vm.init = function() {
     vm.defun(vm.init_env, "%%push-prompt-subcont", vm.PushPromptSubcont);
     vm.defun(vm.init_env, "%%push-subcont", vm.PushSubcont);
     vm.defun(vm.init_env, "%%take-subcont", vm.TakeSubcont);
+    vm.defun(vm.init_env, "%%continuation-barrier", vm.ContinuationBarrier);
     // Object system
     vm.defun(vm.init_env, "%%class-of", vm.jswrap(vm.class_of));
     vm.defun(vm.init_env, "%%make-class", vm.jswrap(vm.make_class));

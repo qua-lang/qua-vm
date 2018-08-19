@@ -448,7 +448,10 @@
 (defun js-array elements (list-to-js-array elements))
 
 (defmacro js-lambda (lambda-list . body)
-  (list #'js-function (list* #'lambda lambda-list body)))
+  (list #'js-function
+        (list #'lambda lambda-list
+              (list #'%%continuation-barrier
+                    (list* #'progn body)))))
 
 (defun js-relational-op (name)
   (let ((#'binop (%%js-binop name)))
