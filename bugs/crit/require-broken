@@ -1,0 +1,2 @@
+NODE:REQUIRE and friends are confused about where to load files from
+(current dir vs dir of Lisp file).  Needs rethought.
