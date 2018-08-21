@@ -23,8 +23,10 @@
 (def #'panic #'%%panic) ; Exit VM unconditionally, w/out running intervening handlers.
 (def #'progn #'%%progn) ; Evaluate expressions in order.
 (def #'setq #'%%setq) ; Update existing bindings in current or ancestor environment.
-(def #'to-fun-sym #'%%to-fun-sym) ; Turn any symbol into a function namespaced one.
+(def #'to-fun-sym #'%%to-fun-sym) ; Turn any symbol into a function namespaced
 (def #'to-type-sym #'%%to-type-sym) ; Turn any symbol into a type namespaced one.
+(def #'function-symbol #'to-fun-sym) ; alternative name
+(def #'type-symbol #'to-type-sym) ; alternative name
 (def #'unwrap #'%%unwrap) ; Extract fexpr underlying a function.
 (def #'wrap #'%%wrap) ; Construct a function out of a fexpr.
 ;; Objects:
@@ -65,7 +67,7 @@
 ; Define a named fexpr in the current environment.
 (def #'deffexpr 
   (vau (name params env-param . body) env
-    (eval (list #'def (to-fun-sym name) 
+    (eval (list #'def (function-symbol name) 
                 (list* #'vau params env-param body))
           env)))
 
@@ -89,7 +91,7 @@
 ; Define a named macro in the current environment.
 (def #'defmacro
   (macro (name params . body)
-    (list #'def (to-fun-sym name) (list* #'macro params body))))
+    (list #'def (function-symbol name) (list* #'macro params body))))
 
 ;;;; Functions
 
@@ -99,7 +101,7 @@
 
 ; Define a named function.
 (defmacro defun (name params . body)
-  (list #'def (to-fun-sym name) (list* #'lambda params body)))
+  (list #'def (function-symbol name) (list* #'lambda params body)))
 
 ; Create a function that has access to the current lexical environment.
 (defmacro lambda/env (params env-param . body)
@@ -107,7 +109,7 @@
 
 ; Define a named function that has access to the current lexical environment.
 (defmacro defun/env (name params env-param . body)
-  (list #'def (to-fun-sym name) (list* #'lambda/env params env-param body)))
+  (list #'def (function-symbol name) (list* #'lambda/env params env-param body)))
 
 ; Treat the rest argument as an optional value with optional default.
 (defun optional (opt-arg . opt-default)
@@ -146,8 +148,8 @@
 (def #'cdar (compose #'cdr #'car))
 (def #'cddr (compose #'cdr #'cdr))
 
-(defmacro function (name) (to-fun-sym name))
-(defmacro class (name) (to-type-sym name))
+(defmacro function (name) (function-symbol name))
+(defmacro class (name) (type-symbol name))
 
 (defun symbol-name (sym) (%%slot-value sym "name"))
 
@@ -193,7 +195,7 @@
 ;;;; Lexical function bindings
 
 (defun var-bindingize ((fun-name fun-params . fun-body))
-  (list (to-fun-sym fun-name) (list* #'lambda fun-params fun-body)))
+  (list (function-symbol fun-name) (list* #'lambda fun-params fun-body)))
 
 ; Common Lisp's parallel binder for functions.
 (defmacro flet (fun-bindings . body)
@@ -246,7 +248,7 @@
   (if (symbol? place)
       (list #'setq place new-val)
       (let* (((getter-form . arguments) place)
-             (getter (if (symbol? getter-form) (to-fun-sym getter-form) getter-form)))
+             (getter (if (symbol? getter-form) (function-symbol getter-form) getter-form)))
         (list* (list #'setter getter) new-val arguments))))
 
 (defmacro incf (place . opt-increment)
@@ -260,7 +262,7 @@
 ;;;; Objects and classes
 
 (defun/env find-class (class-desig) env
-  (eval (to-type-sym class-desig) env))
+  (eval (type-symbol class-desig) env))
 
 (defun make-instance (class-desig . initargs)
   (%%make-instance (find-class class-desig) (plist-to-js-object initargs)))
@@ -268,7 +270,7 @@
 (deffexpr defgeneric (name . #ign) env
   (let ((generic (lambda arguments
                    (send-message (car arguments) (symbol-name name) arguments))))
-    (eval (list #'def (to-fun-sym name) generic) env)))
+    (eval (list #'def (function-symbol name) generic) env)))
 
 (deffexpr defmethod (name ((self class-spec) . arguments) . body) env
   (let ((class (find-class class-spec))
@@ -278,7 +280,7 @@
 (deffexpr defstruct (name . #ign) env
   (let* ((class-name (symbol-name name))
 	 (class (make-class (class structure-class) class-name)))
-    (eval (list #'def (to-type-sym name) class) env)))
+    (eval (list #'def (type-symbol name) class) env)))
 
 (defun slot-value (obj name)
   (%%slot-value obj (symbol-name name)))
