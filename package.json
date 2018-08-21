@@ -3,6 +3,7 @@
     "description": "The Qua Lisp virtual machine",
     "author": "Manuel Simoni",
     "version": "0.0.6",
+    "main": "./src/main.js",
     "bin": {
         "qua": "./cmd/qua.js",
         "qua-run": "./cmd/qua-run.js",
