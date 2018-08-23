@@ -9,12 +9,10 @@
 <h1><a href="https://github.com/qua-lang/qua-vm">Qua</a></h1>
 <script type="text/lisp" id="main">
 (defun spawn-threads (thread-count)
-  (let ((i 0))
-    (while (< i thread-count)
-      ; Call RUN-THREAD inside a continuation delimited by the default prompt
-      (push-default-prompt
-        (run-thread thread-count))
-      (incf i))))
+  (dotimes (i thread-count)
+    ; Call RUN-THREAD inside a continuation delimited by the default prompt
+    (push-default-prompt
+      (run-thread i))))
 
 (defun run-thread (thread-id)
   (let ((ball (js-object :x (+ 300 ($random_offset 200))

@@ -314,7 +314,19 @@
       (loop
         (if (eval test env)
             (eval body env)
-            (return-from exit))))))
+          (return-from exit))))))
+
+(defun dotimes* (n #'thunk)
+  (let ((i 0))
+    (while (< i n)
+      (thunk i)
+      (incf i))))
+
+(defmacro dotimes ((var count-form . opt-result-form) . body)
+  (let ((result-form (optional opt-result-form)))
+    (list #'progn
+          (list #'dotimes* count-form (list* #'lambda (list var) body))
+          result-form)))
 
 (defmacro if (test then else)
   (list #'%%if test then else))
