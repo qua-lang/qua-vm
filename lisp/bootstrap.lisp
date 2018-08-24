@@ -23,6 +23,7 @@
 (def #'panic #'%%panic) ; Exit VM unconditionally, w/out running intervening handlers.
 (def #'progn #'%%progn) ; Evaluate expressions in order.
 (def #'setq #'%%setq) ; Update existing bindings in current or ancestor environment.
+(def #'string-to-symbol #'%%string-to-symbol) ; Create symbol from string
 (def #'to-fun-sym #'%%to-fun-sym) ; Turn any symbol into a function namespaced
 (def #'to-type-sym #'%%to-type-sym) ; Turn any symbol into a type namespaced one.
 (def #'function-symbol #'to-fun-sym) ; alternative name
@@ -259,6 +260,54 @@
   (let ((decrement (optional opt-decrement 1)))
     (list #'setf place (list #'- place decrement))))
 
+;; JS operators
+
+(defun js-relational-op (name)
+  (let ((#'binop (%%js-binop name)))
+    (labels ((op (arg1 arg2 . rest)
+               (if (binop arg1 arg2)
+                   (if (nil? rest)
+                       #t
+                       (apply #'op (list* arg2 rest)))
+                   #f)))
+      #'op)))
+
+(def #'== (js-relational-op "=="))
+(def #'=== (js-relational-op "==="))
+(def #'< (js-relational-op "<"))
+(def #'> (js-relational-op ">"))
+(def #'<= (js-relational-op "<="))
+(def #'>= (js-relational-op ">="))
+
+(def #'lt #'<)
+(def #'lte #'<=)
+(def #'gt #'>)
+(def #'gte #'>=)
+
+(defun != arguments (not (apply #'== arguments)))
+(defun !== arguments (not (apply #'=== arguments)))
+
+(def #'* (let ((#'binop (%%js-binop "*")))
+           (lambda arguments
+             (fold-list #'binop 1 arguments))))
+
+;; Can't simply use 0 as unit or it won't work with strings
+(def #'+ (let ((#'binop (%%js-binop "+")))
+           (lambda arguments
+             (if (nil? arguments)
+                 0
+                 (fold-list #'binop (car arguments) (cdr arguments))))))
+
+(defun js-negative-op (name unit)
+  (let ((#'binop (%%js-binop name)))
+    (lambda (arg1 . rest)
+      (if (nil? rest)
+          (binop unit arg1)
+          (fold-list #'binop arg1 rest)))))
+
+(def #'- (js-negative-op "-" 0))
+(def #'/ (js-negative-op "/" 1))
+
 ;;;; Objects and classes
 
 (defun/env find-class (class-desig) env
@@ -277,10 +326,21 @@
         (method (eval (list* #'lambda (list* self arguments) body) env)))
     (%%put-method class (symbol-name name) method)))
 
-(deffexpr defstruct (name . #ign) env
+(deffexpr defstruct (name . slot-names) env
   (let* ((class-name (symbol-name name))
 	 (class (make-class (class structure-class) class-name)))
-    (eval (list #'def (type-symbol name) class) env)))
+    (eval (list #'def (type-symbol name) class) env)
+    (list-for-each (lambda (slot-name)
+                     (let ((accessor-name
+                            (function-symbol
+                             (string-to-symbol
+                              (+ (symbol-name name) "-" (symbol-name slot-name))))))
+                       (flet ((reader (obj) (slot-value obj slot-name))
+                              (writer (val obj) (set-slot-value obj slot-name val)))
+                         (defsetf #'reader #'writer)
+                         (eval (list #'def accessor-name #'reader) env))))
+                   slot-names)
+    name))
 
 (defun slot-value (obj name)
   (%%slot-value obj (symbol-name name)))
@@ -466,52 +526,6 @@
         (list #'lambda lambda-list
               (list #'%%continuation-barrier
                     (list* #'progn body)))))
-
-(defun js-relational-op (name)
-  (let ((#'binop (%%js-binop name)))
-    (labels ((op (arg1 arg2 . rest)
-               (if (binop arg1 arg2)
-                   (if (nil? rest)
-                       #t
-                       (apply #'op (list* arg2 rest)))
-                   #f)))
-      #'op)))
-
-(def #'== (js-relational-op "=="))
-(def #'=== (js-relational-op "==="))
-(def #'< (js-relational-op "<"))
-(def #'> (js-relational-op ">"))
-(def #'<= (js-relational-op "<="))
-(def #'>= (js-relational-op ">="))
-
-(def #'lt #'<)
-(def #'lte #'<=)
-(def #'gt #'>)
-(def #'gte #'>=)
-
-(defun != arguments (not (apply #'== arguments)))
-(defun !== arguments (not (apply #'=== arguments)))
-
-(def #'* (let ((#'binop (%%js-binop "*")))
-           (lambda arguments
-             (fold-list #'binop 1 arguments))))
-
-;; Can't simply use 0 as unit or it won't work with strings
-(def #'+ (let ((#'binop (%%js-binop "+")))
-           (lambda arguments
-             (if (nil? arguments)
-                 0
-                 (fold-list #'binop (car arguments) (cdr arguments))))))
-
-(defun js-negative-op (name unit)
-  (let ((#'binop (%%js-binop name)))
-    (lambda (arg1 . rest)
-      (if (nil? rest)
-          (binop unit arg1)
-          (fold-list #'binop arg1 rest)))))
-
-(def #'- (js-negative-op "-" 0))
-(def #'/ (js-negative-op "/" 1))
 
 ;;;; Utilities
 

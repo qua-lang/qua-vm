@@ -108,6 +108,8 @@
 (def object-with-slots (make-instance 'class-with-slots :x 2 :y 4))
 (%assert (%deep-equal 2 (slot-value object-with-slots 'x)))
 (%assert (%deep-equal 4 (slot-value object-with-slots 'y)))
+(%assert (%deep-equal 2 (class-with-slots-x object-with-slots)))
+(%assert (%deep-equal 4 (class-with-slots-y object-with-slots)))
 (%assert (slot-bound? object-with-slots 'x))
 (%assert (slot-bound? object-with-slots 'y))
 (%assert (not (slot-bound? object-with-slots 'z)))
@@ -115,6 +117,10 @@
 (setf (slot-value object-with-slots 'y) 8)
 (%assert (%deep-equal 6 (slot-value object-with-slots 'x)))
 (%assert (%deep-equal 8 (slot-value object-with-slots 'y)))
+(setf (class-with-slots-x object-with-slots) 12)
+(setf (class-with-slots-y object-with-slots) 16)
+(%assert (%deep-equal 12 (class-with-slots-x object-with-slots)))
+(%assert (%deep-equal 16 (class-with-slots-y object-with-slots)))
 
 ;;;; SETQ
 (let ((x 1))
@@ -157,20 +163,6 @@
   (decf x 2)
   (%expect 14 x))
 
-;;;; Reference cells
-(let ((box (make-box 12)))
-  (%expect 12 (box-value box))
-  (setf (box-value box) 14)
-  (%expect 14 (box-value box))
-  (incf (box-value box))
-  (%expect 15 (box-value box))
-  (incf (box-value box) 2)
-  (%expect 17 (box-value box))
-  (decf (box-value box))
-  (%expect 16 (box-value box))
-  (decf (box-value box) 2)
-  (%expect 14 (box-value box)))
-
 ;;;; Simple control
 
 (%expect 3 (block #ign 1 2 3))
@@ -209,9 +201,6 @@
 (%expect 1 (unwind-protect 1))
 (%expect 1 (unwind-protect 1 2))
 (%expect 1 (unwind-protect 1 2 3))
-(let ((box (make-box #f)))
-  (%expect 1 (unwind-protect 1 (setf (box-value box) #t)))
-  (%expect #t (box-value box)))
 (let ((cell #f))
   (block exit
 	 (unwind-protect (return-from exit)
