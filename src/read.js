@@ -1,6 +1,6 @@
 /*
   This whole parsing stuff is a mess haphazardly grown over the years,
-  and ripe to be replaced with a shiny platinum mechanism.
+  and ripe to be replaced with an elaborate platinum mechanism.
 
   The way it works is that the initial stage of the parser,
   `parse_sexp', turns Lisp syntax S-expression strings into a format
@@ -22,6 +22,7 @@
   #'my-function-symbol        ["qua-function", "my-function-symbol"]
   :the-keyword                ["qua-keyword", "the-keyword"]
   (dotted list . end)         ["dotted", "list", ".", "end"]
+  #ign                        "#ign"
 
   Note that since we use JSON strings for symbols, we have to
   specially encode strings as a list with "qua-string" as first

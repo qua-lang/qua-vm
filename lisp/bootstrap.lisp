@@ -13,7 +13,7 @@
 (def #'cons #'%%cons) ; Construct a new pair.
 (def #'defconstant #'def) ; One man's constant ...
 (def #'dynamic #'%%dynamic) ; Access the value of a dynamic variable.
-(def #'dynamic-bind #'%%dynamic-bind) ; Bind a single dynamic variable.
+(def #'progv #'%%progv) ; Bind a single dynamic variable.
 (def #'eq #'%%eq) ; Compare two values for pointer equality.
 (def #'eql #'eq)  ; Value equality for booleans, numbers, strings; pointer else.
 (def #'eval #'%%eval) ; Evaluate an expression in an environment.
@@ -488,7 +488,7 @@
 
 ; Parallel dynamic binding: first evaluate all right hand side value
 ; expressions, then bind all dynamic variables.
-(deffexpr dynamic-let (bindings . body) env
+(deffexpr dynamic-bind (bindings . body) env
   (let ((pairs (map-list (lambda ((dynamic-name expr))
                            (cons (eval dynamic-name env) (eval expr env)))
                          bindings)))
@@ -496,9 +496,9 @@
                (if (nil? pairs)
                    (eval (list* #'progn body) env)
                    (let* ((((dynamic . value) . rest-pairs) pairs))
-                     (dynamic-bind dynamic value
-                                   (lambda ()
-                                     (process-pairs rest-pairs)))))))
+                     (progv dynamic value
+                       (lambda ()
+                         (process-pairs rest-pairs)))))))
       (process-pairs pairs))))
 
 ;;;; JS stuff
@@ -687,8 +687,8 @@
   (vau (handler-specs . body) env
     (let* ((handlers (map-list (lambda (spec) (handler-spec-parser spec env)) handler-specs))
            (handler-frame (make-handler-frame handlers (dynamic handler-frame-dynamic))))
-      (dynamic-bind handler-frame-dynamic handler-frame
-                    (lambda () (eval (list* #'progn body) env))))))
+      (progv handler-frame-dynamic handler-frame
+        (lambda () (eval (list* #'progn body) env))))))
 
 ;; handler-spec ::= (condition-class-name handler-function-form)
 (def #'handler-bind
@@ -811,7 +811,7 @@
 
 (defmethod call-condition-handler ((handler condition-handler) handler-frame arguments)
   ;; Condition firewall
-  (dynamic-let ((*condition-handler-frame* (slot-value handler-frame 'parent)))
+  (dynamic-bind ((*condition-handler-frame* (slot-value handler-frame 'parent)))
     (apply-handler-function handler arguments)))
 
 (defmethod call-condition-handler ((handler restart-handler) handler-frame arguments)
@@ -982,7 +982,7 @@
     (if (void? stream)
         (%%print object)
       (progn
-        (dynamic-let ((*print-escape* #f))
+        (dynamic-bind ((*print-escape* #f))
           (write object stream)
           (write-string-to-stream stream "\n"))))))
 
@@ -993,7 +993,7 @@
         (progn (%%print "you have no stdout")
                (%%print object))
       (progn
-        (dynamic-let ((*print-escape* #t))
+        (dynamic-bind ((*print-escape* #t))
           (write object stream)
           (write-string-to-stream stream "\n"))))))
 
@@ -1006,8 +1006,8 @@
 ;; prompts, and other dynamic stuff.
 (deffexpr push-userspace body env
   (push-prompt +user-prompt+
-    (dynamic-let ((*standard-input* (%arch-standard-input))
-                  (*standard-output* (%arch-standard-output)))
+    (dynamic-bind ((*standard-input* (%arch-standard-input))
+                   (*standard-output* (%arch-standard-output)))
       (eval (list* #'progn body) env))))
 
 (defmacro js-callback (params . body)

@@ -225,16 +225,16 @@
 
 (progn
   (%expect 1 (dynamic *my-dynamic*))
-  (dynamic-let ((*my-dynamic* 2))
-               (%expect 2 (dynamic *my-dynamic*)))
+  (dynamic-bind ((*my-dynamic* 2))
+    (%expect 2 (dynamic *my-dynamic*)))
   (%expect 1 (dynamic *my-dynamic*)))
 
 (progn
   (%expect 1 (dynamic *my-dynamic*))
   (block exc
-	 (dynamic-let ((*my-dynamic* 2))
-                      (%expect 2 (dynamic *my-dynamic*))
-                      (return-from exc)))
+    (dynamic-bind ((*my-dynamic* 2))
+      (%expect 2 (dynamic *my-dynamic*))
+      (return-from exc)))
   (%expect 1 (dynamic *my-dynamic*)))
 
 ;;;; JS object

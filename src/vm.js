@@ -492,11 +492,11 @@ vm.make_dynamic = function(initial_value) {
     return new vm.DV(initial_value);
 };
 vm.dynamic = function(dv) { return vm.assert_type(dv, vm.DV).val; };
-// %%DYNAMIC-BIND dynvar new-val body-thunk
+// %%PROGV dynvar new-val body-thunk
 //
 // Bind a single dynamic variable to a new value during the
 // execution of a body thunk.
-vm.DynamicBind = vm.wrap(vm.prim("%%dynamic-bind", function dynamic_bind(self, e, o, k, f) {
+vm.Progv = vm.wrap(vm.prim("%%progv", function dynamic_bind(self, e, o, k, f) {
     var dynvar = vm.elt(o, 0);
     var val = vm.elt(o, 1);
     var thunk = vm.elt(o, 2);
@@ -894,8 +894,8 @@ vm.init = function() {
     vm.defun(vm.init_env, "%%setq", vm.Setq);
     // Dynamic variables
     vm.defun(vm.init_env, "%%dynamic", vm.jswrap(vm.dynamic));
-    vm.defun(vm.init_env, "%%dynamic-bind", vm.DynamicBind);
     vm.defun(vm.init_env, "%%make-dynamic", vm.jswrap(vm.make_dynamic));
+    vm.defun(vm.init_env, "%%progv", vm.Progv);
     // Continuations
     vm.defun(vm.init_env, "%%push-prompt", vm.PushPrompt);
     vm.defun(vm.init_env, "%%push-prompt-subcont", vm.PushPromptSubcont);
