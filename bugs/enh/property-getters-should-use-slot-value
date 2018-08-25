@@ -1,2 +1,0 @@
-Property getters should probably use SLOT-VALUE instead of JS-GET (and
-therefore signal an error if a non-existent slot is accessed).
