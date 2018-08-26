@@ -376,6 +376,9 @@
             (eval body env)
           (return-from exit))))))
 
+(defmacro until (test . body)
+  (list* #'while (list #'not test) body))
+
 (defun dotimes* (n #'thunk)
   (let ((i 0))
     (while (< i n)
