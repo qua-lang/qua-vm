@@ -875,7 +875,7 @@ vm.init = function() {
     vm.defun(vm.init_env, "%%car", vm.jswrap(vm.car));
     vm.defun(vm.init_env, "%%cdr", vm.jswrap(vm.cdr));
     vm.defun(vm.init_env, "%%cons", vm.jswrap(vm.cons));
-    vm.defun(vm.init_env, "%%string-to-symbol", vm.jswrap(vm.sym));
+    vm.defun(vm.init_env, "%%make-symbol", vm.jswrap(vm.sym));
     vm.defun(vm.init_env, "%%to-fun-sym", vm.jswrap(vm.to_fun_sym));
     vm.defun(vm.init_env, "%%to-type-sym", vm.jswrap(vm.to_type_sym));
     // Combiners & environments

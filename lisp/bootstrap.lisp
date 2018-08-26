@@ -23,7 +23,7 @@
 (def #'panic #'%%panic) ; Exit VM unconditionally, w/out running intervening handlers.
 (def #'progn #'%%progn) ; Evaluate expressions in order.
 (def #'setq #'%%setq) ; Update existing bindings in current or ancestor environment.
-(def #'string-to-symbol #'%%string-to-symbol) ; Create symbol from string
+(def #'make-symbol #'%%make-symbol) ; Create symbol from string
 (def #'to-fun-sym #'%%to-fun-sym) ; Turn any symbol into a function namespaced
 (def #'to-type-sym #'%%to-type-sym) ; Turn any symbol into a type namespaced one.
 (def #'function-symbol #'to-fun-sym) ; alternative name
@@ -333,7 +333,7 @@
     (list-for-each (lambda (slot-name)
                      (let ((accessor-name
                             (function-symbol
-                             (string-to-symbol
+                             (make-symbol
                               (+ (symbol-name name) "-" (symbol-name slot-name))))))
                        (flet ((reader (obj) (slot-value obj slot-name))
                               (writer (val obj) (set-slot-value obj slot-name val)))

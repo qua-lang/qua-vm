@@ -1,0 +1,2 @@
+Symbols should probably be interned so that EQ and EQL (used by CASE)
+properly works.
