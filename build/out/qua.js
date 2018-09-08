@@ -982,8 +982,7 @@ var number_stx =
                var fractional_digits = ast[2] || "";
                return Number(sign + integral_digits + fractional_digits); });
 function make_constant_stx(string, constant) { return action(string, function(ast) { return constant; }); }
-var nil_stx = make_constant_stx("()", []);
-var nil_stx_2 = make_constant_stx("#nil", []);
+var nil_stx = make_constant_stx("#nil", []);
 var ign_stx = make_constant_stx("#ign", "#ign");
 var void_stx = make_constant_stx("#void", "#void");
 var t_stx = make_constant_stx("#t", true);
@@ -991,13 +990,13 @@ var f_stx = make_constant_stx("#f", false);
 var null_stx = make_constant_stx("#null", null);
 var undef_stx = make_constant_stx("#undefined", undefined);
 var dot_stx = action(wsequence(".", x_stx), function (ast) { return ast[1]; });
-var compound_stx = action(wsequence("(", repeat1(x_stx), optional(dot_stx), ")"),
+var compound_stx = action(wsequence("(", repeat0(x_stx), optional(dot_stx), ")"),
                           function(ast) {
                               var exprs = ast[1];
                               var end = ast[2] ? [".", ast[2]] : [];
                               return exprs.concat(end); });
 var quote_stx = action(sequence("'", x_stx), function(ast) { return ["quote", ast[1]]; });
-var x_stx = whitespace(choice(ign_stx, void_stx, nil_stx, nil_stx_2, t_stx, f_stx, null_stx, undef_stx, number_stx,
+var x_stx = whitespace(choice(ign_stx, void_stx, nil_stx, t_stx, f_stx, null_stx, undef_stx, number_stx,
                               quote_stx, compound_stx, keyword_stx, id_stx, string_stx));
 var program_stx = repeat0(choice(x_stx));
 
