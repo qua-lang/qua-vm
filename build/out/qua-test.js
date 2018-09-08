@@ -961,23 +961,16 @@ var butnot = jsparse.butnot;
 
 /* S-expr parser */
 
-// Remove comments; trim string (brute-force kludge)
-function prepare_string(s) {
-    var lines = s.split("\n"); // FIXME: support other line endings?
-    for (var i = 0; i < lines.length; i++) {
-        var line = lines[i];
-        var x = line.indexOf(";");
-        if (x !== -1) {
-            lines[i] = line.substring(0, x);
-        }
-    }
-    return lines.join("\n").trim(); // ahem
+function strip_comments(ast) {
+    var res = [];
+    ast.forEach(function(sub_ast) { if (!(sub_ast instanceof Comment)) res.push(sub_ast); });
+    return res;
 }
 
 function parse_sexp(s) {
-    s = prepare_string(s);
+    s = s.trim();
     var res = program_stx(ps(s));
-    if (res.remaining.index === s.length) return res.ast;
+    if (res.remaining.index === s.length) return strip_comments(res.ast);
     else throw("parse error at " + res.remaining.index + " in " + s); }
 var x_stx = function(input) { return x_stx(input); }; // forward decl.
 var id_special_char =
@@ -1025,13 +1018,16 @@ var undef_stx = make_constant_stx("#undefined", undefined);
 var dot_stx = action(wsequence(".", x_stx), function (ast) { return ast[1]; });
 var compound_stx = action(wsequence("(", repeat0(x_stx), optional(dot_stx), ")"),
                           function(ast) {
-                              var exprs = ast[1];
+                              var exprs = strip_comments(ast[1]);
                               var end = ast[2] ? [".", ast[2]] : [];
                               return exprs.concat(end); });
 var quote_stx = action(sequence("'", x_stx), function(ast) { return ["quote", ast[1]]; });
+function Comment(text) { this.text = text; };
+var comment_stx = action(sequence(";", repeat0(negate(line_terminator)), optional(line_terminator)),
+                         function(ignored) { return new Comment(ignored); });
 var x_stx = whitespace(choice(ign_stx, void_stx, nil_stx, t_stx, f_stx, null_stx, undef_stx, number_stx,
-                              quote_stx, compound_stx, keyword_stx, id_stx, string_stx));
-var program_stx = repeat0(choice(x_stx));
+                              quote_stx, compound_stx, keyword_stx, id_stx, string_stx, comment_stx));
+var program_stx = repeat0(x_stx);
 
 },{"jsparse":5}],10:[function(require,module,exports){
 (function (global){
