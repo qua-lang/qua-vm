@@ -444,21 +444,6 @@
                      clauses)
       #void)))
 
-;;;; Reference cells
-
-(defstruct box
-  val)
-
-(defun make-box opt-val
-  (make-instance 'box :val (optional opt-val)))
-
-(defun box-value (box)
-  (slot-value box 'val))
-
-(defsetf #'box-value
-  (lambda (new-val box)
-    (setf (slot-value box 'val) new-val)))
-
 ;;;; Continuations
 
 (defmacro push-prompt (prompt . body)
