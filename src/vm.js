@@ -851,7 +851,7 @@ vm.init = function() {
     define_builtin_type(vm.Ign, "ignore");
     define_builtin_type(vm.JSOperator, "js-operator");
     define_builtin_type(vm.Nil, "nil");
-    define_builtin_type(vm.Prim, "primitive");
+    define_builtin_type(vm.Prim, "built-in");
     define_builtin_type(vm.Sym, "symbol");
     define_builtin_type(vm.Tag, "%%tag");
     define_builtin_type(vm.Void, "void");

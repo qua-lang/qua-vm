@@ -802,7 +802,7 @@ module.exports = function(vm, init_env) {
         }
     };
     vm.Prim.prototype.qua_to_string = function(prim) {
-        return "#[primitive " + prim.name + "]";
+        return "#[built-in " + prim.name + "]";
     };
     vm.Cons.prototype.qua_to_string = function(cons) {
         return "(" + vm.cons_to_string(cons) + ")"
@@ -1851,7 +1851,7 @@ vm.init = function() {
     define_builtin_type(vm.Ign, "ignore");
     define_builtin_type(vm.JSOperator, "js-operator");
     define_builtin_type(vm.Nil, "nil");
-    define_builtin_type(vm.Prim, "primitive");
+    define_builtin_type(vm.Prim, "built-in");
     define_builtin_type(vm.Sym, "symbol");
     define_builtin_type(vm.Tag, "%%tag");
     define_builtin_type(vm.Void, "void");

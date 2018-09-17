@@ -33,7 +33,7 @@ module.exports = function(vm, init_env) {
         }
     };
     vm.Prim.prototype.qua_to_string = function(prim) {
-        return "#[primitive " + prim.name + "]";
+        return "#[built-in " + prim.name + "]";
     };
     vm.Cons.prototype.qua_to_string = function(cons) {
         return "(" + vm.cons_to_string(cons) + ")"
