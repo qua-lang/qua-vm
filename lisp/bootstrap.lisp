@@ -70,7 +70,8 @@
   (vau (name params env-param . body) env
     (eval (list #'def (function-symbol name) 
                 (list* #'vau params env-param body))
-          env)))
+          env)
+    name))
 
 ;;;; Macros
 
