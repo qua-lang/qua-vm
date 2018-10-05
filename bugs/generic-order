@@ -1,0 +1,5 @@
+<= should be:
+  - well-defined across primitives like numbers, strings, booleans
+  - #t for JS objects
+  - deep ordering for Qua structures
+

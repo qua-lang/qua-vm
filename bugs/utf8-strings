@@ -1,0 +1,4 @@
+maybe there should be something like "platform strings" and 'UTF-8
+strings' with differing syntax?
+
+E.g. in Qua/JS "foo" would be UTF-16 but 'foo' would be UTF-8

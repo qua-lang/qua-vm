@@ -1,0 +1,4 @@
+= should be
+  - value equality for numbers, strings, booleans etc, 
+  - pointer equality for JS objects
+  - deep equality for Qua structures
