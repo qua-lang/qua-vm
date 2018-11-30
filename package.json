@@ -10,7 +10,7 @@
         "qua-bundle": "./cmd/qua-bundle.js"
     },
     "dependencies": {
-        "browserify": "^16.2.2",
+        "browserify": "^16.2.3",
         "deep-equal": "^1.0.1",
         "jsparse": "^0.1.0",
         "readline-sync": "^1.4.9"
