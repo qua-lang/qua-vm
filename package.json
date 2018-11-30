@@ -2,7 +2,7 @@
     "name": "qua-vm",
     "description": "The Qua Lisp virtual machine",
     "author": "Manuel Simoni",
-    "version": "0.0.9",
+    "version": "0.0.10",
     "main": "./src/main.js",
     "bin": {
         "qua": "./cmd/qua.js",
