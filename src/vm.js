@@ -176,7 +176,6 @@ function StackFrame(work_fun, inner, dbg_info) {
     // next stack frame or null for innermost %%TAKE-SUBCONT frame
     this.inner = inner;
     // attach some debugging info to this frame (not needed operationally)
-    vm.assert(dbg_info);
     this.dbg_info = dbg_info;
 };
 function DbgInfo(env, expr) {
