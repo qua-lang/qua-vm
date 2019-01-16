@@ -13,7 +13,7 @@
   <script type="text/javascript">
     // Load the bytecode bundled along with the Qua VM inside the file
     // qua-repl.js in the build process.
-    qua.vm().eval_user_bytecode();
+    qua.vm().eval_bytecode(require("qua-user-bytecode"));
   </script>
 </body>
 </html>
