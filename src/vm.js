@@ -689,7 +689,7 @@ vm.list_star = function() {
     for (var i = len-1; i > 0; i--) c = vm.cons(arguments[i - 1], c); return c;
 };
 vm.plist_to_js_object = function(plist, obj) {
-    obj = (obj !== undefined) ? obj : Object.create(null);
+    obj = (obj !== undefined) ? obj : {};
     if (plist === vm.NIL) {
         return obj;
     } else {
