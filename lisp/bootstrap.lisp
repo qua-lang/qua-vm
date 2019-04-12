@@ -299,6 +299,8 @@
                  0
                  (fold-list #'binop (car arguments) (cdr arguments))))))
 
+(def #'conc #'+)
+
 (defun js-negative-op (name unit)
   (let ((#'binop (%%js-binop name)))
     (lambda (arg1 . rest)
@@ -510,11 +512,16 @@
 
 (defun js-array elements (list-to-js-array elements))
 
+;;; The continuation barrier guarantees that JS calling the function
+;;; never sees a continuation as return value.  Inside the barrier we
+;;; push a new userspace so we can at least get a stack trace from
+;;; inside the function.
 (defmacro js-lambda (lambda-list . body)
   (list #'js-function
         (list #'lambda lambda-list
               (list #'%%continuation-barrier
-                    (list* #'progn body)))))
+                    (list #'push-userspace
+                          (list* #'progn body))))))
 
 ;;;; Utilities
 
@@ -988,17 +995,19 @@
 
 ;;;; Userspace
 
-;; Delimits all user interactions, so that stack traces can be taken.
+;;; Delimits all user interactions, so that stack traces can be taken.
 (defconstant +user-prompt+ :user-prompt)
 
-;; Wrapped around all user code.  Provides useful handler bindings,
-;; prompts, and other dynamic stuff.
+;;; Wrapped around all user code.  Provides useful handler bindings,
+;;; prompts, and other dynamic stuff.
 (deffexpr push-userspace body env
   (push-prompt +user-prompt+
     (dynamic-bind ((*standard-input* (%arch-standard-input))
                    (*standard-output* (%arch-standard-output)))
       (eval (list* #'progn body) env))))
 
+;;; This does an unneeded extra userspace push, now that JS-LAMBDA
+;;; does one. Maybe remove?
 (defmacro js-callback (params . body)
   (list #'js-lambda params (list* #'push-userspace body)))
 
