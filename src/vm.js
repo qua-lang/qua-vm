@@ -926,6 +926,7 @@ vm.init = function() {
     // List optims
     vm.defun(vm.init_env, "%%list*", vm.jswrap(vm.list_star));
     vm.defun(vm.init_env, "%%list-to-array", vm.jswrap(vm.list_to_array));
+    vm.defun(vm.init_env, "%%array-to-list", vm.jswrap(vm.array_to_list));
     vm.defun(vm.init_env, "%%plist-to-js-object", vm.jswrap(vm.plist_to_js_object));
     vm.defun(vm.init_env, "%%reverse-list", vm.jswrap(vm.reverse_list));
 };

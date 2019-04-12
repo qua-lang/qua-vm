@@ -45,6 +45,7 @@
 ;; Optimization bindings:
 (def #'list* #'%%list*)
 (def #'list-to-js-array #'%%list-to-array)
+(def #'js-array-to-list #'%%array-to-list)
 (def #'plist-to-js-object #'%%plist-to-js-object)
 (def #'reverse-list #'%%reverse-list)
 ;; Printing
