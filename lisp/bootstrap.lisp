@@ -523,6 +523,7 @@
               (list #'%%continuation-barrier
                     (list #'push-userspace
                           (list* #'progn body))))))
+(def #'function #'js-lambda) ; alternative name
 
 ;;;; Utilities
 
@@ -1011,6 +1012,7 @@
 ;;; does one. Maybe remove?
 (defmacro js-callback (params . body)
   (list #'js-lambda params (list* #'push-userspace body)))
+(def #'callback #'js-callback) ; alternative name
 
 ;;;; Interaction
 
