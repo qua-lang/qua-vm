@@ -153,6 +153,7 @@
 
 (defmacro function (name) (function-symbol name))
 (defmacro class (name) (type-symbol name))
+(def #'type #'class) ; alternative name
 
 (defun symbol-name (sym) (%%slot-value sym "name"))
 
