@@ -1,0 +1,2 @@
+Because APPLY uses UNWRAP, it (and FUNCALL) cannot be used with native
+JS functions.

@@ -346,6 +346,9 @@
                    slot-names)
     name))
 
+(defmacro deftype (name value)
+  (list #'def (type-symbol name) value))
+
 (defun slot-value (obj name)
   (%%slot-value obj (symbol-name name)))
 
