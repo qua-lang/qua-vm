@@ -1,2 +1,9 @@
-Figure out a clear way to push userspace in the right place for REPL,
-qua-run, and tests.
+It should be like this:
+
+PUSH-USERSPACE happens automatically:
+
+- at VM toplevel entry calls (eval_string() etc)
+- inside synchronous JS-LAMBDAs and asynchronous JS-CALLBACKs
+
+PUSH-USERSPACE adds a CONTINUATION-BARRIER, so trying to escape it
+always raises.
