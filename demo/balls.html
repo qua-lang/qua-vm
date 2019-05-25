@@ -10,9 +10,8 @@
 <script type="text/lisp" id="main">
 (defun spawn-threads (thread-count)
   (dotimes (i thread-count)
-    ; Call RUN-THREAD inside a continuation delimited by the default prompt
-    (push-default-prompt
-      (run-thread i))))
+    ;; Call RUN-THREAD inside a coroutine
+    (coroutine (run-thread i))))
 
 (defun run-thread (thread-id)
   (let ((ball (js-object :x (+ 300 ($random_offset 200))
@@ -28,13 +27,11 @@
       (sleep))))        ; at this point, we yield back to the default prompt
 
 (defun sleep ()
-  ; Abort back up to the default prompt and schedule future resumption
-  ; of the suspended continuation.
-  (take-default-subcont k
+  (yield k
     ($setImmediate (js-lambda #ign
-                     (push-default-subcont k)))))
+                     (resume k)))))
 
-(spawn-threads 150)
+(spawn-threads 42)
 </script>
 
     <canvas id="canvas" width="600" height="480"></canvas>

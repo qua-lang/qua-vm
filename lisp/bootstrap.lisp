@@ -144,7 +144,10 @@
 (defun symbol? (sym) (eq (class-of sym) (class symbol)))
 (defun cons? (cons) (eq (class-of cons) (class cons)))
 (defun nil? (obj) (eq obj #nil))
+(defun null? (obj) (eq obj #null))
+(defun undefined? (obj) (eq obj #undefined))
 (defun void? (obj) (eq obj #void))
+(defun ign? (obj) (eq obj #ign))
 
 (def #'caar (compose #'car #'car))
 (def #'cadr (compose #'car #'cdr))
@@ -468,13 +471,13 @@
 
 (defconstant +default-prompt+ :default-prompt)
 
-(defmacro push-default-prompt body
+(defmacro coroutine body
   (list* #'push-prompt +default-prompt+ body))
 
-(defmacro take-default-subcont (name . body)
+(defmacro yield (name . body)
   (list* #'take-subcont +default-prompt+ name body))
 
-(defmacro push-default-subcont (continuation . body)
+(defmacro resume (continuation . body)
   (list* #'push-prompt-subcont +default-prompt+ continuation body))
 
 ;;;; Dynamic variables
