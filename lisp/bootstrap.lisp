@@ -520,6 +520,8 @@
 
 (defun js-array elements (list-to-js-array elements))
 
+(defun js-array-empty? (array) (not (.length array)))
+
 ;;; The continuation barrier guarantees that JS calling the function
 ;;; never sees a continuation as return value.  Inside the barrier we
 ;;; push a new userspace so we can at least get a stack trace from
