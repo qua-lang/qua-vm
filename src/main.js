@@ -32,21 +32,27 @@ qua.vm = function() {
     require("./print.js")(vm, vm.init_env); // (Not Yet) Pretty Printer
     require("./arch.js")(vm, vm.init_env);  // Architecture-Specific Code
     
-    // Add some convenient API functions
-    vm.eval_sexp = function(x, e) {
+    // Main entry point, all evaluation goes through this.  Is_boot is
+    // only used during boot, to disable pushing userspace
+    // (PUSH-USERSPACE is only defined near the end of booting).
+    vm.eval_sexp = function(x, e, is_boot) {
+        if (!is_boot) {
+            x = vm.list(vm.fun_sym("push-userspace"), x);
+        }
         return vm.evaluate(e ? e : vm.init_env, x);
     };
-    vm.eval_string = function(s, e) {
-        return vm.eval_sexp(vm.parse_forms_progn(s), e);
+    // Add some convenient wrappers
+    vm.eval_string = function(s, e, is_boot) {
+        return vm.eval_sexp(vm.parse_forms_progn(s), e, is_boot);
     };
-    vm.eval_bytecode = function(c, e) {
-        return vm.eval_sexp(vm.parse_bytecode(c), e);
+    vm.eval_bytecode = function(c, e, is_boot) {
+        return vm.eval_sexp(vm.parse_bytecode(c), e, is_boot);
     };
 
     // Finally, we run the Lisp boot bytecode, i.e. the preparsed Lisp
     // code from the file `bootstrap.lisp', that sets up the
     // user-level language.
-    vm.eval_bytecode(boot_bytecode);
+    vm.eval_bytecode(boot_bytecode, vm.init_env, true);
     
     return vm;
 };
