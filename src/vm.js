@@ -480,7 +480,10 @@ vm.ContinuationBarrier = vm.prim("%%continuation-barrier", function(self, e, o, 
     var x = vm.elt(o, 0);
     var res = vm.evaluate(e, x);
     if (res instanceof Suspension) {
-        vm.panic("continuation barrier breach");
+        // Could do better here: instead of panicking, signal a
+        // condition.  But this might have weird interactions with the
+        // debugger and/or condition system.
+        vm.panic("Continuation attemped to escape. Forgot to push a prompt?");
     } else {
         return res;
     }

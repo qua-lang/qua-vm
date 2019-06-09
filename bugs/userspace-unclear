@@ -1,9 +1,51 @@
 It should be like this:
 
-PUSH-USERSPACE happens automatically:
+(CONTINUATION-BARRIER (PUSH-PROMPT +USER-PROMPT+ ...)) happens automatically:
 
-- at VM toplevel entry calls (eval_string() etc)
-- inside synchronous JS-LAMBDAs and asynchronous JS-CALLBACKs
+- around VM toplevel entry calls (eval_string() etc)*
+- around synchronous JS-LAMBDAs and asynchronous JS-CALLBACKs*
+(* implicitly due to PUSH-USERSPACE)
+
+(PUSH-USERSPACE ...) happens automatically:
+
+- around VM toplevel entry calls (eval_string() etc)
+- asynchronous JS-CALLBACKs
 
 PUSH-USERSPACE adds a CONTINUATION-BARRIER, so trying to escape it
 always raises.
+
+
+Here's a diff how it might work?
+
+ (defmacro js-lambda (lambda-list . body)
+-  (list #'js-function
+-        (list #'lambda lambda-list
+-              (list #'%%continuation-barrier
+-                    (list #'push-userspace
+-                          (list* #'progn body))))))
+-(def #'function #'js-lambda) ; alternative name
++  (list #'js-function ;; turn inner Lisp combiner into JS function
++        (list #'lambda lambda-list ;; inner Lisp combiner
++              (list #'%%continuation-barrier ;; prevent continuation escape
++                    (list* #'push-prompt +user-prompt+ ;; get stack trace until here
++                           body))))) ;; user body
++
++;;; JS-CALLBACK
++(defmacro js-callback (lambda-list . body)
++  (list #'js-function ;; turn inner Lisp combiner into JS function
++        (list #'lambda lambda-list ;; inner Lisp combiner
++              (list #'push-userspace
++                    body))))
++
++;;;; Userspace
++
++;;; Delimits all user interactions, so that stack traces can be taken.
++(defconstant +user-prompt+ :user-prompt)
++
++;;; Wrapped around all user code.  Provides useful handler bindings,
++;;; prompts, and other dynamic stuff.
++(deffexpr push-userspace body env
++  (continuation-barrier
++   (push-prompt +user-prompt+
++                (dynamic-bind ((*standard-input* (%arch-standard-input))
++                               (*standard-output* (%arch-standard-output)))
