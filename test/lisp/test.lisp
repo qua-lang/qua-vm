@@ -13,7 +13,7 @@
   (make-instance 'condition-not-signaled :condition-type condition-type))
 (defun %expect-condition (condition-type #'thunk)
   (block ok
-    (handler-bind ((object
+    (handler-bind ((#any
 		    (lambda (condition)
 		      (if (type? condition condition-type)
 			  (return-from ok)
@@ -294,6 +294,8 @@
 (%expect '(1 2 3 4) (append-lists '(1 2) '(3 4)))
 
 ;;;; Subclassing
+(%assert (type? 12 #any))
+
 (%assert (type? (make-instance 'simple-error) 'object))
 (%assert (not (type? (make-instance 'object) 'simple-error)))
 
@@ -487,9 +489,9 @@
 (%expect 1 (typecase 10 (number 1) (boolean 2)))
 (%expect #void (typecase "foo" (number 1) (boolean 2)))
 
-(%expect "default" (typecase 'whatever (#t "default")))
-(%expect 1 (typecase 'whatever (symbol 1) (#t "default")))
-(%expect "default" (typecase 'whatever (number 1) (#t "default")))
+(%expect "default" (typecase 'whatever (#any "default")))
+(%expect 1 (typecase 'whatever (symbol 1) (#any "default")))
+(%expect "default" (typecase 'whatever (number 1) (#any "default")))
 
 (%expect 4 (the object (+ 2 2)))
 (%expect 4 (the number (+ 2 2)))

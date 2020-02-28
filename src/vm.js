@@ -32,6 +32,7 @@ vm.is_nil = function(obj) { return obj === vm.NIL; };
 /* Add'l forms */
 vm.Ign = function Ign() {}; vm.IGN = new vm.Ign();
 vm.Void = function Void() {}; vm.VOID = new vm.Void();
+vm.Any = function Any() {}; vm.ANY = new vm.Any();
 /* Evaluation */
 vm.evaluate = function(e, x) {
     if (x && x.qua_evaluate) {
@@ -857,6 +858,7 @@ vm.init = function() {
     define_builtin_type(vm.Sym, "symbol");
     define_builtin_type(vm.Tag, "%%tag");
     define_builtin_type(vm.Void, "void");
+    define_builtin_type(vm.Any, "any");
     define_builtin_type(StackFrame, "continuation");
     // Synthetic/virtual classes given to JS built-in objects, so we
     // can define methods on them.

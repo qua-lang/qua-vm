@@ -565,15 +565,17 @@
   (default-type? obj type-spec))
 
 (defun default-type? (obj type-spec)
-  (let ((c (find-class type-spec)))
-    (or (eq c (class object))
-	(eq c (class-of obj)))))
+  (if (eq type-spec #any)
+      #t
+    (let ((c (find-class type-spec)))
+      (or (eq c (class object))
+          (eq c (class-of obj))))))
 
 (deffexpr typecase (expr . clauses) env
   (let ((val (eval expr env)))
     (block match
       (list-for-each (lambda ((type-spec . body))
-                       (if (eq type-spec #t)
+                       (if (eq type-spec #any)
                            (return-from match (eval (list* #'progn body) env))
                            (when (type? val type-spec)
                              (return-from match (eval (list* #'progn body) env)))))
@@ -657,7 +659,6 @@
   handler-function)
 
 (defun make-condition-handler (condition-type handler-function)
-  (the symbol condition-type)
   (the function handler-function)
   (make-instance 'condition-handler
 		 :condition-type condition-type

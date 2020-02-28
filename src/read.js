@@ -47,6 +47,7 @@ module.exports = function(vm, init_env) {
             switch(obj) {
             case "#ign": return vm.IGN;
             case "#void": return vm.VOID;
+            case "#any": return vm.ANY;
             default: return vm.sym(obj);
             }
         case "[object Array]": return vm.parse_bytecode_array(obj);
@@ -155,6 +156,7 @@ function make_constant_stx(string, constant) { return action(string, function(as
 var nil_stx = make_constant_stx("#nil", []);
 var ign_stx = make_constant_stx("#ign", "#ign");
 var void_stx = make_constant_stx("#void", "#void");
+var any_stx = make_constant_stx("#any", "#any");
 var t_stx = make_constant_stx("#t", true);
 var f_stx = make_constant_stx("#f", false);
 var null_stx = make_constant_stx("#null", null);
@@ -169,6 +171,6 @@ var quote_stx = action(sequence("'", x_stx), function(ast) { return ["quote", as
 function Comment(text) { this.text = text; };
 var comment_stx = action(sequence(";", repeat0(negate(line_terminator)), optional(line_terminator)),
                          function(ignored) { return new Comment(ignored); });
-var x_stx = whitespace(choice(ign_stx, void_stx, nil_stx, t_stx, f_stx, null_stx, undef_stx, number_stx,
+var x_stx = whitespace(choice(ign_stx, void_stx, any_stx, nil_stx, t_stx, f_stx, null_stx, undef_stx, number_stx,
                               quote_stx, compound_stx, keyword_stx, id_stx, string_stx, comment_stx));
 var program_stx = repeat0(x_stx);
